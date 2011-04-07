@@ -31,40 +31,11 @@ namespace itk
 {
 /** \class RegionBasedLevelSetFunctionSharedData
  *
- * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
- *
- * This class holds cache data used during the computation of the LevelSet updates.
- *
- * Based on the paper:
- *
- *        "An active contour model without edges"
- *         T. Chan and L. Vese.
- *         In Scale-Space Theories in Computer Vision, pages 141-151, 1999.
- *
- * \author Mosaliganti K., Smith B., Gelas A., Gouaillard A., Megason S.
- *
- *  This code was taken from the Insight Journal paper:
- *
- *      "Cell Tracking using Coupled Active Surfaces for Nuclei and Membranes"
- *      http://www.insight-journal.org/browse/publication/642
- *      http://hdl.handle.net/10380/3055
- *
- *  That is based on the papers:
- *
- *      "Level Set Segmentation: Active Contours without edge"
- *      http://www.insight-journal.org/browse/publication/322
- *      http://hdl.handle.net/1926/1532
- *
- *      and
- *
- *      "Level set segmentation using coupled active surfaces"
- *      http://www.insight-journal.org/browse/publication/323
- *      http://hdl.handle.net/1926/1533
- *
+ * \brief Helper class used to partition domain and efficiently compute overlap.
  *
  */
-template< class TInputImage, class TFeatureImage, class TSingleData >
-class RegionBasedLevelSetFunctionSharedData:public LightObject
+template< class TInputImage, class TFeatureImage >
+class RegionBasedLevelSetFunctionSharedData : public LightObject
 {
 public:
 
@@ -122,33 +93,15 @@ public:
   typedef typename TreeGeneratorType::KdTreeType            TreeType;
   typedef typename TreeType::Pointer                        KdTreePointer;
 
-  typedef TSingleData                                  LevelSetDataType;
-  typedef typename LevelSetDataType::Pointer           LevelSetDataPointer;
-  typedef std::vector< LevelSetDataPointer >           LevelSetDataPointerVector;
-  typedef typename LevelSetDataPointerVector::iterator LevelSetDataPointerVectorIterator;
 
   void SetFunctionCount(const unsigned int & n)
   {
     this->m_FunctionCount = n;
-    this->m_LevelSetDataPointerVector.resize(n, 0);
-
-    LevelSetDataPointerVectorIterator it = m_LevelSetDataPointerVector.begin();
-    LevelSetDataPointerVectorIterator end = m_LevelSetDataPointerVector.end();
-    while ( it != end )
-      {
-      ( *it ) = LevelSetDataType::New();
-      it++;
-      }
   }
 
   void SetNumberOfNeighbors(const unsigned int & n)
   {
     this->m_NumberOfNeighbors = n;
-  }
-
-  void CreateHeavisideFunctionOfLevelSetImage(const unsigned int & j, const InputImageType *image)
-  {
-    m_LevelSetDataPointerVector[j]->CreateHeavisideFunctionOfLevelSetImage(image);
   }
 
   void SetKdTree(KdTreePointer kdtree)
@@ -166,15 +119,23 @@ public:
 
   virtual void PopulateListImage() = 0;
 
-  LevelSetDataPointerVector m_LevelSetDataPointerVector;
-
   unsigned int     m_FunctionCount;
   unsigned int     m_NumberOfNeighbors;
   ListImagePointer m_NearestNeighborListImage;
   KdTreePointer    m_KdTree;
+  bool             m_UsePartitionedDomain;
+
 protected:
-  RegionBasedLevelSetFunctionSharedData():m_NumberOfNeighbors(6), m_KdTree(0){}
+  RegionBasedLevelSetFunctionSharedData()
+  {
+    m_NumberOfNeighbors = 6;
+    m_NearestNeighborListImage = 0;
+    m_KdTree = 0;
+    m_UsePartitionedDomain = true;
+  }
+
   ~RegionBasedLevelSetFunctionSharedData(){}
+
 private:
   RegionBasedLevelSetFunctionSharedData(const Self &); //purposely not
                                                        // implemented
