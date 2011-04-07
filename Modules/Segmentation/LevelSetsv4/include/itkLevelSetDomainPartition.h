@@ -15,26 +15,26 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkLevelSetDomainPartion_h
-#define __itkLevelSetDomainPartion_h
+#ifndef __itkLevelSetDomainPartition_h
+#define __itkLevelSetDomainPartition_h
 
-#include "itkLevelSetDomainPartionBase.h"
+#include "itkLevelSetDomainPartitionBase.h"
 
 namespace itk
 {
-/** \class LevelSetDomainPartion
+/** \class LevelSetDomainPartition
  *
  * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
  *
  */
-template< class TInputImage, class TFeatureImage, class TSingleData >
-class LevelSetDomainPartion:
-  public LevelSetDomainPartitionBase< TInputImage, TFeatureImage, TSingleData >
+template< class TInputImage, class TFeatureImage >
+class LevelSetDomainPartition:
+  public LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
 {
 public:
 
-  typedef LevelSetDomainPartion Self;
-  typedef RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage, TSingleData >
+  typedef LevelSetDomainPartition Self;
+  typedef LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
   Superclass;
   typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
@@ -44,7 +44,7 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkTypeMacro(LevelSetDomainPartion, RegionBasedLevelSetFunctionSharedData);
+  itkTypeMacro(LevelSetDomainPartition, LevelSetDomainPartitionBase );
 
   typedef TInputImage                                 InputImageType;
   typedef typename Superclass::InputImagePointer      InputImagePointer;
@@ -89,11 +89,6 @@ public:
   typedef typename Superclass::TreeType           TreeType;
   typedef typename Superclass::KdTreePointer      KdTreePointer;
 
-  typedef TSingleData                                            LevelSetDataType;
-  typedef typename Superclass::LevelSetDataPointer               LevelSetDataPointer;
-  typedef typename Superclass::LevelSetDataPointerVector         LevelSetDataPointerVector;
-  typedef typename Superclass::LevelSetDataPointerVectorIterator LevelSetDataPointerVectorIterator;
-
   void PopulateListImage()
   {
     ListPixelType L;
@@ -106,10 +101,10 @@ public:
   }
 
 protected:
-  LevelSetDomainPartion():Superclass(){}
-  ~LevelSetDomainPartion(){}
+  LevelSetDomainPartition():Superclass(){}
+  ~LevelSetDomainPartition(){}
 private:
-  LevelSetDomainPartion(const Self &); //purposely
+  LevelSetDomainPartition(const Self &); //purposely
                                                                     // not
                                                                     // implemented
   void operator=(const Self &);                                     //purposely

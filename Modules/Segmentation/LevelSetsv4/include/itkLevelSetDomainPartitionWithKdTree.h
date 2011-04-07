@@ -15,26 +15,26 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkLevelSetDomainPartionWithKdTree_h
-#define __itkLevelSetDomainPartionWithKdTree_h
+#ifndef __itkLevelSetDomainPartitionWithKdTree_h
+#define __itkLevelSetDomainPartitionWithKdTree_h
 
-#include "itkLevelSetDomainPartionBase.h"
+#include "itkLevelSetDomainPartitionBase.h"
 
 namespace itk
 {
-/** \class LevelSetDomainPartionWithKdTree
+/** \class LevelSetDomainPartitionWithKdTree
  *
  * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
  *
  */
 template< class TInputImage, class TFeatureImage >
-class LevelSetDomainPartionWithKdTree:
-  public RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage >
+class LevelSetDomainPartitionWithKdTree:
+  public LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
 {
 public:
 
-  typedef LevelSetDomainPartionWithKdTree Self;
-  typedef RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage >
+  typedef LevelSetDomainPartitionWithKdTree Self;
+  typedef LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
     Superclass;
   typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
@@ -44,7 +44,7 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkTypeMacro(LevelSetDomainPartionWithKdTree, RegionBasedLevelSetFunctionSharedData);
+  itkTypeMacro(LevelSetDomainPartitionWithKdTree, LevelSetDomainPartitionBase);
 
   typedef TInputImage                                   InputImageType;
   typedef typename Superclass::InputImagePointer        InputImagePointer;
@@ -143,12 +143,12 @@ public:
   }
 
 protected:
-  LevelSetDomainPartionWithKdTree():Superclass(){}
-  ~LevelSetDomainPartionWithKdTree(){}
+  LevelSetDomainPartitionWithKdTree():Superclass(){}
+  ~LevelSetDomainPartitionWithKdTree(){}
 
 private:
   //purposely not implemented
-  LevelSetDomainPartionWithKdTree(const Self &);
+  LevelSetDomainPartitionWithKdTree(const Self &);
   //purposely not implemented
   void operator=(const Self &);
 };

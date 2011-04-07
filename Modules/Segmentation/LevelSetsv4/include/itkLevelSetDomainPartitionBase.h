@@ -15,8 +15,8 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkLevelSetDomainPartionBase_h
-#define __itkLevelSetDomainPartionBase_h
+#ifndef __itkLevelSetDomainPartitionBase_h
+#define __itkLevelSetDomainPartitionBase_h
 
 #include "itkLightObject.h"
 
@@ -29,24 +29,24 @@
 
 namespace itk
 {
-/** \class LevelSetDomainPartionBase
+/** \class LevelSetDomainPartitionBase
  *
  * \brief Helper class used to partition domain and efficiently compute overlap.
  *
  */
 template< class TInputImage, class TFeatureImage >
-class LevelSetDomainPartionBase : public LightObject
+class LevelSetDomainPartitionBase : public LightObject
 {
 public:
 
-  typedef LevelSetDomainPartionBase             Self;
+  typedef LevelSetDomainPartitionBase             Self;
   typedef LightObject                           Superclass;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
 
   itkStaticConstMacro(ImageDimension, unsigned int, TFeatureImage::ImageDimension);
 
-  itkTypeMacro(LevelSetDomainPartionBase, LightObject);
+  itkTypeMacro(LevelSetDomainPartitionBase, LightObject);
 
   typedef TInputImage                             InputImageType;
   typedef typename InputImageType::Pointer        InputImagePointer;
@@ -126,7 +126,7 @@ public:
   bool             m_UsePartitionedDomain;
 
 protected:
-  LevelSetDomainPartionBase()
+  LevelSetDomainPartitionBase()
   {
     m_NumberOfNeighbors = 6;
     m_NearestNeighborListImage = 0;
@@ -134,10 +134,10 @@ protected:
     m_UsePartitionedDomain = true;
   }
 
-  ~LevelSetDomainPartionBase(){}
+  ~LevelSetDomainPartitionBase(){}
 
 private:
-  LevelSetDomainPartionBase(const Self &); //purposely not
+  LevelSetDomainPartitionBase(const Self &); //purposely not
                                                        // implemented
   void operator=(const Self &);                        //purposely not
                                                        // implemented

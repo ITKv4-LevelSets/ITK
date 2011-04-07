@@ -26,40 +26,40 @@
 namespace itk
 {
 
-// template < class TInputImage, class TFeatureImage >
-// class LevelSetDomainPartitionBaseHelper
-//   : public LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
-// {
-// public:
-//   /** Standard class typedefs. */
-//   typedef LevelSetDomainPartitionBaseHelper                         Self;
-//   typedef LevelSetDomainPartitionBase< TInputImage, TFeatureImage > Superclass;
-//   typedef SmartPointer<Self>                                        Pointer;
-//   typedef SmartPointer<const Self>                                  ConstPointer;
+template < class TInputImage, class TFeatureImage >
+class LevelSetDomainPartitionBaseHelper
+  : public LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
+{
+public:
+  /** Standard class typedefs. */
+  typedef LevelSetDomainPartitionBaseHelper                         Self;
+  typedef LevelSetDomainPartitionBase< TInputImage, TFeatureImage > Superclass;
+  typedef SmartPointer<Self>                                        Pointer;
+  typedef SmartPointer<const Self>                                  ConstPointer;
 
-//   /** Run-time type information (and related methods) */
-//   itkTypeMacro( LevelSetDomainPartitionBaseHelper, LevelSetDomainPartitionBase );
+  /** Run-time type information (and related methods) */
+  itkTypeMacro( LevelSetDomainPartitionBaseHelper, LevelSetDomainPartitionBase );
 
-//   itkNewMacro( Self );
+  itkNewMacro( Self );
 
-//   virtual void PopulateListImage() {}
-// };
+  virtual void PopulateListImage() {}
+};
 
 }
 
 
-int itkLevelSetDomainPartitionTest( int, char* [] )
+int itkLevelSetDomainPartitionBaseTest( int, char* [] )
 {
-//   const unsigned int Dimension = 3;
+  const unsigned int Dimension = 3;
 
-//   typedef itk::Image< double, Dimension >         LevelSetImageType;
-//   typedef itk::Image< unsigned char, Dimension >  FeatureImageType;
+  typedef itk::Image< double, Dimension >         LevelSetImageType;
+  typedef itk::Image< unsigned char, Dimension >  FeatureImageType;
 
-//   typedef itk::LevelSetDomainPartitionBaseHelper< LevelSetImageType, FeatureImageType >
-//     DomainPartitionBaseHelperType;
+  typedef itk::LevelSetDomainPartitionBaseHelper< LevelSetImageType, FeatureImageType >
+    DomainPartitionBaseHelperType;
 
-//   DomainPartionBaseHelperType::Pointer function = DomainPartitionBaseHelperType::New();
-//   function->SetFunctionCount( 2 );
+  DomainPartitionBaseHelperType::Pointer function = DomainPartitionBaseHelperType::New();
+  function->SetFunctionCount( 2 );
 
 //   std::cout << "GetNameOfClass() = " << function->GetNameOfClass() << std::endl;
 //   function->Print( std::cout );
