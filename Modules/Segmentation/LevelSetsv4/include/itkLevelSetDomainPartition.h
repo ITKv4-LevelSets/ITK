@@ -33,9 +33,9 @@ class LevelSetDomainPartition:
 {
 public:
 
-  typedef LevelSetDomainPartition Self;
+  typedef LevelSetDomainPartition    Self;
   typedef LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
-  Superclass;
+                                     Superclass;
   typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
 
