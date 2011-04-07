@@ -15,25 +15,25 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkUnconstrainedRegionBasedLevelSetFunctionSharedData_h
-#define __itkUnconstrainedRegionBasedLevelSetFunctionSharedData_h
+#ifndef __itkLevelSetDomainPartion_h
+#define __itkLevelSetDomainPartion_h
 
-#include "itkRegionBasedLevelSetFunctionSharedData.h"
+#include "itkLevelSetDomainPartionBase.h"
 
 namespace itk
 {
-/** \class UnconstrainedRegionBasedLevelSetFunctionSharedData
+/** \class LevelSetDomainPartion
  *
  * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
  *
  */
 template< class TInputImage, class TFeatureImage, class TSingleData >
-class UnconstrainedRegionBasedLevelSetFunctionSharedData:
-  public RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage, TSingleData >
+class LevelSetDomainPartion:
+  public LevelSetDomainPartitionBase< TInputImage, TFeatureImage, TSingleData >
 {
 public:
 
-  typedef UnconstrainedRegionBasedLevelSetFunctionSharedData Self;
+  typedef LevelSetDomainPartion Self;
   typedef RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage, TSingleData >
   Superclass;
   typedef SmartPointer< Self >       Pointer;
@@ -44,7 +44,7 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkTypeMacro(UnconstrainedRegionBasedLevelSetFunctionSharedData, RegionBasedLevelSetFunctionSharedData);
+  itkTypeMacro(LevelSetDomainPartion, RegionBasedLevelSetFunctionSharedData);
 
   typedef TInputImage                                 InputImageType;
   typedef typename Superclass::InputImagePointer      InputImagePointer;
@@ -106,10 +106,10 @@ public:
   }
 
 protected:
-  UnconstrainedRegionBasedLevelSetFunctionSharedData():Superclass(){}
-  ~UnconstrainedRegionBasedLevelSetFunctionSharedData(){}
+  LevelSetDomainPartion():Superclass(){}
+  ~LevelSetDomainPartion(){}
 private:
-  UnconstrainedRegionBasedLevelSetFunctionSharedData(const Self &); //purposely
+  LevelSetDomainPartion(const Self &); //purposely
                                                                     // not
                                                                     // implemented
   void operator=(const Self &);                                     //purposely

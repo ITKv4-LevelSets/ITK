@@ -15,8 +15,8 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkRegionBasedLevelSetFunctionSharedData_h
-#define __itkRegionBasedLevelSetFunctionSharedData_h
+#ifndef __itkDomainPartitionBase_h
+#define __itkDomainPartitionBase_h
 
 #include "itkLightObject.h"
 
@@ -29,24 +29,24 @@
 
 namespace itk
 {
-/** \class RegionBasedLevelSetFunctionSharedData
+/** \class DomainPartitionBase
  *
  * \brief Helper class used to partition domain and efficiently compute overlap.
  *
  */
 template< class TInputImage, class TFeatureImage >
-class RegionBasedLevelSetFunctionSharedData : public LightObject
+class DomainPartitionBase : public LightObject
 {
 public:
 
-  typedef RegionBasedLevelSetFunctionSharedData Self;
+  typedef DomainPartitionBase Self;
   typedef LightObject                           Superclass;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
 
   itkStaticConstMacro(ImageDimension, unsigned int, TFeatureImage::ImageDimension);
 
-  itkTypeMacro(RegionBasedLevelSetFunctionSharedData, LightObject);
+  itkTypeMacro(DomainPartitionBase, LightObject);
 
   typedef TInputImage                             InputImageType;
   typedef typename InputImageType::Pointer        InputImagePointer;
@@ -86,7 +86,7 @@ public:
   typedef ImageRegionIteratorWithIndex< ListImageType > ListIteratorType;
 
   typedef Vector< float, itkGetStaticConstMacro(ImageDimension) >
-  CentroidVectorType;
+    CentroidVectorType;
   typedef itk::Statistics::ListSample< CentroidVectorType > SampleType;
   typedef itk::Statistics::KdTreeGenerator< SampleType >    TreeGeneratorType;
   typedef typename TreeGeneratorType::Pointer               TreePointer;
@@ -126,7 +126,7 @@ public:
   bool             m_UsePartitionedDomain;
 
 protected:
-  RegionBasedLevelSetFunctionSharedData()
+  DomainPartitionBase()
   {
     m_NumberOfNeighbors = 6;
     m_NearestNeighborListImage = 0;
@@ -134,10 +134,10 @@ protected:
     m_UsePartitionedDomain = true;
   }
 
-  ~RegionBasedLevelSetFunctionSharedData(){}
+  ~DomainPartitionBase(){}
 
 private:
-  RegionBasedLevelSetFunctionSharedData(const Self &); //purposely not
+  DomainPartitionBase(const Self &); //purposely not
                                                        // implemented
   void operator=(const Self &);                        //purposely not
                                                        // implemented

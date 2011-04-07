@@ -15,25 +15,25 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkConstrainedRegionBasedLevelSetFunctionSharedData_h
-#define __itkConstrainedRegionBasedLevelSetFunctionSharedData_h
+#ifndef __itkLevelSetDomainPartionWithKdTree_h
+#define __itkLevelSetDomainPartionWithKdTree_h
 
-#include "itkRegionBasedLevelSetFunctionSharedData.h"
+#include "itkLevelSetDomainPartionBase.h"
 
 namespace itk
 {
-/** \class ConstrainedRegionBasedLevelSetFunctionSharedData
+/** \class LevelSetDomainPartionWithKdTree
  *
  * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
  *
  */
 template< class TInputImage, class TFeatureImage >
-class ConstrainedRegionBasedLevelSetFunctionSharedData:
+class LevelSetDomainPartionWithKdTree:
   public RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage >
 {
 public:
 
-  typedef ConstrainedRegionBasedLevelSetFunctionSharedData Self;
+  typedef LevelSetDomainPartionWithKdTree Self;
   typedef RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage >
     Superclass;
   typedef SmartPointer< Self >       Pointer;
@@ -44,7 +44,7 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkTypeMacro(ConstrainedRegionBasedLevelSetFunctionSharedData, RegionBasedLevelSetFunctionSharedData);
+  itkTypeMacro(LevelSetDomainPartionWithKdTree, RegionBasedLevelSetFunctionSharedData);
 
   typedef TInputImage                                   InputImageType;
   typedef typename Superclass::InputImagePointer        InputImagePointer;
@@ -143,12 +143,12 @@ public:
   }
 
 protected:
-  ConstrainedRegionBasedLevelSetFunctionSharedData():Superclass(){}
-  ~ConstrainedRegionBasedLevelSetFunctionSharedData(){}
+  LevelSetDomainPartionWithKdTree():Superclass(){}
+  ~LevelSetDomainPartionWithKdTree(){}
 
 private:
   //purposely not implemented
-  ConstrainedRegionBasedLevelSetFunctionSharedData(const Self &);
+  LevelSetDomainPartionWithKdTree(const Self &);
   //purposely not implemented
   void operator=(const Self &);
 };
