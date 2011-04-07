@@ -39,7 +39,7 @@ class LevelSetDomainPartionBase : public LightObject
 {
 public:
 
-  typedef LevelSetDomainPartionBase Self;
+  typedef LevelSetDomainPartionBase             Self;
   typedef LightObject                           Superclass;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
