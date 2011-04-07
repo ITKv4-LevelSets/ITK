@@ -15,8 +15,8 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkDomainPartitionBase_h
-#define __itkDomainPartitionBase_h
+#ifndef __itkLevelSetDomainPartionBase_h
+#define __itkLevelSetDomainPartionBase_h
 
 #include "itkLightObject.h"
 
@@ -29,24 +29,24 @@
 
 namespace itk
 {
-/** \class DomainPartitionBase
+/** \class LevelSetDomainPartionBase
  *
  * \brief Helper class used to partition domain and efficiently compute overlap.
  *
  */
 template< class TInputImage, class TFeatureImage >
-class DomainPartitionBase : public LightObject
+class LevelSetDomainPartionBase : public LightObject
 {
 public:
 
-  typedef DomainPartitionBase Self;
+  typedef LevelSetDomainPartionBase Self;
   typedef LightObject                           Superclass;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
 
   itkStaticConstMacro(ImageDimension, unsigned int, TFeatureImage::ImageDimension);
 
-  itkTypeMacro(DomainPartitionBase, LightObject);
+  itkTypeMacro(LevelSetDomainPartionBase, LightObject);
 
   typedef TInputImage                             InputImageType;
   typedef typename InputImageType::Pointer        InputImagePointer;
@@ -126,7 +126,7 @@ public:
   bool             m_UsePartitionedDomain;
 
 protected:
-  DomainPartitionBase()
+  LevelSetDomainPartionBase()
   {
     m_NumberOfNeighbors = 6;
     m_NearestNeighborListImage = 0;
@@ -134,10 +134,10 @@ protected:
     m_UsePartitionedDomain = true;
   }
 
-  ~DomainPartitionBase(){}
+  ~LevelSetDomainPartionBase(){}
 
 private:
-  DomainPartitionBase(const Self &); //purposely not
+  LevelSetDomainPartionBase(const Self &); //purposely not
                                                        // implemented
   void operator=(const Self &);                        //purposely not
                                                        // implemented

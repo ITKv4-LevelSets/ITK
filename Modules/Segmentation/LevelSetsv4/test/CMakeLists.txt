@@ -1,9 +1,9 @@
 itk_module_test()
-set(ITK-LevelSetsTests-v4
+set(ITK-LevelSetsv4Tests
 itkLevelSetDomainPartitionBaseTest.cxx
 )
 
-CreateTestDriver(ITK-LevelSets-v4  "${ITK-LevelSets-Test_LIBRARIES}" "${ITK-LevelSetsTests-v4}")
+CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
 
 add_test(NAME itkLevelSetDomainPartitionBaseTest
       COMMAND ITK-LevelSets-v4TestDriver itkLevelSetDomainPartitionBaseTest)
