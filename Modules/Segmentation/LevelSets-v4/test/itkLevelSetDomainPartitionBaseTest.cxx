@@ -19,78 +19,50 @@
 #pragma warning ( disable : 4786 )
 #endif
 
-#include "itkMultiphaseDenseFiniteDifferenceImageFilter.h"
-#include "itkScalarChanAndVeseLevelSetFunction.h"
+#include "itkLevelSetDomainPartitionBase.h"
 #include "itkImage.h"
 #include "itkTestingMacros.h"
 
 namespace itk
 {
 
-template < class TInputImage, class TFeatureImage, class TOutputImage,
-  class TFiniteDifferenceFunction, typename TIdCell >
-class MultiphaseDenseFiniteDifferenceImageFilterTestHelper
-  : public MultiphaseDenseFiniteDifferenceImageFilter<
-      TInputImage, TFeatureImage, TOutputImage,
-      TFiniteDifferenceFunction, TIdCell >
+template < class TInputImage, class TFeatureImage >
+class LevelSetDomainPartitionBaseHelper
+  : public LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
 {
 public:
   /** Standard class typedefs. */
-  typedef MultiphaseDenseFiniteDifferenceImageFilterTestHelper      Self;
-  typedef MultiphaseDenseFiniteDifferenceImageFilter< TInputImage, TFeatureImage,
-    TOutputImage,TFiniteDifferenceFunction >                        Superclass;
+  typedef LevelSetDomainPartitionBaseHelper                         Self;
+  typedef LevelSetDomainPartitionBase< TInputImage, TFeatureImage > Superclass;
   typedef SmartPointer<Self>                                        Pointer;
   typedef SmartPointer<const Self>                                  ConstPointer;
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro( MultiphaseDenseFiniteDifferenceImageFilterTestHelper, MultiphaseDenseFiniteDifferenceImageFilter );
+  itkTypeMacro( LevelSetDomainPartitionBaseHelper, LevelSetDomainPartitionBase );
 
   itkNewMacro( Self );
 
-  virtual void AllocateUpdateBuffer() {}
-
-  typedef typename Superclass::TimeStepType   TimeStepType;
-
-  virtual void ApplyUpdate(TimeStepType itkNotUsed(dt) ) {}
-
-  virtual TimeStepType CalculateChange()
-    {
-    return TimeStepType( 1.0 );
-    }
-
-  virtual void CopyInputToOutput() {}
-
+  virtual void PopulateListImage() {}
 };
-
 
 }
 
-int itkDomainPartitionTest( int, char* [] )
+
+int itkLevelSetDomainPartitionTest( int, char* [] )
 {
   const unsigned int Dimension = 3;
 
   typedef itk::Image< double, Dimension >         LevelSetImageType;
   typedef itk::Image< unsigned char, Dimension >  FeatureImageType;
 
-  typedef itk::ConstrainedRegionBasedLevelSetFunctionSharedData< LevelSetImageType,
-    FeatureImageType, DataHelperType >            SharedDataHelperType;
+  typedef itk::LevelSetDomainPartitionBaseHelper< LevelSetImageType, FeatureImageType >
+    DomainPartitionBaseHelperType;
 
-  typedef itk::ScalarChanAndVeseLevelSetFunction< LevelSetImageType, FeatureImageType,
-    SharedDataHelperType >                        RegionBasedLevelSetFunctionType;
+  DomainPartionBaseHelperType::Pointer function = DomainPartitionBaseHelperType::New();
+  function->SetFunctionCount( 2 );
 
-  RegionBasedLevelSetFunctionType::Pointer function = RegionBasedLevelSetFunctionType::New();
-
-  typedef unsigned long IdCellType;
-
-  typedef itk::MultiphaseDenseFiniteDifferenceImageFilterTestHelper< LevelSetImageType,
-    FeatureImageType, OutputImageType, RegionBasedLevelSetFunctionType,
-    IdCellType >  FilterType;
-
-  FilterType::Pointer filter = FilterType::New();
-
-  std::cout << "GetNameOfClass() = " << filter->GetNameOfClass() << std::endl;
-  filter->Print( std::cout );
-
+//   std::cout << "GetNameOfClass() = " << function->GetNameOfClass() << std::endl;
+//   function->Print( std::cout );
 
   return EXIT_SUCCESS;
 }
