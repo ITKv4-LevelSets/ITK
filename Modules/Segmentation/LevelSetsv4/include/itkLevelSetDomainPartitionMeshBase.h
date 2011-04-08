@@ -29,12 +29,12 @@ namespace itk
  */
 template< class TMesh >
 class LevelSetDomainPartitionMeshBase :
-  public LevelSetDomainPartitionBase
+  public LevelSetDomainPartitionBase< TMesh >
 {
 public:
 
-  typedef LevelSetDomainPartitionMeshBase      Self;
-  typedef LevelSetDomainPartitionBase           Superclass;
+  typedef LevelSetDomainPartitionMeshBase       Self;
+  typedef LevelSetDomainPartitionBase< TMesh >  Superclass;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
 
@@ -52,9 +52,9 @@ public:
   typedef typename MeshType::PointsContainerConstIterator
                                                     PointsContainerConstIterator;
 
-  typedef typename Superclass::ListPixelType ListPixelType;
+  typedef typename Superclass::IdentifierListType IdentifierListType;
 
-  typedef std::map< PointIdentifierType, ListPixelType > ListMeshType;
+  typedef std::map< PointIdentifierType, IdentifierListType > ListMeshType;
 
   void SetMesh( MeshPointer iMesh )
   {
@@ -80,7 +80,7 @@ protected:
     while( p_it != p_end )
       {
       PointIdentifierType idx = p_it->Index();
-      ListPixelType L;
+      IdentifierListType L;
 
       for( unsigned int i = 0; i < this->m_FunctionCount; ++i )
         {

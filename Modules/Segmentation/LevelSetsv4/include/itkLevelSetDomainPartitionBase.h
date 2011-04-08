@@ -42,7 +42,9 @@ public:
 
   itkTypeMacro(LevelSetDomainPartitionBase, LightObject);
 
-  typedef std::list< IdentifierType > ListPixelType;
+  typedef std::list< IdentifierType >                 IdentifierListType;
+  typedef typename IdentifierListType::iterator       IdentifierListIterator;
+  typedef typename IdentifierListType::const_iterator IdentifierListConstIterator;
 
   void SetFunctionCount(const IdentifierType & n)
   {

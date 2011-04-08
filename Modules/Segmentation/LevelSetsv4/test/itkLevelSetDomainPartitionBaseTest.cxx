@@ -59,8 +59,15 @@ int itkLevelSetDomainPartitionBaseTest( int, char* [] )
   typedef itk::LevelSetDomainPartitionBaseHelper< ImageType >
     DomainPartitionBaseHelperType;
 
+  unsigned int count = 2;
+
   DomainPartitionBaseHelperType::Pointer function = DomainPartitionBaseHelperType::New();
-  function->SetFunctionCount( 2 );
+  function->SetFunctionCount( count );
+
+  if( function->GetFunctionCount() != count )
+    {
+    return EXIT_FAILURE;
+    }
 
 //   std::cout << "GetNameOfClass() = " << function->GetNameOfClass() << std::endl;
 //   function->Print( std::cout );

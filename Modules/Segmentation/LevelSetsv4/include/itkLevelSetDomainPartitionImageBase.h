@@ -19,6 +19,7 @@
 #define __itkLevelSetDomainPartitionImageBase_h
 
 #include "itkLevelSetDomainPartitionBase.h"
+#include "itkMacro.h"
 
 #include "itkImageRegionIteratorWithIndex.h"
 
@@ -31,12 +32,12 @@ namespace itk
  */
 template< class TImage >
 class LevelSetDomainPartitionImageBase : 
-  public LevelSetDomainPartitionBase 
+  public LevelSetDomainPartitionBase< TImage >
 {
 public:
 
   typedef LevelSetDomainPartitionImageBase      Self;
-  typedef LevelSetDomainPartitionBase           Superclass;
+  typedef LevelSetDomainPartitionBase< TImage > Superclass;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
 
@@ -57,10 +58,9 @@ public:
   typedef typename IndexType::IndexValueType IndexValueType;
   typedef typename ImageType::PointType      PointType;
 
-  typedef typename Superclass::ListPixelType ListPixelType;
+  typedef typename Superclass::IdentifierListType IdentifierListType;
 
-  typedef Image< ListPixelType, itkGetStaticConstMacro(ImageDimension) >
-  ListImageType;
+  typedef Image< IdentifierListType, ImageDimension >   ListImageType;
   typedef typename ListImageType::Pointer               ListImagePointer;
   typedef typename ListImageType::ConstPointer          ListImageConstPointer;
   typedef typename ListImageType::RegionType            ListRegionType;
@@ -98,7 +98,7 @@ protected:
     for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
       {
       ListIndexType ind = lIt.GetIndex();
-      ListPixelType L;
+      IdentifierListType L;
       for ( unsigned int i = 0; i < this->m_FunctionCount; i++ )
         {
         if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
@@ -112,6 +112,10 @@ protected:
 
   void AllocateListDomain()
   {
+    if( m_Image.IsNull() )
+      {
+      itkGenericExceptionMacro( "m_Image is null" );
+      }
     this->m_ListDomain = ListImageType::New();
     this->m_ListDomain->CopyInformation( m_Image );
     this->m_ListDomain->SetRegions( m_Image->GetLargestPossibleRegion() );

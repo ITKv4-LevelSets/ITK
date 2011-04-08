@@ -20,6 +20,9 @@
 
 #include "itkLevelSetDomainPartitionImageBase.h"
 
+#include "itkListSample.h"
+#include "itkKdTreeGenerator.h"
+
 namespace itk
 {
 /** \class LevelSetDomainPartitionImageWithKdTree
@@ -58,7 +61,7 @@ public:
   typedef typename Superclass::IndexValueType      IndexValueType;
   typedef typename Superclass::PointType           PointType;
 
-  typedef typename Superclass::ListPixelType            ListPixelType;
+  typedef typename Superclass::IdentifierListType       IdentifierListType;
   typedef typename Superclass::ListImageType            ListImageType;
   typedef typename Superclass::ListImagePointer         ListImagePointer;
   typedef typename Superclass::ListImageConstPointer    ListImageConstPointer;
@@ -71,12 +74,12 @@ public:
   typedef typename Superclass::ListPointType            ListPointType;
   typedef typename Superclass::ListIteratorType         ListIteratorType;
 
-  typedef typename ListPointType::VectorType            CentroidVectorType;
-  typedef itk::Statistics::ListSample< CentroidVectorType > SampleType;
-  typedef itk::Statistics::KdTreeGenerator< SampleType >    TreeGeneratorType;
-  typedef typename TreeGeneratorType::Pointer               TreePointer;
-  typedef typename TreeGeneratorType::KdTreeType            TreeType;
-  typedef typename TreeType::Pointer                        KdTreePointer;
+  typedef typename ListPointType::VectorType                    CentroidVectorType;
+  typedef typename Statistics::ListSample< CentroidVectorType > SampleType;
+  typedef typename Statistics::KdTreeGenerator< SampleType >    TreeGeneratorType;
+  typedef typename TreeGeneratorType::Pointer                   TreePointer;
+  typedef typename TreeGeneratorType::KdTreeType                TreeType;
+  typedef typename TreeType::Pointer                            KdTreePointer;
 
   void SetKdTree(KdTreePointer kdtree)
   {
@@ -135,7 +138,7 @@ protected:
       typename TreeType::InstanceIdentifierVectorType neighbors;
       this->m_KdTree->Search(queryPoint, this->m_NumberOfNeighbors, neighbors);
 
-      ListPixelType L;
+      IdentifierListType L;
       for ( unsigned int i = 0; i < this->m_NumberOfNeighbors; ++i )
         {
         // this is not yet defined, but it will have to be !!!
