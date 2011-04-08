@@ -34,113 +34,49 @@ namespace itk
  * \brief Helper class used to partition domain and efficiently compute overlap.
  *
  */
-template< class TInputImage, class TFeatureImage >
+template< class TDomain >
 class LevelSetDomainPartitionBase : public LightObject
 {
 public:
 
-  typedef LevelSetDomainPartitionBase             Self;
+  typedef LevelSetDomainPartitionBase           Self;
   typedef LightObject                           Superclass;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
 
-  itkStaticConstMacro(ImageDimension, unsigned int, TFeatureImage::ImageDimension);
-
   itkTypeMacro(LevelSetDomainPartitionBase, LightObject);
 
-  typedef TInputImage                             InputImageType;
-  typedef typename InputImageType::Pointer        InputImagePointer;
-  typedef typename InputImageType::ConstPointer   InputImageConstPointer;
-  typedef typename InputImageType::PixelType      InputPixelType;
-  typedef typename InputImageType::RegionType     InputRegionType;
-  typedef typename InputImageType::SizeType       InputSizeType;
-  typedef typename InputSizeType::SizeValueType   InputSizeValueType;
-  typedef typename InputImageType::SpacingType    InputSpacingType;
-  typedef typename InputImageType::IndexType      InputIndexType;
-  typedef typename InputIndexType::IndexValueType InputIndexValueType;
-  typedef typename InputImageType::PointType      InputPointType;
+  typedef std::list< IdentifierType > ListPixelType;
 
-  typedef TFeatureImage                           FeatureImageType;
-  typedef typename FeatureImageType::Pointer      FeatureImagePointer;
-  typedef typename FeatureImageType::ConstPointer FeatureImageConstPointer;
-  typedef typename FeatureImageType::PixelType    FeaturePixelType;
-  typedef typename FeatureImageType::RegionType   FeatureRegionType;
-  typedef typename FeatureImageType::SizeType     FeatureSizeType;
-  typedef typename FeatureSizeType::SizeValueType FeatureSizeValueType;
-  typedef typename FeatureImageType::SpacingType  FeatureSpacingType;
-  typedef typename FeatureImageType::IndexType    FeatureIndexType;
-  typedef typename FeatureImageType::PointType    FeaturePointType;
-
-  typedef std::list< unsigned int > ListPixelType;
-  typedef Image< ListPixelType, itkGetStaticConstMacro(ImageDimension) >
-  ListImageType;
-  typedef typename ListImageType::Pointer               ListImagePointer;
-  typedef typename ListImageType::ConstPointer          ListImageConstPointer;
-  typedef typename ListImageType::RegionType            ListRegionType;
-  typedef typename ListImageType::SizeType              ListSizeType;
-  typedef typename ListSizeType::SizeValueType          ListSizeValueType;
-  typedef typename ListImageType::SpacingType           ListSpacingType;
-  typedef typename ListImageType::IndexType             ListIndexType;
-  typedef typename ListIndexType::IndexValueType        ListIndexValueType;
-  typedef typename ListImageType::PointType             ListPointType;
-  typedef ImageRegionIteratorWithIndex< ListImageType > ListIteratorType;
-
-  typedef Vector< float, itkGetStaticConstMacro(ImageDimension) >
-    CentroidVectorType;
-  typedef itk::Statistics::ListSample< CentroidVectorType > SampleType;
-  typedef itk::Statistics::KdTreeGenerator< SampleType >    TreeGeneratorType;
-  typedef typename TreeGeneratorType::Pointer               TreePointer;
-  typedef typename TreeGeneratorType::KdTreeType            TreeType;
-  typedef typename TreeType::Pointer                        KdTreePointer;
-
-
-  void SetFunctionCount(const unsigned int & n)
+  void SetFunctionCount(const IdentifierType & n)
   {
     this->m_FunctionCount = n;
   }
 
-  void SetNumberOfNeighbors(const unsigned int & n)
+  IdentifierType GetFunctionCount() const
   {
-    this->m_NumberOfNeighbors = n;
+    return this->m_FunctionCount;
   }
-
-  void SetKdTree(KdTreePointer kdtree)
-  {
-    this->m_KdTree = kdtree;
-  }
-
-  void AllocateListImage(const FeatureImageType *featureImage)
-  {
-    this->m_NearestNeighborListImage = ListImageType::New();
-    this->m_NearestNeighborListImage->CopyInformation(featureImage);
-    this->m_NearestNeighborListImage->SetRegions( featureImage->GetLargestPossibleRegion() );
-    this->m_NearestNeighborListImage->Allocate();
-  }
-
-  virtual void PopulateListImage() = 0;
-
-  unsigned int     m_FunctionCount;
-  unsigned int     m_NumberOfNeighbors;
-  ListImagePointer m_NearestNeighborListImage;
-  KdTreePointer    m_KdTree;
-  bool             m_UsePartitionedDomain;
 
 protected:
-  LevelSetDomainPartitionBase()
-  {
-    m_NumberOfNeighbors = 6;
-    m_NearestNeighborListImage = 0;
-    m_KdTree = 0;
-    m_UsePartitionedDomain = true;
-  }
 
-  ~LevelSetDomainPartitionBase(){}
+  /** \brief Constructor */
+  LevelSetDomainPartitionBase() :
+    Superclass(), m_FunctionCount( 1 )
+  {}
+
+  /** \brief Destructor */
+  virtual ~LevelSetDomainPartitionBase(){}
+
+  virtual void AllocateListDomain() = 0;
+  virtual void PopulateListDomain() = 0;
+
+  IdentifierType m_FunctionCount;
 
 private:
-  LevelSetDomainPartitionBase(const Self &); //purposely not
-                                                       // implemented
-  void operator=(const Self &);                        //purposely not
-                                                       // implemented
+  /** purposely not implemented */
+  LevelSetDomainPartitionBase(const Self &); 
+  void operator=(const Self &);
 };
 } //end namespace itk
 

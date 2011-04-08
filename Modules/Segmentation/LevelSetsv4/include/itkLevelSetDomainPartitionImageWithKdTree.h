@@ -15,38 +15,39 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef __itkLevelSetDomainPartitionWithKdTree_h
-#define __itkLevelSetDomainPartitionWithKdTree_h
+#ifndef __itkLevelSetDomainPartitionImageWithKdTree_h
+#define __itkLevelSetDomainPartitionImageWithKdTree_h
 
 #include "itkLevelSetDomainPartitionBase.h"
 
 namespace itk
 {
-/** \class LevelSetDomainPartitionWithKdTree
+/** \class LevelSetDomainPartitionImageWithKdTree
  *
  * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
  *
  */
-template< class TInputImage, class TFeatureImage >
-class LevelSetDomainPartitionWithKdTree:
-  public LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
+template< class TImage >
+class LevelSetDomainPartitionImageWithKdTree:
+  public LevelSetDomainPartitionImageBase< TImage >
 {
 public:
 
-  typedef LevelSetDomainPartitionWithKdTree Self;
-  typedef LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
+  typedef LevelSetDomainPartitionImageWithKdTree Self;
+  typedef LevelSetDomainPartitionBase< TImage >
     Superclass;
   typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
 
-  itkStaticConstMacro(ImageDimension, unsigned int, TFeatureImage::ImageDimension);
+  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkTypeMacro(LevelSetDomainPartitionWithKdTree, LevelSetDomainPartitionBase);
+  itkTypeMacro( LevelSetDomainPartitionImageWithKdTree, 
+                LevelSetDomainPartitionImageBase);
 
-  typedef TInputImage                                   InputImageType;
+  typedef TImage                                   InputImageType;
   typedef typename Superclass::InputImagePointer        InputImagePointer;
   typedef typename Superclass::InputImageConstPointer   InputImageConstPointer;
   typedef typename Superclass::InputPixelType           InputPixelType;
@@ -57,17 +58,6 @@ public:
   typedef typename Superclass::InputIndexType           InputIndexType;
   typedef typename Superclass::InputIndexValueType      InputIndexValueType;
   typedef typename Superclass::InputPointType           InputPointType;
-
-  typedef TFeatureImage                                 FeatureImageType;
-  typedef typename Superclass::FeatureImagePointer      FeatureImagePointer;
-  typedef typename Superclass::FeatureImageConstPointer FeatureImageConstPointer;
-  typedef typename Superclass::FeaturePixelType         FeaturePixelType;
-  typedef typename Superclass::FeatureRegionType        FeatureRegionType;
-  typedef typename Superclass::FeatureSizeType          FeatureSizeType;
-  typedef typename Superclass::FeatureSizeValueType     FeatureSizeValueType;
-  typedef typename Superclass::FeatureSpacingType       FeatureSpacingType;
-  typedef typename Superclass::FeatureIndexType         FeatureIndexType;
-  typedef typename Superclass::FeaturePointType         FeaturePointType;
 
   typedef typename Superclass::ListPixelType            ListPixelType;
   typedef typename Superclass::ListImageType            ListImageType;
@@ -143,12 +133,12 @@ public:
   }
 
 protected:
-  LevelSetDomainPartitionWithKdTree():Superclass(){}
-  ~LevelSetDomainPartitionWithKdTree(){}
+  LevelSetDomainPartitionImageWithKdTree():Superclass(){}
+  ~LevelSetDomainPartitionImageWithKdTree(){}
 
 private:
   //purposely not implemented
-  LevelSetDomainPartitionWithKdTree(const Self &);
+  LevelSetDomainPartitionImageWithKdTree(const Self &);
   //purposely not implemented
   void operator=(const Self &);
 };
