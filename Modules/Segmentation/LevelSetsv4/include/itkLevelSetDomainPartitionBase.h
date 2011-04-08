@@ -19,6 +19,7 @@
 #define __itkLevelSetDomainPartitionBase_h
 
 #include "itkLightObject.h"
+#include "itkIntTypes.h"
 
 #include <list>
 

@@ -29,7 +29,7 @@ namespace itk
  */
 template< class TInputImage, class TFeatureImage >
 class LevelSetDomainPartition:
-  public LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
+  public LevelSetDomainPartitionBase
 {
 public:
 
@@ -101,15 +101,13 @@ public:
   }
 
 protected:
-  LevelSetDomainPartition():Superclass(){}
+  LevelSetDomainPartition() : Superclass(){}
   ~LevelSetDomainPartition(){}
+
 private:
-  LevelSetDomainPartition(const Self &); //purposely
-                                                                    // not
-                                                                    // implemented
-  void operator=(const Self &);                                     //purposely
-                                                                    // not
-                                                                    // implemented
+  /** purposely not implemented*/
+  LevelSetDomainPartition(const Self &);
+  void operator=(const Self &);
 };
 } //end namespace itk
 

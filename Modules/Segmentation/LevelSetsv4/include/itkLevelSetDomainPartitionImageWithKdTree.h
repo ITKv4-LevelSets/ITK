@@ -117,18 +117,18 @@ protected:
 
   void PopulateDomainWithKdTree()
   {
-    ListSpacingType spacing = this->m_NearestNeighborListImage->GetSpacing();
+    ListSpacingType spacing = this->m_ListDomain->GetSpacing();
 
-    ListRegionType region = this->m_NearestNeighborListImage->GetLargestPossibleRegion();
+    ListRegionType region = this->m_ListDomain->GetLargestPossibleRegion();
 
-    ListIteratorType lIt(this->m_NearestNeighborListImage, region);
+    ListIteratorType lIt(this->m_ListDomain, region);
 
     for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
       {
       ListIndexType ind = lIt.GetIndex();
       ListPointType pt;
 
-      this->m_NearestNeighborListImage->TransformIndexToPhysicalPoint( ind, pt );
+      this->m_ListDomain->TransformIndexToPhysicalPoint( ind, pt );
 
       CentroidVectorType queryPoint = pt.GetVectorFromOrigin();
 

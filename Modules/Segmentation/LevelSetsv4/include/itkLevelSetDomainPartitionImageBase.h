@@ -76,46 +76,24 @@ public:
   {
     m_Image = iImage;
   }
-/*
-  typedef Vector< float, itkGetStaticConstMacro(ImageDimension) >
-    CentroidVectorType;
-  typedef itk::Statistics::ListSample< CentroidVectorType > SampleType;
-  typedef itk::Statistics::KdTreeGenerator< SampleType >    TreeGeneratorType;
-  typedef typename TreeGeneratorType::Pointer               TreePointer;
-  typedef typename TreeGeneratorType::KdTreeType            TreeType;
-  typedef typename TreeType::Pointer                        KdTreePointer;
-
-  void SetKdTree(KdTreePointer kdtree)
-  {
-    this->m_KdTree = kdtree;
-  }
-
-  unsigned int     m_NumberOfNeighbors;
-  KdTreePointer    m_KdTree;
-  bool             m_UsePartitionedDomain;
-*/
 
 protected:
-  LevelSetDomainPartitionImageBase()
-  {
-//    m_NearestNeighborListImage = 0;
-//    m_KdTree = 0;
-//    m_UsePartitionedDomain = true;
-  }
+  LevelSetDomainPartitionImageBase() : Superclass()
+  {}
 
   virtual ~LevelSetDomainPartitionImageBase(){}
 
   ImagePointer     m_Image;
-  ListImagePointer m_NearestNeighborListImage;
+  ListImagePointer m_ListDomain;
 
 
   virtual void PopulateListDomain()
   {
-    ListSpacingType spacing = this->m_NearestNeighborListImage->GetSpacing();
+    ListSpacingType spacing = this->m_ListDomain->GetSpacing();
 
-    ListRegionType region = this->m_NearestNeighborListImage->GetLargestPossibleRegion();
+    ListRegionType region = this->m_ListDomain->GetLargestPossibleRegion();
 
-    ListIteratorType lIt(this->m_NearestNeighborListImage, region);
+    ListIteratorType lIt(this->m_ListDomain, region);
 
     for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
       {
@@ -134,10 +112,10 @@ protected:
 
   void AllocateListDomain()
   {
-    this->m_NearestNeighborListImage = ListImageType::New();
-    this->m_NearestNeighborListImage->CopyInformation( m_Image );
-    this->m_NearestNeighborListImage->SetRegions( m_Image->GetLargestPossibleRegion() );
-    this->m_NearestNeighborListImage->Allocate();
+    this->m_ListDomain = ListImageType::New();
+    this->m_ListDomain->CopyInformation( m_Image );
+    this->m_ListDomain->SetRegions( m_Image->GetLargestPossibleRegion() );
+    this->m_ListDomain->Allocate();
   }
 
 private:

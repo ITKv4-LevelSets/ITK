@@ -26,23 +26,25 @@
 namespace itk
 {
 
-template < class TInputImage, class TFeatureImage >
+template < class TDomain >
 class LevelSetDomainPartitionBaseHelper
-  : public LevelSetDomainPartitionBase< TInputImage, TFeatureImage >
+  : public LevelSetDomainPartitionBase< TDomain >
 {
 public:
   /** Standard class typedefs. */
-  typedef LevelSetDomainPartitionBaseHelper                         Self;
-  typedef LevelSetDomainPartitionBase< TInputImage, TFeatureImage > Superclass;
-  typedef SmartPointer<Self>                                        Pointer;
-  typedef SmartPointer<const Self>                                  ConstPointer;
+  typedef LevelSetDomainPartitionBaseHelper      Self;
+  typedef LevelSetDomainPartitionBase< TDomain > Superclass;
+  typedef SmartPointer<Self>                     Pointer;
+  typedef SmartPointer<const Self>               ConstPointer;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro( LevelSetDomainPartitionBaseHelper, LevelSetDomainPartitionBase );
 
   itkNewMacro( Self );
 
-  virtual void PopulateListImage() {}
+protected:
+  void AllocateListDomain() {}
+  void PopulateListDomain() {}
 };
 
 }
@@ -52,10 +54,9 @@ int itkLevelSetDomainPartitionBaseTest( int, char* [] )
 {
   const unsigned int Dimension = 3;
 
-  typedef itk::Image< double, Dimension >         LevelSetImageType;
-  typedef itk::Image< unsigned char, Dimension >  FeatureImageType;
+  typedef itk::Image< double, Dimension >         ImageType;
 
-  typedef itk::LevelSetDomainPartitionBaseHelper< LevelSetImageType, FeatureImageType >
+  typedef itk::LevelSetDomainPartitionBaseHelper< ImageType >
     DomainPartitionBaseHelperType;
 
   DomainPartitionBaseHelperType::Pointer function = DomainPartitionBaseHelperType::New();

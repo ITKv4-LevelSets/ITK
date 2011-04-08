@@ -23,7 +23,7 @@
 
 #include "itkLevelSetDomainPartitionBase.h"
 #include "itkLevelSetDomainPartition.h"
-#include "itkLevelSetDomainPartitionWithKdTree.h"
+#include "itkLevelSetDomainPartitionImageWithKdTree.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
