@@ -20,12 +20,7 @@
 
 #include "itkLightObject.h"
 
-#include "itkVector.h"
-#include "itkListSample.h"
-#include "itkKdTreeGenerator.h"
-
-#include "itkImageRegionIterator.h"
-#include "itkImageRegionIteratorWithIndex.h"
+#include <list>
 
 namespace itk
 {

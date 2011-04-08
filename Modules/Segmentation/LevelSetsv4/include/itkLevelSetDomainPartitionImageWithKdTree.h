@@ -18,7 +18,7 @@
 #ifndef __itkLevelSetDomainPartitionImageWithKdTree_h
 #define __itkLevelSetDomainPartitionImageWithKdTree_h
 
-#include "itkLevelSetDomainPartitionBase.h"
+#include "itkLevelSetDomainPartitionImageBase.h"
 
 namespace itk
 {
@@ -33,11 +33,10 @@ class LevelSetDomainPartitionImageWithKdTree:
 {
 public:
 
-  typedef LevelSetDomainPartitionImageWithKdTree Self;
-  typedef LevelSetDomainPartitionBase< TImage >
-    Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  typedef LevelSetDomainPartitionImageWithKdTree  Self;
+  typedef LevelSetDomainPartitionBase< TImage >   Superclass;
+  typedef SmartPointer< Self >                    Pointer;
+  typedef SmartPointer< const Self >              ConstPointer;
 
   itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
 
@@ -47,17 +46,17 @@ public:
   itkTypeMacro( LevelSetDomainPartitionImageWithKdTree, 
                 LevelSetDomainPartitionImageBase);
 
-  typedef TImage                                   InputImageType;
-  typedef typename Superclass::InputImagePointer        InputImagePointer;
-  typedef typename Superclass::InputImageConstPointer   InputImageConstPointer;
-  typedef typename Superclass::InputPixelType           InputPixelType;
-  typedef typename Superclass::InputRegionType          InputRegionType;
-  typedef typename Superclass::InputSizeType            InputSizeType;
-  typedef typename Superclass::InputSizeValueType       InputSizeValueType;
-  typedef typename Superclass::InputSpacingType         InputSpacingType;
-  typedef typename Superclass::InputIndexType           InputIndexType;
-  typedef typename Superclass::InputIndexValueType      InputIndexValueType;
-  typedef typename Superclass::InputPointType           InputPointType;
+  typedef TImage                                   ImageType;
+  typedef typename Superclass::ImagePointer        ImagePointer;
+  typedef typename Superclass::ImageConstPointer   ImageConstPointer;
+  typedef typename Superclass::PixelType           PixelType;
+  typedef typename Superclass::RegionType          RegionType;
+  typedef typename Superclass::SizeType            SizeType;
+  typedef typename Superclass::SizeValueType       SizeValueType;
+  typedef typename Superclass::SpacingType         SpacingType;
+  typedef typename Superclass::IndexType           IndexType;
+  typedef typename Superclass::IndexValueType      IndexValueType;
+  typedef typename Superclass::PointType           PointType;
 
   typedef typename Superclass::ListPixelType            ListPixelType;
   typedef typename Superclass::ListImageType            ListImageType;
@@ -72,15 +71,51 @@ public:
   typedef typename Superclass::ListPointType            ListPointType;
   typedef typename Superclass::ListIteratorType         ListIteratorType;
 
-  typedef typename Superclass::CentroidVectorType CentroidVectorType;
-  typedef typename Superclass::SampleType         SampleType;
-  typedef typename Superclass::TreeGeneratorType  TreeGeneratorType;
-  typedef typename Superclass::TreePointer        TreePointer;
-  typedef typename Superclass::TreeType           TreeType;
-  typedef typename Superclass::KdTreePointer      KdTreePointer;
+  typedef typename ListPointType::VectorType            CentroidVectorType;
+  typedef itk::Statistics::ListSample< CentroidVectorType > SampleType;
+  typedef itk::Statistics::KdTreeGenerator< SampleType >    TreeGeneratorType;
+  typedef typename TreeGeneratorType::Pointer               TreePointer;
+  typedef typename TreeGeneratorType::KdTreeType            TreeType;
+  typedef typename TreeType::Pointer                        KdTreePointer;
 
+  void SetKdTree(KdTreePointer kdtree)
+  {
+    this->m_KdTree = kdtree;
+  }
 
-  void PopulateListImage()
+  void SetNumberOfNeighbors( const unsigned int& iN )
+  {
+    m_NumberOfNeighbors = iN;
+  }
+
+  void GetNumberOfNeighbors( ) const
+    {
+    return m_NumberOfNeighbors;
+    }
+
+protected:
+  LevelSetDomainPartitionImageWithKdTree():Superclass(),
+    m_KdTree(NULL),
+    m_NumberOfNeighbors( 10 ){}
+
+  ~LevelSetDomainPartitionImageWithKdTree(){}
+
+  KdTreePointer m_KdTree;
+  unsigned int  m_NumberOfNeighbors;
+
+  void PopulateListDomain()
+  {
+    if( this->m_KdTree.IsNotNull() )
+      {
+      this->PopulateDomainWithKdTree();
+      }
+    else
+      {
+      Superclass::PopulateListDomain();
+      }
+  }
+
+  void PopulateDomainWithKdTree()
   {
     ListSpacingType spacing = this->m_NearestNeighborListImage->GetSpacing();
 
@@ -88,53 +123,30 @@ public:
 
     ListIteratorType lIt(this->m_NearestNeighborListImage, region);
 
-    if ( this->m_KdTree.IsNotNull() )
+    for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
       {
-      for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
+      ListIndexType ind = lIt.GetIndex();
+      ListPointType pt;
+
+      this->m_NearestNeighborListImage->TransformIndexToPhysicalPoint( ind, pt );
+
+      CentroidVectorType queryPoint = pt.GetVectorFromOrigin();
+
+      typename TreeType::InstanceIdentifierVectorType neighbors;
+      this->m_KdTree->Search(queryPoint, this->m_NumberOfNeighbors, neighbors);
+
+      ListPixelType L;
+      for ( unsigned int i = 0; i < this->m_NumberOfNeighbors; ++i )
         {
-        ListIndexType ind = lIt.GetIndex();
-
-        float queryPoint[ImageDimension];
-        for ( unsigned int i = 0; i < ImageDimension; i++ )
+        // this is not yet defined, but it will have to be !!!
+        if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
           {
-          queryPoint[i] = ind[i] * spacing[i];
+          L.push_back(neighbors[i]);
           }
-
-        typename TreeType::InstanceIdentifierVectorType neighbors;
-        this->m_KdTree->Search(queryPoint, this->m_NumberOfNeighbors, neighbors);
-
-        ListPixelType L;
-        for ( unsigned int i = 0; i < this->m_NumberOfNeighbors; i++ )
-          {
-          if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
-            {
-            L.push_back(neighbors[i]);
-            }
-          }
-        lIt.Set(L);
         }
-      }
-    else
-      {
-      for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
-        {
-        ListIndexType ind = lIt.GetIndex();
-        ListPixelType L;
-        for ( unsigned int i = 0; i < this->m_FunctionCount; i++ )
-          {
-          if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
-            {
-            L.push_back(i);
-            }
-          }
-        lIt.Set(L);
-        }
+      lIt.Set(L);
       }
   }
-
-protected:
-  LevelSetDomainPartitionImageWithKdTree():Superclass(){}
-  ~LevelSetDomainPartitionImageWithKdTree(){}
 
 private:
   //purposely not implemented

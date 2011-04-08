@@ -18,13 +18,8 @@
 #ifndef __itkLevelSetDomainPartitionImageBase_h
 #define __itkLevelSetDomainPartitionImageBase_h
 
-#include "itkLightObject.h"
+#include "itkLevelSetDomainPartitionBase.h"
 
-#include "itkVector.h"
-#include "itkListSample.h"
-#include "itkKdTreeGenerator.h"
-
-#include "itkImageRegionIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
 
 namespace itk
@@ -77,6 +72,10 @@ public:
   typedef typename ListImageType::PointType             ListPointType;
   typedef ImageRegionIteratorWithIndex< ListImageType > ListIteratorType;
 
+  void SetImage( ImagePointer iImage )
+  {
+    m_Image = iImage;
+  }
 /*
   typedef Vector< float, itkGetStaticConstMacro(ImageDimension) >
     CentroidVectorType;
@@ -106,7 +105,32 @@ protected:
 
   virtual ~LevelSetDomainPartitionImageBase(){}
 
+  ImagePointer     m_Image;
   ListImagePointer m_NearestNeighborListImage;
+
+
+  virtual void PopulateListDomain()
+  {
+    ListSpacingType spacing = this->m_NearestNeighborListImage->GetSpacing();
+
+    ListRegionType region = this->m_NearestNeighborListImage->GetLargestPossibleRegion();
+
+    ListIteratorType lIt(this->m_NearestNeighborListImage, region);
+
+    for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
+      {
+      ListIndexType ind = lIt.GetIndex();
+      ListPixelType L;
+      for ( unsigned int i = 0; i < this->m_FunctionCount; i++ )
+        {
+        if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
+          {
+          L.push_back(i);
+          }
+        }
+      lIt.Set(L);
+      }
+  }
 
   void AllocateListDomain()
   {
