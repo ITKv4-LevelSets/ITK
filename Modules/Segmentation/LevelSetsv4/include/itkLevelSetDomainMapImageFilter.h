@@ -109,7 +109,7 @@ class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<
     typedef ImageRegionIterator< OutputImageType >          OutputIteratorType;
 
     std::vector< InputImageRegionType > m_SetOfRegions;
-    std::vector< InputImagePixelType > m_LevelSetList;
+    std::vector< InputImagePixelType >  m_LevelSetList;
 
   protected:
     LevelSetDomainMapImageFilter();
