@@ -175,6 +175,23 @@ int itkMultiLevelSetImageTest( int , char* [] )
     out_index = it.GetIndex();
     out_id = it.Get();
 
+    IdListType solution;
+    if( ( out_index[0] < 6 ) && ( out_index[1] < 6 ) )
+      {
+      solution.push_back( 1 );
+      }
+
+    if( ( out_index[0] > 1 ) && ( out_index[1] > 1 ) &&
+        ( out_index[0] < 9 ) && ( out_index[1] < 9 ) )
+      {
+      solution.push_back( 2 );
+      }
+
+    if( ( out_index[0] > 4 ) && ( out_index[1] > 4 ) )
+      {
+      solution.push_back( 3 );
+      }
+
     std::cout <<"***" << std::endl;
     std::cout << out_index <<std::endl;
 
@@ -193,6 +210,11 @@ int itkMultiLevelSetImageTest( int , char* [] )
                     << std::endl;
           }
         std::cout << std::endl;
+        if( lout != solution )
+          {
+          std::cout <<"FAILURE!!!" <<std::endl;
+          return EXIT_FAILURE;
+          }
         }
       }
     ++it;
