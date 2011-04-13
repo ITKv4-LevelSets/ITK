@@ -108,8 +108,19 @@ class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<
     typedef ImageRegionIteratorWithIndex< OutputImageType > OutputIndexIteratorType;
     typedef ImageRegionIterator< OutputImageType >          OutputIteratorType;
 
-    std::vector< InputImageRegionType > m_SetOfRegions;
-    std::vector< InputImagePixelType >  m_LevelSetList;
+//    struct Something // ~ kind of cache to speed up computations
+//      {
+//      IdentifierType m_Id;
+//      InputImageRegionType m_Region;
+//      InputImagePixelType m_List;
+//      };
+
+    // IdentifierType = 0 means it is background, there is no level sets
+    // nothing to be done at this pixel...
+    // Note that the identifier for a given index is given by the output image
+    // of this filter
+    std::map< IdentifierType, InputImageRegionType > m_SetOfRegions;
+    std::map< IdentifierType, InputImagePixelType >  m_LevelSetList;
 
   protected:
     LevelSetDomainMapImageFilter();

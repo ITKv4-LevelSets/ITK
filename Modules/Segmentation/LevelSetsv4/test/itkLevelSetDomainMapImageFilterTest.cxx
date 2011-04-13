@@ -67,7 +67,6 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
   region.SetSize( size );
 
   ListPixelType l;
-  l.clear();
 
   InputImageType::Pointer input = InputImageType::New();
   input->SetRegions( region );
@@ -77,8 +76,8 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
   for( unsigned int i = 0; i < 10; i++ )
   {
     ListPixelType ll;
-    ll.clear();
     ll.push_back(i);
+    ll.push_back(i+1);
 
     index[0] = index[1] = i;
     input->SetPixel( index, ll );
@@ -88,6 +87,45 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
   filter->SetInput( input );
   filter->Update();
 
+  OutputImageType::Pointer output = filter->GetOutput();
+
+  itk::ImageRegionConstIteratorWithIndex<OutputImageType >
+      it( output, output->GetLargestPossibleRegion() );
+
+  it.GoToBegin();
+
+  OutputImageType::IndexType out_index;
+  OutputImageType::PixelType out_id;
+
+  while( !it.IsAtEnd() )
+    {
+    out_index = it.GetIndex();
+    out_id = it.Get();
+
+    if( out_id > 0 )
+      {
+      std::cout << "*** " <<std::endl;
+      std::cout << out_index << " # " << out_id <<std::endl;
+      std::cout << filter->m_SetOfRegions[out_id];
+
+      ListPixelType lout = filter->m_LevelSetList[out_id];
+      if( lout.empty() )
+        {
+        return EXIT_FAILURE;
+        }
+      else
+        {
+        for( ListIteratorType lIt = lout.begin(); lIt != lout.end(); ++lIt )
+          {
+          std::cout << *lIt << " ";
+          }
+        std::cout << std::endl;
+        }
+      }
+    ++it;
+    }
+
+  /*
   OutputImageType::Pointer output = filter->GetOutput();
   for( unsigned int i = 0; i < 10; i++ )
   {
@@ -105,7 +143,7 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
 
     // Output the regions
     std::cout << filter->m_SetOfRegions[i] << std::endl;
-  }
+  }*/
 
   return EXIT_SUCCESS;
 }

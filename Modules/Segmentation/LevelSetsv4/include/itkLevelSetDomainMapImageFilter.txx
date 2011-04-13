@@ -75,11 +75,14 @@ GenerateData()
   InputImageIndexType end;
   InputImageSizeType sizeOfRegion;
   InputImageRegionType subRegion;
-  unsigned int segmentId = 1;
+
+
   for( unsigned int i = 0; i < ImageDimension; i++ )
-  {
+    {
     end[i] = size[i] - 1;
-  }
+    }
+
+  IdentifierType segmentId = 1;
 
   InputConstIteratorType iIt( input, input->GetLargestPossibleRegion() );
   OutputIndexIteratorType oIt( output, output->GetLargestPossibleRegion() );
@@ -87,50 +90,54 @@ GenerateData()
   iIt.GoToBegin();
   oIt.GoToBegin();
   while( !iIt.IsAtEnd() )
-  {
+    {
     startIdx = iIt.GetIndex();
     stopIdx = startIdx;
     inputPixel = iIt.Get();
     outputPixel = oIt.Get();
 
-    if ( ( inputPixel.size() != 0 ) && ( outputPixel == 0 ) )
-    {
-      for( unsigned int i = 0; i < ImageDimension; i++ )
+    // outputPixel is null when it has not been processed yet,
+    // or there is nothing to be processed
+    if ( ( !inputPixel.empty() ) && ( outputPixel == 0 ) )
       {
+      for( unsigned int i = 0; i < ImageDimension; i++ )
+        {
         bool flag = true;
         stopIdx = startIdx;
         while ( ( flag ) && ( stopIdx[i] <= end[i] ) )
-        {
+          {
           nextPixel = input->GetPixel( stopIdx );
           if ( nextPixel != inputPixel )
-          {
+            {
             flag = false;
-          }
+            }
           else
-          {
-            stopIdx[i]++;
+            {
+            ++stopIdx[i];
+            }
           }
-        }
         sizeOfRegion[i] = stopIdx[i] - startIdx[i];
-      }
+        }
 
-      subRegion.SetSize( sizeOfRegion );
-      subRegion.SetIndex( startIdx );
-      m_SetOfRegions.push_back( subRegion );
-      m_LevelSetList.push_back( inputPixel );
+        subRegion.SetSize( sizeOfRegion );
+        subRegion.SetIndex( startIdx );
 
-      OutputIndexIteratorType ooIt( output, subRegion );
-      ooIt.GoToBegin();
-      while( !ooIt.IsAtEnd() )
-      {
-        ooIt.Set( segmentId );
-        ++ooIt;
-      }
-      segmentId++;
+        m_SetOfRegions[segmentId] = subRegion;
+        m_LevelSetList[segmentId] = inputPixel;
+
+        OutputIndexIteratorType ooIt( output, subRegion );
+        ooIt.GoToBegin();
+
+        while( !ooIt.IsAtEnd() )
+          {
+          ooIt.Set( segmentId );
+          ++ooIt;
+          }
+        ++segmentId;
+        }
+      ++iIt;
+      ++oIt;
     }
-    ++iIt;
-    ++oIt;
-  }
 
   this->GraftOutput ( output );
 }
