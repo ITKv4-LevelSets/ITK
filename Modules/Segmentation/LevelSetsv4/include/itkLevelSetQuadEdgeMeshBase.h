@@ -43,7 +43,7 @@ template< class TMesh >
 class LevelSetQuadEdgeMeshBase :
     public LevelSetBase<
       typename TMesh::PointIdentifier,
-      typename TMesh::PointDimension,
+      TMesh::PointDimension,
       typename TMesh::PixelType >
 {
 public:

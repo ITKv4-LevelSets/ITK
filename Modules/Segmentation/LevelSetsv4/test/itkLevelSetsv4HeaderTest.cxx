@@ -25,6 +25,9 @@
 #include "itkLevelSetDomainPartition.h"
 #include "itkLevelSetDomainPartitionWithKdTree.h"
 #include "itkLevelSetDomainMapImageFilter.h"
+#include "itkLevelSetImageBase.h"
+#include "itkLevelSetQuadEdgeMeshBase.h"
+#include "itkLevelSetBase.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
