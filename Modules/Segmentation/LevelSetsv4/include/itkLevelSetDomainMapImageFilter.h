@@ -58,6 +58,11 @@
 
 namespace itk
 {
+/**
+  \class LevelSetDomainMapImageFilter
+  \tparam TInputImage Image where the pixel type is a container of ids
+  \tparam TOutputImage Image where the pixel type is an integer to split the region
+*/
 template < class TInputImage, class TOutputImage >
 class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<
   TInputImage, TOutputImage >
@@ -81,20 +86,16 @@ class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<
     void PrintSelf ( std::ostream& os, Indent indent ) const;
 
     typedef TInputImage                           InputImageType;
-    typedef typename InputImageType::Pointer      InputImagePointer;
     typedef typename InputImageType::ConstPointer InputImageConstPointer;
     typedef typename InputImageType::PixelType    InputImagePixelType;
     typedef typename InputImageType::RegionType   InputImageRegionType;
     typedef typename InputImageType::SizeType     InputImageSizeType;
     typedef typename InputImageSizeType::SizeValueType
                                                   InputImageSizeValueType;
-    typedef typename InputImageType::SpacingType  InputImageSpacingType;
     typedef typename InputImageType::IndexType    InputImageIndexType;
-    typedef typename InputImageType::PointType    InputImagePointType;
 
     typedef TOutputImage                           OutputImageType;
     typedef typename OutputImageType::Pointer      OutputImagePointer;
-    typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
     typedef typename OutputImageType::IndexType    OutputImageIndexType;
     typedef typename OutputImageType::PixelType    OutputImagePixelType;
 
