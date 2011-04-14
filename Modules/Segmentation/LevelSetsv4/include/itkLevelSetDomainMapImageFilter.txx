@@ -1,42 +1,20 @@
 /*=========================================================================
-  Author: $Author: krm15 $  // Author of last commit
-  Version: $Rev: 1658 $  // Revision of last commit
-  Date: $Date: 2010-06-14 15:49:25 -0400 (Mon, 14 Jun 2010) $  // Date of last commit
-=========================================================================*/
-
-/*=========================================================================
- Authors: The GoFigure Dev. Team.
- at Megason Lab, Systems biology, Harvard Medical school, 2009
-
- Copyright (c) 2009, President and Fellows of Harvard College.
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met:
-
- Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
- Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the documentation
- and/or other materials provided with the distribution.
- Neither the name of the  President and Fellows of Harvard College
- nor the names of its contributors may be used to endorse or promote
- products derived from this software without specific prior written
- permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
- BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
- OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
- OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-=========================================================================*/
+ *
+ *  Copyright Insight Software Consortium
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *=========================================================================*/
 
 #ifndef __itkLevelSetDomainMapImageFilter_txx
 #define __itkLevelSetDomainMapImageFilter_txx
@@ -65,6 +43,7 @@ ConsistencyCheck( bool& subRegionConsistent, InputImageRegionType& subRegion )
 
   InputConstIteratorType iIt( input, subRegion );
   iIt.GoToBegin();
+
   OutputIndexIteratorType oIt( this->GetOutput(), subRegion );
   oIt.GoToBegin();
 
@@ -76,24 +55,27 @@ ConsistencyCheck( bool& subRegionConsistent, InputImageRegionType& subRegion )
   OutputImagePixelType segmentPixel;
 
   while( !iIt.IsAtEnd() )
-  {
+    {
     segmentPixel = oIt.Get();
     nextPixel = iIt.Get();
-    if ( ( nextPixel != inputPixel ) || (segmentPixel != 0 ) )
-    {
-      for( unsigned int i = 0; i < ImageDimension; i++ )
+
+    if ( ( nextPixel != inputPixel ) ||
+         ( segmentPixel != NumericTraits< OutputImagePixelType >::Zero ) )
       {
+      for( unsigned int i = 0; i < ImageDimension; i++ )
+        {
         sizeOfRegion[i] = stopIdx[i] - startIdx[i] + 1;
-      }
+        }
       subRegion.SetSize(sizeOfRegion);
       return;
-    }
+      }
+
     stopIdx = iIt.GetIndex();
     ++iIt;
     ++oIt;
-  }
+    }
+
   subRegionConsistent = true;
-  return;
 }
 
 
@@ -109,7 +91,7 @@ GenerateData()
   output->CopyInformation( input );
   output->SetRegions( input->GetLargestPossibleRegion() );
   output->Allocate();
-  output->FillBuffer( 0 );
+  output->FillBuffer( NumericTraits< OutputImagePixelType >::Zero );
 
   InputImagePixelType inputPixel, nextPixel;
   OutputImagePixelType outputPixel, currentOutputPixel;
@@ -152,7 +134,8 @@ GenerateData()
 
           // Check if the input list pixels are different, or
           // the output image already has been assigned to another region
-          if ( ( nextPixel != inputPixel ) || ( currentOutputPixel != 0 ) )
+          if ( ( nextPixel != inputPixel ) ||
+               ( currentOutputPixel != NumericTraits< OutputPixelType >::Zero ) )
             {
             flag = false;
             }
@@ -164,35 +147,33 @@ GenerateData()
         sizeOfRegion[i] = stopIdx[i] - startIdx[i];
         }
 
-        subRegion.SetSize( sizeOfRegion );
-        subRegion.SetIndex( startIdx );
+      subRegion.SetSize( sizeOfRegion );
+      subRegion.SetIndex( startIdx );
 
-//         std::cout << startIdx << ' ' << subRegion << std::endl;
+      // Check that this subregion is consistent,
+      // else partition it even further
+      bool subRegionInputConsistent = false;
 
-        // Check that this subregion is consistent, else partition it even further
-        bool subRegionInputConsistent = false;
-        while( !subRegionInputConsistent )
+      while( !subRegionInputConsistent )
         {
-          ConsistencyCheck( subRegionInputConsistent, subRegion );
-//           std::cout << startIdx << ' ' << subRegionInputConsistent << ' ' << subRegion << std::endl;
+        ConsistencyCheck( subRegionInputConsistent, subRegion );
         }
-//         std::cout << startIdx << ' ' << subRegion << std::endl;
 
-        m_SetOfRegions[segmentId] = subRegion;
-        m_LevelSetList[segmentId] = inputPixel;
+      m_SetOfRegions[segmentId] = subRegion;
+      m_LevelSetList[segmentId] = inputPixel;
 
-        OutputIndexIteratorType ooIt( output, subRegion );
-        ooIt.GoToBegin();
+      OutputIndexIteratorType ooIt( output, subRegion );
+      ooIt.GoToBegin();
 
-        while( !ooIt.IsAtEnd() )
-          {
-          ooIt.Set( segmentId );
-          ++ooIt;
-          }
-        ++segmentId;
+      while( !ooIt.IsAtEnd() )
+        {
+        ooIt.Set( segmentId );
+        ++ooIt;
         }
-      ++iIt;
-      ++oIt;
+      ++segmentId;
+      }
+    ++iIt;
+    ++oIt;
     }
 
   this->GraftOutput ( output );
