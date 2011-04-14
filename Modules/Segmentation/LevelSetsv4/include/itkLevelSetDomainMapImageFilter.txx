@@ -55,6 +55,48 @@ LevelSetDomainMapImageFilter< TInputImage, TOutputImage >
   this->Superclass::SetNthOutput ( 0, OutputImageType::New() );
 }
 
+
+template < class TInputImage, class TOutputImage >
+void
+LevelSetDomainMapImageFilter< TInputImage, TOutputImage >::
+ConsistencyCheck( bool& subRegionConsistent, InputImageRegionType& subRegion )
+{
+  InputImageConstPointer input = this->GetInput();
+
+  InputConstIteratorType iIt( input, subRegion );
+  iIt.GoToBegin();
+  OutputIndexIteratorType oIt( this->GetOutput(), subRegion );
+  oIt.GoToBegin();
+
+  InputImagePixelType inputPixel = iIt.Get();
+  InputImagePixelType nextPixel;
+  InputImageIndexType startIdx = subRegion.GetIndex();
+  InputImageIndexType stopIdx;
+  InputImageSizeType sizeOfRegion;
+  OutputImagePixelType segmentPixel;
+
+  while( !iIt.IsAtEnd() )
+  {
+    segmentPixel = oIt.Get();
+    nextPixel = iIt.Get();
+    if ( ( nextPixel != inputPixel ) || (segmentPixel != 0 ) )
+    {
+      for( unsigned int i = 0; i < ImageDimension; i++ )
+      {
+        sizeOfRegion[i] = stopIdx[i] - startIdx[i] + 1;
+      }
+      subRegion.SetSize(sizeOfRegion);
+      return;
+    }
+    stopIdx = iIt.GetIndex();
+    ++iIt;
+    ++oIt;
+  }
+  subRegionConsistent = true;
+  return;
+}
+
+
 template < class TInputImage, class TOutputImage >
 void
 LevelSetDomainMapImageFilter< TInputImage, TOutputImage >::
@@ -70,12 +112,11 @@ GenerateData()
   output->FillBuffer( 0 );
 
   InputImagePixelType inputPixel, nextPixel;
-  OutputImagePixelType outputPixel;
+  OutputImagePixelType outputPixel, currentOutputPixel;
   InputImageIndexType startIdx, stopIdx;
   InputImageIndexType end;
   InputImageSizeType sizeOfRegion;
   InputImageRegionType subRegion;
-
 
   for( unsigned int i = 0; i < ImageDimension; i++ )
     {
@@ -107,7 +148,11 @@ GenerateData()
         while ( ( flag ) && ( stopIdx[i] <= end[i] ) )
           {
           nextPixel = input->GetPixel( stopIdx );
-          if ( nextPixel != inputPixel )
+          currentOutputPixel = output->GetPixel( stopIdx );
+
+          // Check if the input list pixels are different, or
+          // the output image already has been assigned to another region
+          if ( ( nextPixel != inputPixel ) || ( currentOutputPixel != 0 ) )
             {
             flag = false;
             }
@@ -121,6 +166,17 @@ GenerateData()
 
         subRegion.SetSize( sizeOfRegion );
         subRegion.SetIndex( startIdx );
+
+//         std::cout << startIdx << ' ' << subRegion << std::endl;
+
+        // Check that this subregion is consistent, else partition it even further
+        bool subRegionInputConsistent = false;
+        while( !subRegionInputConsistent )
+        {
+          ConsistencyCheck( subRegionInputConsistent, subRegion );
+//           std::cout << startIdx << ' ' << subRegionInputConsistent << ' ' << subRegion << std::endl;
+        }
+//         std::cout << startIdx << ' ' << subRegion << std::endl;
 
         m_SetOfRegions[segmentId] = subRegion;
         m_LevelSetList[segmentId] = inputPixel;

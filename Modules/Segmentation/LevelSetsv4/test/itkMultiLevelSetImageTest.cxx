@@ -42,10 +42,16 @@ int itkMultiLevelSetImageTest( int , char* [] )
 {
   const unsigned int Dimension = 2;
 
-  typedef float PixelType;
-  typedef itk::Image< PixelType, Dimension >  ImageType;
-
-  typedef itk::LevelSetImageBase< ImageType > LevelSetType;
+  typedef float                                          PixelType;
+  typedef itk::Image< PixelType, Dimension >             ImageType;
+  typedef itk::LevelSetImageBase< ImageType >            LevelSetType;
+  typedef itk::ImageRegionIteratorWithIndex< ImageType > IteratorType;
+  typedef std::list< itk::IdentifierType >               IdListType;
+  typedef itk::Image< IdListType, Dimension >            IdListImageType;
+  typedef itk::Image< short, Dimension >                 CacheImageType;
+  typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
+                                                         DomainMapImageFilterType;
+  typedef itk::ImageFileWriter< CacheImageType >         WriterType;
 
   ImageType::IndexType index;
   index[0] = 0;
@@ -71,24 +77,7 @@ int itkMultiLevelSetImageTest( int , char* [] )
   input2->Allocate();
   input2->FillBuffer( value );
 
-  ImageType::Pointer input3 = ImageType::New();
-  input3->SetRegions( region );
-  input3->Allocate();
-  input3->FillBuffer( value );
-
-  itk::ImageRegionIteratorWithIndex< ImageType > it1( input1,
-                                              input1->GetLargestPossibleRegion() );
-
-  itk::ImageRegionIteratorWithIndex< ImageType > it2( input2,
-                                              input2->GetLargestPossibleRegion() );
-
-  itk::ImageRegionIteratorWithIndex< ImageType > it3( input3,
-                                              input3->GetLargestPossibleRegion() );
-
-  typedef std::list< itk::IdentifierType > IdListType;
-
-  typedef itk::Image< IdListType, Dimension > IdListImageType;
-
+  ImageType::IndexType idx;
   IdListType list_ids;
 
   IdListImageType::Pointer id_image = IdListImageType::New();
@@ -96,32 +85,26 @@ int itkMultiLevelSetImageTest( int , char* [] )
   id_image->Allocate();
   id_image->FillBuffer( list_ids );
 
+  IteratorType it1( input1, input1->GetLargestPossibleRegion() );
+  IteratorType it2( input2, input2->GetLargestPossibleRegion() );
   it1.GoToBegin();
   it2.GoToBegin();
-  it3.GoToBegin();
-
-  ImageType::IndexType idx;
 
   while( !it1.IsAtEnd() )
     {
     idx = it1.GetIndex();
     list_ids.clear();
 
-    if( ( idx[0] < 6 ) && ( idx[1] < 6 ) )
+    if( ( idx[0] < 5 ) && ( idx[1] < 5 ) )
       {
       list_ids.push_back( 1 );
       }
 
     if( ( idx[0] > 1 ) && ( idx[1] > 1 ) &&
-        ( idx[0] < 9 ) && ( idx[1] < 9 ) )
+        ( idx[0] < 8 ) && ( idx[1] < 8 ) )
       {
       list_ids.push_back( 2 );
       }
-
-//    if( ( idx[0] > 4 ) && ( idx[1] > 4 ) )
-//      {
-//      list_ids.push_back( 3 );
-//      }
 
     id_image->SetPixel( idx, list_ids );
 
@@ -132,14 +115,8 @@ int itkMultiLevelSetImageTest( int , char* [] )
     it2.Set( vcl_sqrt(
              static_cast< float> ( ( idx[0] - 5 ) * ( idx[0] - 5 ) +
                                    ( idx[1] - 5 ) * ( idx[1] - 5 ) ) ) );
-
-    it3.Set( vcl_sqrt(
-             static_cast< float> ( ( idx[0] - 7 ) * ( idx[0] - 7 ) +
-                                   ( idx[1] - 7 ) * ( idx[1] - 7 ) ) ) );
-
     ++it1;
     ++it2;
-    ++it3;
     }
 
   std::map< itk::IdentifierType, LevelSetType::Pointer > level_set;
@@ -149,25 +126,15 @@ int itkMultiLevelSetImageTest( int , char* [] )
   level_set[2] = LevelSetType::New();
   level_set[2]->SetImage( input2 );
 
-  level_set[3] = LevelSetType::New();
-  level_set[3]->SetImage( input3 );
-
-  typedef itk::Image< short, Dimension > CacheImageType;
-
-  typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
-    DomainMapImageFilterType;
-
   DomainMapImageFilterType::Pointer filter = DomainMapImageFilterType::New();
   filter->SetInput( id_image );
   filter->Update();
-
   CacheImageType::Pointer output = filter->GetOutput();
 
-  typedef itk::ImageFileWriter< CacheImageType > WriterType;
-  WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( output );
-  writer->SetFileName( "output.mha");
-  writer->Update();
+//   WriterType::Pointer writer = WriterType::New();
+//   writer->SetInput( output );
+//   writer->SetFileName( "/home/krm15/output.mha");
+//   writer->Update();
 
   itk::ImageRegionConstIteratorWithIndex<CacheImageType >
       it( output, output->GetLargestPossibleRegion() );

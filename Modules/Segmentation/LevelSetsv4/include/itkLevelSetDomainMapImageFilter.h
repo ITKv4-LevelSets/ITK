@@ -127,6 +127,7 @@ class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<
     LevelSetDomainMapImageFilter();
     ~LevelSetDomainMapImageFilter() {}
 
+    void ConsistencyCheck( bool& subRegionConsistent, InputImageRegionType& subRegion );
     void GenerateData();
 
   private:
