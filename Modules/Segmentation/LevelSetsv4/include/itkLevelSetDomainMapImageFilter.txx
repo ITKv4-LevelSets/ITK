@@ -159,8 +159,7 @@ GenerateData()
         ConsistencyCheck( subRegionInputConsistent, subRegion );
         }
 
-      m_SetOfRegions[segmentId] = subRegion;
-      m_LevelSetList[segmentId] = inputPixel;
+      m_LevelSetMap[segmentId] = NounToBeDefined( segmentId, subRegion, inputPixel );
 
       OutputIndexIteratorType ooIt( output, subRegion );
       ooIt.GoToBegin();

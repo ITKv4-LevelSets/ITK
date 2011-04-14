@@ -84,9 +84,9 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
       {
       std::cout << "*** " <<std::endl;
       std::cout << out_index << " # " << out_id <<std::endl;
-      std::cout << filter->m_SetOfRegions[out_id];
+      std::cout << filter->m_LevelSetMap[out_id].m_Region;
 
-      ListPixelType lout = filter->m_LevelSetList[out_id];
+      ListPixelType lout = filter->m_LevelSetMap[out_id].m_List;
       if( lout.empty() )
         {
         return EXIT_FAILURE;
@@ -102,26 +102,6 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
       }
     ++it;
     }
-
-  /*
-  OutputImageType::Pointer output = filter->GetOutput();
-  for( unsigned int i = 0; i < 10; i++ )
-  {
-    // Output the image
-    index[0] = index[1] = i;
-    std::cout << i << ' ' << output->GetPixel( index ) << std::endl;
-
-    // Output the list of function ids
-    ListPixelType lout = filter->m_LevelSetList[i];
-    ListIteratorType lIt;
-    for( lIt = lout.begin(); lIt != lout.end(); ++lIt )
-    {
-      std::cout <<  *lIt << std::endl;
-    }
-
-    // Output the regions
-    std::cout << filter->m_SetOfRegions[i] << std::endl;
-  }*/
 
   return EXIT_SUCCESS;
 }

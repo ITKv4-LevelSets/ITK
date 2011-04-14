@@ -143,7 +143,8 @@ int itkMultiLevelSetImageTest( int , char* [] )
 
     if( out_id != 0 )
       {
-      IdListType lout = filter->m_LevelSetList[out_id];
+      IdListType lout = filter->m_LevelSetMap[out_id].m_List;
+      std::cout << filter->m_LevelSetMap[out_id].m_Region;
       if( lout.empty() )
         {
         return EXIT_FAILURE;
@@ -167,6 +168,39 @@ int itkMultiLevelSetImageTest( int , char* [] )
       }
     ++it;
     }
+
+  std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator map_it = filter->m_LevelSetMap.begin();
+  std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator map_end = filter->m_LevelSetMap.end();
+
+  while( map_it != map_end )
+    {
+    IdListImageType::RegionType temp_region = map_it->second.m_Region;
+
+    itk::ImageRegionConstIteratorWithIndex<IdListImageType >
+        temp_it( id_image, temp_region );
+    temp_it.GoToBegin();
+
+    while( !temp_it.IsAtEnd() )
+      {
+      std::cout << temp_it.GetIndex() << std::endl;
+      IdListType lout = map_it->second.m_List;
+
+      if( lout.empty() )
+        {
+        return EXIT_FAILURE;
+        }
+
+      for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+        {
+        std::cout << *lIt <<" " << level_set[*lIt]->Evaluate( temp_it.GetIndex() )
+                  << std::endl;
+        }
+      std::cout << std::endl;
+      ++temp_it;
+      }
+    ++map_it;
+    }
+
 
 
   return EXIT_SUCCESS;
