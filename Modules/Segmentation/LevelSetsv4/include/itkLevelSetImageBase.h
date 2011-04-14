@@ -19,29 +19,40 @@
 #ifndef ITKLEVELSETIMAGEBASE_H
 #define ITKLEVELSETIMAGEBASE_H
 
-#include "itkObject.h"
+#include "itkLevelSetBase.h"
 
 namespace itk
 {
 template<class TImage>
-class LevelSetImageBase : public Object
+class LevelSetImageBase :
+  public LevelSetBase<
+      typename TImage::IndexType,
+      TImage::ImageDimension,
+      typename TImage::PixelType >
   {
 public:
+  typedef TImage ImageType;
+  typedef typename ImageType::Pointer ImagePointer;
+
   typedef LevelSetImageBase Self;
   typedef SmartPointer< Self > Pointer;
   typedef SmartPointer< const Self > ConstPointer;
-  typedef Object Superclass;
+  typedef LevelSetBase< typename ImageType::IndexType,
+    ImageType::ImageDimension,
+    typename ImageType::PixelType > Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro ( Self );
 
   /** Run-time type information */
-  itkTypeMacro ( LevelSetImageBase, Object );
+  itkTypeMacro ( LevelSetImageBase, LevelSetBase );
 
-  typedef TImage ImageType;
-  typedef typename ImageType::Pointer ImagePointer;
-  typedef typename ImageType::PixelType OutputType;
-  typedef typename ImageType::IndexType InputType;
+
+
+  typedef typename Superclass::InputType    InputType;
+  typedef typename Superclass::OutputType   OutputType;
+  typedef typename Superclass::GradientType GradientType;
+  typedef typename Superclass::HessianType  HessianType;
 
   itkSetObjectMacro( Image, ImageType );
   itkGetObjectMacro( Image, ImageType );
@@ -49,6 +60,31 @@ public:
   OutputType Evaluate( const InputType& iP ) const
     {
     return m_Image->GetPixel( iP );
+    }
+
+  GradientType EvaluateGradient( const InputType& iP ) const
+    {
+    return GradientType();
+    }
+
+  HessianType EvaluateHessian( const InputType& iP ) const
+    {
+    return HessianType();
+    }
+
+  struct LevelSetDataType
+    {
+    OutputType Value;
+    GradientType Gradient;
+    HessianType Hessian;
+    };
+
+  LevelSetDataType* GetAllData( const InputType& iP ) const
+    {
+    LevelSetDataType* oData = new LevelSetDataType;
+    oData->Value = m_Image->GetPixel( iP );
+
+    return oData;
     }
 
 protected:

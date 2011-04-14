@@ -135,7 +135,7 @@ GenerateData()
           // Check if the input list pixels are different, or
           // the output image already has been assigned to another region
           if ( ( nextPixel != inputPixel ) ||
-               ( currentOutputPixel != NumericTraits< OutputPixelType >::Zero ) )
+               ( currentOutputPixel != NumericTraits< OutputImagePixelType >::Zero ) )
             {
             flag = false;
             }
