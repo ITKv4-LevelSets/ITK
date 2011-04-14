@@ -52,7 +52,7 @@ LevelSetDomainMapImageFilter< TInputImage, TOutputImage >
   this->Superclass::SetNumberOfRequiredInputs ( 1 );
   this->Superclass::SetNumberOfRequiredOutputs ( 1 );
 
-  this->Superclass::SetNthOutput ( 0,TOutputImage::New() );
+  this->Superclass::SetNthOutput ( 0, OutputImageType::New() );
 }
 
 template < class TInputImage, class TOutputImage >
@@ -63,7 +63,7 @@ GenerateData()
   InputImageConstPointer input = this->GetInput();
   InputImageSizeType size = input->GetLargestPossibleRegion().GetSize();
 
-  OutputImagePointer output = OutputImageType::New();
+  OutputImagePointer output = this->GetOutput();
   output->CopyInformation( input );
   output->SetRegions( input->GetLargestPossibleRegion() );
   output->Allocate();
