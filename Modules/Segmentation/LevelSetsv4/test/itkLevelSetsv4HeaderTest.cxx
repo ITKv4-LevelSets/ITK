@@ -28,6 +28,7 @@
 #include "itkLevelSetImageBase.h"
 #include "itkLevelSetQuadEdgeMeshBase.h"
 #include "itkLevelSetBase.h"
+#include "itkLevelSetContainerBase.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {

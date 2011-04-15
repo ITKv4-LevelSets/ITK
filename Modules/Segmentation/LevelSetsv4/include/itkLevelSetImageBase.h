@@ -57,17 +57,17 @@ public:
   itkSetObjectMacro( Image, ImageType );
   itkGetObjectMacro( Image, ImageType );
 
-  OutputType Evaluate( const InputType& iP ) const
+  virtual OutputType Evaluate( const InputType& iP ) const
     {
     return m_Image->GetPixel( iP );
     }
 
-  GradientType EvaluateGradient( const InputType& iP ) const
+  virtual GradientType EvaluateGradient( const InputType& iP ) const
     {
     return GradientType();
     }
 
-  HessianType EvaluateHessian( const InputType& iP ) const
+  virtual HessianType EvaluateHessian( const InputType& iP ) const
     {
     return HessianType();
     }
@@ -79,7 +79,7 @@ public:
     HessianType Hessian;
     };
 
-  LevelSetDataType* GetAllData( const InputType& iP ) const
+  virtual LevelSetDataType* GetAllData( const InputType& iP ) const
     {
     LevelSetDataType* oData = new LevelSetDataType;
     oData->Value = m_Image->GetPixel( iP );
