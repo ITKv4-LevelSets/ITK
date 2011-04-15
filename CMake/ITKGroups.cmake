@@ -85,7 +85,7 @@ ITK-DeformableMesh
 ITK-KLMRegionGrowing
 ITK-LabelVoting
 ITK-LevelSets
-ITK-LevelSets-v4
+ITK-LevelSetsv4
 ITK-MarkovRandomFieldsClassifier
 ITK-RegionGrowing
 ITK-SignedDistanceFunction
