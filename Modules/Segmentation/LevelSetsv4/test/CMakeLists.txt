@@ -5,6 +5,7 @@ itkLevelSetsv4HeaderTest.cxx
 itkLevelSetDomainMapImageFilterTest.cxx
 itkLevelSetImageBaseTest.cxx
 itkMultiLevelSetImageTest.cxx
+itkLevelSetContainerBaseTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -19,3 +20,5 @@ add_test(NAME itkLevelSetImageBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkLevelSetImageBaseTest)
 add_test(NAME itkMultiLevelSetImageTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetImageTest)
+add_test(NAME itkLevelSetContainerBaseTest
+      COMMAND ITK-LevelSetsv4TestDriver itkLevelSetContainerBaseTest)

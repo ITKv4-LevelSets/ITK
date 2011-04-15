@@ -50,6 +50,12 @@ public:
   typedef SmartPointer< const Self > ConstPointer;
   typedef Object Superclass;
 
+  /** Method for creation through object factory */
+  itkNewMacro ( Self );
+
+  /** Run-time type information */
+  itkTypeMacro ( LevelSetContainerBase, Object );
+
   typedef TIdentifier IdentifierType;
 
   typedef TLevelSet   LevelSetType;
@@ -59,14 +65,14 @@ public:
   typedef typename LevelSetType::GradientType GradientType;
   typedef typename LevelSetType::HessianType HessianType;
 
-  LevelSetType* GetLevelSet( const IdentifierType& iId ) const
+  LevelSetPointer GetLevelSet( const IdentifierType& iId ) const
     {
-    typename std::map< IdentifierType, LevelSetPointer >::iterator
+    typename std::map< IdentifierType, LevelSetPointer >::const_iterator
         it = m_Container.find( iId );
 
     if( it != m_Container.end() )
       {
-      return *it;
+      return it->second;
       }
     else
       {
@@ -111,7 +117,7 @@ public:
     if( it != m_Container.end() )
       {
       m_Container.erase( it );
-      (*it) = NULL;
+      it->second = NULL;
       this->Modified();
 
       return true;
