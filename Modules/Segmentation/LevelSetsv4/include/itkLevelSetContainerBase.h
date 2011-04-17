@@ -32,8 +32,8 @@
 
 =========================================================================*/
 
-#ifndef ITKLEVELSETCONTAINERBASE_H
-#define ITKLEVELSETCONTAINERBASE_H
+#ifndef __itkLevelSetContainerBase_h
+#define __itkLevelSetContainerBase_h
 
 #include <map>
 #include "itkObject.h"
@@ -141,4 +141,4 @@ private:
 };
 
 }
-#endif // ITKLEVELSETCONTAINERBASE_H
+#endif // __itkLevelSetContainerBase_h
