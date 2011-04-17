@@ -29,6 +29,7 @@
 #include "itkLevelSetQuadEdgeMeshBase.h"
 #include "itkLevelSetBase.h"
 #include "itkLevelSetContainerBase.h"
+#include "itkLevelSetDomainPartitionMeshBase.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
