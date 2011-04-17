@@ -45,23 +45,27 @@ template< class TInput, // Input image
 class LevelSetEquationTermBase : public Object
 {
 public:
-  typedef LevelSetEquationTermBase Self;
-  typedef SmartPointer< Self >    Pointer;
+  typedef LevelSetEquationTermBase   Self;
+  typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
-  typedef Object Superclass;
+  typedef Object                     Superclass;
 
-  typedef TInput InputType;
+  typedef TInput                      InputType;
   typedef typename InputType::Pointer InputPointer;
 
-  typedef TLevelSetContainer LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::OutputType LevelSetOutputType;
-  typedef typename LevelSetContainerType::InputType  LevelSetInputType;
-  typedef typename LevelSetContainerType::GradientType GradientType;
-  typedef typename LevelSetContainerType::HessianType HessianType;
+  typedef TLevelSetContainer                             LevelSetContainerType;
+  typedef typename LevelSetContainerType::IdentifierType LevelSetIdentifierType;
+  typedef typename LevelSetContainerType::Pointer        LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::OutputType     LevelSetOutputType;
+  typedef typename LevelSetContainerType::InputType      LevelSetInputType;
+  typedef typename LevelSetContainerType::GradientType   GradientType;
+  typedef typename LevelSetContainerType::HessianType    HessianType;
 
   itkSetMacro( Coefficient, LevelSetOutputType );
   itkGetMacro( Coefficient, LevelSetOutputType );
+
+  itkSetMacro( CurrentLevel, LevelSetIdentifierType );
+  itkGetMacro( CurrentLevel, LevelSetIdentifierType );
 
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
@@ -77,6 +81,8 @@ public:
   itkSetStringMacro( TermName );
   itkGetStringMacro( TermName );
 
+  virtual void Update();
+
 protected:
   LevelSetEquationTermBase() : Superclass(),
     m_Coefficient( NumericTraits< LevelSetOutputType >::One )
@@ -87,10 +93,11 @@ protected:
   virtual void SetDefaultTermName() = 0;
   virtual LevelSetOutputType Value( const LevelSetInputType& iP ) = 0;
 
-  InputPointer m_Input;
+  InputPointer             m_Input;
   LevelSetContainerPointer m_LevelSetContainer;
-  LevelSetOutputType m_Cofficient;
-  std::string m_TermName;
+  LevelSetIdentifierType   m_CurrentLevelSet;
+  LevelSetOutputType       m_Cofficient;
+  std::string              m_TermName;
 
 private:
   LevelSetEquationTermBase( const Self& );
