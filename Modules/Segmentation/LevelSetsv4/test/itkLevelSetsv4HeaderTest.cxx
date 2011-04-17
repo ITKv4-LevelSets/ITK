@@ -29,6 +29,9 @@
 #include "itkLevelSetQuadEdgeMeshBase.h"
 #include "itkLevelSetBase.h"
 #include "itkLevelSetContainerBase.h"
+#include "itkLevelSetEquationTermBase.h"
+#include "itkLevelSetEquationTermContainerBase.h"
+#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {

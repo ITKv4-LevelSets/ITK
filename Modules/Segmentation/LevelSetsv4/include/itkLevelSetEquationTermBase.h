@@ -96,7 +96,7 @@ protected:
   InputPointer             m_Input;
   LevelSetContainerPointer m_LevelSetContainer;
   LevelSetIdentifierType   m_CurrentLevelSet;
-  LevelSetOutputType       m_Cofficient;
+  LevelSetOutputType       m_Coefficient;
   std::string              m_TermName;
 
 private:

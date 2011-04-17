@@ -45,22 +45,22 @@ class LevelSetEquationTermContainerBase : public Object
 {
 public:
   typedef LevelSetEquationTermContainerBase Self;
-  typedef SmartPointer< Self >    Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
-  typedef Object Superclass;
+  typedef SmartPointer< Self >              Pointer;
+  typedef SmartPointer< const Self >        ConstPointer;
+  typedef Object                            Superclass;
 
-  typedef TInput InputType;
+  typedef TInput                      InputType;
   typedef typename InputType::Pointer InputPointer;
 
-  typedef TLevelSetContainer LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::OutputType LevelSetOutputType;
-  typedef typename LevelSetContainerType::InputType  LevelSetInputType;
+  typedef TLevelSetContainer                           LevelSetContainerType;
+  typedef typename LevelSetContainerType::Pointer      LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::OutputType   LevelSetOutputType;
+  typedef typename LevelSetContainerType::InputType    LevelSetInputType;
   typedef typename LevelSetContainerType::GradientType GradientType;
-  typedef typename LevelSetContainerType::HessianType HessianType;
+  typedef typename LevelSetContainerType::HessianType  HessianType;
 
   typedef LevelSetEquationTermBase< InputType, LevelSetContainerType > TermType;
-  typedef typename TermType::Pointer TermPointer;
+  typedef typename TermType::Pointer                                   TermPointer;
 
   itkSetObjectMacro( Input, InputType );
   itkGetObjectMacro( Input, InputType );
@@ -106,20 +106,17 @@ public:
     }
 
 protected:
-  LevelSetEquationTermContainerBase() : Superclass(),
-    m_Coefficient( NumericTraits< LevelSetOutputType >::One )
-  {}
+  LevelSetEquationTermContainerBase() : Superclass() {}
 
   virtual ~LevelSetEquationTermContainerBase() {}
 
   std::map< unsigned int, TermPointer > m_Container;
-  InputPointer m_Input;
+  InputPointer                          m_Input;
 
 private:
   LevelSetEquationTermContainerBase( const Self& );
   void operator = ( const Self& );
 };
-};
 
-}
+};
 #endif // __itkLevelSetEquationTermContainerBase_h

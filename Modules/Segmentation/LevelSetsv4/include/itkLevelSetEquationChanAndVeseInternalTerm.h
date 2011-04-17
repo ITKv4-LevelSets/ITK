@@ -53,6 +53,7 @@ public:
 
   typedef TInput                                  InputType;
   typedef typename InputType::Pointer             InputPointer;
+  typedef typename InputType::PixelType           InputPixelType;
   typedef typename InputType::PixelRealType       InputPixelRealType;
 
   typedef TLevelSetContainer                           LevelSetContainerType;
@@ -89,12 +90,12 @@ protected:
   // his specialized term
   virtual LevelSetOutputType Value( const LevelSetInputType& iP )
     {
-      LevelSetOutputType value = m_LevelSetContainer[this->m_CurrentLevelSet]->Evaluate( iP );
+      LevelSetOutputType value = this->m_LevelSetContainer[this->m_CurrentLevelSet]->Evaluate( iP );
       LevelSetOutputType h_val = Heaviside( value );
 
       if( h_val > 0.5 * NumericTraits< LevelSetOutputType >::One )
         {
-        InputPixelType pixel = m_Input->GetPixel( iP );
+        InputPixelType pixel = this->m_Input->GetPixel( iP );
         Accumulate( pixel, h_val );
         return  h_val * ( pixel - m_Mean ) * ( pixel - m_Mean );
         }
