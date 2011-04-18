@@ -73,7 +73,7 @@ public:
   typedef typename LevelSetContainerType::HessianType  HessianType;
 
   typedef HeavisideStepFunctionBase< LevelSetOutputType, LevelSetOutputType >
-            HeavisideType;
+                                          HeavisideType;
   typedef typename HeavisideType::Pointer HeavisidePointer;
 
   itkSetObjectMacro( Heaviside, HeavisideType );
