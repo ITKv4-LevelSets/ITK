@@ -67,45 +67,47 @@ public:
   typedef typename Superclass::RealType   RealType;
 
   /** Evaluate at the specified input position */
-  virtual OutputType Evaluate(const InputType & input) const
+  OutputType Evaluate(const InputType & input) const
   {
-    if ( input >= this->GetEpsilon() )
+    if ( static_cast< RealType >( input ) >= this->GetEpsilon() )
       {
-      return 1.0;
+      return NumericTraits< OutputType >::One;
       }
     else
       {
-      if ( input <= -this->GetEpsilon() )
+      if ( static_cast< RealType >( input ) <= -this->GetEpsilon() )
         {
-        return 0.0;
+        return NumericTraits< OutputType >::Zero;
         }
       else
         {
         const RealType angleFactor = 0.5 * vnl_math::pi * this->GetOneOverEpsilon();
         const RealType angle = input * angleFactor;
-        return 0.5 * ( 1.0 + vcl_sin(angle) );
+
+        return static_cast< OutputType >( 0.5 * ( 1.0 + vcl_sin( angle ) ) );
         }
       }
   }
 
   /** Evaluate the derivative at the specified input position */
-  virtual OutputType EvaluateDerivative(const InputType & input) const
+  OutputType EvaluateDerivative(const InputType & input) const
   {
-    if ( vnl_math_abs(input) >= this->GetEpsilon() )
+    if ( vnl_math_abs( static_cast< RealType >( input ) ) >= this->GetEpsilon() )
       {
-      return 0.0;
+      return NumericTraits< OutputType >::Zero;
       }
     else
       {
-      const RealType           angleFactor = 0.5 * vnl_math::pi * this->GetOneOverEpsilon();
-      const RealType           angle = input * angleFactor;
-      return 0.5 *angleFactor *vcl_cos(angle);
+      const RealType angleFactor = 0.5 * vnl_math::pi * this->GetOneOverEpsilon();
+      const RealType angle = input * angleFactor;
+
+      return static_cast< OutputType >( 0.5 * angleFactor * vcl_cos(angle) );
       }
   }
 
 protected:
-  SinRegularizedHeavisideStepFunction() {}
-  virtual ~SinRegularizedHeavisideStepFunction() {}
+  SinRegularizedHeavisideStepFunction() : Superclass() {}
+  ~SinRegularizedHeavisideStepFunction() {}
 private:
   SinRegularizedHeavisideStepFunction(const Self &); //purposely not implemented
   void operator=(const Self &);                      //purposely not implemented

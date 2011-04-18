@@ -64,23 +64,17 @@ public:
 
   typedef typename NumericTraits< InputType >::RealType RealType;
 
-  /** Evaluate at the specified input position */
-  virtual OutputType Evaluate(const InputType & input) const = 0;
-
-  /** Evaluate the derivative at the specified input position */
-  virtual OutputType EvaluateDerivative(const InputType & input) const = 0;
-
   void SetEpsilon(const RealType & ieps)
   {
-    this->m_Epsilon = ieps;
-
-    if ( ieps > vnl_math::eps )
+    if ( ieps > NumericTraits< RealType >::epsilon() )
       {
+      this->m_Epsilon = ieps;
       m_OneOverEpsilon = 1.0 / ieps;
       }
     else
       {
-      itkGenericExceptionMacro("ERROR: Epsilon needs to be greater than " << vnl_math::eps);
+      itkGenericExceptionMacro("ERROR: Epsilon needs to be greater than "
+                               << NumericTraits< RealType >::epsilon() );
       }
   }
 
@@ -95,11 +89,10 @@ public:
   }
 
 protected:
-  RegularizedHeavisideStepFunction()
-  {
-    this->m_Epsilon = 1.0;
-    this->m_OneOverEpsilon = 1.0;
-  }
+  RegularizedHeavisideStepFunction() : Superclass(),
+    m_Epsilon( NumericTraits< RealType >::One ),
+    m_OneOverEpsilon( NumericTraits< RealType >::One )
+  {}
 
   virtual ~RegularizedHeavisideStepFunction() {}
 private:

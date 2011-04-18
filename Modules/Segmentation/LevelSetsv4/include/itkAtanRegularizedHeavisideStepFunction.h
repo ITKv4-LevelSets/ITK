@@ -69,13 +69,14 @@ public:
   /** Evaluate at the specified input position */
   virtual OutputType Evaluate(const InputType & input) const
   {
-    return 0.5 + ( vnl_math::one_over_pi * vcl_atan( input * this->GetOneOverEpsilon() ) );
+    const RealType t = static_cast< RealType >( input ) * this->GetOneOverEpsilon();
+    return 0.5 + static_cast< OutputType >( vnl_math::one_over_pi * vcl_atan( t ) );
   }
 
   /** Evaluate the derivative at the specified input position */
   virtual OutputType EvaluateDerivative(const InputType & input) const
   {
-    const RealType t = ( input * this->GetOneOverEpsilon() );
+    const RealType t = static_cast< RealType >( input ) * this->GetOneOverEpsilon();
 
     return static_cast< OutputType >( vnl_math::one_over_pi / ( 1.0 + t * t ) );
   }

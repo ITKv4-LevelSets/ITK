@@ -57,6 +57,10 @@ public:
   typedef SmartPointer< Self >            Pointer;
   typedef SmartPointer< const Self >      ConstPointer;
 
+  /** Run-time type information */
+  itkTypeMacro ( HeavisideStepFunctionBase, FunctionBase );
+
+
   typedef typename Superclass::InputType  InputType;
   typedef typename Superclass::OutputType OutputType;
 
@@ -67,8 +71,9 @@ public:
   virtual OutputType EvaluateDerivative(const InputType & input) const = 0;
 
 protected:
-  HeavisideStepFunctionBase() {}
+  HeavisideStepFunctionBase() : Superclass() {}
   virtual ~HeavisideStepFunctionBase() {}
+
 private:
   HeavisideStepFunctionBase(const Self &); //purposely not implemented
   void operator=(const Self &);            //purposely not implemented

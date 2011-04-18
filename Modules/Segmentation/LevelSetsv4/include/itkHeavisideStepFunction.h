@@ -19,6 +19,8 @@
 #define __itkHeavisideStepFunction_h
 
 #include "itkHeavisideStepFunctionBase.h"
+#include "itkNumericTraits.h"
+#include "itkConceptChecking.h"
 
 namespace itk
 {
@@ -53,7 +55,7 @@ namespace itk
  *
  *
  */
-template< class TInput = float, class TOutput = double >
+template< typename TInput = float, typename TOutput = double >
 class HeavisideStepFunction:
   public HeavisideStepFunctionBase< TInput, TOutput >
 {
@@ -73,14 +75,24 @@ public:
   /** Evaluate at the specified input position */
   virtual OutputType Evaluate(const InputType & input) const
   {
-    return ( input >= 0.0 ) ? 1.0 : 0.0;
+    return ( input >= NumericTraits< InputType >::Zero ) ?
+          NumericTraits< OutputType >::One : NumericTraits< OutputType >::Zero;
   }
 
   /** Evaluate the derivative at the specified input position */
   virtual OutputType EvaluateDerivative(const InputType & input) const
   {
-    return ( input == 0.0 ) ? 1.0 : 0.0;
+    return ( input == NumericTraits< InputType >::Zero ) ?
+          NumericTraits< OutputType >::One : NumericTraits< OutputType >::Zero;
   }
+
+#ifdef ITK_USE_CONCEPT_CHECKING
+  itkConceptMacro( DoubleConvertibleToInputCheck,
+                 ( Concept::Convertible< double, TInput > ) );
+
+  itkConceptMacro( DoubleConvertibleToOutputCheck,
+                 ( Concept::Convertible< double, TOutput > ) );
+#endif // ITK_USE_CONCEPT_CHECKING
 
 protected:
   HeavisideStepFunction() {}
