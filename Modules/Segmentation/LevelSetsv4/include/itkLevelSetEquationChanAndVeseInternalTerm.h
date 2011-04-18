@@ -36,20 +36,29 @@
 #ifndef __itkLevelSetEquationChanAndVeseInternalTerm_h
 #define __itkLevelSetEquationChanAndVeseInternalTerm_h
 
-#include "itkObject.h"
+#include "itkLevelSetEquationTermBase.h"
+#include "itkHeavisideStepFunctionBase.h"
 
 namespace itk
 {
 template< class TInput, // Input image
           class TLevelSetContainer >
-          class LevelSetEquationChanAndVeseInternalTerm : public LevelSetEquationTermBase< TInput,
-          TLevelSetContainer >
+class LevelSetEquationChanAndVeseInternalTerm :
+    public LevelSetEquationTermBase< TInput, TLevelSetContainer >
 {
 public:
-  typedef LevelSetEquationChanAndVeseInternalTerm Self;
-  typedef SmartPointer< Self >                    Pointer;
-  typedef SmartPointer< const Self >              ConstPointer;
-  typedef Object                                  Superclass;
+  typedef LevelSetEquationChanAndVeseInternalTerm         Self;
+  typedef SmartPointer< Self >                            Pointer;
+  typedef SmartPointer< const Self >                      ConstPointer;
+  typedef LevelSetEquationTermBase< TInput,
+                                    TLevelSetContainer >  Superclass;
+
+  /** Method for creation through object factory */
+  itkNewMacro( Self );
+
+  /** Run-time type information */
+  itkTypeMacro( LevelSetEquationChanAndVeseInternalTerm,
+                LevelSetEquationTermBase );
 
   typedef TInput                                  InputType;
   typedef typename InputType::Pointer             InputPointer;
@@ -63,11 +72,25 @@ public:
   typedef typename LevelSetContainerType::GradientType GradientType;
   typedef typename LevelSetContainerType::HessianType  HessianType;
 
+  typedef HeavisideStepFunctionBase< LevelSetOutputType, LevelSetOutputType >
+            HeavisideType;
+  typedef typename HeavisideType::Pointer HeavisidePointer;
+
+  itkSetObjectMacro( Heaviside, HeavisideType );
+  itkGetObjectMacro( Heaviside, HeavisideType );
+
   virtual void Update()
   {
-    m_Mean = m_TotalValue / m_TotalH;
+    if( m_TotalH > NumericTraits< LevelSetOutputType >::epsilon() )
+      {
+      m_Mean = m_TotalValue / m_TotalH;
+      }
+    else
+      {
+      m_Mean = NumericTraits< InputPixelRealType >::Zero;
+      }
     m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
-    m_TotalH = NumericTraits< InputPixelRealType >::Zero;
+    m_TotalH = NumericTraits< LevelSetOutputType >::Zero;
   }
 
 //   virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
@@ -76,7 +99,12 @@ public:
 //     }
 
 protected:
-  LevelSetEquationChanAndVeseInternalTerm() : Superclass() {}
+  LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
+    m_Heaviside( NULL ),
+    m_Mean( NumericTraits< InputPixelRealType >::Zero ),
+    m_TotalH( NumericTraits< LevelSetOutputType >::Zero ),
+    m_TotalValue( NumericTraits< InputPixelRealType >::Zero )
+  {}
 
   virtual ~LevelSetEquationChanAndVeseInternalTerm() {}
 
@@ -90,19 +118,29 @@ protected:
   // his specialized term
   virtual LevelSetOutputType Value( const LevelSetInputType& iP )
     {
-      LevelSetOutputType value = this->m_LevelSetContainer[this->m_CurrentLevelSet]->Evaluate( iP );
-      LevelSetOutputType h_val = Heaviside( value );
+    LevelSetOutputType value = this->m_LevelSetContainer[this->m_CurrentLevelSet]->Evaluate( iP );
+    if( m_Heaviside.IsNotNull() )
+      {
+      LevelSetOutputType h_val = this->m_Heaviside->Evaluate( value );
 
       if( h_val > 0.5 * NumericTraits< LevelSetOutputType >::One )
         {
         InputPixelType pixel = this->m_Input->GetPixel( iP );
-        Accumulate( pixel, h_val );
-        return  h_val * ( pixel - m_Mean ) * ( pixel - m_Mean );
+
+        this->Accumulate( pixel, h_val );
+
+        return  h_val *
+            static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
         }
       else
         {
         return NumericTraits< LevelSetOutputType >::Zero;
         }
+      }
+    else
+      {
+      itkWarningMacro( << "m_Heaviside is NULL" );
+      }
     }
 
       // This should be in Iteration class
@@ -114,15 +152,17 @@ protected:
       // Compute internal and external and overlap terms
 //     }
 
-  void Accumulate( InputPixelType iPix, LevelSetOutputType iH )
+  void Accumulate( const InputPixelType& iPix,
+                   const LevelSetOutputType& iH )
     {
     m_TotalValue += static_cast< InputPixelRealType >( iPix ) * static_cast< InputPixelRealType >( iH );
     m_TotalH += static_cast< InputPixelRealType >( iH );
     }
 
-  InputPixelRealType m_Mean;
-  InputPixelRealType m_TotalH;
-  InputPixelRealType m_TotalValue;
+  HeavisidePointer    m_Heaviside;
+  InputPixelRealType  m_Mean;
+  LevelSetOutputType  m_TotalH;
+  InputPixelRealType  m_TotalValue;
 
 //   InputPointer m_Input;
 //   LevelSetContainerPointer m_LevelSetContainer;
