@@ -38,6 +38,7 @@
 
 #include "itkLevelSetEquationTermBase.h"
 #include "itkHeavisideStepFunctionBase.h"
+#include "itkNumericTraits.h"
 
 namespace itk
 {
@@ -65,12 +66,14 @@ public:
   typedef typename InputType::PixelType           InputPixelType;
   typedef typename InputType::PixelRealType       InputPixelRealType;
 
-  typedef TLevelSetContainer                           LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer      LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::OutputType   LevelSetOutputType;
-  typedef typename LevelSetContainerType::InputType    LevelSetInputType;
-  typedef typename LevelSetContainerType::GradientType GradientType;
-  typedef typename LevelSetContainerType::HessianType  HessianType;
+  typedef TLevelSetContainer                              LevelSetContainerType;
+  typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
+  typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
+  typedef typename LevelSetContainerType::OutputType      LevelSetOutputType;
+  typedef typename LevelSetContainerType::InputType       LevelSetInputType;
+  typedef typename LevelSetContainerType::GradientType    GradientType;
+  typedef typename LevelSetContainerType::HessianType     HessianType;
 
   typedef HeavisideStepFunctionBase< LevelSetOutputType, LevelSetOutputType >
                                           HeavisideType;
@@ -101,6 +104,7 @@ public:
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
     m_Heaviside( NULL ),
+    m_CurrentLevelSetPointer( NULL ),
     m_Mean( NumericTraits< InputPixelRealType >::Zero ),
     m_TotalH( NumericTraits< LevelSetOutputType >::Zero ),
     m_TotalValue( NumericTraits< InputPixelRealType >::Zero )
@@ -118,9 +122,23 @@ protected:
   // his specialized term
   virtual LevelSetOutputType Value( const LevelSetInputType& iP )
     {
-    LevelSetOutputType value = this->m_LevelSetContainer[this->m_CurrentLevelSet]->Evaluate( iP );
+    if( m_CurrentLevelSetPointer.IsNull() )
+      {
+      m_CurrentLevelSetPointer =
+          this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
+
+      if( m_CurrentLevelSetPointer.IsNull() )
+        {
+        itkWarningMacro(
+              <<"m_CurrentLevelSet does not exist in the level set container" );
+
+        return NumericTraits< LevelSetOutputType >::Zero;
+        }
+      }
+
     if( m_Heaviside.IsNotNull() )
       {
+      LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
       LevelSetOutputType h_val = this->m_Heaviside->Evaluate( value );
 
       if( h_val > 0.5 * NumericTraits< LevelSetOutputType >::One )
@@ -132,15 +150,13 @@ protected:
         return  h_val *
             static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
         }
-      else
-        {
-        return NumericTraits< LevelSetOutputType >::Zero;
-        }
       }
     else
       {
       itkWarningMacro( << "m_Heaviside is NULL" );
       }
+
+    return NumericTraits< LevelSetOutputType >::Zero;
     }
 
       // This should be in Iteration class
@@ -160,6 +176,7 @@ protected:
     }
 
   HeavisidePointer    m_Heaviside;
+  LevelSetPointer     m_CurrentLevelSetPointer;
   InputPixelRealType  m_Mean;
   LevelSetOutputType  m_TotalH;
   InputPixelRealType  m_TotalValue;
