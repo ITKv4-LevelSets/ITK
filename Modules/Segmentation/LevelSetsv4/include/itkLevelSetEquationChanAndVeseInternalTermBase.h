@@ -47,7 +47,7 @@ class LevelSetEquationChanAndVeseInternalTermBase :
     public LevelSetEquationTermBase< TInput, TLevelSetContainer >
 {
 public:
-  typedef LevelSetEquationChanAndVeseInternalTermBase         Self;
+  typedef LevelSetEquationChanAndVeseInternalTermBase     Self;
   typedef SmartPointer< Self >                            Pointer;
   typedef SmartPointer< const Self >                      ConstPointer;
   typedef LevelSetEquationTermBase< TInput,
