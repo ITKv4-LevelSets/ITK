@@ -67,51 +67,19 @@ public:
   typedef typename Superclass::RealType   RealType;
 
   /** Evaluate at the specified input position */
-  OutputType Evaluate(const InputType & input) const
-  {
-    if ( static_cast< RealType >( input ) >= this->GetEpsilon() )
-      {
-      return NumericTraits< OutputType >::One;
-      }
-    else
-      {
-      if ( static_cast< RealType >( input ) <= -this->GetEpsilon() )
-        {
-        return NumericTraits< OutputType >::Zero;
-        }
-      else
-        {
-        const RealType angleFactor = 0.5 * vnl_math::pi * this->GetOneOverEpsilon();
-        const RealType angle = input * angleFactor;
-
-        return static_cast< OutputType >( 0.5 * ( 1.0 + vcl_sin( angle ) ) );
-        }
-      }
-  }
+  OutputType Evaluate(const InputType & input) const;
 
   /** Evaluate the derivative at the specified input position */
-  OutputType EvaluateDerivative(const InputType & input) const
-  {
-    if ( vnl_math_abs( static_cast< RealType >( input ) ) >= this->GetEpsilon() )
-      {
-      return NumericTraits< OutputType >::Zero;
-      }
-    else
-      {
-      const RealType angleFactor = 0.5 * vnl_math::pi * this->GetOneOverEpsilon();
-      const RealType angle = input * angleFactor;
-
-      return static_cast< OutputType >( 0.5 * angleFactor * vcl_cos(angle) );
-      }
-  }
+  OutputType EvaluateDerivative(const InputType & input) const;
 
 protected:
-  SinRegularizedHeavisideStepFunction() : Superclass() {}
-  ~SinRegularizedHeavisideStepFunction() {}
+  SinRegularizedHeavisideStepFunction();
+  ~SinRegularizedHeavisideStepFunction();
 private:
   SinRegularizedHeavisideStepFunction(const Self &); //purposely not implemented
   void operator=(const Self &);                      //purposely not implemented
 };
 }
 
+#include "itkSinRegularizedHeavisideStepFunction.txx"
 #endif

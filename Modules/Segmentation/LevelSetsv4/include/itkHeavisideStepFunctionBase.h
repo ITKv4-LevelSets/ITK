@@ -19,6 +19,7 @@
 #define __itkHeavisideStepFunctionBase_h
 
 #include "itkFunctionBase.h"
+#include "itkConceptChecking.h"
 
 namespace itk
 {
@@ -69,6 +70,14 @@ public:
 
   /** Evaluate the derivative at the specified input position */
   virtual OutputType EvaluateDerivative(const InputType & input) const = 0;
+
+#ifdef ITK_USE_CONCEPT_CHECKING
+  itkConceptMacro( DoubleConvertibleToInputCheck,
+                 ( Concept::Convertible< double, TInput > ) );
+
+  itkConceptMacro( DoubleConvertibleToOutputCheck,
+                 ( Concept::Convertible< double, TOutput > ) );
+#endif // ITK_USE_CONCEPT_CHECKING
 
 protected:
   HeavisideStepFunctionBase() : Superclass() {}

@@ -51,7 +51,8 @@ namespace itk
  *
  */
 template< class TInput = float, class TOutput = double >
-class RegularizedHeavisideStepFunction:public HeavisideStepFunctionBase< TInput, TOutput >
+class RegularizedHeavisideStepFunction:
+    public HeavisideStepFunctionBase< TInput, TOutput >
 {
 public:
   typedef RegularizedHeavisideStepFunction             Self;
@@ -64,37 +65,14 @@ public:
 
   typedef typename NumericTraits< InputType >::RealType RealType;
 
-  void SetEpsilon(const RealType & ieps)
-  {
-    if ( ieps > NumericTraits< RealType >::epsilon() )
-      {
-      this->m_Epsilon = ieps;
-      m_OneOverEpsilon = 1.0 / ieps;
-      }
-    else
-      {
-      itkGenericExceptionMacro("ERROR: Epsilon needs to be greater than "
-                               << NumericTraits< RealType >::epsilon() );
-      }
-  }
+  void SetEpsilon(const RealType & ieps);
 
-  RealType GetEpsilon() const
-  {
-    return this->m_Epsilon;
-  }
-
-  RealType GetOneOverEpsilon() const
-  {
-    return this->m_OneOverEpsilon;
-  }
+  itkGetConstMacro( Epsilon, RealType );
+  itkGetConstMacro( OneOverEpsilon, RealType );
 
 protected:
-  RegularizedHeavisideStepFunction() : Superclass(),
-    m_Epsilon( NumericTraits< RealType >::One ),
-    m_OneOverEpsilon( NumericTraits< RealType >::One )
-  {}
-
-  virtual ~RegularizedHeavisideStepFunction() {}
+  RegularizedHeavisideStepFunction();
+  virtual ~RegularizedHeavisideStepFunction();
 private:
   RegularizedHeavisideStepFunction(const Self &); //purposely not implemented
   void operator=(const Self &);                   //purposely not implemented
@@ -104,4 +82,5 @@ private:
 };
 }
 
+#include "itkRegularizedHeavisideStepFunction.txx"
 #endif
