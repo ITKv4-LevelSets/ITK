@@ -116,9 +116,8 @@ public:
 
     if( it != m_Container.end() )
       {
-      // ARNAUD: Should these two statements be reverse ordered??
-      m_Container.erase( it );
       it->second = NULL;
+      m_Container.erase( it );
 
       this->Modified();
 
