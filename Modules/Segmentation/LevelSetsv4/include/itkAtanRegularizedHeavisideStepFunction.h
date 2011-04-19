@@ -48,7 +48,7 @@ namespace itk
  *
  *
  */
-template< class TInput = float, class TOutput = double >
+template< typename TInput = float, typename TOutput = double >
 class AtanRegularizedHeavisideStepFunction:
   public RegularizedHeavisideStepFunction< TInput, TOutput >
 {

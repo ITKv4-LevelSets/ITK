@@ -19,8 +19,6 @@
 #define __itkRegularizedHeavisideStepFunction_h
 
 #include "itkHeavisideStepFunctionBase.h"
-#include "itkNumericTraits.h"
-#include "vnl/vnl_math.h"
 
 namespace itk
 {
@@ -50,7 +48,7 @@ namespace itk
  *
  *
  */
-template< class TInput = float, class TOutput = double >
+template< typename TInput = float, typename TOutput = double >
 class RegularizedHeavisideStepFunction:
     public HeavisideStepFunctionBase< TInput, TOutput >
 {

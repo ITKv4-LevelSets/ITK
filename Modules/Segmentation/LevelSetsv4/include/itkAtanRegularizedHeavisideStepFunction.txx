@@ -19,20 +19,21 @@
 #define __itkAtanRegularizedHeavisideStepFunction_txx
 
 #include "itkAtanRegularizedHeavisideStepFunction.h"
+#include "vnl/vnl_math.h"
 
 namespace itk
 {
-template< class TInput, class TOutput >
+template< typename TInput, typename TOutput >
 AtanRegularizedHeavisideStepFunction< TInput, TOutput >::
 AtanRegularizedHeavisideStepFunction() : Superclass()
 {}
 
-template< class TInput, class TOutput >
+template< typename TInput, typename TOutput >
 AtanRegularizedHeavisideStepFunction< TInput, TOutput >::
 ~AtanRegularizedHeavisideStepFunction()
 {}
 
-template< class TInput, class TOutput >
+template< typename TInput, typename TOutput >
 typename AtanRegularizedHeavisideStepFunction< TInput, TOutput >::OutputType
 AtanRegularizedHeavisideStepFunction< TInput, TOutput >
 ::Evaluate(const InputType & input) const
@@ -42,7 +43,7 @@ AtanRegularizedHeavisideStepFunction< TInput, TOutput >
 }
 
 /** Evaluate the derivative at the specified input position */
-template< class TInput, class TOutput >
+template< typename TInput, typename TOutput >
 typename AtanRegularizedHeavisideStepFunction< TInput, TOutput >::OutputType
 AtanRegularizedHeavisideStepFunction< TInput, TOutput >
 ::EvaluateDerivative(const InputType & input) const

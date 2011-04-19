@@ -19,21 +19,22 @@
 #define __itkSinRegularizedHeavisideStepFunction_txx
 
 #include "itkSinRegularizedHeavisideStepFunction.h"
+#include "vnl/vnl_math.h"
 
 namespace itk
 {
-template< class TInput, class TOutput>
+template< typename TInput, typename TOutput >
 SinRegularizedHeavisideStepFunction< TInput, TOutput >
 ::SinRegularizedHeavisideStepFunction() : Superclass()
 {}
 
-template< class TInput, class TOutput>
+template< typename TInput, typename TOutput >
 SinRegularizedHeavisideStepFunction< TInput, TOutput >
 ::~SinRegularizedHeavisideStepFunction()
 {}
 
 
-template< class TInput, class TOutput>
+template< typename TInput, typename TOutput >
 typename SinRegularizedHeavisideStepFunction< TInput, TOutput >::OutputType
 SinRegularizedHeavisideStepFunction< TInput, TOutput >
 ::Evaluate( const InputType& input ) const
@@ -58,7 +59,7 @@ SinRegularizedHeavisideStepFunction< TInput, TOutput >
     }
 }
 
-template< class TInput, class TOutput>
+template< typename TInput, typename TOutput >
 typename SinRegularizedHeavisideStepFunction< TInput, TOutput >::OutputType
 SinRegularizedHeavisideStepFunction< TInput, TOutput >
 ::EvaluateDerivative(const InputType & input) const
