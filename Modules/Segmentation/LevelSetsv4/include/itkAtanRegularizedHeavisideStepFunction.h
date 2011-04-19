@@ -67,29 +67,22 @@ public:
   typedef typename Superclass::RealType   RealType;
 
   /** Evaluate at the specified input position */
-  virtual OutputType Evaluate(const InputType & input) const
-  {
-    const RealType t = static_cast< RealType >( input ) * this->GetOneOverEpsilon();
-    return 0.5 + static_cast< OutputType >( vnl_math::one_over_pi * vcl_atan( t ) );
-  }
+  virtual OutputType Evaluate(const InputType & input) const;
 
   /** Evaluate the derivative at the specified input position */
-  virtual OutputType EvaluateDerivative(const InputType & input) const
-  {
-    const RealType t = static_cast< RealType >( input ) * this->GetOneOverEpsilon();
-
-    return static_cast< OutputType >( vnl_math::one_over_pi / ( 1.0 + t * t ) );
-  }
+  virtual OutputType EvaluateDerivative(const InputType & input) const;
 
 protected:
-  AtanRegularizedHeavisideStepFunction() {}
-  virtual ~AtanRegularizedHeavisideStepFunction() {}
+
+  AtanRegularizedHeavisideStepFunction();
+  virtual ~AtanRegularizedHeavisideStepFunction();
+
 private:
-  AtanRegularizedHeavisideStepFunction(const Self &); //purposely not
-                                                      // implemented
-  void operator=(const Self &);                       //purposely not
-                                                      // implemented
+  /** purposely not implemented */
+  AtanRegularizedHeavisideStepFunction(const Self &);
+  void operator=(const Self &);
 };
 }
 
+#include "itkAtanRegularizedHeavisideStepFunction.txx"
 #endif
