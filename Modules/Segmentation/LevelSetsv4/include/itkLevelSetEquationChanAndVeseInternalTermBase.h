@@ -200,15 +200,16 @@ public LevelSetEquationChanAndVeseInternalTermBase<
   {
 public:
   typedef LevelSetEquationChanAndVeseInternalTerm     Self;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  typedef SmartPointer< Self >                        Pointer;
+  typedef SmartPointer< const Self >                  ConstPointer;
 
   typedef Image< TPixel, VImageDimension > InputType;
+
   typedef LevelSetEquationChanAndVeseInternalTermBase<
     InputType,
-    TLevelSetContainer > Superclass;
-  typedef typename Superclass::InputPixelType InputPixelType;
-  typedef typename Superclass::LevelSetInputType LevelSetInputType;
+    TLevelSetContainer >                          Superclass;
+  typedef typename Superclass::InputPixelType     InputPixelType;
+  typedef typename Superclass::LevelSetInputType  LevelSetInputType;
 
   itkNewMacro(Self);
 
