@@ -20,7 +20,6 @@
 
 #include "itkHeavisideStepFunctionBase.h"
 #include "itkNumericTraits.h"
-#include "itkConceptChecking.h"
 
 namespace itk
 {
@@ -73,34 +72,20 @@ public:
   typedef typename Superclass::OutputType OutputType;
 
   /** Evaluate at the specified input position */
-  virtual OutputType Evaluate(const InputType & input) const
-  {
-    return ( input >= NumericTraits< InputType >::Zero ) ?
-          NumericTraits< OutputType >::One : NumericTraits< OutputType >::Zero;
-  }
+  OutputType Evaluate(const InputType & input) const;
 
   /** Evaluate the derivative at the specified input position */
-  virtual OutputType EvaluateDerivative(const InputType & input) const
-  {
-    return ( input == NumericTraits< InputType >::Zero ) ?
-          NumericTraits< OutputType >::One : NumericTraits< OutputType >::Zero;
-  }
-
-#ifdef ITK_USE_CONCEPT_CHECKING
-  itkConceptMacro( DoubleConvertibleToInputCheck,
-                 ( Concept::Convertible< double, TInput > ) );
-
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                 ( Concept::Convertible< double, TOutput > ) );
-#endif // ITK_USE_CONCEPT_CHECKING
+  OutputType EvaluateDerivative(const InputType & input) const;
 
 protected:
-  HeavisideStepFunction() {}
-  virtual ~HeavisideStepFunction() {}
+  HeavisideStepFunction();
+  ~HeavisideStepFunction();
+
 private:
   HeavisideStepFunction(const Self &); //purposely not implemented
   void operator=(const Self &);        //purposely not implemented
 };
 }
 
+#include "itkHeavisideStepFunction.txx"
 #endif
