@@ -37,6 +37,7 @@
 #define __itkLevelSetEquationTermBase_h
 
 #include "itkObject.h"
+#include "itkNumericTraits.h"
 
 namespace itk
 {
@@ -50,8 +51,11 @@ public:
   typedef SmartPointer< const Self > ConstPointer;
   typedef Object                     Superclass;
 
-  typedef TInput                      InputType;
-  typedef typename InputType::Pointer InputPointer;
+  typedef TInput                        InputType;
+  typedef typename InputType::Pointer   InputPointer;
+  typedef typename InputType::PixelType InputPixelType;
+  typedef typename NumericTraits< InputPixelType >::RealType
+                                        InputPixelRealType;
 
   typedef TLevelSetContainer                             LevelSetContainerType;
   typedef typename LevelSetContainerType::IdentifierType LevelSetIdentifierType;
@@ -90,6 +94,7 @@ protected:
 
   virtual ~LevelSetEquationTermBase() {}
 
+  virtual InputPixelRealType GetInputData( const LevelSetInputType& iP ) const = 0;
   virtual void SetDefaultTermName() = 0;
   virtual LevelSetOutputType Value( const LevelSetInputType& iP ) = 0;
 

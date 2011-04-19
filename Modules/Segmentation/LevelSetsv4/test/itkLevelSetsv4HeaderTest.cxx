@@ -31,7 +31,7 @@
 #include "itkLevelSetContainerBase.h"
 #include "itkLevelSetEquationTermBase.h"
 #include "itkLevelSetEquationTermContainerBase.h"
-#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
+#include "itkLevelSetEquationChanAndVeseInternalTermBase.h"
 #include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkHeavisideStepFunctionBase.h"
 #include "itkHeavisideStepFunction.h"

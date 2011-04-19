@@ -32,8 +32,8 @@
 
 =========================================================================*/
 
-#ifndef __itkLevelSetEquationChanAndVeseInternalTerm_h
-#define __itkLevelSetEquationChanAndVeseInternalTerm_h
+#ifndef __itkLevelSetEquationChanAndVeseInternalTermBase_h
+#define __itkLevelSetEquationChanAndVeseInternalTermBase_h
 
 #include "itkLevelSetEquationTermBase.h"
 #include "itkHeavisideStepFunctionBase.h"
@@ -43,11 +43,11 @@ namespace itk
 {
 template< class TInput, // Input image
           class TLevelSetContainer >
-class LevelSetEquationChanAndVeseInternalTerm :
+class LevelSetEquationChanAndVeseInternalTermBase :
     public LevelSetEquationTermBase< TInput, TLevelSetContainer >
 {
 public:
-  typedef LevelSetEquationChanAndVeseInternalTerm         Self;
+  typedef LevelSetEquationChanAndVeseInternalTermBase         Self;
   typedef SmartPointer< Self >                            Pointer;
   typedef SmartPointer< const Self >                      ConstPointer;
   typedef LevelSetEquationTermBase< TInput,
@@ -57,23 +57,22 @@ public:
   itkNewMacro( Self );
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetEquationChanAndVeseInternalTerm,
+  itkTypeMacro( LevelSetEquationChanAndVeseInternalTermBase,
                 LevelSetEquationTermBase );
 
   typedef TInput                                  InputType;
-  typedef typename InputType::Pointer             InputPointer;
-  typedef typename InputType::PixelType           InputPixelType;
-  typedef typename NumericTraits< InputPixelType >::RealType
-                                                  InputPixelRealType;
+  typedef typename Superclass::InputPointer       InputPointer;
+  typedef typename Superclass::InputPixelType     InputPixelType;
+  typedef typename Superclass::InputPixelRealType InputPixelRealType;
 
   typedef TLevelSetContainer                              LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
-  typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
-  typedef typename LevelSetContainerType::OutputType      LevelSetOutputType;
-  typedef typename LevelSetContainerType::InputType       LevelSetInputType;
-  typedef typename LevelSetContainerType::GradientType    GradientType;
-  typedef typename LevelSetContainerType::HessianType     HessianType;
+  typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
+  typedef typename Superclass::LevelSetType               LevelSetType;
+  typedef typename Superclass::LevelSetPointer            LevelSetPointer;
+  typedef typename Superclass::OutputType                 LevelSetOutputType;
+  typedef typename Superclass::InputType                  LevelSetInputType;
+  typedef typename Superclass::GradientType               GradientType;
+  typedef typename Superclass::HessianType                HessianType;
 
   typedef HeavisideStepFunctionBase< LevelSetOutputType, LevelSetOutputType >
                                           HeavisideType;
@@ -96,13 +95,8 @@ public:
     m_TotalH = NumericTraits< LevelSetOutputType >::Zero;
   }
 
-//   virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
-//     {
-//     return m_Coefficient * this->Value( iP );
-//     }
-
 protected:
-  LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
+  LevelSetEquationChanAndVeseInternalTermBase() : Superclass(),
     m_Heaviside( NULL ),
     m_CurrentLevelSetPointer( NULL ),
     m_Mean( NumericTraits< InputPixelRealType >::Zero ),
@@ -110,7 +104,7 @@ protected:
     m_TotalValue( NumericTraits< InputPixelRealType >::Zero )
   {}
 
-  virtual ~LevelSetEquationChanAndVeseInternalTerm() {}
+  virtual ~LevelSetEquationChanAndVeseInternalTermBase() {}
 
   virtual void SetDefaultTermName()
     {
@@ -187,7 +181,7 @@ protected:
 //   std::string m_TermName;
 
 private:
-  LevelSetEquationChanAndVeseInternalTerm( const Self& );
+  LevelSetEquationChanAndVeseInternalTermBase( const Self& );
   void operator = ( const Self& );
 };
 }
