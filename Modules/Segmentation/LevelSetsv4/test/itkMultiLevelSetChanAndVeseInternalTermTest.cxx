@@ -21,7 +21,7 @@
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
 #include "itkLevelSetContainerBase.h"
-#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
+#include "itkLevelSetEquationChanAndVeseInternalTermBase.h"
 #include "itkLevelSetEquationTermContainerBase.h"
 #include "itkAtanRegularizedHeavisideStepFunction.h"
 

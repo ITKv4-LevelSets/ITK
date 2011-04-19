@@ -38,6 +38,7 @@
 #include "itkLevelSetEquationTermBase.h"
 #include "itkHeavisideStepFunctionBase.h"
 #include "itkNumericTraits.h"
+#include "itkImage.h"
 
 namespace itk
 {
@@ -53,9 +54,6 @@ public:
   typedef LevelSetEquationTermBase< TInput,
                                     TLevelSetContainer >  Superclass;
 
-  /** Method for creation through object factory */
-  itkNewMacro( Self );
-
   /** Run-time type information */
   itkTypeMacro( LevelSetEquationChanAndVeseInternalTermBase,
                 LevelSetEquationTermBase );
@@ -69,10 +67,10 @@ public:
   typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
   typedef typename Superclass::LevelSetType               LevelSetType;
   typedef typename Superclass::LevelSetPointer            LevelSetPointer;
-  typedef typename Superclass::OutputType                 LevelSetOutputType;
-  typedef typename Superclass::InputType                  LevelSetInputType;
-  typedef typename Superclass::GradientType               GradientType;
-  typedef typename Superclass::HessianType                HessianType;
+  typedef typename Superclass::LevelSetOutputType         LevelSetOutputType;
+  typedef typename Superclass::LevelSetInputType          LevelSetInputType;
+  typedef typename Superclass::LevelSetGradientType       LevelSetGradientType;
+  typedef typename Superclass::LevelSetHessianType        LevelSetHessianType;
 
   typedef HeavisideStepFunctionBase< LevelSetOutputType, LevelSetOutputType >
                                           HeavisideType;
@@ -137,7 +135,7 @@ protected:
 
       if( h_val > 0.5 * NumericTraits< LevelSetOutputType >::One )
         {
-        InputPixelType pixel = this->m_Input->GetPixel( iP );
+        InputPixelType pixel = this->GetInputData( iP );
 
         this->Accumulate( pixel, h_val );
 
@@ -184,5 +182,49 @@ private:
   LevelSetEquationChanAndVeseInternalTermBase( const Self& );
   void operator = ( const Self& );
 };
+
+template< class TInput,
+          class TLevelSetContainer >
+class LevelSetEquationChanAndVeseInternalTerm
+{};
+
+template< class TPixel,
+          unsigned int VImageDimension,
+          class TLevelSetContainer >
+class LevelSetEquationChanAndVeseInternalTerm<
+    Image< TPixel, VImageDimension >,
+    TLevelSetContainer > :
+public LevelSetEquationChanAndVeseInternalTermBase<
+    Image< TPixel, VImageDimension >,
+    TLevelSetContainer >
+  {
+public:
+  typedef LevelSetEquationChanAndVeseInternalTerm     Self;
+  typedef SmartPointer< Self >                            Pointer;
+  typedef SmartPointer< const Self >                      ConstPointer;
+
+  typedef Image< TPixel, VImageDimension > InputType;
+  typedef LevelSetEquationChanAndVeseInternalTermBase<
+    InputType,
+    TLevelSetContainer > Superclass;
+  typedef typename Superclass::InputPixelType InputPixelType;
+  typedef typename Superclass::LevelSetInputType LevelSetInputType;
+
+  itkNewMacro(Self);
+
+  /** Run-time type information */
+  itkTypeMacro( LevelSetEquationChanAndVeseInternalTerm,
+                LevelSetEquationChanAndVeseInternalTermBase );
+
+protected:
+  LevelSetEquationChanAndVeseInternalTerm() : Superclass() {}
+  ~LevelSetEquationChanAndVeseInternalTerm() {}
+
+  InputPixelType GetInputData( const LevelSetInputType& iP ) const
+    {
+    return this->m_Input->GetPixel( iP );
+    }
+  };
+
 }
 #endif

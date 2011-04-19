@@ -58,12 +58,15 @@ public:
                                         InputPixelRealType;
 
   typedef TLevelSetContainer                             LevelSetContainerType;
-  typedef typename LevelSetContainerType::IdentifierType LevelSetIdentifierType;
   typedef typename LevelSetContainerType::Pointer        LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::LevelSetType   LevelSetType;
+  typedef typename LevelSetContainerType::LevelSetPointer
+                                                         LevelSetPointer;
+  typedef typename LevelSetContainerType::IdentifierType LevelSetIdentifierType;
   typedef typename LevelSetContainerType::OutputType     LevelSetOutputType;
   typedef typename LevelSetContainerType::InputType      LevelSetInputType;
-  typedef typename LevelSetContainerType::GradientType   GradientType;
-  typedef typename LevelSetContainerType::HessianType    HessianType;
+  typedef typename LevelSetContainerType::GradientType   LevelSetGradientType;
+  typedef typename LevelSetContainerType::HessianType    LevelSetHessianType;
 
   itkSetMacro( Coefficient, LevelSetOutputType );
   itkGetMacro( Coefficient, LevelSetOutputType );
@@ -94,7 +97,7 @@ protected:
 
   virtual ~LevelSetEquationTermBase() {}
 
-  virtual InputPixelRealType GetInputData( const LevelSetInputType& iP ) const = 0;
+  virtual InputPixelType GetInputData( const LevelSetInputType& iP ) const = 0;
   virtual void SetDefaultTermName() = 0;
   virtual LevelSetOutputType Value( const LevelSetInputType& iP ) = 0;
 
