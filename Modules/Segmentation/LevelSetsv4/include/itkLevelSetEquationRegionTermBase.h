@@ -44,20 +44,20 @@ template< class TInput,
 class LevelSetEquationRegionTermBase : public LevelSetEquationTermBase
 {
 public:
-  typedef LevelSetEquationRegionTermBase Self;
-  typedef SmartPointer< Self >    Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  typedef LevelSetEquationRegionTermBase                         Self;
+  typedef SmartPointer< Self >                                   Pointer;
+  typedef SmartPointer< const Self >                             ConstPointer;
   typedef LevelSetEquationTermBase< TInput, TLevelSetContainer > Superclass;
 
-  typedef TInput InputType;
+  typedef TInput                      InputType;
   typedef typename InputType::Pointer InputPointer;
 
-  typedef TLevelSetContainer LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::OutputType LevelSetOutputType;
-  typedef typename LevelSetContainerType::InputType  LevelSetInputType;
+  typedef TLevelSetContainer                           LevelSetContainerType;
+  typedef typename LevelSetContainerType::Pointer      LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::OutputType   LevelSetOutputType;
+  typedef typename LevelSetContainerType::InputType    LevelSetInputType;
   typedef typename LevelSetContainerType::GradientType GradientType;
-  typedef typename LevelSetContainerType::HessianType HessianType;
+  typedef typename LevelSetContainerType::HessianType  HessianType;
 
 protected:
   LevelSetEquationRegionTermBase() : Superclass()

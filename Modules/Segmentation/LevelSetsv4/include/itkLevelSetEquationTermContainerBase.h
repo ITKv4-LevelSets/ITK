@@ -35,6 +35,7 @@
 #ifndef __itkLevelSetEquationTermContainerBase_h
 #define __itkLevelSetEquationTermContainerBase_h
 
+#include "itkLevelSetEquationTermBase.h"
 #include "itkObject.h"
 
 namespace itk
@@ -118,5 +119,5 @@ private:
   void operator = ( const Self& );
 };
 
-};
+}
 #endif // __itkLevelSetEquationTermContainerBase_h

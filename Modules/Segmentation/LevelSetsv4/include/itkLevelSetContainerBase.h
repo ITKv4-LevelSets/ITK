@@ -32,8 +32,8 @@
 
 =========================================================================*/
 
-#ifndef ITKLEVELSETCONTAINERBASE_H
-#define ITKLEVELSETCONTAINERBASE_H
+#ifndef __itkLevelSetContainerBase_h
+#define __itkLevelSetContainerBase_h
 
 #include <map>
 #include "itkObject.h"
@@ -45,10 +45,10 @@ template< class TIdentifier,
 class LevelSetContainerBase : public Object
 {
 public:
-  typedef LevelSetContainerBase Self;
-  typedef SmartPointer< Self > Pointer;
+  typedef LevelSetContainerBase      Self;
+  typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
-  typedef Object Superclass;
+  typedef Object                     Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro ( Self );
@@ -58,17 +58,20 @@ public:
 
   typedef TIdentifier IdentifierType;
 
-  typedef TLevelSet   LevelSetType;
-  typedef typename LevelSetType::Pointer LevelSetPointer;
-  typedef typename LevelSetType::InputType InputType;
-  typedef typename LevelSetType::OutputType OutputType;
+  typedef TLevelSet                           LevelSetType;
+  typedef typename LevelSetType::Pointer      LevelSetPointer;
+  typedef typename LevelSetType::InputType    InputType;
+  typedef typename LevelSetType::OutputType   OutputType;
   typedef typename LevelSetType::GradientType GradientType;
-  typedef typename LevelSetType::HessianType HessianType;
+  typedef typename LevelSetType::HessianType  HessianType;
+
+  typedef std::map< IdentifierType, LevelSetPointer >    LevelSetContainerType;
+  typedef typename LevelSetContainerType::const_iterator LevelSetContainerConstIteratorType;
+  typedef typename LevelSetContainerType::iterator       LevelSetContainerIteratorType;
 
   LevelSetPointer GetLevelSet( const IdentifierType& iId ) const
     {
-    typename std::map< IdentifierType, LevelSetPointer >::const_iterator
-        it = m_Container.find( iId );
+    LevelSetContainerConstIteratorType it = m_Container.find( iId );
 
     if( it != m_Container.end() )
       {
@@ -92,8 +95,7 @@ public:
       }
     else
       {
-      typename std::map< IdentifierType, LevelSetPointer >::iterator
-          it = m_Container.find( iId );
+      LevelSetContainerIteratorType it = m_Container.find( iId );
 
       if( it != m_Container.end() )
         {
@@ -106,18 +108,18 @@ public:
         return true;
         }
       }
-
     }
 
   bool RemoveLevelSet( const IdentifierType& iId )
     {
-    typename std::map< IdentifierType, LevelSetPointer >::iterator
-        it = m_Container.find( iId );
+    LevelSetContainerIteratorType it = m_Container.find( iId );
 
     if( it != m_Container.end() )
       {
+      // ARNAUD: Should these two statements be reverse ordered??
       m_Container.erase( it );
       it->second = NULL;
+
       this->Modified();
 
       return true;
@@ -132,8 +134,7 @@ protected:
   LevelSetContainerBase() {}
   ~LevelSetContainerBase() {}
 
-  std::map< IdentifierType, LevelSetPointer > m_Container;
-
+  LevelSetContainerType m_Container;
 
 private:
   LevelSetContainerBase( const Self & );
@@ -141,4 +142,4 @@ private:
 };
 
 }
-#endif // ITKLEVELSETCONTAINERBASE_H
+#endif // __itkLevelSetContainerBase_h

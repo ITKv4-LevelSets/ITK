@@ -16,8 +16,8 @@
  *
  *=========================================================================*/
 
-#ifndef ITKLEVELSETIMAGEBASE_H
-#define ITKLEVELSETIMAGEBASE_H
+#ifndef __itkLevelSetImageBase_h
+#define __itkLevelSetImageBase_h
 
 #include "itkLevelSetBase.h"
 
@@ -31,23 +31,23 @@ class LevelSetImageBase :
       typename TImage::PixelType >
   {
 public:
-  typedef TImage ImageType;
-  typedef typename ImageType::Pointer ImagePointer;
+  typedef TImage                        ImageType;
+  typedef typename ImageType::Pointer   ImagePointer;
+  typedef typename ImageType::IndexType IndexType;
+  typedef typename ImageType::PixelType PixelType;
 
-  typedef LevelSetImageBase Self;
-  typedef SmartPointer< Self > Pointer;
+  typedef LevelSetImageBase          Self;
+  typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
-  typedef LevelSetBase< typename ImageType::IndexType,
-    ImageType::ImageDimension,
-    typename ImageType::PixelType > Superclass;
+  typedef LevelSetBase< IndexType,
+    ImageType::ImageDimension, PixelType >
+                                     Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro ( Self );
 
   /** Run-time type information */
   itkTypeMacro ( LevelSetImageBase, LevelSetBase );
-
-
 
   typedef typename Superclass::InputType    InputType;
   typedef typename Superclass::OutputType   OutputType;
@@ -102,4 +102,4 @@ private:
   void operator = ( const Self& );
   };
 }
-#endif // ITKLEVELSETIMAGEBASE_H
+#endif // __itkLevelSetImageBase_h
