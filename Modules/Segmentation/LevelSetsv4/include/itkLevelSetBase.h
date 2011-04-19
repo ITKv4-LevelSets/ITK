@@ -48,17 +48,17 @@ template< class TInput,
 class LevelSetBase : public Object
 {
 public:
-  typedef LevelSetBase Self;
-  typedef Object Superclass;
-  typedef SmartPointer< Self > Pointer;
+  typedef LevelSetBase               Self;
+  typedef Object                     Superclass;
+  typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
 
   /** Run-time type information */
   itkTypeMacro ( LevelSetBase, Object );
 
-  typedef TInput InputType;
-  typedef TOutput OutputType;
-  typedef Vector< OutputType, VDimension > GradientType;
+  typedef TInput                                       InputType;
+  typedef TOutput                                      OutputType;
+  typedef Vector< OutputType, VDimension >             GradientType;
   typedef Matrix< OutputType, VDimension, VDimension > HessianType;
 
   virtual OutputType    Evaluate( const InputType& iP ) const = 0;
@@ -76,7 +76,6 @@ public:
 
 protected:
   LevelSetBase() {}
-
   virtual ~LevelSetBase() {}
 
 private:

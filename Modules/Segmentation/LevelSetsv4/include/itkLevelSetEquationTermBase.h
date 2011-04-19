@@ -64,8 +64,8 @@ public:
   itkSetMacro( Coefficient, LevelSetOutputType );
   itkGetMacro( Coefficient, LevelSetOutputType );
 
-  itkSetMacro( CurrentLevel, LevelSetIdentifierType );
-  itkGetMacro( CurrentLevel, LevelSetIdentifierType );
+  itkSetMacro( CurrentLevelSet, LevelSetIdentifierType );
+  itkGetMacro( CurrentLevelSet, LevelSetIdentifierType );
 
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );

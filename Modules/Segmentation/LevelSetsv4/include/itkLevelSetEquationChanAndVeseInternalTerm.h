@@ -65,9 +65,16 @@ public:
 
   virtual void Update()
   {
-    m_Mean = m_TotalValue / m_TotalH;
+    if ( m_TotalH != NumericTraits< InputPixelRealType >::Zero )
+      {
+      m_Mean = m_TotalValue / m_TotalH;
+      }
+    else
+      {
+        m_Mean = NumericTraits< InputPixelRealType >::Zero;
+      }
     m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
-    m_TotalH = NumericTraits< InputPixelRealType >::Zero;
+    m_TotalH     = NumericTraits< InputPixelRealType >::Zero;
   }
 
 //   virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
