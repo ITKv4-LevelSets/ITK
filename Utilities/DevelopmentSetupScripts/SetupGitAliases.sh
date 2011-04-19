@@ -21,7 +21,7 @@ GITCONFIG="${GIT} config ${global}"
 # General aliases that could be global
 
 # Pull all updates - first a general pull and then submodules.
-${GITCONFIG} alias.pullall "!bash -c \"git pull && git submodule update --init\""
+${GITCONFIG} alias.pullall "!bash -c \"git pull && git submodule update --init && git fetch --all\""
 # Useful alias to see what commits are on the current branch with respect
 # to origin/master.
 ${GITCONFIG} alias.prepush 'log --graph --stat origin/master..'
