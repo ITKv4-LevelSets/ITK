@@ -81,7 +81,7 @@ public:
   itkSetStringMacro( TermName );
   itkGetStringMacro( TermName );
 
-  virtual void Update();
+  virtual void Update() = 0;
 
 protected:
   LevelSetEquationTermBase() : Superclass(),

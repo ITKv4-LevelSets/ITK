@@ -50,6 +50,13 @@ public:
   typedef SmartPointer< const Self >        ConstPointer;
   typedef Object                            Superclass;
 
+  /** Method for creation through object factory */
+  itkNewMacro( Self );
+
+  /** Run-time type information */
+  itkTypeMacro( LevelSetEquationTermContainerBase,
+                Object );
+
   typedef TInput                      InputType;
   typedef typename InputType::Pointer InputPointer;
 
@@ -66,21 +73,28 @@ public:
   itkSetObjectMacro( Input, InputType );
   itkGetObjectMacro( Input, InputType );
 
-  void AddTerm( const unsigned& iId, TermPointer iTerm )
+  void AddTerm( const unsigned int& iId, TermPointer iTerm )
     {
-    if( iTerm->GetInput() == NULL )
+    if ( iTerm.IsNotNull() )
       {
-      if( m_Input.IsNotNull() )
+      if( iTerm->GetInput() == NULL )
         {
-        iTerm->SetInput( m_Input );
+        if( m_Input.IsNotNull() )
+          {
+          iTerm->SetInput( m_Input );
+          }
+        else
+          {
+          itkGenericExceptionMacro( <<"m_Input and iTerm->GetInput are NULL" );
+          }
         }
-      else
-        {
-        itkGenericExceptionMacro( <<"m_Input and iTerm->GetInput are NULL" );
-        }
+      m_Container[iId] = iTerm;
+      this->Modified();
       }
-    m_Container[iId] = iTerm;
-    this->Modified();
+    else
+      {
+      itkGenericExceptionMacro( <<"Term supplied is null" );
+      }
     }
 
   TermPointer GetTerm( const unsigned int& iId )

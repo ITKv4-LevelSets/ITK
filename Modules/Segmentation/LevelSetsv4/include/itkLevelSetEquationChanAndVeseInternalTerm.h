@@ -32,7 +32,6 @@
 
 =========================================================================*/
 
-
 #ifndef __itkLevelSetEquationChanAndVeseInternalTerm_h
 #define __itkLevelSetEquationChanAndVeseInternalTerm_h
 
@@ -64,7 +63,8 @@ public:
   typedef TInput                                  InputType;
   typedef typename InputType::Pointer             InputPointer;
   typedef typename InputType::PixelType           InputPixelType;
-  typedef typename InputType::PixelRealType       InputPixelRealType;
+  typedef typename NumericTraits< InputPixelType >::RealType
+                                                  InputPixelRealType;
 
   typedef TLevelSetContainer                              LevelSetContainerType;
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;

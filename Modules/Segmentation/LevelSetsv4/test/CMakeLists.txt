@@ -9,6 +9,7 @@ itkLevelSetContainerBaseTest.cxx
 itkAtanRegularizedHeavisideStepFunctionTest1.cxx
 itkHeavisideStepFunctionTest1.cxx
 itkSinRegularizedHeavisideStepFunctionTest1.cxx
+itkMultiLevelSetChanAndVeseInternalTermTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -31,3 +32,5 @@ add_test(NAME itkHeavisideStepFunctionTest1
       COMMAND ITK-LevelSetsv4TestDriver itkHeavisideStepFunctionTest1)
 add_test(NAME itkSinRegularizedHeavisideStepFunctionTest1
       COMMAND ITK-LevelSetsv4TestDriver itkSinRegularizedHeavisideStepFunctionTest1)
+add_test(NAME itkMultiLevelSetChanAndVeseInternalTermTest
+      COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetChanAndVeseInternalTermTest)
