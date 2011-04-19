@@ -38,7 +38,9 @@
 #include "itkLevelSetEquationTermBase.h"
 #include "itkHeavisideStepFunctionBase.h"
 #include "itkNumericTraits.h"
+
 #include "itkImage.h"
+#include "itkQuadEdgeMesh.h"
 
 namespace itk
 {
@@ -227,5 +229,46 @@ protected:
     }
   };
 
+template< class TPixel,
+          unsigned int VImageDimension,
+          class TTraits,
+          class TLevelSetContainer >
+class LevelSetEquationChanAndVeseInternalTerm<
+    QuadEdgeMesh< TPixel, VImageDimension, TTraits >,
+    TLevelSetContainer > :
+public LevelSetEquationChanAndVeseInternalTermBase<
+    QuadEdgeMesh< TPixel, VImageDimension, TTraits >,
+    TLevelSetContainer >
+  {
+public:
+  typedef LevelSetEquationChanAndVeseInternalTerm     Self;
+  typedef SmartPointer< Self >                        Pointer;
+  typedef SmartPointer< const Self >                  ConstPointer;
+
+  typedef QuadEdgeMesh< TPixel, VImageDimension, TTraits > InputType;
+
+  typedef LevelSetEquationChanAndVeseInternalTermBase<
+    InputType,
+    TLevelSetContainer >                          Superclass;
+  typedef typename Superclass::InputPixelType     InputPixelType;
+  typedef typename Superclass::LevelSetInputType  LevelSetInputType;
+
+  itkNewMacro(Self);
+
+  /** Run-time type information */
+  itkTypeMacro( LevelSetEquationChanAndVeseInternalTerm,
+                LevelSetEquationChanAndVeseInternalTermBase );
+
+protected:
+  LevelSetEquationChanAndVeseInternalTerm() : Superclass() {}
+  ~LevelSetEquationChanAndVeseInternalTerm() {}
+
+  InputPixelType GetInputData( const LevelSetInputType& iP ) const
+    {
+    InputPixelType data;
+    this->m_Input->GetPointData( iP, &data );
+    return data;
+    }
+  };
 }
 #endif
