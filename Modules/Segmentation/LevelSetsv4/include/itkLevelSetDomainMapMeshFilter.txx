@@ -20,44 +20,32 @@
 #define __itkLevelSetDomainMapMeshFilter_txx
 
 #include "itkLevelSetDomainMapMeshFilter.h"
+#include "itkNumericTraits.h"
 
 namespace itk
 {
-template < class TInputMesh, class TOutputMesh >
-LevelSetDomainMapMeshFilter< TInputMesh, TOutputMesh >
+template < class TInputMesh >
+LevelSetDomainMapMeshFilter< TInputMesh >
 ::LevelSetDomainMapMeshFilter()
-{
-  this->Superclass::SetNumberOfRequiredInputs ( 1 );
-  this->Superclass::SetNumberOfRequiredOutputs ( 1 );
-
-  this->Superclass::SetNthOutput ( 0, OutputMeshType::New() );
-}
+{}
 
 
-template < class TInputMesh, class TOutputMesh >
+template < class TInputMesh >
 void
-LevelSetDomainMapMeshFilter< TInputMesh, TOutputMesh >::
+LevelSetDomainMapMeshFilter< TInputMesh >::
 GenerateData()
 {
-  InputMeshConstPointer input = this->GetInput();
+  InputPointDataContainerConstPointer input_data = m_Input->GetPointData();
+  PointDataContainerConstIterator i_it = input_data->Begin();
 
-  OutputMeshPointer output = this->GetOutput();
+  PointDataContainerConstIterator i_end = input_data->End();
 
-  OutputPointDataContainerPointer output_data = output->GetPointData();
-  OutputPointDataContainerIterator o_it = output_data->Begin();
-
-  while( o_it != output_data->End() )
+  while( i_it != i_end )
     {
-    o_it->Value() = NumericTraits< OutputMeshPixelType >::Zero;
-    ++o_it;
+    m_Output[ i_it->Index() ] = 0;
+    ++i_it;
     }
 
-  InputPointDataContainerPointer input_data = input->GetPointData();
-  InputPointDataContainerIterator i_it = input_data->Begin();
-
-  o_it = output_data->Begin();
-
-  InputPointDataContainerIterator i_end = input_data->End();
   --i_end;
 
   InputPointIdentifier end_idx = i_end->Index();
@@ -71,7 +59,7 @@ GenerateData()
     InputPointIdentifier stopIdx = startIdx;
 
     InputMeshPixelType inputPixel = i_it->Value();
-    OutputMeshPixelType outputPixel = o_it->Value();
+    IdentifierType outputPixel = m_Output[startIdx];
 
     // outputPixel is null when it has not been processed yet,
     // or there is nothing to be processed
@@ -83,20 +71,20 @@ GenerateData()
       while ( ( flag ) && ( stopIdx <= end_idx ) )
         {
         InputMeshPixelType nextPixel;
-        OutputMeshPixelType currentOutputPixel;
+        IdentifierType currentOutputPixel = m_Output[stopIdx];
 
-        input->GetPointData( stopIdx, &nextPixel );
+        m_Input->GetPointData( stopIdx, &nextPixel );
 
         // Check if the input list pixels are different, or
         // the output image already has been assigned to another region
         if ( ( nextPixel != inputPixel ) ||
-             ( currentOutputPixel != NumericTraits< OutputMeshPixelType >::Zero ) )
+             ( currentOutputPixel != 0 ) )
           {
           flag = false;
           }
         else
           {
-          output->SetPointData( stopIdx, segmentId );
+          m_Output[ stopIdx ] = segmentId;
           ++stopIdx;
           }
         }
@@ -106,15 +94,12 @@ GenerateData()
                                                 stopIdx, inputPixel );
 
     ++i_it;
-    ++o_it;
     }
-
-  this->GraftOutput ( output );
 }
 
-template < class TInputMesh, class TOutputMesh >
+template < class TInputMesh >
 void
-LevelSetDomainMapMeshFilter< TInputMesh, TOutputMesh >::
+LevelSetDomainMapMeshFilter< TInputMesh >::
 PrintSelf ( std::ostream& os, Indent indent ) const
 {
   Superclass::PrintSelf ( os,indent );

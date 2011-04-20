@@ -27,7 +27,8 @@
 #define ITK_LEAN_AND_MEAN
 #endif
 
-#include "itkQuadEdgeMeshToQuadEdgeMeshFilter.h"
+#include "itkObject.h"
+#include "itkObjectFactory.h"
 #include "itkIntTypes.h"
 
 namespace itk
@@ -37,14 +38,12 @@ namespace itk
   \tparam TInputMesh Image where the pixel type is a container of ids
   \tparam TOutputMesh Image where the pixel type is an integer to split the region
 */
-template < class TInputMesh, class TOutputMesh >
-class ITK_EXPORT LevelSetDomainMapMeshFilter : public
-    QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+template < class TInputMesh >
+class ITK_EXPORT LevelSetDomainMapMeshFilter : public Object
 {
   public:
     typedef LevelSetDomainMapMeshFilter                      Self;
-    typedef QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh,
-                                              TOutputMesh >  Superclass;
+    typedef Object                                           Superclass;
     typedef SmartPointer< Self >                             Pointer;
     typedef SmartPointer< const Self >                       ConstPointer;
 
@@ -55,27 +54,19 @@ class ITK_EXPORT LevelSetDomainMapMeshFilter : public
     itkNewMacro ( Self );
 
     /** Run-time type information */
-    itkTypeMacro ( LevelSetDomainMapMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter );
+    itkTypeMacro ( LevelSetDomainMapMeshFilter, Object );
 
     typedef TInputMesh                            InputMeshType;
-    typedef typename InputMeshType::ConstPointer  InputMeshConstPointer;
+    typedef typename InputMeshType::Pointer       InputMeshPointer;
     typedef typename InputMeshType::PixelType     InputMeshPixelType;
-    typedef typename InputMeshType::PointDataContainerPointer
-                                                  InputPointDataContainerPointer;
+    typedef typename InputMeshType::PointDataContainerConstPointer
+                                                  InputPointDataContainerConstPointer;
     typedef typename InputMeshType::PointDataContainerIterator
-                                                  InputPointDataContainerIterator;
+                                                  PointDataContainerConstIterator;
     typedef typename InputMeshType::PointIdentifier
                                                   InputPointIdentifier;
 
-    typedef TOutputMesh                           OutputMeshType;
-    typedef typename OutputMeshType::Pointer      OutputMeshPointer;
-    typedef typename OutputMeshType::PixelType    OutputMeshPixelType;
-    typedef typename OutputMeshType::PointDataContainerPointer
-                                                  OutputPointDataContainerPointer;
-    typedef typename OutputMeshType::PointDataContainerIterator
-                                                  OutputPointDataContainerIterator;
-    typedef typename OutputMeshType::PointIdentifier
-                                                  OutputPointIdentifier;
+    itkSetObjectMacro( Input, InputMeshType );
 
     struct NounToBeDefined // ~ kind of cache to speed up computations
       {
@@ -93,7 +84,13 @@ class ITK_EXPORT LevelSetDomainMapMeshFilter : public
       InputMeshPixelType m_List;
       };
 
-    std::map< IdentifierType, NounToBeDefined > m_LevelSetMap;
+    std::map< IdentifierType, NounToBeDefined >       m_LevelSetMap;
+    std::map< InputPointIdentifier, IdentifierType >  m_Output;
+
+    void Update()
+      {
+      GenerateData();
+      }
 
   protected:
     LevelSetDomainMapMeshFilter();
@@ -104,6 +101,8 @@ class ITK_EXPORT LevelSetDomainMapMeshFilter : public
 
 //    void ConsistencyCheck( bool& subRegionConsistent, InputImageRegionType& subRegion );
     void GenerateData();
+
+    InputMeshPointer m_Input;
 
   private:
     LevelSetDomainMapMeshFilter ( Self& );   // intentionally not implemented
