@@ -37,6 +37,7 @@
 #include "itkHeavisideStepFunction.h"
 #include "itkRegularizedHeavisideStepFunction.h"
 #include "itkSinRegularizedHeavisideStepFunction.h"
+#include "itkLevelSetDomainMapMeshFilter.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
