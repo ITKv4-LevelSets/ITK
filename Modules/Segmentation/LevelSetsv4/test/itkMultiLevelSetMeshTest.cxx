@@ -218,7 +218,5 @@ int itkMultiLevelSetMeshTest( int , char* [] )
     ++map_it;
     }
 
-
-
   return EXIT_SUCCESS;
 }
