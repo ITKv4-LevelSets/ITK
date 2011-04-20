@@ -57,8 +57,6 @@ class ITK_EXPORT LevelSetDomainMapMeshFilter : public
     /** Run-time type information */
     itkTypeMacro ( LevelSetDomainMapMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter );
 
-
-
     typedef TInputMesh                            InputMeshType;
     typedef typename InputMeshType::ConstPointer  InputMeshConstPointer;
     typedef typename InputMeshType::PixelType     InputMeshPixelType;
@@ -78,8 +76,6 @@ class ITK_EXPORT LevelSetDomainMapMeshFilter : public
                                                   OutputPointDataContainerIterator;
     typedef typename OutputMeshType::PointIdentifier
                                                   OutputPointIdentifier;
-
-
 
     struct NounToBeDefined // ~ kind of cache to speed up computations
       {
