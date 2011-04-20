@@ -99,7 +99,16 @@ public:
 
   TermPointer GetTerm( const unsigned int& iId )
     {
-    return m_Container[iId];
+    typename std::map< unsigned int, TermPointer >::iterator
+        it = m_Container.find( iId );
+    if( it != m_Container.end() )
+      {
+      return TermPointer();
+      }
+    else
+      {
+      return it->second;
+      }
     }
 
   LevelSetOutputType Evaluate( const LevelSetInputType& iP )
