@@ -75,7 +75,7 @@ public:
   typedef typename IdListType::iterator                  IdListIterator;
   typedef Image< IdListType, ImageDimension >            IdListImageType;
   typedef Image< short, ImageDimension >                 CacheImageType;
-  typedef LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
+  typedef LevelSetDomainMapImageFilter< IdListImageType >
                                                          DomainMapImageFilterType;
   typedef typename DomainMapImageFilterType::Pointer     DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;

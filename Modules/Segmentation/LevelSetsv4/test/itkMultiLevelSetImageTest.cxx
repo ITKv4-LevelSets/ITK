@@ -32,7 +32,7 @@ int itkMultiLevelSetImageTest( int , char* [] )
   typedef std::list< itk::IdentifierType >               IdListType;
   typedef itk::Image< IdListType, Dimension >            IdListImageType;
   typedef itk::Image< short, Dimension >                 CacheImageType;
-  typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
+  typedef itk::LevelSetDomainMapImageFilter< IdListImageType >
                                                          DomainMapImageFilterType;
   ImageType::IndexType index;
   index[0] = 0;
@@ -200,8 +200,6 @@ int itkMultiLevelSetImageTest( int , char* [] )
       }
     ++map_it;
     }
-
-
 
   return EXIT_SUCCESS;
 }
