@@ -24,6 +24,7 @@
 #include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 #include "itkLevelSetEquationChanAndVeseExternalTerm.h"
 #include "itkLevelSetEquationTermContainerBase.h"
+#include "itkLevelSetEquationContainerBase.h"
 #include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetEvolutionBase.h"
 
@@ -53,7 +54,10 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
                                                                       ChanAndVeseExternalTermType;
   typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
                                                                       TermContainerType;
-  typedef itk::LevelSetEvolutionBase< TermContainerType >             LevelSetEvolutionType;
+
+  typedef itk::LevelSetEquationContainerBase< TermContainerType >     EquationContainerType;
+
+  typedef itk::LevelSetEvolutionBase< EquationContainerType >             LevelSetEvolutionType;
   typedef itk::AtanRegularizedHeavisideStepFunction< PixelType, PixelType >
                                                                       HeavisideFunctionBaseType;
 
@@ -74,15 +78,15 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   InputImageType::Pointer input = InputImageType::New();
   input->SetRegions( region );
   input->Allocate();
-  input->FillBuffer( 0 );
+  input->FillBuffer( 1 );
 
-  InputIteratorType it( input, input->GetLargestPossibleRegion() );
-  it.GoToBegin();
-  while( !it.IsAtEnd() )
-  {
-    it.Set( 1 );
-    ++it;
-  }
+//  InputIteratorType it( input, input->GetLargestPossibleRegion() );
+//  it.GoToBegin();
+//  while( !it.IsAtEnd() )
+//  {
+//    it.Set( 1 );
+//    ++it;
+//  }
 
   ImageType::Pointer input1 = ImageType::New();
   input1->SetRegions( region );
@@ -145,57 +149,104 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   level_set[2]->SetImage( input2 );
 
   // Insert the levelsets in a levelset container
-  bool LevelSetNotYetAdded;
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
-  LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set[1], false );
+  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set[1], false );
+
   if ( !LevelSetNotYetAdded )
-  {
+    {
     return EXIT_FAILURE;
-  }
+    }
+
   LevelSetNotYetAdded = lscontainer->AddLevelSet( 1, level_set[2], false );
   if ( !LevelSetNotYetAdded )
-  {
+    {
     return EXIT_FAILURE;
-  }
+    }
   std::cout << "Level set container created" << std::endl;
 
   // Define the Heaviside function
   HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
   heaviside->SetEpsilon( 1.0 );
 
-  // Create ChanAndVeseTerm
-  ChanAndVeseInternalTermType::Pointer cvInternalTerm = ChanAndVeseInternalTermType::New();
-  cvInternalTerm->SetHeaviside( heaviside );
-  cvInternalTerm->SetInput( input );
-  cvInternalTerm->SetCoefficient( 1.0 );
-  cvInternalTerm->SetCurrentLevelSet( 0 );
-  cvInternalTerm->SetLevelSetContainer( lscontainer );
-  std::cout << "CV internal term created" << std::endl;
+  // **************** CREATE ALL TERMS ****************
 
-  // Create ChanAndVeseTerm
-  ChanAndVeseExternalTermType::Pointer cvExternalTerm = ChanAndVeseExternalTermType::New();
-  cvExternalTerm->SetHeaviside( heaviside );
-  cvExternalTerm->SetInput( input );
-  cvExternalTerm->SetCoefficient( 1.0 );
-  cvExternalTerm->SetCurrentLevelSet( 1 );
-  cvExternalTerm->SetLevelSetContainer( lscontainer );
-  std::cout << "CV external term created" << std::endl;
+  // -----------------------------
+  // *** 1st Level Set phi_{1} ***
+
+  // Create ChanAndVese internal term for phi_{1}
+  ChanAndVeseInternalTermType::Pointer cvInternalTerm0 = ChanAndVeseInternalTermType::New();
+  cvInternalTerm0->SetHeaviside( heaviside );
+  cvInternalTerm0->SetInput( input );
+  cvInternalTerm0->SetCoefficient( 1.0 );
+  cvInternalTerm0->SetCurrentLevelSet( 0 );
+  cvInternalTerm0->SetLevelSetContainer( lscontainer );
+  std::cout << "LevelSet 1: CV internal term created" << std::endl;
+
+  // Create ChanAndVese external term for phi_{1}
+  ChanAndVeseExternalTermType::Pointer cvExternalTerm0 = ChanAndVeseExternalTermType::New();
+  cvExternalTerm0->SetHeaviside( heaviside );
+  cvExternalTerm0->SetInput( input );
+  cvExternalTerm0->SetCoefficient( 1.0 );
+  cvExternalTerm0->SetCurrentLevelSet( 0 );
+  cvExternalTerm0->SetLevelSetContainer( lscontainer );
+  std::cout << "LevelSet 1: CV external term created" << std::endl;
+
+  // -----------------------------
+  // *** 2nd Level Set phi_{2} ***
+
+  // Create ChanAndVese internal term for phi_{1}
+  ChanAndVeseInternalTermType::Pointer cvInternalTerm1 = ChanAndVeseInternalTermType::New();
+  cvInternalTerm1->SetHeaviside( heaviside );
+  cvInternalTerm1->SetInput( input );
+  cvInternalTerm1->SetCoefficient( 1.0 );
+  cvInternalTerm1->SetCurrentLevelSet( 1 );
+  cvInternalTerm1->SetLevelSetContainer( lscontainer );
+  std::cout << "LevelSet 2: CV internal term created" << std::endl;
+
+  // Create ChanAndVese external term for phi_{2}
+  ChanAndVeseExternalTermType::Pointer cvExternalTerm1 = ChanAndVeseExternalTermType::New();
+  cvExternalTerm1->SetHeaviside( heaviside );
+  cvExternalTerm1->SetInput( input );
+  cvExternalTerm1->SetCoefficient( 1.0 );
+  cvExternalTerm1->SetCurrentLevelSet( 1 );
+  cvExternalTerm1->SetLevelSetContainer( lscontainer );
+  std::cout << "LevelSet 2: CV external term created" << std::endl;
+
+  // **************** CREATE ALL EQUATIONS ****************
 
   // Create Term Container
-  TermContainerType::Pointer termContainer = TermContainerType::New();
-  termContainer->SetInput( input );
-  TermContainerType::TermPointer temp = dynamic_cast< TermContainerType::TermType* >( cvInternalTerm.GetPointer() );
-  termContainer->AddTerm( 0, temp );
-  temp = dynamic_cast< TermContainerType::TermType* >( cvExternalTerm.GetPointer() );
-  termContainer->AddTerm( 1, temp );
-  std::cout << "Term container created" << std::endl;
+  TermContainerType::Pointer termContainer0 = TermContainerType::New();
+  termContainer0->SetInput( input );
+
+  TermContainerType::TermPointer temp;
+  temp = dynamic_cast< TermContainerType::TermType* >( cvInternalTerm0.GetPointer() );
+  termContainer0->AddTerm( 0, temp );
+
+  temp = dynamic_cast< TermContainerType::TermType* >( cvExternalTerm0.GetPointer() );
+  termContainer0->AddTerm( 1, temp );
+  std::cout << "Term container 0 created" << std::endl;
+
+  EquationContainerType::Pointer equationContainer = EquationContainerType::New();
+  equationContainer->AddEquation( 0, termContainer0 );
+
+  TermContainerType::Pointer termContainer1 = TermContainerType::New();
+  termContainer1->SetInput( input );
+
+  temp = dynamic_cast< TermContainerType::TermType* >( cvInternalTerm1.GetPointer() );
+  termContainer1->AddTerm( 0, temp );
+
+  temp = dynamic_cast< TermContainerType::TermType* >( cvExternalTerm1.GetPointer() );
+  termContainer1->AddTerm( 1, temp );
+  std::cout << "Term container 1 created" << std::endl;
+
+  equationContainer->AddEquation( 1, termContainer1 );
 
   DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
   domainMapFilter->SetInput( id_image );
   domainMapFilter->Update();
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
-  evolution->SetTermContainer( termContainer );
+  evolution->SetEquationContainer( equationContainer );
   evolution->SetNumberOfIterations( 2 );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
