@@ -32,8 +32,8 @@
 
 =========================================================================*/
 
-#ifndef __itkLevelSetEquationChanAndVeseInternalTerm_h
-#define __itkLevelSetEquationChanAndVeseInternalTerm_h
+#ifndef __itkLevelSetEquationChanAndVeseExternalTerm_h
+#define __itkLevelSetEquationChanAndVeseExternalTerm_h
 
 #include "itkLevelSetEquationTermBase.h"
 #include "itkHeavisideStepFunctionBase.h"
@@ -43,11 +43,11 @@ namespace itk
 {
 template< class TInput, // Input image
           class TLevelSetContainer >
-class LevelSetEquationChanAndVeseInternalTerm :
+class LevelSetEquationChanAndVeseExternalTerm :
     public LevelSetEquationTermBase< TInput, TLevelSetContainer >
 {
 public:
-  typedef LevelSetEquationChanAndVeseInternalTerm         Self;
+  typedef LevelSetEquationChanAndVeseExternalTerm         Self;
   typedef SmartPointer< Self >                            Pointer;
   typedef SmartPointer< const Self >                      ConstPointer;
   typedef LevelSetEquationTermBase< TInput,
@@ -57,7 +57,7 @@ public:
   itkNewMacro( Self );
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetEquationChanAndVeseInternalTerm,
+  itkTypeMacro( LevelSetEquationChanAndVeseExternalTerm,
                 LevelSetEquationTermBase );
 
   typedef TInput                                  InputType;
@@ -102,7 +102,7 @@ public:
 //     }
 
 protected:
-  LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
+  LevelSetEquationChanAndVeseExternalTerm() : Superclass(),
     m_Heaviside( NULL ),
     m_CurrentLevelSetPointer( NULL ),
     m_Mean( NumericTraits< InputPixelRealType >::Zero ),
@@ -110,13 +110,12 @@ protected:
     m_TotalValue( NumericTraits< InputPixelRealType >::Zero )
   {}
 
-  virtual ~LevelSetEquationChanAndVeseInternalTerm() {}
+  virtual ~LevelSetEquationChanAndVeseExternalTerm() {}
 
   virtual void SetDefaultTermName()
     {
-    this->m_TermName = "Internal Chan And Vese term";
+    this->m_TermName = "External Chan And Vese term";
     }
-
 
   // this will work for scalars and vectors. For matrices, one may have to reimplement
   // his specialized term
@@ -130,7 +129,7 @@ protected:
       if( m_CurrentLevelSetPointer.IsNull() )
         {
         itkWarningMacro(
-              <<"m_CurrentLevelSet does not exist in the level set container" );
+              << "m_CurrentLevelSet does not exist in the level set container" );
 
         return NumericTraits< LevelSetOutputType >::Zero;
         }
@@ -145,7 +144,7 @@ protected:
       InputPixelType pixel = this->m_Input->GetPixel( iP );
       this->Accumulate( pixel, h_val );
 
-      return  d_val *
+      return  -d_val *
         static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
       }
     else
@@ -155,15 +154,6 @@ protected:
 
     return NumericTraits< LevelSetOutputType >::Zero;
     }
-
-      // This should be in Iteration class
-      // Pointer to DomainMap with the two maps giving region and Id
-      // Obtain the region of RegionMap[this->m_CurrentLevelSet]
-      // Obtain the list of neighbor Levelsets ListOfLevelSets[this->m_CurrentLevelSet]
-      // Iterate through the region
-      // Iterate through all terms in the TermContainer
-      // Compute internal and external and overlap terms
-//     }
 
   void Accumulate( const InputPixelType& iPix,
                    const LevelSetOutputType& iH )
@@ -184,7 +174,7 @@ protected:
 //   std::string m_TermName;
 
 private:
-  LevelSetEquationChanAndVeseInternalTerm( const Self& );
+  LevelSetEquationChanAndVeseExternalTerm( const Self& );
   void operator = ( const Self& );
 };
 

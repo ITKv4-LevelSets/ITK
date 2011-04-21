@@ -35,6 +35,11 @@
 #ifndef __itkLevelSetEvolutionBase_h
 #define __itkLevelSetEvolutionBase_h
 
+#include "itkImage.h"
+#include "itkLevelSetImageBase.h"
+#include "itkImageRegionIteratorWithIndex.h"
+#include "itkLevelSetDomainMapImageFilter.h"
+#include <list>
 #include "itkObject.h"
 
 namespace itk
@@ -43,94 +48,154 @@ template< class TTermContainer >
 class LevelSetEvolutionBase : public Object
 {
 public:
-  typedef LevelSetEvolutionBase   Self;
+  typedef LevelSetEvolutionBase      Self;
   typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
   typedef Object                     Superclass;
 
-  // set the input image (image to be segmented)
-  void SetInput();
+  /** Method for creation through object factory */
+  itkNewMacro( Self );
+
+  /** Run-time type information */
+  itkTypeMacro( LevelSetEvolutionBase, Object );
+
+  typedef TTermContainer                      TermContainerType;
+  typedef typename TermContainerType::Pointer TermContainerPointer;
+
+  typedef typename TermContainerType::TermType TermType;
+  typedef typename TermType::Pointer           TermPointer;
+
+  typedef typename TermContainerType::InputType InputImageType;
+  typedef typename InputImageType::PixelType    InputImagePixelType;
+  typedef typename InputImageType::Pointer      InputImagePointer;
+  typedef typename InputImageType::RegionType   InputImageRegionType;
+  typedef typename NumericTraits< InputImagePixelType >::RealType
+                                                InputPixelRealType;
+
+  itkStaticConstMacro ( ImageDimension, unsigned int, InputImageType::ImageDimension );
+
+  typedef typename TermContainerType::LevelSetContainerType LevelSetContainerType;
+  typedef typename LevelSetContainerType::IdentifierType    IdentifierType;
+  typedef typename LevelSetContainerType::Pointer           LevelSetContainerPointer;
+
+  typedef typename LevelSetContainerType::LevelSetType LevelSetType;
+  typedef typename LevelSetType::Pointer               LevelSetPointer;
+
+  typedef ImageRegionIteratorWithIndex< InputImageType > InputImageIteratorType;
+
+  typedef std::list< IdentifierType >                    IdListType;
+  typedef typename IdListType::iterator                  IdListIterator;
+  typedef Image< IdListType, ImageDimension >            IdListImageType;
+  typedef Image< short, ImageDimension >                 CacheImageType;
+  typedef LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
+                                                         DomainMapImageFilterType;
+  typedef typename DomainMapImageFilterType::Pointer     DomainMapImageFilterPointer;
+  typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
+//   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
+typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   // create another class which contains all the equations
   // i.e. it is a container of term container :-):
   // set the i^th term container
-  void SetLevelSetEquations( EquationContainer );
+  // This container should also hold the LevelSetContainer
+//   void SetLevelSetEquations( EquationContainer );
+  itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
+  itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
   void Update()
     {
     this->GenerateData();
     }
 
+  // set the term container
+  itkSetObjectMacro( TermContainer, TermContainerType );
+  itkGetObjectMacro( TermContainer, TermContainerType );
+
+  // set the number of iterations
+  itkSetMacro( NumberOfIterations, unsigned int );
+  itkGetMacro( NumberOfIterations, unsigned int );
+
+  // set the domain map image filter
+  itkSetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
+  itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
+
 protected:
 
-  void GenerateData()
+  void ComputeIteration()
     {
-    for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
-      {
-      // one iteration over all container
-      // update each level set based on the different equations provided
-      OneIteration();
+    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
+    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+    std::cout << "Begin iteration" << std::endl;
 
-      //ComputeCFL();
-
-      //ComputeDtForNextIteration();
-
-      // at first we would not reinitialize, then reinitialize at each iteration
-      // then improve this later
-      //ReInitialize();
-      }
-    }
-
-  void OneIteration()
-    {
-    DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
-    domainMapFilter->SetInput( id_image );
-    domainMapFilter->Update();
-    CacheImageType::Pointer output = domainMapFilter->GetOutput();
-    std::cout << "Domain partition computed" << std::endl;
-
-    typedef std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator DomainMapIterator;
-    DomainMapIterator map_it = domainMapFilter->m_LevelSetMap.begin();
-    DomainMapIterator map_end = domainMapFilter->m_LevelSetMap.end();
-
-    LevelSetType::Pointer levelSet;
-    ChanAndVeseTermType::Pointer eqTerm;
+    LevelSetPointer levelSet;
+//     ChanAndVeseTermType::Pointer eqTerm;
     while( map_it != map_end )
       {
-      IdListImageType::RegionType temp_region = map_it->second.m_Region;
+      std::cout << map_it->second.m_Region << std::endl;
 
-      itk::ImageRegionConstIteratorWithIndex<IdListImageType >
-          temp_it( id_image, temp_region );
-      temp_it.GoToBegin();
-
-      while( !temp_it.IsAtEnd() )
+      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
+      it.GoToBegin();
+      while( !it.IsAtEnd() )
         {
-        std::cout << temp_it.GetIndex() << std::endl;
+        std::cout << it.GetIndex() << std::endl;
         IdListType lout = map_it->second.m_List;
 
         if( lout.empty() )
           {
-          return EXIT_FAILURE;
+            itkGenericExceptionMacro( <<"No level set exists at voxel" );
           }
 
-        for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
           {
             std::cout << *lIt << " ";
-            levelSet = lscontainer->GetLevelSet( *lIt - 1);
-            std::cout << levelSet->Evaluate( temp_it.GetIndex() ) << std::endl;
+            levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
+            std::cout << levelSet->Evaluate( it.GetIndex() ) << std::endl;
 
-            if ( *lIt - 1 == 0 )
-            {
-              eqTerm =  dynamic_cast< ChanAndVeseTermType* >( termContainer->GetTerm( *lIt - 1 ).GetPointer() );
-              std::cout << eqTerm->Evaluate( temp_it.GetIndex() ) << std::endl;
-            }
+            // Store this update.
+            //Run through all the terms associated with a given equation.
+            // Another loop needs to come here.
+            // TODO: Dynamic cast problems here
+            // std::cout << m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() ) << std::endl;
           }
         std::cout << std::endl;
-        ++temp_it;
+        ++it;
         }
       ++map_it;
       }
     }
+
+  void GenerateData()
+    {
+      m_InputImage = m_TermContainer->GetInput();
+
+      // Get the LevelSetContainer from the EquationContainer
+//       m_LevelSetContainer = m_EquationContainer->GetLevelSetContainer();
+      for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
+      {
+        // one iteration over all container
+        // update each level set based on the different equations provided
+        ComputeIteration();
+
+        //ComputeCFL();
+
+        //ComputeDtForNextIteration();
+
+        // Update
+
+        // at first we would not reinitialize, then reinitialize at each iteration
+        // then improve this later
+        //ReInitialize();
+      }
+    }
+
+  unsigned int                m_NumberOfIterations;
+  unsigned int                m_NumberOfLevelSets;
+  InputImagePointer           m_InputImage;
+  TermContainerPointer        m_TermContainer;
+  LevelSetContainerPointer    m_LevelSetContainer;
+  DomainMapImageFilterPointer m_DomainMapFilter;
+
+//   EquationContainerPointer m_EquationContainer;
 
 private:
 };

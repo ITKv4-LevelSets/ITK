@@ -108,7 +108,9 @@ class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<
 //    std::map< IdentifierType, InputImageRegionType > m_SetOfRegions;
 //    std::map< IdentifierType, InputImagePixelType >  m_LevelSetList;
 
-    std::map< IdentifierType, NounToBeDefined > m_LevelSetMap;
+    typedef std::map< IdentifierType, NounToBeDefined > DomainIteratorType;
+
+    DomainIteratorType m_LevelSetMap;
 
   protected:
     LevelSetDomainMapImageFilter();

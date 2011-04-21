@@ -31,13 +31,15 @@
 #include "itkLevelSetContainerBase.h"
 #include "itkLevelSetEquationTermBase.h"
 #include "itkLevelSetEquationTermContainerBase.h"
-#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 #include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkHeavisideStepFunctionBase.h"
 #include "itkHeavisideStepFunction.h"
 #include "itkRegularizedHeavisideStepFunction.h"
 #include "itkSinRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetEquationContainerBase.h"
+#include "itkLevelSetEquationChanAndVeseExternalTerm.h"
+#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
+#include "itkLevelSetEvolutionBase.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
