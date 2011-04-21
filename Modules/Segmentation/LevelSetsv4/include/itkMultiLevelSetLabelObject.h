@@ -1,0 +1,54 @@
+/*=========================================================================
+ *
+ *  Copyright Insight Software Consortium
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *=========================================================================*/
+
+#ifndef __itkMultiLevelSetLabelObject_h
+#define __itkMultiLevelSetLabelObject_h
+
+#include "itkLabelObject.h"
+
+namespace itk
+{
+template< class TList,
+          unsigned int VImageDimension >
+class MultiLevelSetLabelObject :
+    public LabelObject< TList, VImageDimension >
+{
+public:
+  typedef MultiLevelSetLabelObject    Self;
+  typedef SmartPointer< Self >        Pointer;
+  typedef SmartPointer< const Self >  ConstPointer;
+  typedef LabelObject< TList, VImageDimension >
+                                      Superclass;
+
+  /** Method for creation through object factory */
+  itkNewMacro ( Self );
+
+  /** Run-time type information */
+  itkTypeMacro ( MultiLevelSetLabelObject, LabelObject );
+
+
+protected:
+  MultiLevelSetLabelObject() : Superclass() {}
+  ~MultiLevelSetLabelObject() {}
+
+private:
+  MultiLevelSetLabelObject( const Self& );
+  void operator = ( const Self& );
+};
+}
+#endif

@@ -40,6 +40,7 @@
 #include "itkLevelSetEquationChanAndVeseExternalTerm.h"
 #include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 #include "itkLevelSetEvolutionBase.h"
+#include "itkMultiLevelSetLabelObject.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
