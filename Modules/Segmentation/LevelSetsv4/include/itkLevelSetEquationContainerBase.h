@@ -32,6 +32,12 @@ public:
   typedef SmartPointer< const Self >    ConstPointer;
   typedef Object                        Superclass;
 
+  /** Method for creation through object factory */
+  itkNewMacro( Self );
+
+  /** Run-time type information */
+  itkTypeMacro( LevelSetEquationContainerBase, Object );
+
   typedef TTermContainer                            TermContainerType;
   typedef typename TermContainerType::Pointer       TermContainerPointer;
 
@@ -43,6 +49,10 @@ public:
     if ( iEquation.IsNotNull() )
       {
       m_Container[iId] = iEquation;
+      if( iEquation->GetInput() )
+        {
+        m_Input = iEquation->GetInput();
+        }
       this->Modified();
       }
     else
@@ -64,6 +74,9 @@ public:
       return it->second;
       }
     }
+
+  itkSetObjectMacro( Input, InputType );
+  itkGetObjectMacro( Input, InputType );
 
 protected:
 

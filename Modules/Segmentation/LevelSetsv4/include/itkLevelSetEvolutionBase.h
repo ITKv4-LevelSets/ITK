@@ -29,7 +29,7 @@
 
 namespace itk
 {
-template< class TTermContainer >
+template< class TEquationContainer >
 class LevelSetEvolutionBase : public Object
 {
 public:
@@ -44,8 +44,11 @@ public:
   /** Run-time type information */
   itkTypeMacro( LevelSetEvolutionBase, Object );
 
-  typedef TTermContainer                      TermContainerType;
-  typedef typename TermContainerType::Pointer TermContainerPointer;
+  typedef TEquationContainer                      EquationContainerType;
+  typedef typename EquationContainerType::Pointer EquationContainerPointer;
+  typedef typename EquationContainerType::TermContainerType
+                                                  TermContainerType;
+  typedef typename TermContainerType::Pointer     TermContainerPointer;
 
   typedef typename TermContainerType::TermType TermType;
   typedef typename TermType::Pointer           TermPointer;
@@ -93,8 +96,8 @@ typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator Doma
     }
 
   // set the term container
-  itkSetObjectMacro( TermContainer, TermContainerType );
-  itkGetObjectMacro( TermContainer, TermContainerType );
+  itkSetObjectMacro( EquationContainer, EquationContainerType );
+  itkGetObjectMacro( EquationContainer, EquationContainerType );
 
   // set the number of iterations
   itkSetMacro( NumberOfIterations, unsigned int );
@@ -152,7 +155,7 @@ protected:
 
   void GenerateData()
     {
-      m_InputImage = m_TermContainer->GetInput();
+      m_InputImage = m_EquationContainer->GetInput();
 
       // Get the LevelSetContainer from the EquationContainer
 //       m_LevelSetContainer = m_EquationContainer->GetLevelSetContainer();
@@ -177,7 +180,7 @@ protected:
   unsigned int                m_NumberOfIterations;
   unsigned int                m_NumberOfLevelSets;
   InputImagePointer           m_InputImage;
-  TermContainerPointer        m_TermContainer;
+  EquationContainerPointer    m_EquationContainer;
   LevelSetContainerPointer    m_LevelSetContainer;
   DomainMapImageFilterPointer m_DomainMapFilter;
 
