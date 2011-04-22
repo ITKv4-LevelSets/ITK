@@ -29,7 +29,7 @@
 
 namespace itk
 {
-template< class TEquationContainer >
+template< class TEquationContainer, class TListPixel >
 class LevelSetEvolutionBase : public Object
 {
 public:
@@ -71,16 +71,23 @@ public:
 
   typedef ImageRegionIteratorWithIndex< InputImageType > InputImageIteratorType;
 
-  typedef std::list< IdentifierType >                    IdListType;
+  typedef TListPixel                                     IdListType;
   typedef typename IdListType::iterator                  IdListIterator;
   typedef Image< IdListType, ImageDimension >            IdListImageType;
-  typedef Image< short, ImageDimension >                 CacheImageType;
   typedef LevelSetDomainMapImageFilter< IdListImageType >
                                                          DomainMapImageFilterType;
   typedef typename DomainMapImageFilterType::Pointer     DomainMapImageFilterPointer;
-  typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
-//   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
-typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
+  typedef typename DomainMapImageFilterType::OutputImageType
+                                                         DomainMapOutputImageType;
+  typedef typename DomainMapOutputImageType::Pointer     DomainMapOutputImagePointer;
+
+  typedef typename DomainMapOutputImageType::LabelObjectType  LabelObjectType;
+  typedef typename DomainMapOutputImageType::LabelObjectContainerType
+                                                              LabelObjectContainerType;
+
+//  typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
+////   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
+//typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   // create another class which contains all the equations
   // i.e. it is a container of term container :-):
@@ -111,46 +118,99 @@ protected:
 
   void ComputeIteration()
     {
-    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
-    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+    LabelObjectContainerType label_objects =
+        m_DomainMapFilter->GetOutput()->GetLabelObjectContainer();
+    typename LabelObjectContainerType::const_iterator it = label_objects.begin();
 
-    std::cout << "Begin iteration" << std::endl;
-
-    LevelSetPointer levelSet;
-//     ChanAndVeseTermType::Pointer eqTerm;
-    while( map_it != map_end )
+    // 1-iterate on object
+    while( it != label_objects.end() )
       {
-      std::cout << map_it->second.m_Region << std::endl;
+      LabelObjectType* lo = it->second;
 
-      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
-      it.GoToBegin();
-      while( !it.IsAtEnd() )
+      typename LabelObjectType::LineContainerType lineContainer =
+          lo->GetLineContainer();
+
+      IdListType lout = lo->GetLabel();
+
+      // 2-iterate on lines
+      for( typename LabelObjectType::LineContainerType::const_iterator
+              lit = lineContainer.begin();
+          lit != lineContainer.end(); ++lit )
         {
-        std::cout << it.GetIndex() << std::endl;
-        IdListType lout = map_it->second.m_List;
+        typename DomainMapOutputImageType::IndexType
+            firstIdx = lit->GetIndex();
 
-        if( lout.empty() )
-          {
-          itkGenericExceptionMacro( <<"No level set exists at voxel" );
-          }
+        const typename DomainMapOutputImageType::OffsetValueType
+            length = lit->GetLength();
 
-        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+        typename DomainMapOutputImageType::IndexValueType
+            endIdx0 = firstIdx[0] + length;
+
+        // 3-iterate on pixel (in a line)
+        for ( typename DomainMapOutputImageType::IndexType idx = firstIdx;
+              idx[0] < endIdx0;
+              ++idx[0] )
           {
+          std::cout << idx << " ";
+
+          for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+            {
             std::cout << *lIt << " ";
-            levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
-            std::cout << levelSet->Evaluate( it.GetIndex() ) << std::endl;
+            LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
+            std::cout << levelSet->Evaluate( idx ) <<std::endl;
 
-            // Store this update.
-            //Run through all the terms associated with a given equation.
-            // Another loop needs to come here.
-            // TODO: Dynamic cast problems here
-            // std::cout << m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() ) << std::endl;
+//          Store this update.
+//          Run through all the terms associated with a given equation.
+//          Another loop needs to come here.
+//          TODO: Dynamic cast problems here
+//            std::cout << m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() ) << std::endl;
+            }
+          std::cout << std::endl;
           }
-        std::cout << std::endl;
-        ++it;
         }
-      ++map_it;
+      ++it;
       }
+
+//    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
+//    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+
+//    std::cout << "Begin iteration" << std::endl;
+
+//    LevelSetPointer levelSet;
+////     ChanAndVeseTermType::Pointer eqTerm;
+//    while( map_it != map_end )
+//      {
+//      std::cout << map_it->second.m_Region << std::endl;
+
+//      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
+//      it.GoToBegin();
+//      while( !it.IsAtEnd() )
+//        {
+//        std::cout << it.GetIndex() << std::endl;
+//        IdListType lout = map_it->second.m_List;
+
+//        if( lout.empty() )
+//          {
+//          itkGenericExceptionMacro( <<"No level set exists at voxel" );
+//          }
+
+//        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+//          {
+//            std::cout << *lIt << " ";
+//            levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
+//            std::cout << levelSet->Evaluate( it.GetIndex() ) << std::endl;
+
+//            // Store this update.
+//            //Run through all the terms associated with a given equation.
+//            // Another loop needs to come here.
+//            // TODO: Dynamic cast problems here
+//            // std::cout << m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() ) << std::endl;
+//          }
+//        std::cout << std::endl;
+//        ++it;
+//        }
+//      ++map_it;
+//      }
     }
 
   void GenerateData()

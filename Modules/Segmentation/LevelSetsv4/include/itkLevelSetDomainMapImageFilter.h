@@ -29,6 +29,7 @@
 
 #include "itkLabelImageToLabelMapFilter.h"
 
+
 namespace itk
 {
 /**
@@ -55,9 +56,6 @@ class ITK_EXPORT LevelSetDomainMapImageFilter :
     /** Run-time type information */
     itkTypeMacro ( LevelSetDomainMapImageFilter, LabelImageToLabelMapFilter );
 
-    /** Display */
-    void PrintSelf ( std::ostream& os, Indent indent ) const;
-
     typedef typename Superclass::InputImageType         InputImageType;
     typedef typename Superclass::OutputImageType        OutputImageType;
     typedef typename Superclass::InputImagePointer      InputImagePointer;
@@ -73,13 +71,22 @@ class ITK_EXPORT LevelSetDomainMapImageFilter :
     typedef typename Superclass::LabelObjectType          LabelObjectType;
     typedef typename Superclass::LengthType               LengthType;
 
+    typedef typename OutputImageType::LabelObjectContainerType
+                                                          LabelObjectContainerType;
+
     /** ImageDimension constants */
     itkStaticConstMacro( InputImageDimension, unsigned int,
                          TInputImage::ImageDimension);
 
  protected:
-    LevelSetDomainMapImageFilter();
+    LevelSetDomainMapImageFilter() {}
     ~LevelSetDomainMapImageFilter() {}
+
+    /** Display */
+    void PrintSelf ( std::ostream& os, Indent indent ) const
+      {
+      Superclass::PrintSelf( os, indent );
+      }
 
 
   private:

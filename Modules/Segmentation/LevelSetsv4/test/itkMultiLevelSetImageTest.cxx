@@ -16,6 +16,7 @@
  *
  *=========================================================================*/
 
+#include "itkListPixel.h"
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
@@ -29,9 +30,8 @@ int itkMultiLevelSetImageTest( int , char* [] )
   typedef itk::Image< PixelType, Dimension >             ImageType;
   typedef itk::LevelSetImageBase< ImageType >            LevelSetType;
   typedef itk::ImageRegionIteratorWithIndex< ImageType > IteratorType;
-  typedef std::list< itk::IdentifierType >               IdListType;
+  typedef itk::ListPixel< itk::IdentifierType >          IdListType;
   typedef itk::Image< IdListType, Dimension >            IdListImageType;
-  typedef itk::Image< short, Dimension >                 CacheImageType;
   typedef itk::LevelSetDomainMapImageFilter< IdListImageType >
                                                          DomainMapImageFilterType;
   ImageType::IndexType index;
@@ -58,7 +58,7 @@ int itkMultiLevelSetImageTest( int , char* [] )
   input2->Allocate();
   input2->FillBuffer( value );
 
-  ImageType::IndexType idx;
+  ImageType::IndexType indices;
   IdListType list_ids;
 
   IdListImageType::Pointer id_image = IdListImageType::New();
@@ -73,29 +73,29 @@ int itkMultiLevelSetImageTest( int , char* [] )
 
   while( !it1.IsAtEnd() )
     {
-    idx = it1.GetIndex();
+    indices = it1.GetIndex();
     list_ids.clear();
 
-    if( ( idx[0] < 5 ) && ( idx[1] < 5 ) )
+    if( ( indices[0] < 5 ) && ( indices[1] < 5 ) )
       {
       list_ids.push_back( 1 );
       }
 
-    if( ( idx[0] > 1 ) && ( idx[1] > 1 ) &&
-        ( idx[0] < 8 ) && ( idx[1] < 8 ) )
+    if( ( indices[0] > 1 ) && ( indices[1] > 1 ) &&
+        ( indices[0] < 8 ) && ( indices[1] < 8 ) )
       {
       list_ids.push_back( 2 );
       }
 
-    id_image->SetPixel( idx, list_ids );
+    id_image->SetPixel( indices, list_ids );
 
     it1.Set( vcl_sqrt(
-             static_cast< float> ( ( idx[0] - 2 ) * ( idx[0] - 2 ) +
-                                   ( idx[1] - 2 ) * ( idx[1] - 2 ) ) ) );
+             static_cast< float> ( ( indices[0] - 2 ) * ( indices[0] - 2 ) +
+                                   ( indices[1] - 2 ) * ( indices[1] - 2 ) ) ) );
 
     it2.Set( vcl_sqrt(
-             static_cast< float> ( ( idx[0] - 5 ) * ( idx[0] - 5 ) +
-                                   ( idx[1] - 5 ) * ( idx[1] - 5 ) ) ) );
+             static_cast< float> ( ( indices[0] - 5 ) * ( indices[0] - 5 ) +
+                                   ( indices[1] - 5 ) * ( indices[1] - 5 ) ) ) );
     ++it1;
     ++it2;
     }
@@ -110,96 +110,152 @@ int itkMultiLevelSetImageTest( int , char* [] )
   DomainMapImageFilterType::Pointer filter = DomainMapImageFilterType::New();
   filter->SetInput( id_image );
   filter->Update();
-  CacheImageType::Pointer output = filter->GetOutput();
 
-  itk::ImageRegionConstIteratorWithIndex<CacheImageType >
-      it( output, output->GetLargestPossibleRegion() );
+  typedef DomainMapImageFilterType::OutputImageType DomainMapOutputType;
+  DomainMapOutputType::Pointer output = filter->GetOutput();
 
-  it.GoToBegin();
 
-  CacheImageType::IndexType out_index;
-  CacheImageType::PixelType out_id;
+  typedef DomainMapOutputType::LabelObjectType          LabelObjectType;
+  typedef DomainMapOutputType::LabelObjectContainerType LabelObjectContainerType;
 
-  while( !it.IsAtEnd() )
+  LabelObjectContainerType label_objects = output->GetLabelObjectContainer();
+  LabelObjectContainerType::const_iterator it = label_objects.begin();
+
+  // 1-iterate on object
+  while( it != label_objects.end() )
     {
-    out_index = it.GetIndex();
-    out_id = it.Get();
+    LabelObjectType* lo = it->second;
 
-    IdListType solution;
-    if( ( out_index[0] < 5 ) && ( out_index[1] < 5 ) )
+    LabelObjectType::LineContainerType lineContainer =
+        lo->GetLineContainer();
+
+    IdListType lout = lo->GetLabel();
+
+    if( lout.empty() )
       {
-      solution.push_back( 1 );
+      return EXIT_FAILURE;
       }
 
-    if( ( out_index[0] > 1 ) && ( out_index[1] > 1 ) &&
-        ( out_index[0] < 8 ) && ( out_index[1] < 8 ) )
+    // 2-iterate on lines
+    for( LabelObjectType::LineContainerType::const_iterator
+            lit = lineContainer.begin();
+        lit != lineContainer.end(); ++lit )
       {
-      solution.push_back( 2 );
-      }
-    solution.sort();
+      DomainMapOutputType::IndexType firstIdx = lit->GetIndex();
+      const DomainMapOutputType::OffsetValueType length = lit->GetLength();
 
-    std::cout <<"***" << std::endl;
-    std::cout << out_index <<std::endl;
+      DomainMapOutputType::IndexValueType endIdx0 = firstIdx[0] + length;
 
-    if( out_id != 0 )
-      {
-      IdListType lout = filter->m_LevelSetMap[out_id].m_List;
-      std::cout << filter->m_LevelSetMap[out_id].m_Region;
-      if( lout.empty() )
+      // 3-iterate on pixel (in a line)
+      for ( DomainMapOutputType::IndexType idx = firstIdx;
+           idx[0] < endIdx0;
+           ++idx[0] )
         {
-        return EXIT_FAILURE;
-        }
-      else
-        {
-        for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+        std::cout << idx << " ";
+
+        // 4- iterate on the level sets
+        for( IdListType::const_iterator lIt = lout.begin();
+            lIt != lout.end();
+            ++lIt )
           {
-          std::cout << *lIt <<" " << level_set[*lIt]->Evaluate( out_index )
+          std::cout << *lIt << " "
+                    << level_set[*lIt]->Evaluate( idx )
                     << std::endl;
           }
         std::cout << std::endl;
-
-        lout.sort();
-        if( lout != solution )
-          {
-          std::cout <<"FAILURE!!!" <<std::endl;
-          return EXIT_FAILURE;
-          }
         }
       }
     ++it;
     }
 
-  std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator map_it = filter->m_LevelSetMap.begin();
-  std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator map_end = filter->m_LevelSetMap.end();
+//  itk::ImageRegionConstIteratorWithIndex<CacheImageType >
+//      it( output, output->GetLargestPossibleRegion() );
 
-  while( map_it != map_end )
-    {
-    IdListImageType::RegionType temp_region = map_it->second.m_Region;
+//  it.GoToBegin();
 
-    itk::ImageRegionConstIteratorWithIndex<IdListImageType >
-        temp_it( id_image, temp_region );
-    temp_it.GoToBegin();
+//  CacheImageType::IndexType out_index;
+//  CacheImageType::PixelType out_id;
 
-    while( !temp_it.IsAtEnd() )
-      {
-      std::cout << temp_it.GetIndex() << std::endl;
-      IdListType lout = map_it->second.m_List;
+//  while( !it.IsAtEnd() )
+//    {
+//    out_index = it.GetIndex();
+//    out_id = it.Get();
 
-      if( lout.empty() )
-        {
-        return EXIT_FAILURE;
-        }
+//    IdListType solution;
+//    if( ( out_index[0] < 5 ) && ( out_index[1] < 5 ) )
+//      {
+//      solution.push_back( 1 );
+//      }
 
-      for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-        {
-        std::cout << *lIt <<" " << level_set[*lIt]->Evaluate( temp_it.GetIndex() )
-                  << std::endl;
-        }
-      std::cout << std::endl;
-      ++temp_it;
-      }
-    ++map_it;
-    }
+//    if( ( out_index[0] > 1 ) && ( out_index[1] > 1 ) &&
+//        ( out_index[0] < 8 ) && ( out_index[1] < 8 ) )
+//      {
+//      solution.push_back( 2 );
+//      }
+//    solution.sort();
+
+//    std::cout <<"***" << std::endl;
+//    std::cout << out_index <<std::endl;
+
+//    if( out_id != 0 )
+//      {
+//      IdListType lout = filter->m_LevelSetMap[out_id].m_List;
+//      std::cout << filter->m_LevelSetMap[out_id].m_Region;
+//      if( lout.empty() )
+//        {
+//        return EXIT_FAILURE;
+//        }
+//      else
+//        {
+//        for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+//          {
+//          std::cout << *lIt <<" " << level_set[*lIt]->Evaluate( out_index )
+//                    << std::endl;
+//          }
+//        std::cout << std::endl;
+
+//        lout.sort();
+//        if( lout != solution )
+//          {
+//          std::cout <<"FAILURE!!!" <<std::endl;
+//          return EXIT_FAILURE;
+//          }
+//        }
+//      }
+//    ++it;
+//    }
+
+//  std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator map_it = filter->m_LevelSetMap.begin();
+//  std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator map_end = filter->m_LevelSetMap.end();
+
+//  while( map_it != map_end )
+//    {
+//    IdListImageType::RegionType temp_region = map_it->second.m_Region;
+
+//    itk::ImageRegionConstIteratorWithIndex<IdListImageType >
+//        temp_it( id_image, temp_region );
+//    temp_it.GoToBegin();
+
+//    while( !temp_it.IsAtEnd() )
+//      {
+//      std::cout << temp_it.GetIndex() << std::endl;
+//      IdListType lout = map_it->second.m_List;
+
+//      if( lout.empty() )
+//        {
+//        return EXIT_FAILURE;
+//        }
+
+//      for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+//        {
+//        std::cout << *lIt <<" " << level_set[*lIt]->Evaluate( temp_it.GetIndex() )
+//                  << std::endl;
+//        }
+//      std::cout << std::endl;
+//      ++temp_it;
+//      }
+//    ++map_it;
+//    }
 
   return EXIT_SUCCESS;
 }

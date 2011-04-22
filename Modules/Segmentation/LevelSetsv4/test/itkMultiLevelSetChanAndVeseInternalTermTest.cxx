@@ -17,6 +17,7 @@
  *=========================================================================*/
 
 #include "itkImage.h"
+#include "itkListPixel.h"
 #include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
@@ -38,10 +39,9 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   typedef itk::LevelSetImageBase< ImageType >            LevelSetType;
   typedef itk::ImageRegionIteratorWithIndex< ImageType > IteratorType;
   typedef itk::IdentifierType                            IdentifierType;
-  typedef std::list< IdentifierType >                    IdListType;
+  typedef itk::ListPixel< IdentifierType >               IdListType;
   typedef itk::Image< IdListType, Dimension >            IdListImageType;
-  typedef itk::Image< short, Dimension >                 CacheImageType;
-  typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
+  typedef itk::LevelSetDomainMapImageFilter< IdListImageType >
                                                          DomainMapImageFilterType;
 
   typedef itk::LevelSetContainerBase< IdentifierType, LevelSetType >  LevelSetContainerType;
@@ -67,15 +67,7 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   InputImageType::Pointer input = InputImageType::New();
   input->SetRegions( region );
   input->Allocate();
-  input->FillBuffer( 0 );
-
-  InputIteratorType it( input, input->GetLargestPossibleRegion() );
-  it.GoToBegin();
-  while( !it.IsAtEnd() )
-  {
-    it.Set( 1 );
-    ++it;
-  }
+  input->FillBuffer( 1 );
 
   ImageType::Pointer input1 = ImageType::New();
   input1->SetRegions( region );
@@ -87,7 +79,7 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   input2->Allocate();
   input2->FillBuffer( value );
 
-  ImageType::IndexType idx;
+  ImageType::IndexType indices;
   IdListType list_ids;
 
   IdListImageType::Pointer id_image = IdListImageType::New();
@@ -102,29 +94,29 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
 
   while( !it1.IsAtEnd() )
     {
-    idx = it1.GetIndex();
+    indices = it1.GetIndex();
     list_ids.clear();
 
-    if( ( idx[0] < 5 ) && ( idx[1] < 5 ) )
+    if( ( indices[0] < 5 ) && ( indices[1] < 5 ) )
       {
       list_ids.push_back( 1 );
       }
 
-    if( ( idx[0] > 1 ) && ( idx[1] > 1 ) &&
-        ( idx[0] < 8 ) && ( idx[1] < 8 ) )
+    if( ( indices[0] > 1 ) && ( indices[1] > 1 ) &&
+        ( indices[0] < 8 ) && ( indices[1] < 8 ) )
       {
       list_ids.push_back( 2 );
       }
 
-    id_image->SetPixel( idx, list_ids );
+    id_image->SetPixel( indices, list_ids );
 
     it1.Set( vcl_sqrt(
-             static_cast< float> ( ( idx[0] - 2 ) * ( idx[0] - 2 ) +
-                                   ( idx[1] - 2 ) * ( idx[1] - 2 ) ) ) );
+             static_cast< float> ( ( indices[0] - 2 ) * ( indices[0] - 2 ) +
+                                   ( indices[1] - 2 ) * ( indices[1] - 2 ) ) ) );
 
     it2.Set( vcl_sqrt(
-             static_cast< float> ( ( idx[0] - 5 ) * ( idx[0] - 5 ) +
-                                   ( idx[1] - 5 ) * ( idx[1] - 5 ) ) ) );
+             static_cast< float> ( ( indices[0] - 5 ) * ( indices[0] - 5 ) +
+                                   ( indices[1] - 5 ) * ( indices[1] - 5 ) ) ) );
     ++it1;
     ++it2;
     }
@@ -174,50 +166,110 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
   domainMapFilter->SetInput( id_image );
   domainMapFilter->Update();
-  CacheImageType::Pointer output = domainMapFilter->GetOutput();
+
+  DomainMapImageFilterType::OutputImagePointer output = domainMapFilter->GetOutput();
   std::cout << "Domain partition computed" << std::endl;
 
-  typedef std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator DomainMapIterator;
-  DomainMapIterator map_it = domainMapFilter->m_LevelSetMap.begin();
-  DomainMapIterator map_end = domainMapFilter->m_LevelSetMap.end();
+  typedef DomainMapImageFilterType::OutputImageType       DomainOutputImageType;
+  typedef DomainOutputImageType::LabelObjectType          LabelObjectType;
+  typedef DomainOutputImageType::LabelObjectContainerType LabelObjectContainerType;
 
-  LevelSetType::Pointer levelSet;
-  ChanAndVeseTermType::Pointer eqTerm;
-  while( map_it != map_end )
+  LabelObjectContainerType label_objects = output->GetLabelObjectContainer();
+  LabelObjectContainerType::const_iterator it = label_objects.begin();
+
+  // 1-iterate on object
+  while( it != label_objects.end() )
     {
-    IdListImageType::RegionType temp_region = map_it->second.m_Region;
+    LabelObjectType* lo = it->second;
 
-    itk::ImageRegionConstIteratorWithIndex<IdListImageType >
-        temp_it( id_image, temp_region );
-    temp_it.GoToBegin();
+    LabelObjectType::LineContainerType lineContainer =
+        lo->GetLineContainer();
 
-    while( !temp_it.IsAtEnd() )
+    IdListType lout = lo->GetLabel();
+
+    if( lout.empty() )
       {
-      std::cout << temp_it.GetIndex() << std::endl;
-      IdListType lout = map_it->second.m_List;
+      return EXIT_FAILURE;
+      }
 
-      if( lout.empty() )
-        {
-        return EXIT_FAILURE;
-        }
+    // 2-iterate on lines
+    for( LabelObjectType::LineContainerType::const_iterator
+            lit = lineContainer.begin();
+        lit != lineContainer.end(); ++lit )
+      {
+      DomainOutputImageType::IndexType firstIdx = lit->GetIndex();
+      const DomainOutputImageType::OffsetValueType length = lit->GetLength();
 
-      for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+      DomainOutputImageType::IndexValueType endIdx0 = firstIdx[0] + length;
+
+      // 3-iterate on pixel (in a line)
+      for ( DomainOutputImageType::IndexType idx = firstIdx;
+            idx[0] < endIdx0;
+            ++idx[0] )
         {
+        std::cout << idx << " ";
+
+        for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+          {
           std::cout << *lIt << " ";
-          levelSet = lscontainer->GetLevelSet( *lIt - 1);
-          std::cout << levelSet->Evaluate( temp_it.GetIndex() ) << std::endl;
+          LevelSetType::Pointer levelSet = lscontainer->GetLevelSet( *lIt - 1);
+          std::cout << levelSet->Evaluate( idx ) <<std::endl;
 
           if ( *lIt - 1 == 0 )
-          {
-            eqTerm =  dynamic_cast< ChanAndVeseTermType* >( termContainer->GetTerm( *lIt - 1 ).GetPointer() );
-            std::cout << eqTerm->Evaluate( temp_it.GetIndex() ) << std::endl;
+            {
+            ChanAndVeseTermType::Pointer eqTerm = dynamic_cast< ChanAndVeseTermType* >(
+                termContainer->GetTerm( *lIt - 1 ).GetPointer() );
+            std::cout << eqTerm->Evaluate( idx ) <<std::endl;
+            }
           }
+        std::cout << std::endl;
         }
-      std::cout << std::endl;
-      ++temp_it;
       }
-    ++map_it;
+    ++it;
     }
+
+
+//  typedef std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator DomainMapIterator;
+//  DomainMapIterator map_it = domainMapFilter->m_LevelSetMap.begin();
+//  DomainMapIterator map_end = domainMapFilter->m_LevelSetMap.end();
+
+//  LevelSetType::Pointer levelSet;
+//  ChanAndVeseTermType::Pointer eqTerm;
+//  while( map_it != map_end )
+//    {
+//    IdListImageType::RegionType temp_region = map_it->second.m_Region;
+
+//    itk::ImageRegionConstIteratorWithIndex<IdListImageType >
+//        temp_it( id_image, temp_region );
+//    temp_it.GoToBegin();
+
+//    while( !temp_it.IsAtEnd() )
+//      {
+//      std::cout << temp_it.GetIndex() << std::endl;
+//      IdListType lout = map_it->second.m_List;
+
+//      if( lout.empty() )
+//        {
+//        return EXIT_FAILURE;
+//        }
+
+//      for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+//        {
+//          std::cout << *lIt << " ";
+//          levelSet = lscontainer->GetLevelSet( *lIt - 1);
+//          std::cout << levelSet->Evaluate( temp_it.GetIndex() ) << std::endl;
+
+//          if ( *lIt - 1 == 0 )
+//          {
+//            eqTerm =  dynamic_cast< ChanAndVeseTermType* >( termContainer->GetTerm( *lIt - 1 ).GetPointer() );
+//            std::cout << eqTerm->Evaluate( temp_it.GetIndex() ) << std::endl;
+//          }
+//        }
+//      std::cout << std::endl;
+//      ++temp_it;
+//      }
+//    ++map_it;
+//    }
 
 // Update the term
 

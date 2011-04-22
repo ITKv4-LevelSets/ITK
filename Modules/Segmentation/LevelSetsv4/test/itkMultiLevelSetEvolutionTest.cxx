@@ -16,6 +16,7 @@
  *
  *=========================================================================*/
 
+#include "itkListPixel.h"
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
@@ -41,10 +42,9 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   typedef itk::LevelSetImageBase< ImageType >            LevelSetType;
   typedef itk::ImageRegionIteratorWithIndex< ImageType > IteratorType;
   typedef itk::IdentifierType                            IdentifierType;
-  typedef std::list< IdentifierType >                    IdListType;
+  typedef itk::ListPixel< IdentifierType >               IdListType;
   typedef itk::Image< IdListType, Dimension >            IdListImageType;
-  typedef itk::Image< short, Dimension >                 CacheImageType;
-  typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
+  typedef itk::LevelSetDomainMapImageFilter< IdListImageType >
                                                          DomainMapImageFilterType;
 
   typedef itk::LevelSetContainerBase< IdentifierType, LevelSetType >  LevelSetContainerType;
@@ -57,7 +57,7 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
 
   typedef itk::LevelSetEquationContainerBase< TermContainerType >     EquationContainerType;
 
-  typedef itk::LevelSetEvolutionBase< EquationContainerType >             LevelSetEvolutionType;
+  typedef itk::LevelSetEvolutionBase< EquationContainerType, IdListType >             LevelSetEvolutionType;
   typedef itk::AtanRegularizedHeavisideStepFunction< PixelType, PixelType >
                                                                       HeavisideFunctionBaseType;
 
@@ -249,7 +249,7 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   evolution->SetEquationContainer( equationContainer );
   evolution->SetNumberOfIterations( 2 );
   evolution->SetLevelSetContainer( lscontainer );
-  evolution->SetDomainMapFilter( domainMapFilter );
+  evolution->SetDomainMapFilter( domainMapFilter.GetPointer() );
   evolution->Update();
 
   return EXIT_SUCCESS;

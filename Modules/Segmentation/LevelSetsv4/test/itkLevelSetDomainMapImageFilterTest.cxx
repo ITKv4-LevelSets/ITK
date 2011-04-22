@@ -17,15 +17,15 @@
  *=========================================================================*/
 
 #include "itkLevelSetDomainMapImageFilter.h"
-#include <list>
+#include "itkListPixel.h"
 #include <vector>
 
 int itkLevelSetDomainMapImageFilterTest( int, char* [] )
 {
   const unsigned int Dimension = 2;
 
-  typedef std::list<int>            ListPixelType;
-  typedef std::list<int>::iterator  ListIteratorType;
+  typedef itk::ListPixel<int>      ListPixelType;
+  typedef ListPixelType::iterator  ListIteratorType;
 
   typedef itk::Image< ListPixelType, Dimension >  InputImageType;
 
@@ -69,32 +69,44 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
 
   OutputImageType::Pointer output = filter->GetOutput();
 
-  itk::ImageRegionConstIteratorWithIndex<OutputImageType >
-      it( output, output->GetLargestPossibleRegion() );
+  typedef OutputImageType::LabelObjectType          LabelObjectType;
+  typedef OutputImageType::LabelObjectContainerType LabelObjectContainerType;
 
-  it.GoToBegin();
+  LabelObjectContainerType label_objects = output->GetLabelObjectContainer();
+  LabelObjectContainerType::const_iterator it = label_objects.begin();
 
-  OutputImageType::IndexType out_index;
-  OutputImageType::PixelType out_id;
-
-  while( !it.IsAtEnd() )
+  // 1-iterate on object
+  while( it != label_objects.end() )
     {
-    out_index = it.GetIndex();
-    out_id = it.Get();
+    LabelObjectType* lo = it->second;
 
-    if( out_id > 0 )
+    LabelObjectType::LineContainerType lineContainer =
+        lo->GetLineContainer();
+
+    ListPixelType lout = lo->GetLabel();
+
+    if( lout.empty() )
       {
-      std::cout << "*** " <<std::endl;
-      std::cout << out_index << " # " << out_id <<std::endl;
-      std::cout << filter->m_LevelSetMap[out_id].m_Region;
+      return EXIT_FAILURE;
+      }
 
-      ListPixelType lout = filter->m_LevelSetMap[out_id].m_List;
-      if( lout.empty() )
+    // 2-iterate on lines
+    for( LabelObjectType::LineContainerType::const_iterator
+            lit = lineContainer.begin();
+        lit != lineContainer.end(); ++lit )
+      {
+      OutputImageType::IndexType firstIdx = lit->GetIndex();
+      const OutputImageType::OffsetValueType length = lit->GetLength();
+
+      OutputImageType::IndexValueType endIdx0 = firstIdx[0] + length;
+
+      // 3-iterate on pixel (in a line)
+      for ( OutputImageType::IndexType idx = firstIdx;
+            idx[0] < endIdx0;
+            ++idx[0] )
         {
-        return EXIT_FAILURE;
-        }
-      else
-        {
+        std::cout << idx << " ";
+
         for( ListIteratorType lIt = lout.begin(); lIt != lout.end(); ++lIt )
           {
           std::cout << *lIt << " ";
@@ -104,6 +116,40 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
       }
     ++it;
     }
+
+
+//  itk::ImageRegionConstIteratorWithIndex<OutputImageType >
+//      it( output, output->GetLargestPossibleRegion() );
+
+//  it.GoToBegin();
+
+//  while( !it.IsAtEnd() )
+//    {
+
+//    out_id = it.Get();
+
+//    if( out_id > 0 )
+//      {
+//      std::cout << "*** " <<std::endl;
+//      std::cout << out_index << " # " << out_id <<std::endl;
+//      std::cout << filter->m_LevelSetMap[out_id].m_Region;
+
+//      ListPixelType lout = filter->m_LevelSetMap[out_id].m_List;
+//      if( lout.empty() )
+//        {
+//        return EXIT_FAILURE;
+//        }
+//      else
+//        {
+//        for( ListIteratorType lIt = lout.begin(); lIt != lout.end(); ++lIt )
+//          {
+//          std::cout << *lIt << " ";
+//          }
+//        std::cout << std::endl;
+//        }
+//      }
+//    ++it;
+//    }
 
   return EXIT_SUCCESS;
 }
