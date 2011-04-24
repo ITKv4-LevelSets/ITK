@@ -221,6 +221,8 @@ protected:
 
       ApplyUpdate();
 
+      UpdateEquations();
+
       Reinitialize();
       }
     }
@@ -262,6 +264,11 @@ protected:
       ++it2;
       }
   }
+
+  void UpdateEquations()
+    {
+    m_EquationContainer->Update();
+    }
 
   void Reinitialize()
   {

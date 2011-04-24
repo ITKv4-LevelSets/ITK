@@ -85,13 +85,15 @@ public:
     {
     typename std::map< unsigned int, TermPointer >::iterator
         it = m_Container.find( iId );
+
     if( it != m_Container.end() )
       {
-      return TermPointer();
+      return it->second;
       }
     else
       {
-      return it->second;
+      itkGenericExceptionMacro( <<"this term does not exist" );
+      return TermPointer();
       }
     }
 
@@ -113,8 +115,22 @@ public:
     return oValue;
     }
 
+  void Update()
+    {
+    typename std::map< unsigned int, TermPointer >::iterator
+        term_it = m_Container.begin();
+    typename std::map< unsigned int, TermPointer >::iterator
+        term_end = m_Container.end();
+
+    while( term_it != term_end )
+      {
+      ( term_it->second )->Update();
+      ++term_it;
+      }
+    }
+
 protected:
-  LevelSetEquationTermContainerBase() : Superclass() {}
+  LevelSetEquationTermContainerBase() : Superclass(), m_Input( NULL ) {}
 
   virtual ~LevelSetEquationTermContainerBase() {}
 

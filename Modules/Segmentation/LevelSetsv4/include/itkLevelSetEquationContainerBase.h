@@ -67,11 +67,25 @@ public:
         it = m_Container.find( iId );
     if( it != m_Container.end() )
       {
-      return TermContainerPointer();
+      return it->second;
       }
     else
       {
-      return it->second;
+      itkGenericExceptionMacro( <<"this equation does not exist" );
+      return TermContainerPointer();
+      }
+    }
+
+  void Update()
+    {
+    typedef typename std::map< unsigned int, TermContainerPointer >::iterator
+        ContainerIterator;
+
+    for( ContainerIterator it = m_Container.begin();
+         it != m_Container.end();
+         ++it )
+      {
+      (it->second )->Update();
       }
     }
 
