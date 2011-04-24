@@ -67,6 +67,10 @@ public:
   typedef typename TermContainerType::LevelSetContainerType LevelSetContainerType;
   typedef typename LevelSetContainerType::IdentifierType    IdentifierType;
   typedef typename LevelSetContainerType::Pointer           LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::LevelSetContainerConstIteratorType
+                                                            LevelSetContainerConstIteratorType;
+  typedef typename LevelSetContainerType::LevelSetContainerIteratorType
+                                                            LevelSetContainerIteratorType;
 
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
@@ -176,7 +180,7 @@ protected:
             // TODO: Dynamic cast problems here
             // std::cout << m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() ) << std::endl;
             // p = m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() );
-            levelSetUpdate->GetImage()->SetPixel( p );
+            levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), p );
           }
         std::cout << std::endl;
         ++it;
@@ -203,7 +207,7 @@ protected:
 
         ComputeDtForNextIteration();
         ApplyUpdate();
-        ReInitialize();
+        Reinitialize();
         }
       }
 
@@ -214,41 +218,44 @@ protected:
 
   void ApplyUpdate()
     {
-    LevelSetContainerIteratorType it1 = m_LevelSetContainer->m_Container.begin();
-    LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->m_Container.begin();
+    LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
+    LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
 
     LevelSetImagePixelType p;
 
-    while( it1 != m_LevelSetContainer->m_Container.end() )
-    {
-      LevelSetImagePointer image1 = it1->second->GetInput();
-      LevelSetImagePointer image2 = it2->second->GetInput();
+    while( it1 != m_LevelSetContainer->End() )
+      {
+      LevelSetImagePointer image1 = it1->second->GetImage();
+      LevelSetImagePointer image2 = it2->second->GetImage();
 
       LevelSetImageIteratorType It1( image1, image1->GetBufferedRegion() );
       LevelSetImageIteratorType It2( image2, image2->GetBufferedRegion() );
       It1.GoToBegin();
       It2.GoToBegin();
+
       while( !It1.IsAtEnd() )
-      {
+        {
         p = m_Dt * It2.Get();
         It1.Set( It1.Get() + p );
+
         m_RMSChangeAccumulator += p;
+
         ++It1;
         ++It2;
-      }
+        }
 
       ++it1;
       ++it2;
-    }
+      }
   }
 
   void Reinitialize()
   {
-    LevelSetContainerIteratorType it = m_LevelSetContainer->m_Container.begin();
+    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
 
-    while( it != m_LevelSetContainer->m_Container.end() )
-    {
-      LevelSetImagePointer image = it->second->GetInput();
+    while( it != m_LevelSetContainer->End() )
+      {
+      LevelSetImagePointer image = it->second->GetImage();
 
       ThresholdFilterPointer thresh = ThresholdFilterType::New();
       thresh->SetLowerThreshold( NumericTraits< LevelSetImagePixelType >::NonpositiveMin() );
@@ -270,13 +277,13 @@ protected:
       It1.GoToBegin();
       It2.GoToBegin();
       while( !It1.IsAtEnd() )
-      {
+        {
         It1.Set( It2.Get() );
         ++It1;
         ++It2;
-      }
+        }
       ++it;
-    }
+      }
   }
 
   unsigned int                m_NumberOfIterations;

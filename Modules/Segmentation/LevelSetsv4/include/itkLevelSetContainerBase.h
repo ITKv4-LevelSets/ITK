@@ -53,7 +53,27 @@ public:
   typedef typename LevelSetContainerType::const_iterator LevelSetContainerConstIteratorType;
   typedef typename LevelSetContainerType::iterator       LevelSetContainerIteratorType;
 
-  void CopyInformationAndAllocate( ConstPointer iOther,
+  LevelSetContainerIteratorType Begin()
+    {
+    return m_Container.begin();
+    }
+
+  LevelSetContainerConstIteratorType Begin() const
+    {
+    return m_Container.begin();
+    }
+
+  LevelSetContainerIteratorType End()
+    {
+    return m_Container.end();
+    }
+
+  LevelSetContainerConstIteratorType End() const
+    {
+    return m_Container.end();
+    }
+
+  void CopyInformationAndAllocate( Pointer iOther,
                                    const bool& iAllocate )
     {
     LevelSetContainerConstIteratorType it = iOther->m_Container.begin();
@@ -68,13 +88,14 @@ public:
 
         typedef typename LevelSetType::ImageType    LevelSetImageType;
         typedef typename LevelSetImageType::Pointer LevelSetImagePointer;
+        // Note LevelSetImageType::PixelType is identical to OutputType
 
         LevelSetImagePointer image = LevelSetImageType::New();
-        image->CopyInformation( it->second->GetInput() );
+        image->CopyInformation( ( it->second )->GetImage() );
         image->Allocate();
-        image->FillBuffer( NumericTraits< LevelSetImageType::PixelType >::Zero );
+        image->FillBuffer( NumericTraits< OutputType >::Zero );
 
-        temp_ls->SetInput( image );
+        temp_ls->SetImage( image );
         }
       m_Container[ it->first ] = temp_ls;
       ++it;
