@@ -106,11 +106,11 @@ public:
 
     while( term_it != term_end )
       {
-      oValue += term_it->Evaluate( iP );
+      oValue += ( term_it->second )->Evaluate( iP );
       ++term_it;
       }
 
-    return iP;
+    return oValue;
     }
 
 protected:

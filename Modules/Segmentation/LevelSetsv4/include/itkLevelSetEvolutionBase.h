@@ -168,19 +168,20 @@ protected:
 
         for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
           {
-            std::cout << *lIt << " ";
-            levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
-            std::cout << levelSet->Evaluate( it.GetIndex() ) << std::endl;
+          std::cout << *lIt << " ";
+          levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
+          std::cout << levelSet->Evaluate( it.GetIndex() ) << std::endl;
 
-            levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
+          levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
 
-            // Store this update.
-            //Run through all the terms associated with a given equation.
-            // Another loop needs to come here.
-            // TODO: Dynamic cast problems here
-            // std::cout << m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() ) << std::endl;
-            // p = m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() );
-            levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), p );
+          // Store this update.
+          //Run through all the terms associated with a given equation.
+          // Another loop needs to come here.
+          // TODO: Dynamic cast problems here
+          // std::cout << m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex()
+//          ) << std::endl;
+          p = m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
+          levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), p );
           }
         std::cout << std::endl;
         ++it;
