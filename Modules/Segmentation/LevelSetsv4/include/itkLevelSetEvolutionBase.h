@@ -24,6 +24,8 @@
 #include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
+#include "itkBinaryThresholdImageFilter.h"
+#include "itkSignedMaurerDistanceMapImageFilter.h"
 #include <list>
 #include "itkObject.h"
 
@@ -68,8 +70,24 @@ public:
 
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
+  typedef typename LevelSetType::ImageType             LevelSetImageType;
+  typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
+  typedef typename LevelSetImageType::PixelType        LevelSetImagePixelType;
+
+  typedef BinaryThresholdImageFilter< LevelSetImageType, LevelSetImageType >
+                                                       ThresholdFilterType;
+  typedef typename ThresholdFilterType::Pointer        ThresholdFilterPointer;
+  typedef SignedMaurerDistanceMapImageFilter< LevelSetImageType, LevelSetImageType >
+                                                       MaurerType;
+  typedef typename MaurerType::Pointer                 MaurerPointer;
+
+  typedef ImageRegionIteratorWithIndex< LevelSetImageType > LevelSetImageIteratorType;
+
+  typedef ImageRegionConstIteratorWithIndex< LevelSetImageType > LevelSetImageConstIteratorType;
 
   typedef ImageRegionIteratorWithIndex< InputImageType > InputImageIteratorType;
+
+  typedef ImageRegionConstIteratorWithIndex< InputImageType > InputImageConstIteratorType;
 
   typedef std::list< IdentifierType >                    IdListType;
   typedef typename IdListType::iterator                  IdListIterator;
@@ -92,6 +110,9 @@ typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator Doma
 
   void Update()
     {
+    // Allocate update buffer
+    this->AllocateUpdateBuffer();
+    //Run iteration
     this->GenerateData();
     }
 
@@ -109,6 +130,12 @@ typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator Doma
 
 protected:
 
+  void AllocateUpdateBuffer()
+    {
+    this->m_UpdateBuffer = LevelSetContainerType::New();
+    this->m_UpdateBuffer->CopyInformationAndAllocate( m_LevelSetContainer, true );
+    }
+
   void ComputeIteration()
     {
     DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
@@ -116,7 +143,8 @@ protected:
 
     std::cout << "Begin iteration" << std::endl;
 
-    LevelSetPointer levelSet;
+    LevelSetPointer levelSet, levelSetUpdate;
+    InputPixelRealType p;
 //     ChanAndVeseTermType::Pointer eqTerm;
     while( map_it != map_end )
       {
@@ -140,11 +168,15 @@ protected:
             levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
             std::cout << levelSet->Evaluate( it.GetIndex() ) << std::endl;
 
+            levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
+
             // Store this update.
             //Run through all the terms associated with a given equation.
             // Another loop needs to come here.
             // TODO: Dynamic cast problems here
             // std::cout << m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() ) << std::endl;
+            // p = m_TermContainer->GetTerm( *lIt - 1 )->Evaluate( it.GetIndex() );
+            levelSetUpdate->GetImage()->SetPixel( p );
           }
         std::cout << std::endl;
         ++it;
@@ -160,31 +192,102 @@ protected:
       // Get the LevelSetContainer from the EquationContainer
 //       m_LevelSetContainer = m_EquationContainer->GetLevelSetContainer();
       for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
-      {
+        {
+        m_RMSChangeAccumulator = 0;
+
         // one iteration over all container
         // update each level set based on the different equations provided
         ComputeIteration();
 
         //ComputeCFL();
 
-        //ComputeDtForNextIteration();
-
-        // Update
-
-        // at first we would not reinitialize, then reinitialize at each iteration
-        // then improve this later
-        //ReInitialize();
+        ComputeDtForNextIteration();
+        ApplyUpdate();
+        ReInitialize();
+        }
       }
+
+  void ComputeDtForNextIteration()
+    {
+    m_Dt = 0.2;
     }
+
+  void ApplyUpdate()
+    {
+    LevelSetContainerIteratorType it1 = m_LevelSetContainer->m_Container.begin();
+    LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->m_Container.begin();
+
+    LevelSetImagePixelType p;
+
+    while( it1 != m_LevelSetContainer->m_Container.end() )
+    {
+      LevelSetImagePointer image1 = it1->second->GetInput();
+      LevelSetImagePointer image2 = it2->second->GetInput();
+
+      LevelSetImageIteratorType It1( image1, image1->GetBufferedRegion() );
+      LevelSetImageIteratorType It2( image2, image2->GetBufferedRegion() );
+      It1.GoToBegin();
+      It2.GoToBegin();
+      while( !It1.IsAtEnd() )
+      {
+        p = m_Dt * It2.Get();
+        It1.Set( It1.Get() + p );
+        m_RMSChangeAccumulator += p;
+        ++It1;
+        ++It2;
+      }
+
+      ++it1;
+      ++it2;
+    }
+  }
+
+  void Reinitialize()
+  {
+    LevelSetContainerIteratorType it = m_LevelSetContainer->m_Container.begin();
+
+    while( it != m_LevelSetContainer->m_Container.end() )
+    {
+      LevelSetImagePointer image = it->second->GetInput();
+
+      ThresholdFilterPointer thresh = ThresholdFilterType::New();
+      thresh->SetLowerThreshold( NumericTraits< LevelSetImagePixelType >::NonpositiveMin() );
+      thresh->SetUpperThreshold( 0 );
+      thresh->SetInsideValue( 1 );
+      thresh->SetOutsideValue( 0 );
+      thresh->SetInput( image );
+      thresh->Update();
+
+      MaurerPointer maurer = MaurerType::New();
+      maurer->SetInput( thresh->GetOutput() );
+      maurer->SetSquaredDistance( false );
+      maurer->SetUseImageSpacing( true );
+      maurer->SetInsideIsPositive( true );
+      maurer->Update();
+
+      LevelSetImageIteratorType It1( image, image->GetBufferedRegion() );
+      LevelSetImageIteratorType It2( maurer->GetOutput(), image->GetBufferedRegion() );
+      It1.GoToBegin();
+      It2.GoToBegin();
+      while( !It1.IsAtEnd() )
+      {
+        It1.Set( It2.Get() );
+        ++It1;
+        ++It2;
+      }
+      ++it;
+    }
+  }
 
   unsigned int                m_NumberOfIterations;
   unsigned int                m_NumberOfLevelSets;
   InputImagePointer           m_InputImage;
   EquationContainerPointer    m_EquationContainer;
   LevelSetContainerPointer    m_LevelSetContainer;
+  LevelSetContainerPointer    m_UpdateBuffer;
   DomainMapImageFilterPointer m_DomainMapFilter;
-
-//   EquationContainerPointer m_EquationContainer;
+  InputPixelRealType          m_Dt;
+  InputPixelRealType          m_RMSChangeAccumulator;
 
 private:
 };

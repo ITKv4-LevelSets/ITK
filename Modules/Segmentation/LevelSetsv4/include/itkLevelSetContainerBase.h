@@ -71,6 +71,8 @@ public:
 
         LevelSetImagePointer image = LevelSetImageType::New();
         image->CopyInformation( it->second->GetInput() );
+        image->Allocate();
+        image->FillBuffer( NumericTraits< LevelSetImageType::PixelType >::Zero );
 
         temp_ls->SetInput( image );
         }
