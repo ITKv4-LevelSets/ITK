@@ -149,6 +149,10 @@ protected:
   LevelSetContainerPointer    m_LevelSetContainer;
   LevelSetContainerPointer    m_UpdateBuffer;
   DomainMapImageFilterPointer m_DomainMapFilter;
+
+  /// \todo change it to a map
+  /// there could be a bool to determine if all dt are synchronized
+  /// or not
   InputPixelRealType          m_Dt;
   InputPixelRealType          m_RMSChangeAccumulator;
 
@@ -205,6 +209,8 @@ protected:
     {
     m_InputImage = m_EquationContainer->GetInput();
 
+    m_Dt = 1.;
+
       // Get the LevelSetContainer from the EquationContainer
 //       m_LevelSetContainer = m_EquationContainer->GetLevelSetContainer();
     for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
@@ -219,7 +225,7 @@ protected:
 
       ComputeDtForNextIteration();
 
-      ApplyUpdate();
+      UpdateLevelSets();
 
       UpdateEquations();
 
@@ -232,7 +238,7 @@ protected:
     m_Dt = 0.2;
     }
 
-  void ApplyUpdate()
+  virtual void UpdateLevelSets()
     {
     LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
     LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
