@@ -44,6 +44,8 @@ public:
   typedef typename TermContainerType::InputType     InputType;
   typedef typename TermContainerType::InputPointer  InputPointer;
 
+  typedef typename TermContainerType::LevelSetOutputType LevelSetOutputType;
+
   void AddEquation( const unsigned int& iId, TermContainerPointer iEquation )
     {
     if ( iEquation.IsNotNull() )
@@ -87,6 +89,23 @@ public:
       {
       (it->second )->Update();
       }
+    }
+
+  LevelSetOutputType GetCFLContribution()
+    {
+    typedef typename std::map< unsigned int, TermContainerPointer >::iterator
+        ContainerIterator;
+
+    LevelSetOutputType oValue = NumericTraits< LevelSetOutputType >::max();
+
+    for( ContainerIterator it = m_Container.begin();
+         it != m_Container.end();
+         ++it )
+      {
+      oValue = vnl_math_min( oValue, ( it->second )->GetCFLContribution() );
+      }
+
+    return oValue;
     }
 
   itkSetObjectMacro( Input, InputType );

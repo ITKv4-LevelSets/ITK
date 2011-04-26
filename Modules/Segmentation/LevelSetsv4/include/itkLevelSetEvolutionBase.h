@@ -75,8 +75,9 @@ public:
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::ImageType             LevelSetImageType;
+  typedef typename LevelSetType::OutputType            LevelSetOutputType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
-  typedef typename LevelSetImageType::PixelType        LevelSetImagePixelType;
+
 
   typedef BinaryThresholdImageFilter< LevelSetImageType, LevelSetImageType >
                                                        ThresholdFilterType;
@@ -120,6 +121,23 @@ typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator Doma
     this->GenerateData();
     }
 
+  itkSetMacro( Alpha, LevelSetOutputType );
+  itkGetMacro( Alpha, LevelSetOutputType );
+
+  void SetTimeStep( const LevelSetOutputType& iDt )
+    {
+    if( iDt > NumericTraits< LevelSetOutputType >::epsilon() )
+      {
+      m_UserDefinedDt = true;
+      m_Dt = iDt;
+      this->Modified();
+      }
+    else
+      {
+      itkGenericExceptionMacro( <<"iDt should be > epsilon")
+      }
+    }
+
   // set the term container
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
@@ -135,8 +153,8 @@ typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator Doma
 protected:
   LevelSetEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
-    m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Dt( -1. ),
-    m_RMSChangeAccumulator( -1. )
+    m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
+    m_Dt( -1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
   {}
 
   ~LevelSetEvolutionBase() {}
@@ -150,11 +168,10 @@ protected:
   LevelSetContainerPointer    m_UpdateBuffer;
   DomainMapImageFilterPointer m_DomainMapFilter;
 
-  /// \todo change it to a map
-  /// there could be a bool to determine if all dt are synchronized
-  /// or not
-  InputPixelRealType          m_Dt;
-  InputPixelRealType          m_RMSChangeAccumulator;
+  LevelSetOutputType          m_Alpha;
+  LevelSetOutputType          m_Dt;
+  LevelSetOutputType          m_RMSChangeAccumulator;
+  bool                        m_UserDefinedDt;
 
   void AllocateUpdateBuffer()
     {
@@ -235,7 +252,27 @@ protected:
 
   void ComputeDtForNextIteration()
     {
-    m_Dt = 0.2;
+    if( !m_UserDefinedDt )
+      {
+      if( ( m_Alpha > NumericTraits< LevelSetOutputType >::Zero ) &&
+          ( m_Alpha < NumericTraits< LevelSetOutputType >::One ) )
+        {
+        LevelSetOutputType contribution = m_EquationContainer->GetCFLContribution();
+
+        if( contribution > NumericTraits< LevelSetOutputType >::epsilon() )
+          {
+          m_Dt = m_Alpha / contribution;
+          }
+        else
+          {
+          itkGenericExceptionMacro( << "contribution is too low" );
+          }
+        }
+      else
+        {
+        itkGenericExceptionMacro( <<"m_Alpha should be in ]0,1[" );
+        }
+      }
     }
 
   virtual void UpdateLevelSets()
@@ -243,7 +280,7 @@ protected:
     LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
     LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
 
-    LevelSetImagePixelType p;
+    LevelSetOutputType p;
 
     while( it1 != m_LevelSetContainer->End() )
       {
@@ -286,7 +323,7 @@ protected:
 
       ThresholdFilterPointer thresh = ThresholdFilterType::New();
       thresh->SetLowerThreshold(
-            NumericTraits< LevelSetImagePixelType >::NonpositiveMin() );
+            NumericTraits< LevelSetOutputType >::NonpositiveMin() );
       thresh->SetUpperThreshold( 0 );
       thresh->SetInsideValue( 1 );
       thresh->SetOutsideValue( 0 );
