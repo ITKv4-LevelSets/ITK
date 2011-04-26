@@ -61,6 +61,8 @@ public:
     return m_Coefficient * this->Value( iP );
     }
 
+  itkGetMacro( CFLContribution, LevelSetOutputType );
+
   itkSetStringMacro( TermName );
   itkGetStringMacro( TermName );
 
@@ -68,7 +70,8 @@ public:
 
 protected:
   LevelSetEquationTermBase() : Superclass(),
-    m_Coefficient( NumericTraits< LevelSetOutputType >::One )
+    m_Coefficient( NumericTraits< LevelSetOutputType >::One ),
+    m_CFLContribution( NumericTraits< LevelSetOutputType >::Zero )
   {}
 
   virtual ~LevelSetEquationTermBase() {}
@@ -80,6 +83,7 @@ protected:
   LevelSetContainerPointer m_LevelSetContainer;
   LevelSetIdentifierType   m_CurrentLevelSet;
   LevelSetOutputType       m_Coefficient;
+  LevelSetOutputType       m_CFLContribution;
   std::string              m_TermName;
 
 private:

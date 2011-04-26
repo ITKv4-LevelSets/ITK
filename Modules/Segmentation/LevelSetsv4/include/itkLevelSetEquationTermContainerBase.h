@@ -73,6 +73,8 @@ public:
           }
         }
       m_Container[iId] = iTerm;
+      m_TermContribution[iId] = NumericTraits< LevelSetOutputType >::Zero;
+
       this->Modified();
       }
     else
@@ -108,7 +110,10 @@ public:
 
     while( term_it != term_end )
       {
-      oValue += ( term_it->second )->Evaluate( iP );
+      LevelSetOutputType temp_val = ( term_it->second )->Evaluate( iP );
+      m_TermContribution[ term_it->first ] =
+          vnl_math_max( temp_val, m_TermContribution[ term_it->first ] );
+      oValue += temp_val;
       ++term_it;
       }
 
@@ -125,8 +130,34 @@ public:
     while( term_it != term_end )
       {
       ( term_it->second )->Update();
+      m_TermContribution[ term_it->first ] =
+          NumericTraits< LevelSetOutputType >::Zero;
       ++term_it;
       }
+    }
+
+  LevelSetOutputType GetCFLContribution()
+    {
+    typename std::map< unsigned int, TermPointer >::iterator
+        term_it = m_Container.begin();
+    typename std::map< unsigned int, TermPointer >::iterator
+        term_end = m_Container.end();
+
+    LevelSetOutputType oValue = NumericTraits< LevelSetOutputType >::Zero;
+
+    while( term_it != term_end )
+      {
+      LevelSetOutputType cfl = ( term_it->second )->GetCFLContribution();
+      if( cfl == NumericTraits< LevelSetOutputType >::Zero )
+        {
+        cfl = m_TermContribution[ term_it->first ];
+        }
+
+      oValue += cfl;
+      ++term_it;
+      }
+
+    return oValue;
     }
 
 protected:
@@ -134,8 +165,11 @@ protected:
 
   virtual ~LevelSetEquationTermContainerBase() {}
 
-  std::map< unsigned int, TermPointer > m_Container;
-  InputPointer                          m_Input;
+  std::map< unsigned int, TermPointer >         m_Container;
+  std::map< unsigned int, LevelSetOutputType >  m_TermContribution;
+
+  InputPointer                                  m_Input;
+
 
 private:
   LevelSetEquationTermContainerBase( const Self& );

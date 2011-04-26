@@ -78,12 +78,8 @@ public:
       }
     m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
     m_TotalH = NumericTraits< LevelSetOutputType >::Zero;
+    this->m_CFLContribution = NumericTraits< LevelSetOutputType >::Zero;
   }
-
-//   virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
-//     {
-//     return m_Coefficient * this->Value( iP );
-//     }
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
@@ -127,27 +123,21 @@ protected:
       LevelSetOutputType d_val = this->m_Heaviside->EvaluateDerivative( -value );
 
       InputPixelType pixel = this->m_Input->GetPixel( iP );
+
+      LevelSetOutputType oValue = d_val *
+        static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
+
       this->Accumulate( pixel, h_val );
 
-      return  d_val *
-        static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
+      return oValue;
       }
     else
       {
       itkWarningMacro( << "m_Heaviside is NULL" );
       }
-
     return NumericTraits< LevelSetOutputType >::Zero;
     }
 
-      // This should be in Iteration class
-      // Pointer to DomainMap with the two maps giving region and Id
-      // Obtain the region of RegionMap[this->m_CurrentLevelSet]
-      // Obtain the list of neighbor Levelsets ListOfLevelSets[this->m_CurrentLevelSet]
-      // Iterate through the region
-      // Iterate through all terms in the TermContainer
-      // Compute internal and external and overlap terms
-//     }
 
   void Accumulate( const InputPixelType& iPix,
                    const LevelSetOutputType& iH )

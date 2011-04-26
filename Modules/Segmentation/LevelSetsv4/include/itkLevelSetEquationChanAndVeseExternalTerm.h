@@ -126,10 +126,13 @@ protected:
       LevelSetOutputType d_val = this->m_Heaviside->EvaluateDerivative( -value );
 
       InputPixelType pixel = this->m_Input->GetPixel( iP );
+
+      LevelSetOutputType oValue = -d_val *
+        static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
+
       this->Accumulate( pixel, h_val );
 
-      return  -d_val *
-        static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
+      return oValue;
       }
     else
       {
