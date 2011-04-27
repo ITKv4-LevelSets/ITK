@@ -6,4 +6,5 @@ ITK-Thresholding # itkBinaryThresholdImageFilter.h
 ITK-DistanceMap
 TEST_DEPENDS
 ITK-TestKernel
+ITK-FastMarching
 )

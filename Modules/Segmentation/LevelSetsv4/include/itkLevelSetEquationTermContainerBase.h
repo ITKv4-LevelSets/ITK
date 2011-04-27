@@ -99,6 +99,22 @@ public:
       }
     }
 
+
+  void Initialize( const LevelSetInputType& iP )
+  {
+    typename std::map< unsigned int, TermPointer >::iterator
+    term_it = m_Container.begin();
+    typename std::map< unsigned int, TermPointer >::iterator
+    term_end = m_Container.end();
+
+    while( term_it != term_end )
+    {
+      ( term_it->second )->Initialize( iP );
+      ++term_it;
+    }
+  }
+
+
   LevelSetOutputType Evaluate( const LevelSetInputType& iP )
     {
     typename std::map< unsigned int, TermPointer >::iterator

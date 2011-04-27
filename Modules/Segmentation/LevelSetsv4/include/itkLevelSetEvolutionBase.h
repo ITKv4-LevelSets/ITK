@@ -154,7 +154,7 @@ protected:
   LevelSetEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
-    m_Dt( -1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
+    m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
   {}
 
   ~LevelSetEvolutionBase() {}
@@ -213,6 +213,7 @@ protected:
 
           InputPixelRealType temp_update =
               m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
+          std::cout << temp_update << std::endl;
           levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
           }
         std::cout << std::endl;
@@ -222,11 +223,47 @@ protected:
       }
     }
 
+
+  void InitializeIteration()
+  {
+    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
+    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+
+    std::cout << "Initialize iteration" << std::endl;
+
+    while( map_it != map_end )
+    {
+      std::cout << map_it->second.m_Region << std::endl;
+
+      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
+      it.GoToBegin();
+
+      while( !it.IsAtEnd() )
+      {
+        std::cout << it.GetIndex() << std::endl;
+        IdListType lout = map_it->second.m_List;
+
+        if( lout.empty() )
+        {
+          itkGenericExceptionMacro( <<"No level set exists at voxel" );
+        }
+
+        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+        {
+          m_EquationContainer->GetEquation( *lIt - 1 )->Initialize( it.GetIndex() );
+        }
+        ++it;
+      }
+      ++map_it;
+    }
+    m_EquationContainer->Update();
+  }
+
   void GenerateData()
     {
     m_InputImage = m_EquationContainer->GetInput();
 
-    m_Dt = 1.;
+    InitializeIteration();
 
       // Get the LevelSetContainer from the EquationContainer
 //       m_LevelSetContainer = m_EquationContainer->GetLevelSetContainer();
@@ -238,7 +275,7 @@ protected:
       // update each level set based on the different equations provided
       ComputeIteration();
 
-      //ComputeCFL();
+//       ComputeCFL();
 
       ComputeDtForNextIteration();
 
@@ -270,7 +307,7 @@ protected:
         }
       else
         {
-        itkGenericExceptionMacro( <<"m_Alpha should be in ]0,1[" );
+        itkGenericExceptionMacro( <<"m_Alpha should be in [0,1]" );
         }
       }
     }
