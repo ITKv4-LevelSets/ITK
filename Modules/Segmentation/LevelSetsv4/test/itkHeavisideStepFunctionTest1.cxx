@@ -19,29 +19,33 @@
 #pragma warning ( disable : 4786 )
 #endif
 
-#include <iostream>
-
-#include "itkLevelSetDomainPartitionBase.h"
-#include "itkLevelSetDomainPartition.h"
-#include "itkLevelSetDomainPartitionWithKdTree.h"
-#include "itkLevelSetDomainMapImageFilter.h"
-#include "itkLevelSetImageBase.h"
-#include "itkLevelSetQuadEdgeMeshBase.h"
-#include "itkLevelSetBase.h"
-#include "itkLevelSetContainerBase.h"
-#include "itkLevelSetEquationTermBase.h"
-#include "itkLevelSetEquationTermContainerBase.h"
-#include "itkAtanRegularizedHeavisideStepFunction.h"
-#include "itkHeavisideStepFunctionBase.h"
 #include "itkHeavisideStepFunction.h"
-#include "itkRegularizedHeavisideStepFunction.h"
-#include "itkSinRegularizedHeavisideStepFunction.h"
-#include "itkLevelSetEquationContainerBase.h"
-#include "itkLevelSetEquationChanAndVeseExternalTerm.h"
-#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
-#include "itkLevelSetEvolutionBase.h"
+#include "itkTestingMacros.h"
 
-int itkLevelSetsv4HeaderTest ( int , char * [] )
+int itkHeavisideStepFunctionTest1( int, char* [] )
 {
+  typedef double    InputType;
+  typedef double    OutputType;
+
+  typedef itk::HeavisideStepFunction< InputType, OutputType >  HeavisideFunctionBaseType;
+
+  HeavisideFunctionBaseType::Pointer functionBase0 = HeavisideFunctionBaseType::New();
+
+  std::cout << "GetNameOfClass() = " << functionBase0->GetNameOfClass() << std::endl;
+  functionBase0->Print( std::cout );
+
+  const signed int minValue = -20;
+  const signed int maxValue =  20;
+
+  const InputType incValue = 0.1;
+
+  for( signed int x = minValue; x < maxValue; x++ )
+    {
+    const InputType ix = x * incValue;
+    OutputType f  = functionBase0->Evaluate( ix );
+    OutputType df = functionBase0->EvaluateDerivative( ix );
+    std::cout << ix << " " << f << " " << df << std::endl;
+    }
+
   return EXIT_SUCCESS;
 }
