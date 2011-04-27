@@ -80,11 +80,9 @@ public:
 
     while( it != iOther->m_Container.end() )
       {
-      LevelSetPointer temp_ls;
-
       if( iAllocate )
         {
-        temp_ls = LevelSetType::New();
+        LevelSetPointer temp_ls = LevelSetType::New();
 
         typedef typename LevelSetType::ImageType    LevelSetImageType;
         typedef typename LevelSetImageType::Pointer LevelSetImagePointer;
@@ -92,12 +90,20 @@ public:
 
         LevelSetImagePointer image = LevelSetImageType::New();
         image->CopyInformation( ( it->second )->GetImage() );
+        image->SetBufferedRegion( ( it->second )->GetImage()->GetBufferedRegion() );
+        image->SetRequestedRegion( ( it->second )->GetImage()->GetRequestedRegion() );
+        image->SetLargestPossibleRegion( ( it->second )->GetImage()->GetLargestPossibleRegion() );
         image->Allocate();
         image->FillBuffer( NumericTraits< OutputType >::Zero );
 
         temp_ls->SetImage( image );
+        m_Container[ it->first ] = temp_ls;
         }
-      m_Container[ it->first ] = temp_ls;
+      else
+        {
+        LevelSetPointer temp_ls;
+        m_Container[ it->first ] = temp_ls;
+        }
       ++it;
       }
     }

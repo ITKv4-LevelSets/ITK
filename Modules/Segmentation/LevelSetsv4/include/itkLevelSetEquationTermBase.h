@@ -61,6 +61,8 @@ public:
     return m_Coefficient * this->Value( iP );
     }
 
+  virtual void Initialize( const LevelSetInputType& iP ) = 0;
+
   itkGetMacro( CFLContribution, LevelSetOutputType );
 
   itkSetStringMacro( TermName );

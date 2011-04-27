@@ -66,6 +66,9 @@ public:
   itkSetObjectMacro( Heaviside, HeavisideType );
   itkGetObjectMacro( Heaviside, HeavisideType );
 
+  itkSetMacro( Mean, InputPixelRealType );
+  itkGetMacro( Mean, InputPixelRealType );
+
   virtual void Update()
   {
     if( m_TotalH > NumericTraits< LevelSetOutputType >::epsilon() )
@@ -76,8 +79,40 @@ public:
       {
       m_Mean = NumericTraits< InputPixelRealType >::Zero;
       }
+
+    std::cout << m_TotalValue << '/' << m_TotalH << '=' << m_Mean << std::endl;
     m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
     m_TotalH = NumericTraits< LevelSetOutputType >::Zero;
+  }
+
+  // this will work for scalars and vectors. For matrices, one may have to reimplement
+  // his specialized term
+  virtual void Initialize( const LevelSetInputType& iP )
+  {
+    if( m_CurrentLevelSetPointer.IsNull() )
+    {
+      m_CurrentLevelSetPointer =
+      this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
+
+      if( m_CurrentLevelSetPointer.IsNull() )
+      {
+        itkWarningMacro(
+        << "m_CurrentLevelSet does not exist in the level set container" );
+      }
+    }
+
+    if( m_Heaviside.IsNotNull() )
+    {
+      LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
+      LevelSetOutputType h_val = this->m_Heaviside->Evaluate( -value );
+
+      InputPixelType pixel = this->m_Input->GetPixel( iP );
+      this->Accumulate( pixel, 1 - h_val );
+    }
+    else
+    {
+      itkWarningMacro( << "m_Heaviside is NULL" );
+    }
   }
 
 //   virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
@@ -108,7 +143,7 @@ protected:
     if( m_Heaviside.IsNotNull() )
       {
       LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
-      LevelSetOutputType h_val = this->m_Heaviside->Evaluate( -value );
+//       LevelSetOutputType h_val = this->m_Heaviside->Evaluate( -value );
       LevelSetOutputType d_val = this->m_Heaviside->EvaluateDerivative( -value );
 
       InputPixelType pixel = this->m_Input->GetPixel( iP );
@@ -116,7 +151,7 @@ protected:
       LevelSetOutputType oValue = -d_val *
         static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
 
-      this->Accumulate( pixel, h_val );
+//       this->Accumulate( pixel, 1 - h_val );
 
       return oValue;
       }
@@ -127,39 +162,6 @@ protected:
 
     return NumericTraits< LevelSetOutputType >::Zero;
     }
-
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
-  void Initialize( const LevelSetInputType& iP )
-  {
-    if( m_CurrentLevelSetPointer.IsNull() )
-    {
-      m_CurrentLevelSetPointer =
-      this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
-
-      if( m_CurrentLevelSetPointer.IsNull() )
-      {
-        itkWarningMacro(
-        << "m_CurrentLevelSet does not exist in the level set container" );
-
-        return NumericTraits< LevelSetOutputType >::Zero;
-      }
-    }
-
-    if( m_Heaviside.IsNotNull() )
-    {
-      LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
-      LevelSetOutputType h_val = this->m_Heaviside->Evaluate( -value );
-
-      this->Accumulate( pixel, h_val );
-
-      return oValue;
-    }
-    else
-    {
-      itkWarningMacro( << "m_Heaviside is NULL" );
-    }
-  }
 
   void Accumulate( const InputPixelType& iPix,
                    const LevelSetOutputType& iH )

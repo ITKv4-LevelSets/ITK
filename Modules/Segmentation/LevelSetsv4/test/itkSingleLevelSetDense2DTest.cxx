@@ -35,7 +35,7 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
-  typedef unsigned char                                       InputPixelType;
+  typedef unsigned short                                      InputPixelType;
   typedef itk::Image< InputPixelType, Dimension >             InputImageType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType > InputIteratorType;
   typedef itk::ImageFileReader< InputImageType >              ReaderType;
@@ -192,7 +192,7 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 1 );
+  evolution->SetNumberOfIterations( 5 );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 
@@ -204,6 +204,18 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
     {
     std::cout << err << std::endl;
     }
+
+  PixelType mean = cvInternalTerm0->GetMean();
+  if ( ( mean < 24900 ) || ( mean > 24910 ) )
+  {
+    return EXIT_FAILURE;
+  }
+
+  mean = cvExternalTerm0->GetMean();
+  if ( ( mean < 1350 ) || ( mean > 1360 ) )
+  {
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

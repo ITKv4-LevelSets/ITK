@@ -102,8 +102,9 @@ public:
                                                          DomainMapImageFilterType;
   typedef typename DomainMapImageFilterType::Pointer     DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
-//   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
-typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
+
+  //   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
+  typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   // create another class which contains all the equations
   // i.e. it is a container of term container :-):
@@ -115,8 +116,6 @@ typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator Doma
 
   void Update()
     {
-    // Allocate update buffer
-    this->AllocateUpdateBuffer();
     //Run iteration
     this->GenerateData();
     }
@@ -188,14 +187,14 @@ protected:
 
     while( map_it != map_end )
       {
-      std::cout << map_it->second.m_Region << std::endl;
+//       std::cout << map_it->second.m_Region << std::endl;
 
       InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
       it.GoToBegin();
 
       while( !it.IsAtEnd() )
         {
-        std::cout << it.GetIndex() << std::endl;
+//         std::cout << it.GetIndex() << std::endl;
         IdListType lout = map_it->second.m_List;
 
         if( lout.empty() )
@@ -205,18 +204,18 @@ protected:
 
         for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
           {
-          std::cout << *lIt << " ";
+//           std::cout << *lIt << " ";
           LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
-          std::cout << levelSet->Evaluate( it.GetIndex() ) << std::endl;
+//           std::cout << levelSet->Evaluate( it.GetIndex() ) << ' ';
 
           LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
 
           InputPixelRealType temp_update =
               m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
-          std::cout << temp_update << std::endl;
+
           levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
           }
-        std::cout << std::endl;
+//         std::cout << std::endl;
         ++it;
         }
       ++map_it;
@@ -233,14 +232,14 @@ protected:
 
     while( map_it != map_end )
     {
-      std::cout << map_it->second.m_Region << std::endl;
+//       std::cout << map_it->second.m_Region << std::endl;
 
       InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
       it.GoToBegin();
 
       while( !it.IsAtEnd() )
       {
-        std::cout << it.GetIndex() << std::endl;
+//         std::cout << it.GetIndex() << std::endl;
         IdListType lout = map_it->second.m_List;
 
         if( lout.empty() )
@@ -263,10 +262,12 @@ protected:
     {
     m_InputImage = m_EquationContainer->GetInput();
 
+    // Get the LevelSetContainer from the EquationContainer
+    m_LevelSetContainer = m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
+    AllocateUpdateBuffer();
+
     InitializeIteration();
 
-      // Get the LevelSetContainer from the EquationContainer
-//       m_LevelSetContainer = m_EquationContainer->GetLevelSetContainer();
     for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
       {
       m_RMSChangeAccumulator = 0;
@@ -280,10 +281,8 @@ protected:
       ComputeDtForNextIteration();
 
       UpdateLevelSets();
-
-      UpdateEquations();
-
       Reinitialize();
+      UpdateEquations();
       }
     }
 
@@ -310,6 +309,9 @@ protected:
         itkGenericExceptionMacro( <<"m_Alpha should be in [0,1]" );
         }
       }
+
+      std::cout << "Dt = " << m_Dt << std::endl;
+//       m_Dt = 0.08;
     }
 
   virtual void UpdateLevelSets()
@@ -334,7 +336,7 @@ protected:
         p = m_Dt * It2.Get();
         It1.Set( It1.Get() + p );
 
-        m_RMSChangeAccumulator += p;
+        m_RMSChangeAccumulator += p*p;
 
         ++It1;
         ++It2;
@@ -347,7 +349,8 @@ protected:
 
   void UpdateEquations()
     {
-    m_EquationContainer->Update();
+    InitializeIteration();
+//     m_EquationContainer->Update();
     }
 
   void Reinitialize()
@@ -371,7 +374,7 @@ protected:
       maurer->SetInput( thresh->GetOutput() );
       maurer->SetSquaredDistance( false );
       maurer->SetUseImageSpacing( true );
-      maurer->SetInsideIsPositive( true );
+      maurer->SetInsideIsPositive( false );
       maurer->Update();
 
       LevelSetImageIteratorType It1( image, image->GetBufferedRegion() );
