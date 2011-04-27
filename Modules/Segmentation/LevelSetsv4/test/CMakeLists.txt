@@ -6,9 +6,6 @@ itkLevelSetDomainMapImageFilterTest.cxx
 itkLevelSetImageBaseTest.cxx
 itkMultiLevelSetImageTest.cxx
 itkLevelSetContainerBaseTest.cxx
-itkAtanRegularizedHeavisideStepFunctionTest1.cxx
-itkHeavisideStepFunctionTest1.cxx
-itkSinRegularizedHeavisideStepFunctionTest1.cxx
 itkMultiLevelSetChanAndVeseInternalTermTest.cxx
 itkMultiLevelSetEvolutionTest.cxx
 itkSingleLevelSetDense2DTest.cxx
@@ -28,12 +25,6 @@ add_test(NAME itkMultiLevelSetImageTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetImageTest)
 add_test(NAME itkLevelSetContainerBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkLevelSetContainerBaseTest)
-add_test(NAME itkAtanRegularizedHeavisideStepFunctionTest1
-      COMMAND ITK-LevelSetsv4TestDriver itkAtanRegularizedHeavisideStepFunctionTest1)
-add_test(NAME itkHeavisideStepFunctionTest1
-      COMMAND ITK-LevelSetsv4TestDriver itkHeavisideStepFunctionTest1)
-add_test(NAME itkSinRegularizedHeavisideStepFunctionTest1
-      COMMAND ITK-LevelSetsv4TestDriver itkSinRegularizedHeavisideStepFunctionTest1)
 add_test(NAME itkMultiLevelSetChanAndVeseInternalTermTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetChanAndVeseInternalTermTest)
 add_test(NAME itkMultiLevelSetEvolutionTest
