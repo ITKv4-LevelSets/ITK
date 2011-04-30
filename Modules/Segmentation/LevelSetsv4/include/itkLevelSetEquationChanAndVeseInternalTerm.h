@@ -100,17 +100,26 @@ public:
 
     if( this->m_Heaviside.IsNotNull() )
     {
-      LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
-      LevelSetOutputType h_val = this->m_Heaviside->Evaluate( -value );
-
       InputPixelType pixel = this->m_Input->GetPixel( iP );
-      this->Accumulate( pixel, h_val );
+
+      LevelSetOutputType prod;
+      this->ComputeProduct( iP, prod );
+      this->Accumulate( pixel, prod );
     }
     else
     {
       itkWarningMacro( << "m_Heaviside is NULL" );
     }
   }
+
+  virtual void ComputeProduct( const LevelSetInputType& iP, LevelSetOutputType& prod )
+  {
+    LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
+    prod = this->m_Heaviside->Evaluate( -value );
+  }
+
+  virtual void ComputeProductTerm( const LevelSetInputType& iP, LevelSetOutputType& prod )
+  {}
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
@@ -135,15 +144,14 @@ protected:
     if( this->m_Heaviside.IsNotNull() )
       {
       LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
-//       LevelSetOutputType h_val = this->m_Heaviside->Evaluate( -value );
       LevelSetOutputType d_val = this->m_Heaviside->EvaluateDerivative( -value );
 
       InputPixelType pixel = this->m_Input->GetPixel( iP );
+      LevelSetOutputType prod = 1;
 
-      LevelSetOutputType oValue = d_val *
+      ComputeProductTerm( iP, prod );
+      LevelSetOutputType oValue = d_val * prod *
         static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
-
-//       this->Accumulate( pixel, h_val );
 
       return oValue;
       }
