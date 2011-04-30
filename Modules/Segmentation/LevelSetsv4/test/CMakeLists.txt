@@ -9,6 +9,7 @@ itkLevelSetContainerBaseTest.cxx
 itkMultiLevelSetChanAndVeseInternalTermTest.cxx
 itkMultiLevelSetEvolutionTest.cxx
 itkSingleLevelSetDense2DTest.cxx
+itkTwoLevelSetDense2DTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -31,3 +32,5 @@ add_test(NAME itkMultiLevelSetEvolutionTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetEvolutionTest)
 add_test(NAME itkSingleLevelSetDense2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetDense2DTest ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
+add_test(NAME itkTwoLevelSetDense2DTest
+      COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetDense2DTest ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
