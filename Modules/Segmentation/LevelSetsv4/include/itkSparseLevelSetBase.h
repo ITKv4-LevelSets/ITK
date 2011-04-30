@@ -37,11 +37,31 @@ public:
 
   typedef TImage                        ImageType;
   typedef typename ImageType::Pointer   ImagePointer;
+  typedef typename ImageType::IndexType IndexType;
 
-  typedef typename ImageType::IndexType NodeType;
+  struct NodeType
+    {
+    IndexType   m_Index;
+    OutputType  m_Value;
+    };
+
   typedef std::list< NodeType >         NodeListType;
 
   typedef std::map< int, NodeListType > SparseLayerMapType;
+
+  NodeListType* GetListNode( const int& iId )
+    {
+    typename SparseLayerMapType::iterator it = m_LayerList.find( iId );
+    if( it != m_LayerList.end() )
+      {
+      return & (it->second);
+      }
+    else
+      {
+      itkGenericExceptionMacro( << "this layer does not exist" );
+      return NULL;
+      }
+    }
 
 protected:
   SparseLevelSetBase() {}

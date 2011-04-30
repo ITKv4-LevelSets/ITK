@@ -31,7 +31,7 @@ public:
   typedef WhitakerSparseLevelSetBase  Self;
   typedef SmartPointer< Self >        Pointer;
   typedef SmartPointer< const Self >  ConstPointer;
-  typedef SparseLevelSetBase< TImae > Superclass;
+  typedef SparseLevelSetBase< TImage > Superclass;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
