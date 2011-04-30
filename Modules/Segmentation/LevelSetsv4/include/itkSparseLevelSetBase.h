@@ -21,35 +21,84 @@
 
 #include "itkLevelSetImageBase.h"
 
+#include "itkImage.h"
+#include "itkIndex.h"
+
 #include <list>
 #include <map>
 
 namespace itk
 {
-template< class TImage >
-class SparseLevelSetBase : public LevelSetImageBase< TImage >
+template< typename TOutput,
+          unsigned int VDimension >
+class SparseLevelSetBase :
+    public LevelSetBase< Index< VDimension >,
+                         VDimension,
+                         TOutput >
 {
 public:
+  typedef Index< VDimension >           IndexType;
+  typedef TOutput                       OutputType;
+
   typedef SparseLevelSetBase            Self;
   typedef SmartPointer< Self >          Pointer;
   typedef SmartPointer< const Self >    ConstPointer;
-  typedef LevelSetImageBase< TImage >   Superclass;
+  typedef LevelSetBase< IndexType, VDimension, OutputType >
+                                        Superclass;
 
-  typedef TImage                        ImageType;
-  typedef typename ImageType::Pointer   ImagePointer;
+  typedef typename Superclass::InputType    InputType;
+  typedef typename Superclass::GradientType GradientType;
+  typedef typename Superclass::HessianType  HessianType;
 
-  typedef typename ImageType::IndexType NodeType;
-  typedef std::list< NodeType >         NodeListType;
 
-  typedef std::map< int, NodeListType > SparseLayerMapType;
+  typedef char NodeStatusType;
+
+  struct NodeAttributeType
+    {
+    /** status of a given node (its value also define in which layer it is)*/
+    NodeStatusType  m_Status;
+
+    /** level set value for a given node */
+    OutputType      m_Value;
+    };
+
+  typedef Image< NodeAttributeType, VDimension >  SparseImageType;
+  typedef typename ImageType::Pointer             SparseImagePointer;
+
+  virtual OutputType Evaluate( const InputType& iP ) const
+    {
+    NodeAttributeType temp = m_Image->GetPixel( iP );
+    return temp.m_Value;
+    }
+
+  virtual GradientType EvaluateGradient( const InputType& iP ) const
+    {
+    return GradientType();
+    }
+
+  virtual HessianType EvaluateHessian( const InputType& iP ) const
+    {
+    return HessianType();
+    }
+
+
+  typedef std::pair< IndexType, NodeAttributeType > NodePairType;
+  typedef std::list< NodePairType >                 NodeListType;
+  typedef typename NodeListType::iterator           NodeListIterator;
+  typedef typename NodeListType::const_iterator     NodeListConstIterator;
+
+  typedef std::map< NodeStatusType, NodeListType >    SparseLayerMapType;
+  typedef typename SparseLayerMapType::iterator       SparseLayerMapIterator;
+  typedef typename SparseLayerMapType::const_iterator SparseLayerMapIterator;
 
 protected:
   SparseLevelSetBase() {}
   virtual ~SparseLevelSetBase() {}
 
-  virtual void InitializeLayers() = 0;
-
+  SparseImagePointer m_Image;
   SparseLayerMapType m_LayerList;
+
+  virtual void InitializeLayers() = 0;
 
 private:
   SparseLevelSetBase( const Self& );
