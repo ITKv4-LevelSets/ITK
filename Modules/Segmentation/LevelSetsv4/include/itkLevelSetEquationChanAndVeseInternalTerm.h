@@ -20,7 +20,6 @@
 #define __itkLevelSetEquationChanAndVeseInternalTerm_h
 
 #include "itkLevelSetEquationTermBase.h"
-#include "itkHeavisideStepFunctionBase.h"
 #include "itkNumericTraits.h"
 
 namespace itk
@@ -59,12 +58,8 @@ public:
   typedef typename LevelSetContainerType::GradientType    GradientType;
   typedef typename LevelSetContainerType::HessianType     HessianType;
 
-  typedef HeavisideStepFunctionBase< LevelSetOutputType, LevelSetOutputType >
-                                          HeavisideType;
-  typedef typename HeavisideType::Pointer HeavisidePointer;
-
-  itkSetObjectMacro( Heaviside, HeavisideType );
-  itkGetObjectMacro( Heaviside, HeavisideType );
+  typedef typename Superclass::HeavisideType HeavisideType;
+  typedef typename HeavisideType::Pointer    HeavisidePointer;
 
   itkSetMacro( Mean, InputPixelRealType );
   itkGetMacro( Mean, InputPixelRealType );
@@ -103,7 +98,7 @@ public:
       }
     }
 
-    if( m_Heaviside.IsNotNull() )
+    if( this->m_Heaviside.IsNotNull() )
     {
       LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
       LevelSetOutputType h_val = this->m_Heaviside->Evaluate( -value );
@@ -119,7 +114,6 @@ public:
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
-    m_Heaviside( NULL ),
     m_CurrentLevelSetPointer( NULL ),
     m_Mean( NumericTraits< InputPixelRealType >::Zero ),
     m_TotalH( NumericTraits< LevelSetOutputType >::Zero ),
@@ -138,7 +132,7 @@ protected:
   // his specialized term
   virtual LevelSetOutputType Value( const LevelSetInputType& iP )
     {
-    if( m_Heaviside.IsNotNull() )
+    if( this->m_Heaviside.IsNotNull() )
       {
       LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
 //       LevelSetOutputType h_val = this->m_Heaviside->Evaluate( -value );
@@ -168,7 +162,6 @@ protected:
     m_TotalH += static_cast< InputPixelRealType >( iH );
     }
 
-  HeavisidePointer    m_Heaviside;
   LevelSetPointer     m_CurrentLevelSetPointer;
   InputPixelRealType  m_Mean;
   LevelSetOutputType  m_TotalH;
