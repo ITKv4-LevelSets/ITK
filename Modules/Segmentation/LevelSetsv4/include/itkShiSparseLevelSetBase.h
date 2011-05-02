@@ -16,50 +16,40 @@
  *
  *=========================================================================*/
 
-#ifndef __itkWhitakerSparseLevelSetBase_h
-#define __itkWhitakerSparseLevelSetBase_h
+#ifndef __itkShiSparseLevelSetBase_h
+#define __itkShiSparseLevelSetBase_h
 
 #include "itkSparseLevelSetBase.h"
 
 namespace itk
 {
-template< typename TOutput,
-          unsigned int VDimension >
-class WhitakerSparseLevelSetBase :
-    public SparseLevelSetBase< TOutput, VDimension >
+template< unsigned int VDimension >
+class ShiSparseLevelSetBase :
+    public SparseLevelSetBase< char, VDimension >
 {
 public:
-  typedef WhitakerSparseLevelSetBase                Self;
-  typedef SmartPointer< Self >                      Pointer;
-  typedef SmartPointer< const Self >                ConstPointer;
-  typedef SparseLevelSetBase< TOutput, VDimension > Superclass;
+  typedef ShiSparseLevelSetBase                   Self;
+  typedef SmartPointer< Self >                    Pointer;
+  typedef SmartPointer< const Self >              ConstPointer;
+  typedef SparseLevelSetBase< char, VDimension >  Superclass;
 
-#ifdef ITK_USE_CONCEPT_CHECKING
-  /** Begin concept checking */
-
-  itkConceptMacro( DoubleConvertible,
-                    ( Concept::Convertible< double, OutputType > ) );
-
-  /** End concept checking */
-#endif // ITK_USE_CONCEPT_CHECKING
 
 protected:
 
-  WhitakerSparseLevelSetBase() : Superclass() {}
-  ~WhitakerSparseLevelSetBase() {}
+  ShiSparseLevelSetBase() : Superclass() {}
+  ~ShiSparseLevelSetBase() {}
 
   void InitializeLayers()
     {
-    this->m_LayerList[ -2 ] = NodeListType();
+    this->m_LayerList[ -3 ] = NodeListType();
     this->m_LayerList[ -1 ] = NodeListType();
-    this->m_LayerList[  0 ] = NodeListType();
     this->m_LayerList[  1 ] = NodeListType();
-    this->m_LayerList[  2 ] = NodeListType();
+    this->m_LayerList[  3 ] = NodeListType();
     }
 
 private:
-  WhitakerSparseLevelSetBase( const Self& );
+  ShiSparseLevelSetBase( const Self& );
   void operator = ( const Self& );
 };
 }
-#endif // __itkWhitakerSparseLevelSetBase_h
+#endif // __itkShiSparseLevelSetBase_h
