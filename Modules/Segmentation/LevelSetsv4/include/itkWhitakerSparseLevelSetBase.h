@@ -34,6 +34,12 @@ public:
   typedef SmartPointer< const Self >                ConstPointer;
   typedef SparseLevelSetBase< TOutput, VDimension > Superclass;
 
+  /** Method for creation through the object factory. */
+  itkNewMacro(Self);
+
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(WhitakerSparseLevelSetBase, SparseLevelSetBase);
+
   typedef typename Superclass::InputType    InputType;
   typedef typename Superclass::OutputType   OutputType;
   typedef typename Superclass::GradientType GradientType;
