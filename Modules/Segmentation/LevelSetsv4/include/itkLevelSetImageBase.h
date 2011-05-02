@@ -97,12 +97,9 @@ public:
     }
 
 protected:
-  LevelSetImageBase()
-    {
-    m_Image = ImageType::New();
-    }
+  LevelSetImageBase() {}
 
-  ~LevelSetImageBase() {}
+  virtual ~LevelSetImageBase() {}
 
   ImagePointer m_Image;
 

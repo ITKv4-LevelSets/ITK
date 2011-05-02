@@ -9,6 +9,8 @@ itkLevelSetContainerBaseTest.cxx
 itkMultiLevelSetChanAndVeseInternalTermTest.cxx
 itkMultiLevelSetEvolutionTest.cxx
 itkSingleLevelSetDense2DTest.cxx
+# Sparse
+itkSparseLevelSetBaseTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -31,3 +33,7 @@ add_test(NAME itkMultiLevelSetEvolutionTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetEvolutionTest)
 add_test(NAME itkSingleLevelSetDense2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetDense2DTest ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
+
+# Sparse
+add_test(NAME itkSparseLevelSetBaseTest
+      COMMAND ITK-LevelSetsv4TestDriver itkSparseLevelSetBaseTest)

@@ -19,7 +19,7 @@
 #ifndef __itkSparseLevelSetBase_h
 #define __itkSparseLevelSetBase_h
 
-#include "itkLevelSetImageBase.h"
+#include "itkLevelSetBase.h"
 
 #include "itkImage.h"
 #include "itkIndex.h"
@@ -29,6 +29,10 @@
 
 namespace itk
 {
+/**
+\class SparseLevelSetBase
+\brief Abstract class for sparse level set representation
+*/
 template< typename TOutput,
           unsigned int VDimension >
 class SparseLevelSetBase :
@@ -65,6 +69,12 @@ public:
   typedef Image< NodeAttributeType, VDimension >  SparseImageType;
   typedef typename SparseImageType::Pointer       SparseImagePointer;
 
+  char GetStatus( const InputType& iP ) const
+    {
+    NodeAttributeType temp = m_Image->GetPixel( iP );
+    return temp.m_Status;
+    }
+
   virtual OutputType Evaluate( const InputType& iP ) const
     {
     NodeAttributeType temp = m_Image->GetPixel( iP );
@@ -80,7 +90,6 @@ public:
     {
     return HessianType();
     }
-
 
   typedef std::pair< IndexType, NodeAttributeType > NodePairType;
   typedef std::list< NodePairType >                 NodeListType;
@@ -104,6 +113,9 @@ public:
       return NULL;
       }
     }
+
+  itkSetObjectMacro( Image, SparseImageType );
+  itkGetObjectMacro( Image, SparseImageType );
 
 protected:
   SparseLevelSetBase() {}
