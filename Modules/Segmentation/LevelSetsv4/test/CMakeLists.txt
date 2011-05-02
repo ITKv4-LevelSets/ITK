@@ -12,6 +12,7 @@ itkSingleLevelSetDense2DTest.cxx
 # Sparse
 itkSparseLevelSetBaseTest.cxx
 itkWhitakerSparseLevelSetBaseTest.cxx
+itkShiSparseLevelSetBaseTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -41,3 +42,5 @@ add_test(NAME itkSparseLevelSetBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkSparseLevelSetBaseTest)
 add_test(NAME itkWhitakerSparseLevelSetBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkWhitakerSparseLevelSetBaseTest)
+add_test(NAME itkShiSparseLevelSetBaseTest
+      COMMAND ITK-LevelSetsv4TestDriver itkShiSparseLevelSetBaseTest)
