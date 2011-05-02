@@ -33,6 +33,22 @@ public:
   typedef SmartPointer< const Self >              ConstPointer;
   typedef SparseLevelSetBase< char, VDimension >  Superclass;
 
+  typedef typename Superclass::InputType    InputType;
+  typedef typename Superclass::OutputType   OutputType;
+  typedef typename Superclass::GradientType GradientType;
+  typedef typename Superclass::HessianType  HessianType;
+
+  typedef typename Superclass::NodeStatusType         NodeStatusType;
+
+  typedef typename Superclass::NodePairType           NodePairType;
+  typedef typename Superclass::NodeListType           NodeListType;
+  typedef typename Superclass::NodeListIterator       NodeListIterator;
+  typedef typename Superclass::NodeListConstIterator  NodeListConstIterator;
+
+  typedef typename Superclass::SparseLayerMapType           SparseLayerMapType;
+  typedef typename Superclass::SparseLayerMapIterator       SparseLayerMapIterator;
+  typedef typename Superclass::SparseLayerMapConstIterator  SparseLayerMapConstIterator;
+
 
 protected:
 

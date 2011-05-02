@@ -49,15 +49,6 @@ public:
   virtual GradientType  EvaluateGradient( const InputType& iP ) const = 0;
   virtual HessianType   EvaluateHessian( const InputType& iP ) const = 0;
 
-#ifdef ITK_USE_CONCEPT_CHECKING
-  /** Begin concept checking */
-
-  itkConceptMacro( DoubleConvertible,
-                    ( Concept::Convertible< double, OutputType > ) );
-
-  /** End concept checking */
-#endif // ITK_USE_CONCEPT_CHECKING
-
 protected:
   LevelSetBase() {}
   virtual ~LevelSetBase() {}

@@ -63,7 +63,7 @@ public:
     };
 
   typedef Image< NodeAttributeType, VDimension >  SparseImageType;
-  typedef typename ImageType::Pointer             SparseImagePointer;
+  typedef typename SparseImageType::Pointer       SparseImagePointer;
 
   virtual OutputType Evaluate( const InputType& iP ) const
     {
@@ -89,7 +89,7 @@ public:
 
   typedef std::map< NodeStatusType, NodeListType >    SparseLayerMapType;
   typedef typename SparseLayerMapType::iterator       SparseLayerMapIterator;
-  typedef typename SparseLayerMapType::const_iterator SparseLayerMapIterator;
+  typedef typename SparseLayerMapType::const_iterator SparseLayerMapConstIterator;
 
   NodeListType* GetListNode( const int& iId )
     {
