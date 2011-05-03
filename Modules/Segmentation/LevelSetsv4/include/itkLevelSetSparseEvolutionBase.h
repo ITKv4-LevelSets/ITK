@@ -427,6 +427,71 @@ protected:
       }
     }
 
+
+  void
+  UpdateStatus(
+    LevelSetPointer iLevelSet,
+    NodeListType *InputList, NodeListType *OutputList,
+    StatusType iChangeToStatus, StatusType iSearchForStatus)
+  {
+  NeighborhoodIterator< LevelSetImageType >
+  n_It( m_NeighborList.GetRadius(),
+           ( ls_it->second )->GetImage(), // get the resulting level set image
+           this->GetOutput()->GetRequestedRegion() );
+
+  if ( !m_BoundsCheckingActive )
+    {
+    statusIt.NeedToUseBoundaryConditionOff();
+    }
+
+  // Push each index in the input list into its appropriate status layer
+  // (ChangeToStatus) and update the status image value at that index.
+  // Also examine the neighbors of the index to determine which need to go onto
+  // the output list (search for SearchForStatus).
+  while ( !InputList->empty() )
+    {
+    NodePairType node_pair = InputList->front();
+
+    IndexType current_index = node_pair.first;
+    n_It.SetLocation( current_index );
+
+    node_pair.m_Status = iChangeToStatus;
+
+    InputList->pop_front();      // _before_ transferring to another list.
+
+    iLevelSet->GetListNode( iChangeToStatus )->push_front( node_pair );
+
+    for ( unsigned int i = 0; i < m_NeighborList.GetSize(); ++i )
+      {
+      // get the status of the neighbor
+      idx = m_NeighborList.GetArrayIndex(i);
+      StatusType neighbor_status = statusIt.GetPixel( idx );
+
+      // Have we bumped up against the boundary?  If so, turn on bounds
+      // checking.
+      if ( neighbor_status == m_StatusBoundaryPixel )
+        {
+        m_BoundsCheckingActive = true;
+        }
+
+      if ( neighbor_status == iSearchForStatus )
+        {
+        bool bounds_status = false;
+
+        // mark this pixel so we don't add it twice.
+        statusIt.SetPixel( idx, m_StatusChanging, bounds_status );
+        if ( bounds_status == true )
+          {
+          node = m_LayerNodeStore->Borrow();
+          node->m_Value = statusIt.GetIndex()
+                          + m_NeighborList.GetNeighborhoodOffset(i);
+          OutputList->PushFront(node);
+          } // else this index was out of bounds.
+        }
+      }
+    }
+  }
+
   virtual void UpdateLevelSets()
     {
 //    LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
