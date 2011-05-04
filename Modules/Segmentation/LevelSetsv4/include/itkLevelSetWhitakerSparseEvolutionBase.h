@@ -17,8 +17,8 @@
  *=========================================================================*/
 
 
-#ifndef __itkLevelSetSparseEvolutionBase_h
-#define __itkLevelSetSparseEvolutionBase_h
+#ifndef __itkLevelSetWhitakerSparseEvolutionBase_h
+#define __itkLevelSetWhitakerSparseEvolutionBase_h
 
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
@@ -32,19 +32,19 @@
 namespace itk
 {
 template< class TEquationContainer >
-class LevelSetSparseEvolutionBase : public Object
+class LevelSetWhitakerSparseEvolutionBase : public Object
 {
 public:
-  typedef LevelSetSparseEvolutionBase Self;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
-  typedef Object                      Superclass;
+  typedef LevelSetWhitakerSparseEvolutionBase Self;
+  typedef SmartPointer< Self >                Pointer;
+  typedef SmartPointer< const Self >          ConstPointer;
+  typedef Object                              Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro( Self );
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetSparseEvolutionBase, Object );
+  itkTypeMacro( LevelSetWhitakerSparseEvolutionBase, Object );
 
   typedef TEquationContainer                      EquationContainerType;
   typedef typename EquationContainerType::Pointer EquationContainerPointer;
@@ -151,13 +151,13 @@ public:
   itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
 
 protected:
-  LevelSetSparseEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
+  LevelSetWhitakerSparseEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
   {}
 
-  ~LevelSetSparseEvolutionBase() {}
+  ~LevelSetWhitakerSparseEvolutionBase() {}
 
   unsigned int                m_NumberOfIterations;
   /// \todo is it useful?
@@ -570,8 +570,8 @@ protected:
   }
 
 private:
-  LevelSetSparseEvolutionBase( const Self& );
+  LevelSetWhitakerSparseEvolutionBase( const Self& );
   void operator = ( const Self& );
 };
 }
-#endif // __itkLevelSetSparseEvolutionBase_h
+#endif // __itkLevelSetWhitakerSparseEvolutionBase_h
