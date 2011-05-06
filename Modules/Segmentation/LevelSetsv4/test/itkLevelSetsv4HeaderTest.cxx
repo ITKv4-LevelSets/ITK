@@ -40,6 +40,8 @@
 #include "itkShiSparseLevelSetBase.h"
 #include "itkMalcolmSparseLevelSetBase.h"
 
+#include "itkLevelSetWhitakerSparseEvolutionBase.h"
+
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
   return EXIT_SUCCESS;

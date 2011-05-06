@@ -76,24 +76,20 @@ public:
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::ImageType             LevelSetImageType;
+  typedef typename LevelSetType::InputType             LevelSetInputType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
+  typedef typename LevelSetType::NodeStatusType        LevelSetNodeStatusType;
+  typedef typename LevelSetType::NodePairType          LevelSetNodePairType;
+  typedef typename LevelSetType::NodeListType          LevelSetNodeListType;
+  typedef typename LevelSetType::NodeListIterator      LevelSetNodeListIterator;
+  typedef typename LevelSetType::NodeListConstIterator LevelSetNodeListConstIterator;
 
-  typedef BinaryThresholdImageFilter< LevelSetImageType, LevelSetImageType >
-                                                       ThresholdFilterType;
-  typedef typename ThresholdFilterType::Pointer        ThresholdFilterPointer;
-  typedef SignedMaurerDistanceMapImageFilter< LevelSetImageType, LevelSetImageType >
-                                                       MaurerType;
-  typedef typename MaurerType::Pointer                 MaurerPointer;
+  typedef typename LevelSetType::SparseLayerMapType           SparseLayerMapType;
+  typedef typename LevelSetType::SparseLayerMapIterator       SparseLayerMapIterator;
+  typedef typename LevelSetType::SparseLayerMapConstIterator  SparseLayerMapConstIterator;
 
-  typedef ImageRegionIteratorWithIndex< LevelSetImageType > LevelSetImageIteratorType;
-
-  typedef ImageRegionConstIteratorWithIndex< LevelSetImageType > LevelSetImageConstIteratorType;
-
-  typedef ImageRegionIteratorWithIndex< InputImageType > InputImageIteratorType;
-
-  typedef ImageRegionConstIteratorWithIndex< InputImageType > InputImageConstIteratorType;
 
   typedef std::list< IdentifierType >                    IdListType;
   typedef typename IdListType::iterator                  IdListIterator;
@@ -154,8 +150,11 @@ protected:
   LevelSetWhitakerSparseEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
-    m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
-  {}
+    m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false ),
+    m_ConstantGradientValue( 1. )
+  {
+  // let's create here a city block neighborhood
+  }
 
   ~LevelSetWhitakerSparseEvolutionBase() {}
 
@@ -165,13 +164,16 @@ protected:
   InputImagePointer           m_InputImage;
   EquationContainerPointer    m_EquationContainer;
   LevelSetContainerPointer    m_LevelSetContainer;
-  LevelSetContainerPointer    m_UpdateBuffer;
   DomainMapImageFilterPointer m_DomainMapFilter;
 
   LevelSetOutputType          m_Alpha;
   LevelSetOutputType          m_Dt;
   LevelSetOutputType          m_RMSChangeAccumulator;
   bool                        m_UserDefinedDt;
+
+  LevelSetOutputType          m_ConstantGradientValue;
+
+  std::map< unsigned int, std::list< InputPixelRealType > > m_UpdateBuffer;
 
   void AllocateUpdateBuffer()
     {
@@ -185,27 +187,33 @@ protected:
     LevelSetContainerIteratorType ls_it = m_LevelSetContainer->Begin();
     LevelSetContainerIteratorType ls_end = m_LevelSetContainer->End();
 
+    typename std::map< unsigned int, std::list< InputPixelRealType > >::iterator
+        update_it = m_UpdateBuffer.begin();
+
     while( ls_it != ls_end )
       {
-      NodeListType* list_of_nodes = ( ls_it->second )->GetListNode( 0 );
+      LevelSetNodeListType* list_of_nodes = ( ls_it->second )->GetListNode( 0 );
 
-      NodeListIterator node_it = list_of_nodes->begin();
-      NodeListIterator node_end = list_of_nodes->end();
+      LevelSetNodeListIterator node_it = list_of_nodes->begin();
+      LevelSetNodeListIterator node_end = list_of_nodes->end();
 
       LevelSetPointer LevelSetUpdate = m_UpdateBuffer->GetLevelSet( ls_it->first );
 
+      update_it->second.clear();
+
       while( node_it != node_end )
         {
-        idx = ( *node_it )->first;
+        LevelSetInputType idx = ( *node_it )->first;
 
         // get the contribution from all terms at idx
         InputPixelRealType temp_update =
             m_EquationContainer->GetEquation( ls_it->first )->Evaluate( idx );
 
-        levelSetUpdate->GetImage()->SetPixel( idx, temp_update );
+        update_it->second.push_back( temp_update );
 
         ++node_it;
         }
+      ++update_it;
       ++ls_it;
       }
     }
@@ -307,7 +315,7 @@ protected:
     }
 
   // ---------------------------------------------------------------------------
-  void UpdateActiveLayers()
+  void UpdateAllLayers()
     {
     LevelSetContainerIteratorType ls_it = m_LevelSetContainer->Begin();
     LevelSetContainerIteratorType ls_end = m_LevelSetContainer->End();
@@ -316,11 +324,11 @@ protected:
     while( ls_it != ls_end )
       {
       // get the active layer (zero level-set)
-      NodeListType* list_of_nodes = ( ls_it->second )->GetListNode( 0 );
+      LevelSetNodeListType* list_of_nodes = ( ls_it->second )->GetListNode( 0 );
 
       // create a 2 temporary lists to keep track of what is going up, and what
       // is going down
-      NodeListType up_list, down_list;
+      LevelSetNodeListType up_list, down_list;
 
       // update the active layer
       UpdateActiveLayer( list_of_nodes, &up_list, &down_list );
@@ -330,17 +338,19 @@ protected:
       }
     }
 
-  void UpdateActiveLayer(NodeListType* iCurrentList,
-                         NodeListType* ioUpList,
-                         NodeListType* ioDownList )
+  void UpdateActiveLayer( const std::list< InputPixelRealType >& iUpdates,
+    LevelSetNodeListType* iCurrentList,
+    LevelSetNodeListType* ioUpList,
+    LevelSetNodeListType* ioDownList )
     {
     const LevelSetOutputType LowerActiveThreshold = - 0.5 * m_ConstantGradientValue;
     const LevelSetOutputType UpperActiveThreshold = 0.5 * m_ConstantGradientValue;
 
-    NodeListIterator node_it = iCurrentList->begin();
-    NodeListIterator node_end = iCurrentList->end();
+    LevelSetNodeListIterator node_it = iCurrentList->begin();
+    LevelSetNodeListIterator node_end = iCurrentList->end();
 
-    LevelSetPointer LevelSetUpdate = m_UpdateBuffer->GetLevelSet( ls_it->first );
+    typename std::list< InputPixelRealType >::const_iterator
+        update_it = iUpdates.begin();
 
     NeighborhoodIterator< LevelSetImageType >
       n_It( m_NeighborList.GetRadius(),
@@ -355,8 +365,7 @@ protected:
       n_It.SetLocation( current_index );
 
       // get the update for the given level set and the given pixel
-      InputPixelRealType temp_update =
-          m_EquationContainer->GetEquation( ls_it->first )->Evaluate( idx );
+      InputPixelRealType temp_update = *update_it;
 
       // initialize new_value to the current level set value
       LevelSetOutputType new_value = attributes.m_Value;
@@ -382,6 +391,7 @@ protected:
         if( flag )
           {
           ++node_it;
+          ++update_it;
           }
         else
           {
@@ -431,8 +441,8 @@ protected:
   void
   UpdateStatus(
     LevelSetPointer iLevelSet,
-    NodeListType *InputList, NodeListType *OutputList,
-    StatusType iChangeToStatus, StatusType iSearchForStatus)
+    LevelSetNodeListType *InputList, LevelSetNodeListType *OutputList,
+    LevelSetNodeStatusType iChangeToStatus, LevelSetNodeStatusType iSearchForStatus)
   {
   NeighborhoodIterator< LevelSetImageType >
   n_It( m_NeighborList.GetRadius(),
