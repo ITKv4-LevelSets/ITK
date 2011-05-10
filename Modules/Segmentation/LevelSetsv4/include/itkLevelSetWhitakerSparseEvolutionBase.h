@@ -111,14 +111,14 @@ public:
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
+  itkSetMacro( Alpha, LevelSetOutputType );
+  itkGetMacro( Alpha, LevelSetOutputType );
+
   void Update()
     {
     //Run iteration
     this->GenerateData();
     }
-
-  itkSetMacro( Alpha, LevelSetOutputType );
-  itkGetMacro( Alpha, LevelSetOutputType );
 
   void SetTimeStep( const LevelSetOutputType& iDt )
     {
@@ -175,12 +175,30 @@ protected:
 
   std::map< unsigned int, std::list< InputPixelRealType > > m_UpdateBuffer;
 
+  /** \brief Creates an empty list for each level-set, and stores it in
+  m_UpdateBuffer */
   void AllocateUpdateBuffer()
     {
-    this->m_UpdateBuffer = LevelSetContainerType::New();
-    this->m_UpdateBuffer->CopyInformationAndAllocate( m_LevelSetContainer, true );
+    // Kishore:
+    // Make sure that the LevelSetContainer class works for SparseLevelSetBase
+    // and LevelSetImageBase classes.
+    // Write a small test to verify that!!
+
+    // Arnaud: Since the update values (computed from each terms) are only
+    // computed on the zero level-set, we can only keep a list of updates for
+    // each level-set, right?
+    LevelSetContainerIteratorType ls_it = m_LevelSetContainer->Begin();
+    LevelSetContainerIteratorType ls_end = m_LevelSetContainer->End();
+
+    while( ls_it != ls_end )
+      {
+      m_UpdateBuffer[ ls_it->first ] = std::list< InputPixelRealType >();
+      ++ls_it;
+      }
     }
 
+
+  /** \brief Compute*/
   void ComputeIteration()
     {
     // first let's get the 0-list
@@ -220,40 +238,23 @@ protected:
 
 
   // ---------------------------------------------------------------------------
+  /** \brief Iterate over all equations/terms, and initialize each internal
+  parameter.
+  \note In the sparse case, parameters are computed only once; they are then
+  updated through the evolution of the level set.
+  */
   void InitializeIteration()
   {
-//    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
-//    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+    // Here we are setting the LevelSetFunction specific constants (lambda_1 etc) to 0
+    // In the sparse case, the numerator and denominator always remain computed
+    // So, we need to write member functions in LevelSetFunction specific to sparse cases
+    // where we are only computing the ratio of numerator to denominator
+    // In dense, we have to go back and compute the numerator and denominator
+    // and then compute the ratio
+    // In sparse, you know exactly the changes to be made. Let me see what was implemented in itkv3 for this function
 
-//    std::cout << "Initialize iteration" << std::endl;
-
-//    while( map_it != map_end )
-//    {
-////       std::cout << map_it->second.m_Region << std::endl;
-
-//      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
-//      it.GoToBegin();
-
-//      while( !it.IsAtEnd() )
-//      {
-////         std::cout << it.GetIndex() << std::endl;
-//        IdListType lout = map_it->second.m_List;
-
-//        if( lout.empty() )
-//        {
-//          itkGenericExceptionMacro( <<"No level set exists at voxel" );
-//        }
-
-//        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-//        {
-//          m_EquationContainer->GetEquation( *lIt - 1 )->Initialize( it.GetIndex() );
-//        }
-//        ++it;
-//      }
-//      ++map_it;
-//    }
-//    m_EquationContainer->Update();
   }
+
 
   // ---------------------------------------------------------------------------
   void GenerateData()
@@ -264,6 +265,7 @@ protected:
     m_LevelSetContainer =
         m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
 
+    // allocate an update buffer to store the update values
     AllocateUpdateBuffer();
 
     InitializeIteration();
