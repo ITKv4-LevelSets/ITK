@@ -48,3 +48,6 @@ add_test(NAME itkShiSparseLevelSetBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkShiSparseLevelSetBaseTest)
 add_test(NAME itkMalcolmSparseLevelSetBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkMalcolmSparseLevelSetBaseTest)
+add_test(NAME itkBinaryImageToSparseLevelSetAdaptorTest
+      COMMAND ITK-LevelSetsv4TestDriver itkBinaryImageToSparseLevelSetAdaptorTest
+      ${ITK_DATA_ROOT}/Input/circle.png)

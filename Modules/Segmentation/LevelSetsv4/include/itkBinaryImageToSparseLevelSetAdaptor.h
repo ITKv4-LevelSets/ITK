@@ -59,14 +59,13 @@ public:
 
   typedef TLevelSetType                                LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
-  typedef typename LevelSetType::ImageType             LevelSetImageType;
   typedef typename LevelSetType::InputType             LevelSetInputType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
-  typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
   typedef typename LevelSetType::SparseImageType       SparseImageType;
   typedef typename SparseImageType::Pointer            SparseImagePointer;
 
+  typedef typename LevelSetType::NodeAttributeType        LevelSetNodeAttributeType;
   typedef typename LevelSetType::NodeStatusType        LevelSetNodeStatusType;
   typedef typename LevelSetType::NodePairType          LevelSetNodePairType;
   typedef typename LevelSetType::NodeListType          LevelSetNodeListType;
@@ -85,19 +84,27 @@ public:
   // this is the same as Procedure 1
   // Input is a binary image m_InputImage
   // Output is a WhitakerSparseLevelSetBasePointer
-  void Initialization()
+  void Initialize()
   {
+    std::cout << "Initialize()" << std::endl;
+    typename InputNeighborhoodIteratorType::RadiusType radius;
+    radius.Fill( 1 );
+
     m_SparseLevelSet = LevelSetType::New();
 
-    SparseImagePointer sparseImage = m_SparseLevelSet->GetImage();
+    SparseImagePointer sparseImage = SparseImageType::New();
     sparseImage->CopyInformation( m_InputImage );
     sparseImage->SetLargestPossibleRegion( m_InputImage->GetLargestPossibleRegion() );
     sparseImage->SetBufferedRegion( m_InputImage->GetBufferedRegion() );
     sparseImage->SetRequestedRegion( m_InputImage->GetRequestedRegion() );
     sparseImage->Allocate();
+    m_SparseLevelSet->SetImage( sparseImage );
+    std::cout << "Allocated sparse image" << std::endl;
 
     // Precondition labelmap and phi
-    LevelSetNodePairType p, q;
+    LevelSetNodeAttributeType p, q;
+    LevelSetNodePairType nodePair;
+
     SparseIteratorType sIt( sparseImage, sparseImage->GetRequestedRegion() );
     sIt.GoToBegin();
     InputIteratorType iIt( m_InputImage, m_InputImage->GetRequestedRegion() );
@@ -106,15 +113,15 @@ public:
     {
       if ( iIt.Get() == 0 )
       {
-        p.first( 3 );
-        p.second( 3.0 );
+        p.m_Status = 3;
+        p.m_Value = 3.0;
         sIt.Set( p );
       }
 
       if ( iIt.Get() == 1 )
       {
-        p.first( -3 );
-        p.second( -3.0 );
+        p.m_Status = -3;
+        p.m_Value = -3.0;
         sIt.Set( p );
       }
       ++iIt;
@@ -123,7 +130,7 @@ public:
 
     // Find the zero levelset
     bool flag = false;
-    InputNeighborhoodIteratorType inputNeighborhoodIt ( 1, m_InputImage, m_InputImage->GetRequestedRegion() );
+    InputNeighborhoodIteratorType inputNeighborhoodIt ( radius, m_InputImage, m_InputImage->GetRequestedRegion() );
     inputNeighborhoodIt.GoToBegin();
     sIt.GoToBegin();
     while( !inputNeighborhoodIt.IsAtEnd() )
@@ -142,9 +149,11 @@ public:
 
       if ( ( inputNeighborhoodIt.GetCenterPixel() == 1 ) && ( flag ) )
       {
-        p.first( 0 );
-        p.second( 0.0 );
-        m_SparseLevelSet->GetListNode( 0 )->push_back( p );
+        p.m_Status = 0;
+        p.m_Value = 0.0;
+        nodePair.first = inputNeighborhoodIt.GetIndex();
+        nodePair.second = p;
+        m_SparseLevelSet->GetListNode( 0 )->push_back( nodePair );
         sIt.Set( p );
       }
       ++inputNeighborhoodIt;
@@ -156,28 +165,32 @@ public:
     LevelSetNodeListType* list_of_nodes = m_SparseLevelSet->GetListNode( 0 );
     LevelSetNodeListIterator node_it = list_of_nodes->begin();
     LevelSetNodeListIterator node_end = list_of_nodes->end();
-    SparseNeighborhoodIteratorType sparseNeighborhoodIt ( 1, sparseImage, sparseImage->GetRequestedRegion() );
+    SparseNeighborhoodIteratorType sparseNeighborhoodIt ( radius, sparseImage, sparseImage->GetRequestedRegion() );
     while( node_it != node_end )
     {
-      idx = (*node_it)->first;
+      idx = (*node_it).first;
       sparseNeighborhoodIt.SetLocation( idx );
 
       // Iterate through all the pixels in the neighborhood
       for( unsigned int i = 0; i < sparseNeighborhoodIt.Size(); i++ )
       {
         q = sparseNeighborhoodIt.GetPixel( i );
-        if ( q.first == -3 )
+        if ( q.m_Status == -3 )
         {
-          q.first = -1;
-          q.second = -1.0;
-          m_SparseLevelSet->GetListNode( -1 )->push_back( q );
+          q.m_Status = -1;
+          q.m_Value = -1.0;
+          nodePair.first = sparseNeighborhoodIt.GetIndex();
+          nodePair.second = q;
+          m_SparseLevelSet->GetListNode( -1 )->push_back( nodePair );
         }
 
-        if ( q.first == 3 )
+        if ( q.m_Status == 3 )
         {
-          q.first = 1;
-          q.second = 1.0;
-          m_SparseLevelSet->GetListNode( 1 )->push_back( q );
+          q.m_Status = 1;
+          q.m_Value = 1.0;
+          nodePair.first = sparseNeighborhoodIt.GetIndex();
+          nodePair.second = q;
+          m_SparseLevelSet->GetListNode( 1 )->push_back( nodePair );
         }
       }
       ++node_it;
@@ -189,18 +202,20 @@ public:
     node_end = list_of_nodes->end();
     while( node_it != node_end )
     {
-      idx = (*node_it)->first;
+      idx = (*node_it).first;
       sparseNeighborhoodIt.SetLocation( idx );
 
       // Iterate through all the pixels in the neighborhood
       for( unsigned int i = 0; i < sparseNeighborhoodIt.Size(); i++ )
       {
         q = sparseNeighborhoodIt.GetPixel( i );
-        if ( q.first == -3 )
+        if ( q.m_Status == -3 )
         {
-          q.first = -2;
-          q.second = -2.0;
-          m_SparseLevelSet->GetListNode( -2 )->push_back( q );
+          q.m_Status = -2;
+          q.m_Value = -2.0;
+          nodePair.first = sparseNeighborhoodIt.GetIndex();
+          nodePair.second = q;
+          m_SparseLevelSet->GetListNode( -2 )->push_back( nodePair );
         }
       }
       ++node_it;
@@ -211,18 +226,20 @@ public:
     node_end = list_of_nodes->end();
     while( node_it != node_end )
     {
-      idx = (*node_it)->first;
+      idx = (*node_it).first;
       sparseNeighborhoodIt.SetLocation( idx );
 
       // Iterate through all the pixels in the neighborhood
       for( unsigned int i = 0; i < sparseNeighborhoodIt.Size(); i++ )
       {
         q = sparseNeighborhoodIt.GetPixel( i );
-        if ( q.first == 3 )
+        if ( q.m_Status == 3 )
         {
-          q.first = 2;
-          q.second = 2.0;
-          m_SparseLevelSet->GetListNode( 2 )->push_back( q );
+          q.m_Status = 2;
+          q.m_Value = 2.0;
+          nodePair.first = sparseNeighborhoodIt.GetIndex();
+          nodePair.second = q;
+          m_SparseLevelSet->GetListNode( 2 )->push_back( nodePair );
         }
       }
       ++node_it;

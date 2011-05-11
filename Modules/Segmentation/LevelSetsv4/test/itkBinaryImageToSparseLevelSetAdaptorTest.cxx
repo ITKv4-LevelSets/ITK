@@ -18,9 +18,79 @@
 
 #include <string>
 #include "itkImage.h"
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
 #include "itkBinaryImageToSparseLevelSetAdaptor.h"
+#include "itkSparseLevelSetBase.h"
+#include "itkWhitakerSparseLevelSetBase.h"
+#include "itkImageRegionIterator.h"
 
 int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
 {
+  const unsigned int Dimension = 2;
+
+  typedef unsigned char InputPixelType;
+  typedef double        OutputPixelType;
+
+  typedef itk::Image< InputPixelType, Dimension >                  InputImageType;
+  typedef itk::Image< OutputPixelType, Dimension >                 OutputImageType;
+  typedef itk::WhitakerSparseLevelSetBase< OutputPixelType, Dimension >
+                                                                   SparseLevelSetType;
+  typedef SparseLevelSetType::SparseImageType                      SparseImageType;
+  typedef SparseLevelSetType::NodeAttributeType                    NodeAttributeType;
+  typedef itk::ImageFileReader< InputImageType >                   InputReaderType;
+  typedef itk::ImageFileWriter< OutputImageType >                  OutputWriterType;
+  typedef itk::BinaryImageToSparseLevelSetAdaptor< InputImageType, SparseLevelSetType >
+    BinaryToSparseAdaptorType;
+
+  typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
+  typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
+
+  InputReaderType::Pointer reader = InputReaderType::New();
+  reader->SetFileName( argv[1] );
+  reader->Update();
+  InputImageType::Pointer input = reader->GetOutput();
+  std::cout << "Input image read" << std::endl;
+
+  BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
+  adaptor->SetInputImage( input );
+  adaptor->Initialize();
+  std::cout << "Finished converting to sparse format" << std::endl;
+
+  SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
+  SparseImageType::Pointer sparseImage = sparseLevelSet->GetImage();
+
+  OutputImageType::Pointer output = OutputImageType::New();
+  output->SetRegions( sparseImage->GetLargestPossibleRegion() );
+  output->CopyInformation( sparseImage );
+  output->Allocate();
+  output->FillBuffer( 0.0 );
+
+  NodeAttributeType p;
+  SparseIteratorType sIt( sparseImage, sparseImage->GetLargestPossibleRegion() );
+  sIt.GoToBegin();
+  OutputIteratorType oIt( output, output->GetLargestPossibleRegion() );
+  oIt.GoToBegin();
+  while( !oIt.IsAtEnd() )
+  {
+    p = sIt.Get();
+    oIt.Set( 0.0 );
+    ++oIt;
+    ++sIt;
+  }
+
+  OutputWriterType::Pointer writer = OutputWriterType::New();
+  writer->SetFileName( "/home/krm15/temp.mha" );
+  writer->SetInput( output );
+
+  try
+  {
+    writer->Update();
+  }
+  catch ( itk::ExceptionObject& err )
+  {
+    std::cout << err << std::endl;
+  }
+
   return EXIT_SUCCESS;
 }
