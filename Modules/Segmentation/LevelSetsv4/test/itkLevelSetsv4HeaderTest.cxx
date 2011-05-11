@@ -39,8 +39,8 @@
 #include "itkWhitakerSparseLevelSetBase.h"
 #include "itkShiSparseLevelSetBase.h"
 #include "itkMalcolmSparseLevelSetBase.h"
-
-#include "itkLevelSetWhitakerSparseEvolutionBase.h"
+// #include "itkLevelSetWhitakerSparseEvolutionBase.h"
+#include "itkBinaryImageToSparseLevelSetAdaptor.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {

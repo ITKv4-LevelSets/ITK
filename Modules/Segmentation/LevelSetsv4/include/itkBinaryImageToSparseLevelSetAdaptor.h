@@ -22,13 +22,16 @@
 
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
+#include "itkSparseLevelSetBase.h"
+#include "itkImageRegionIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
+#include "itkNeighborhoodIterator.h"
 #include <list>
 #include "itkObject.h"
 
 namespace itk
 {
-template< class TInputImage, TLevelSetType >
+template< class TInputImage, class TLevelSetType >
 class BinaryImageToSparseLevelSetAdaptor : public Object
 {
 public:
@@ -45,6 +48,7 @@ public:
 
   typedef TInputImage                           InputImageType;
   typedef typename InputImageType::PixelType    InputImagePixelType;
+  typedef typename InputImageType::IndexType    InputImageIndexType;
   typedef typename InputImageType::Pointer      InputImagePointer;
   typedef typename InputImageType::RegionType   InputImageRegionType;
   typedef typename NumericTraits< InputImagePixelType >::RealType
@@ -60,6 +64,9 @@ public:
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
+  typedef typename LevelSetType::SparseImageType       SparseImageType;
+  typedef typename SparseImageType::Pointer            SparseImagePointer;
+
   typedef typename LevelSetType::NodeStatusType        LevelSetNodeStatusType;
   typedef typename LevelSetType::NodePairType          LevelSetNodePairType;
   typedef typename LevelSetType::NodeListType          LevelSetNodeListType;
@@ -70,25 +77,30 @@ public:
   typedef typename LevelSetType::SparseLayerMapIterator       SparseLayerMapIterator;
   typedef typename LevelSetType::SparseLayerMapConstIterator  SparseLayerMapConstIterator;
 
+  typedef ImageRegionIteratorWithIndex< InputImageType >  InputIteratorType;
+  typedef ImageRegionIteratorWithIndex< SparseImageType > SparseIteratorType;
+  typedef NeighborhoodIterator< InputImageType >          InputNeighborhoodIteratorType;
+  typedef NeighborhoodIterator< SparseImageType >         SparseNeighborhoodIteratorType;
+
   // this is the same as Procedure 1
-  // Input is a binary image init
+  // Input is a binary image m_InputImage
   // Output is a WhitakerSparseLevelSetBasePointer
   void Initialization()
   {
     m_SparseLevelSet = LevelSetType::New();
 
-    SparseImageType::Pointer sparseImage = m_SparseLevelSet->GetImage();
-    sparseImage->CopyInformation( init );
-    sparseImage->SetLargestPossibleRegion( init->GetLargestPossibleRegion() );
-    sparseImage->SetBufferedRegion( init->GetBufferedRegion() );
-    sparseImage->SetRequestedRegion( init->GetRequestedRegion() );
+    SparseImagePointer sparseImage = m_SparseLevelSet->GetImage();
+    sparseImage->CopyInformation( m_InputImage );
+    sparseImage->SetLargestPossibleRegion( m_InputImage->GetLargestPossibleRegion() );
+    sparseImage->SetBufferedRegion( m_InputImage->GetBufferedRegion() );
+    sparseImage->SetRequestedRegion( m_InputImage->GetRequestedRegion() );
     sparseImage->Allocate();
 
     // Precondition labelmap and phi
-    NodePairType p, q;
-    SparseImageIteratorType sIt( sparseImage, sparseImage->GetRequestedRegion() );
+    LevelSetNodePairType p, q;
+    SparseIteratorType sIt( sparseImage, sparseImage->GetRequestedRegion() );
     sIt.GoToBegin();
-    ImageIteratorType iIt( init, init->GetRequestedRegion() );
+    InputIteratorType iIt( m_InputImage, m_InputImage->GetRequestedRegion() );
     iIt.GoToBegin();
     while( !iIt.IsAtEnd() )
     {
@@ -111,31 +123,31 @@ public:
 
     // Find the zero levelset
     bool flag = false;
-    NeighborhoodIteratorType nIt ( 1, init, init->GetRequestedRegion() );
-    nIt.GoToBegin();
+    InputNeighborhoodIteratorType inputNeighborhoodIt ( 1, m_InputImage, m_InputImage->GetRequestedRegion() );
+    inputNeighborhoodIt.GoToBegin();
     sIt.GoToBegin();
-    while( !nIt.IsAtEnd() )
+    while( !inputNeighborhoodIt.IsAtEnd() )
     {
       flag = false;
 
       // Iterate through all the pixels in the neighborhood
-      for( unsigned int i = 0; i < it.Size(); i++ )
+      for( unsigned int i = 0; i < inputNeighborhoodIt.Size(); i++ )
       {
-        if( nIt.GetPixel( i ) == 0 )
+        if( inputNeighborhoodIt.GetPixel( i ) == 0 )
         {
           flag = true;
           break;
         }
       }
 
-      if ( ( nIt.GetCenterPixel() == 1 ) && ( flag ) )
+      if ( ( inputNeighborhoodIt.GetCenterPixel() == 1 ) && ( flag ) )
       {
         p.first( 0 );
         p.second( 0.0 );
         m_SparseLevelSet->GetListNode( 0 )->push_back( p );
         sIt.Set( p );
       }
-      ++nIt;
+      ++inputNeighborhoodIt;
       ++sIt;
     }
 
@@ -217,14 +229,20 @@ public:
     }
   }
 
+  // Set/Get the sparse levet set image
   itkSetObjectMacro( SparseLevelSet, LevelSetType );
   itkGetObjectMacro( SparseLevelSet, LevelSetType );
+
+  // Set get the input image
+  itkSetObjectMacro( InputImage, InputImageType );
+  itkGetObjectMacro( InputImage, InputImageType );
 
 protected:
   BinaryImageToSparseLevelSetAdaptor() {}
   ~BinaryImageToSparseLevelSetAdaptor() {}
 
-  LevelSetPointer m_SparseLevelSet;
+  InputImagePointer m_InputImage;
+  LevelSetPointer   m_SparseLevelSet;
 
 private:
   BinaryImageToSparseLevelSetAdaptor( const Self& );

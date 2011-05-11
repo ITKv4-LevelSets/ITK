@@ -54,6 +54,17 @@ public:
   typedef typename Superclass::GradientType GradientType;
   typedef typename Superclass::HessianType  HessianType;
 
+  typedef char NodeStatusType;
+
+  struct NodeAttributeType
+  {
+    /** status of a given node (its value also define in which layer it is)*/
+    NodeStatusType  m_Status;
+
+    /** level set value for a given node */
+    OutputType      m_Value;
+  };
+
   typedef std::pair< IndexType, NodeAttributeType > NodePairType;
   typedef std::list< NodePairType >                 NodeListType;
   typedef typename NodeListType::iterator           NodeListIterator;
@@ -62,17 +73,6 @@ public:
   typedef std::map< NodeStatusType, NodeListType >    SparseLayerMapType;
   typedef typename SparseLayerMapType::iterator       SparseLayerMapIterator;
   typedef typename SparseLayerMapType::const_iterator SparseLayerMapConstIterator;
-
-  typedef char NodeStatusType;
-
-  struct NodeAttributeType
-    {
-    /** status of a given node (its value also define in which layer it is)*/
-    NodeStatusType  m_Status;
-
-    /** level set value for a given node */
-    OutputType      m_Value;
-    };
 
   typedef Image< NodeAttributeType, VDimension >  SparseImageType;
   typedef typename SparseImageType::Pointer       SparseImagePointer;
@@ -117,10 +117,7 @@ public:
   itkGetObjectMacro( Image, SparseImageType );
 
 protected:
-  SparseLevelSetBase()
-  {
-    this->InitializeLayers();
-  }
+  SparseLevelSetBase(){}
   virtual ~SparseLevelSetBase() {}
 
   SparseImagePointer m_Image;

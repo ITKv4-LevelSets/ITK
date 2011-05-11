@@ -14,6 +14,7 @@ itkSparseLevelSetBaseTest.cxx
 itkWhitakerSparseLevelSetBaseTest.cxx
 itkShiSparseLevelSetBaseTest.cxx
 itkMalcolmSparseLevelSetBaseTest.cxx
+itkBinaryImageToSparseLevelSetAdaptorTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")

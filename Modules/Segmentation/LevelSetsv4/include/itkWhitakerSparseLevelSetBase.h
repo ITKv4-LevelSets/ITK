@@ -67,7 +67,10 @@ public:
 
 protected:
 
-  WhitakerSparseLevelSetBase() : Superclass() {}
+  WhitakerSparseLevelSetBase() : Superclass()
+  {
+    this->InitializeLayers();
+  }
   ~WhitakerSparseLevelSetBase() {}
 
   void InitializeLayers()

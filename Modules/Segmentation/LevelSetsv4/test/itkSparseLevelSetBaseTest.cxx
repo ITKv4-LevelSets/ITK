@@ -38,7 +38,10 @@ public:
   itkTypeMacro(SparseLevelSetBaseTestHelper, SparseLevelSetBase);
 
 protected:
-  SparseLevelSetBaseTestHelper() : Superclass() {}
+  SparseLevelSetBaseTestHelper() : Superclass()
+  {
+    this->InitializeLayers();
+  }
   ~SparseLevelSetBaseTestHelper() {}
 
   void InitializeLayers() {}
