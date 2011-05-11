@@ -35,7 +35,7 @@ template< class TInputImage, TLevelSetType >
 class BinaryImageToSparseLevelSetAdaptor : public Object
 {
 public:
-  typedef BinaryImageToSparseLevelSetAdaptor Self;
+  typedef BinaryImageToSparseLevelSetAdaptor  Self;
   typedef SmartPointer< Self >                Pointer;
   typedef SmartPointer< const Self >          ConstPointer;
   typedef Object                              Superclass;
