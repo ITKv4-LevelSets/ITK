@@ -4,6 +4,7 @@ set(CMAKE_MODULE_PATH ${ITK_SOURCE_DIR}/CMake ${CMAKE_MODULE_PATH})
 include(PreventInSourceBuilds)
 include(PreventInBuildInstalls)
 include(ITKModuleMacros)
+include(ITKExternalData)
 include(itkCheckSourceTree)
 
 set(main_project_name ${_ITKModuleMacros_DEFAULT_LABEL})
@@ -42,19 +43,36 @@ macro(verify_itk_module_is_set)
   endif()
 endmacro()
 
-macro(add_test)
-  _add_test(${ARGN})
+#-----------------------------------------------------------------------------
+# Enable the download and use of BrainWeb datasets.
+# When this data is available, additional 3D tests are enabled.
+option(ITK_USE_BRAINWEB_DATA "Download and use BrainWeb data for advanced testing" OFF)
+mark_as_advanced(ITK_USE_BRAINWEB_DATA)
+
+#-----------------------------------------------------------------------------
+# ITK wrapper for add_test that automatically sets the test's LABELS property
+# to the value of its containing module.
+#
+macro(itk_add_test)
+  # Add tests with data in the ITKData group.
+  ExternalData_add_test(ITKData ${ARGN})
+
+  if("NAME" STREQUAL "${ARGV0}")
+    set(_iat_testname ${ARGV1})
+  else()
+    set(_iat_testname ${ARGV0})
+  endif()
+
   if(itk-module)
     set(_label ${itk-module})
+    if(TARGET ${itk-module}-all AND "${ARGN}" MATCHES "DATA{")
+      add_dependencies(${itk-module}-all ITKData)
+    endif()
   else()
     set(_label ${main_project_name})
   endif()
-  if("NAME" STREQUAL "${ARGV0}")
-    set(_imm_test ${ARGV1})
-  else()
-    set(_imm_test ${ARGV0})
-  endif()
-  set_property(TEST ${_imm_test} PROPERTY LABELS ${_label})
+
+  set_property(TEST ${_iat_testname} PROPERTY LABELS ${_label})
 endmacro()
 
 #-----------------------------------------------------------------------------
@@ -516,3 +534,7 @@ endif()
 #----------------------------------------------------------------------
 # Provide an option for generating documentation.
 add_subdirectory(Utilities/Doxygen)
+
+# Create target to download data from the ITKData group.  This must come after
+# all tests have been added that reference the group, so we put it last.
+ExternalData_Add_Target(ITKData)
