@@ -48,7 +48,14 @@ int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
 
   InputReaderType::Pointer reader = InputReaderType::New();
   reader->SetFileName( argv[1] );
-  reader->Update();
+  try
+    {
+    reader->Update();
+    }
+  catch ( itk::ExceptionObject& err )
+    {
+    std::cout << err << std::endl;
+    }
   InputImageType::Pointer input = reader->GetOutput();
   std::cout << "Input image read" << std::endl;
 
@@ -69,28 +76,29 @@ int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
   NodeAttributeType p;
   SparseIteratorType sIt( sparseImage, sparseImage->GetLargestPossibleRegion() );
   sIt.GoToBegin();
+
   OutputIteratorType oIt( output, output->GetLargestPossibleRegion() );
   oIt.GoToBegin();
   while( !oIt.IsAtEnd() )
-  {
+    {
     p = sIt.Get();
-    oIt.Set( 0.0 );
+    oIt.Set( p.m_Value );
     ++oIt;
     ++sIt;
-  }
+    }
 
   OutputWriterType::Pointer writer = OutputWriterType::New();
-  writer->SetFileName( "/home/krm15/temp.mha" );
+  writer->SetFileName( "temp.mha" );
   writer->SetInput( output );
 
   try
-  {
+    {
     writer->Update();
-  }
+    }
   catch ( itk::ExceptionObject& err )
-  {
+    {
     std::cout << err << std::endl;
-  }
+    }
 
   return EXIT_SUCCESS;
 }
