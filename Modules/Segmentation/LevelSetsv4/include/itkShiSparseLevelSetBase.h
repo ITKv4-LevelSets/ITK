@@ -63,10 +63,8 @@ protected:
 
   void InitializeLayers()
     {
-    this->m_LayerList[ -3 ] = NodeListType();
     this->m_LayerList[ -1 ] = NodeListType();
     this->m_LayerList[  1 ] = NodeListType();
-    this->m_LayerList[  3 ] = NodeListType();
     }
 
 private:
