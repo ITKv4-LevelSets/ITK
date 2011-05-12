@@ -88,7 +88,7 @@ int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
     }
 
   OutputWriterType::Pointer writer = OutputWriterType::New();
-  writer->SetFileName( "temp.mha" );
+  writer->SetFileName( "/home/krm15/temp.mha" );
   writer->SetInput( output );
 
   try
