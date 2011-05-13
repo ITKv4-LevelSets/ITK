@@ -108,7 +108,7 @@ public:
       }
     else
       {
-      itkGenericExceptionMacro( << "this layer does not exist" );
+      itkGenericExceptionMacro( << "this layer " << iId << " does not exist" );
       return NULL;
       }
     }

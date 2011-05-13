@@ -52,8 +52,12 @@ add_test(NAME itkMalcolmSparseLevelSetBaseTest
 add_test(NAME itkBinaryImageToSparseLevelSetAdaptorTest
       COMMAND ITK-LevelSetsv4TestDriver
       itkBinaryImageToSparseLevelSetAdaptorTest
-      ${ITK_DATA_ROOT}/Input/circle.png)
+      ${ITK_DATA_ROOT}/Input/circle.png
+      output_binary_whitaker_adaptor.mha
+      )
 add_test(NAME itkBinaryImageToMalcolmSparseLevelSetAdaptorTest
       COMMAND ITK-LevelSetsv4TestDriver
       itkBinaryImageToMalcolmSparseLevelSetAdaptorTest
-      ${ITK_DATA_ROOT}/Input/circle.png)
+      ${ITK_DATA_ROOT}/Input/circle.png
+      output_binary_malcolm_adaptor.mha
+      )

@@ -57,7 +57,10 @@ public:
 
 protected:
 
-  MalcolmSparseLevelSetBase() : Superclass() {}
+  MalcolmSparseLevelSetBase() : Superclass()
+  {
+    this->InitializeLayers();
+  }
   ~MalcolmSparseLevelSetBase() {}
 
   void InitializeLayers()
