@@ -35,10 +35,10 @@ template< typename TLevelSetValueType >
 class UpdateSparseLevelSet : public Object
 {
 public:
-  typedef UpdateSparseLevelSet  Self;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
-  typedef Object                                      Superclass;
+  typedef UpdateSparseLevelSet       Self;
+  typedef SmartPointer< Self >       Pointer;
+  typedef SmartPointer< const Self > ConstPointer;
+  typedef Object                     Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro( Self );
