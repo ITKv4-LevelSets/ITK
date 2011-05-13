@@ -20,12 +20,12 @@
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkBinaryImageToSparseLevelSetAdaptor.h"
+#include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 #include "itkSparseLevelSetBase.h"
 #include "itkWhitakerSparseLevelSetBase.h"
 #include "itkImageRegionIterator.h"
 
-int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
+int itkBinaryImageToWhitakerSparseLevelSetAdaptorTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
@@ -40,7 +40,7 @@ int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
   typedef SparseLevelSetType::NodeAttributeType                    NodeAttributeType;
   typedef itk::ImageFileReader< InputImageType >                   InputReaderType;
   typedef itk::ImageFileWriter< OutputImageType >                  OutputWriterType;
-  typedef itk::BinaryImageToSparseLevelSetAdaptor< InputImageType, SparseLevelSetType >
+  typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType, SparseLevelSetType >
     BinaryToSparseAdaptorType;
 
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;

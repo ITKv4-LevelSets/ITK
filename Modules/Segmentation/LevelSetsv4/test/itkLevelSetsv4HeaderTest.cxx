@@ -40,7 +40,7 @@
 #include "itkShiSparseLevelSetBase.h"
 #include "itkMalcolmSparseLevelSetBase.h"
 // #include "itkLevelSetWhitakerSparseEvolutionBase.h"
-#include "itkBinaryImageToSparseLevelSetAdaptor.h"
+#include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 #include "itkBinaryImageToMalcolmSparseLevelSetAdaptor.h"
 #include "itkBinaryImageToShiSparseLevelSetAdaptor.h"
 

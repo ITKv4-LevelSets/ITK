@@ -17,8 +17,8 @@
  *=========================================================================*/
 
 
-#ifndef __itkBinaryImageToSparseLevelSetAdaptor_h
-#define __itkBinaryImageToSparseLevelSetAdaptor_h
+#ifndef __itkBinaryImageToWhitakerSparseLevelSetAdaptor_h
+#define __itkBinaryImageToWhitakerSparseLevelSetAdaptor_h
 
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
@@ -33,19 +33,19 @@
 namespace itk
 {
 template< class TInputImage, class TLevelSetType >
-class BinaryImageToSparseLevelSetAdaptor : public Object
+class BinaryImageToWhitakerSparseLevelSetAdaptor : public Object
 {
 public:
-  typedef BinaryImageToSparseLevelSetAdaptor  Self;
-  typedef SmartPointer< Self >                Pointer;
-  typedef SmartPointer< const Self >          ConstPointer;
-  typedef Object                              Superclass;
+  typedef BinaryImageToWhitakerSparseLevelSetAdaptor  Self;
+  typedef SmartPointer< Self >                        Pointer;
+  typedef SmartPointer< const Self >                  ConstPointer;
+  typedef Object                                      Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro( Self );
 
   /** Run-time type information */
-  itkTypeMacro( BinaryImageToSparseLevelSetAdaptor, Object );
+  itkTypeMacro( BinaryImageToWhitakerSparseLevelSetAdaptor, Object );
 
   typedef TInputImage                           InputImageType;
   typedef typename InputImageType::PixelType    InputImagePixelType;
@@ -376,16 +376,16 @@ public:
   itkGetObjectMacro( InputImage, InputImageType );
 
 protected:
-  BinaryImageToSparseLevelSetAdaptor() {}
-  ~BinaryImageToSparseLevelSetAdaptor() {}
+  BinaryImageToWhitakerSparseLevelSetAdaptor() {}
+  ~BinaryImageToWhitakerSparseLevelSetAdaptor() {}
 
   InputImagePointer  m_InputImage;
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
 
 private:
-  BinaryImageToSparseLevelSetAdaptor( const Self& );
+  BinaryImageToWhitakerSparseLevelSetAdaptor( const Self& );
   void operator = ( const Self& );
 };
 }
-#endif // __itkBinaryImageToSparseLevelSetAdaptor_h
+#endif // __itkBinaryImageToWhitakerSparseLevelSetAdaptor_h
