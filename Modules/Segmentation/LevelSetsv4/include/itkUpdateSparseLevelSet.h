@@ -31,7 +31,7 @@
 
 namespace itk
 {
-template< typename TLevelSetValueType >
+template< unsigned int VDimension, typename TLevelSetValueType >
 class UpdateSparseLevelSet : public Object
 {
 public:
@@ -46,18 +46,19 @@ public:
   /** Run-time type information */
   itkTypeMacro( UpdateSparseLevelSet, Object );
 
-  itkStaticConstMacro ( ImageDimension, unsigned int,
-                       InputImageType::ImageDimension );
+  itkStaticConstMacro( ImageDimension, unsigned int, VDimension );
 
   typedef TLevelSetValueType  LevelSetOutputType;
 
-  typedef std::pair< IndexType, LevelSetOutputType > UpdateType;
-  typedef std::list< UpdateType >                    UpdateListType;
-
-  typedef SparseLevelSetBase< LevelSetOutputType, ImageDimension >
+  typedef WhitakerSparseLevelSetBase< LevelSetOutputType, ImageDimension >
                                                        LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
+
+  typedef std::pair< LevelSetInputType, LevelSetOutputType >
+                                                      UpdateType;
+  typedef std::list< UpdateType >                     UpdateListType;
+
 
   typedef typename LevelSetType::SparseImageType       SparseImageType;
   typedef typename SparseImageType::Pointer            SparseImagePointer;
@@ -96,8 +97,11 @@ public:
     LevelSetOutputType update;
     LevelSetNodeAttributeType q;
 
-    while( !list_0->empty() && !m_Update->empty() )
-    {
+    m_S_plus_1.clear();
+    m_S_neg_1.clear();
+
+    while( !m_Update->empty() )
+      {
       p = list_0->front();
       update = m_Update->front();
 
@@ -106,30 +110,30 @@ public:
       m_SparseImage->SetPixel( p.first, p );
 
       if( q.m_Value > static_cast<LevelSetOutputType>( 0.5 ) )
-      {
-        S_plus_1.push_back( p );
-      }
+        {
+        m_S_plus_1.push_back( p );
+        }
       else
-      {
+        {
         if( q.m_Value < static_cast<LevelSetOutputType>( -0.5 ) )
-        {
-          S_neg_1.push_back( p );
-        }
+          {
+          m_S_neg_1.push_back( p );
+          }
         else
-        {
+          {
           new_list_0.push_back( p );
+          }
         }
-      }
       list_0->pop_front();
       m_Update->pop_front();
-    }
+      }
 
     // update list_0
     while( !new_list_0.empty() )
-    {
+      {
       list_0->push_back( new_list_0.front() );
       new_list_0.pop_front();
-    }
+      }
   }
 
   void UpdateMinusLevelSet( LevelSetNodeStatusType& status )
@@ -137,16 +141,19 @@ public:
     LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) + 0.5;
     LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) - 0.5;
 
-    bool flag;
     SparseImageIndexType idx;
     LevelSetNodePairType p;
     LevelSetNodeAttributeType q, r;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
+    typename SparseNeighborhoodIteratorType::RadiusType radius;
+    radius.Fill( 1 );
+
     SparseNeighborhoodIteratorType
-    sparseNeighborhoodIt( radius, m_SparseImage,
-                          m_SparseImage->GetLargestPossibleRegion() );
-                          sparseNeighborhoodIt.OverrideBoundaryCondition( &sp_nbc );
+      sparseNeighborhoodIt( radius, m_SparseImage,
+                            m_SparseImage->GetLargestPossibleRegion() );
+
+    sparseNeighborhoodIt.OverrideBoundaryCondition( &sp_nbc );
 
     typename SparseNeighborhoodIteratorType::OffsetType sparse_offset;
     sparse_offset.Fill( 0 );
@@ -160,70 +167,74 @@ public:
       sparse_offset[dim] = 0;
       }
 
-    LevelSetNodeStatusType M;
+    LevelSetNodeStatusType status_plus_1 = static_cast<LevelSetNodeStatusType>( status + 1 );
+    LevelSetNodeStatusType status_minus_1 = static_cast<LevelSetNodeStatusType>( status - 1 );
+
     LevelSetNodeListType* list = m_SparseLevelSet->GetListNode( status );
     while( !list->empty() )
-    {
+      {
       p = list->front();
       idx = p.first;
       sparseNeighborhoodIt.SetLocation( idx );
-      M = NumericTraits<LevelSetNodeStatusType>::Min();
 
-      flag = true;
-      for( typename SparseNeighborhoodIteratorType::Iterator i = sparseNeighborhoodIt.Begin();
-        !i.IsAtEnd(); ++i )
-      {
+      LevelSetNodeStatusType M = NumericTraits<LevelSetNodeStatusType>::NonPositiveMin();
+
+      bool flag = true;
+      for( typename SparseNeighborhoodIteratorType::Iterator
+              i = sparseNeighborhoodIt.Begin();
+          !i.IsAtEnd(); ++i )
+        {
         q = i.Get();
-        if ( q.m_Status == static_cast<LevelSetNodeStatusType>( status + 1 ) )
-        {
+        if ( q.m_Status == status_plus_1 )
+          {
           flag = false;
-        }
-        if ( ( M < q.m_Status ) && ( q.m_Status >= static_cast<LevelSetNodeStatusType>( status + 1 ) ) )
-        {
+          }
+        if ( ( q.m_Status > M ) && ( q.m_Status >= status_plus_1 ) )
+          {
           M = q.m_Status;
+          }
         }
-      }
 
       if (!flag)
-      {
+        {
         if ( status < m_MaxStatus )
-        {
-          m_StatusLists->GetListNode( status-1 )->push_back( p );
-        }
+          {
+          m_StatusLists->GetListNode( status_minus_1 )->push_back( p );
+          }
         else
-        {
+          {
           r.m_Status = m_MinStatus;
           r.m_Value = -3.0;
           m_SparseImage->SetPixel( idx, r );
+          }
         }
-      }
       else
-      {
+        {
         r.m_Status = p.m_Status;
-        r.m_Value = static_cast< LevelSetNodeStatusType >( M-1 );
+        r.m_Value = static_cast< LevelSetOutputType >( M-1 );
         m_SparseImage->SetPixel( idx, r );
 
         if ( r.m_Value >= static_cast<LevelSetOutputType>( o1 ) )
-        {
-          m_StatusLists->GetListNode( status+1 )->push_back( r );
-        }
-        if ( r.m_Value < static_cast<LevelSetOutputType>( o2 ) )
-        {
-          if ( status > m_MinStatus )
           {
-            m_StatusLists->GetListNode( status-1 )->push_back( r );
+          m_StatusLists->GetListNode( status_plus_1 )->push_back( r );
           }
-          else
+        if ( r.m_Value < static_cast<LevelSetOutputType>( o2 ) )
           {
+          if ( status > m_MinStatus )
+            {
+            m_StatusLists->GetListNode( status_minus_1 )->push_back( r );
+            }
+          else
+            {
             r.m_Status = m_MinStatus;
             r.m_Value = -3.0;
             m_SparseImage->SetPixel( idx, r );
+            }
           }
         }
-      }
       list->pop_front();
+      }
     }
-  }
 
 
   void UpdatePlusLevelSet( LevelSetNodeStatusType& status )
@@ -236,6 +247,9 @@ public:
     LevelSetNodePairType p;
     LevelSetNodeAttributeType q, r;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
+
+    typename SparseNeighborhoodIteratorType::RadiusType radius;
+    radius.Fill( 1 );
 
     SparseNeighborhoodIteratorType
     sparseNeighborhoodIt( radius, m_SparseImage,
@@ -340,8 +354,10 @@ public:
   itkGetObjectMacro( Update, UpdateListType );
 
 protected:
-  UpdateSparseLevelSet() {}
+  UpdateSparseLevelSet() : m_Dt( NumericTraits< LevelSetOutputType >::One ){}
   ~UpdateSparseLevelSet() {}
+
+  LevelSetOutputType m_Dt;
 
   UpdateListType*    m_Update;
   LevelSetPointer    m_SparseLevelSet;
@@ -350,6 +366,9 @@ protected:
   LevelSetPointer        m_StatusLists;
   LevelSetNodeStatusType m_MinStatus;
   LevelSetNodeStatusType m_MaxStatus;
+
+  std::list< LevelSetNodePairType > m_S_plus_1;
+  std::list< LevelSetNodePairType > m_S_neg_1;
 
 private:
   UpdateSparseLevelSet( const Self& );

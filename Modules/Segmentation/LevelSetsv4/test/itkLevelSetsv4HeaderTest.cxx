@@ -43,6 +43,7 @@
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 #include "itkBinaryImageToMalcolmSparseLevelSetAdaptor.h"
 #include "itkBinaryImageToShiSparseLevelSetAdaptor.h"
+#include "itkUpdateSparseLevelSet.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
