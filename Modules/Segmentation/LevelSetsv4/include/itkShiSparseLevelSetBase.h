@@ -58,7 +58,10 @@ public:
 
 protected:
 
-  ShiSparseLevelSetBase() : Superclass() {}
+  ShiSparseLevelSetBase() : Superclass()
+    {
+    this->InitializeLayers();
+    }
   ~ShiSparseLevelSetBase() {}
 
   void InitializeLayers()
