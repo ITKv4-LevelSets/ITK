@@ -20,12 +20,11 @@
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkBinaryImageToSparseLevelSetAdaptor.h"
+#include "itkBinaryImageToMalcolmSparseLevelSetAdaptor.h"
 #include "itkSparseLevelSetBase.h"
-#include "itkWhitakerSparseLevelSetBase.h"
 #include "itkImageRegionIterator.h"
 
-int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
+int itkBinaryImageToMalcolmSparseLevelSetAdaptorTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
@@ -34,15 +33,14 @@ int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
 
   typedef itk::Image< InputPixelType, Dimension >                  InputImageType;
   typedef itk::Image< OutputPixelType, Dimension >                 OutputImageType;
-  typedef itk::WhitakerSparseLevelSetBase< OutputPixelType, Dimension >
-                                                                   SparseLevelSetType;
-  typedef SparseLevelSetType::SparseImageType                      SparseImageType;
-  typedef SparseLevelSetType::NodeAttributeType                    NodeAttributeType;
+
   typedef itk::ImageFileReader< InputImageType >                   InputReaderType;
   typedef itk::ImageFileWriter< OutputImageType >                  OutputWriterType;
-  typedef itk::BinaryImageToSparseLevelSetAdaptor< InputImageType, SparseLevelSetType >
+  typedef itk::BinaryImageToMalcolmSparseLevelSetAdaptor< InputImageType >
     BinaryToSparseAdaptorType;
 
+  typedef BinaryToSparseAdaptorType::SparseImageType  SparseImageType;
+  typedef BinaryToSparseAdaptorType::LevelSetType     SparseLevelSetType;
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
 
@@ -72,6 +70,8 @@ int itkBinaryImageToSparseLevelSetAdaptorTest( int argc, char* argv[] )
   output->CopyInformation( sparseImage );
   output->Allocate();
   output->FillBuffer( 0.0 );
+
+  typedef BinaryToSparseAdaptorType::LevelSetNodeAttributeType NodeAttributeType;
 
   NodeAttributeType p;
   SparseIteratorType sIt( sparseImage, sparseImage->GetLargestPossibleRegion() );
