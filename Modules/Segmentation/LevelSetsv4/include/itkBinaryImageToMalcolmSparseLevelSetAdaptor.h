@@ -21,7 +21,7 @@
 
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
-#include "itkSparseLevelSetBase.h"
+#include "itkMalcolmSparseLevelSetBase.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkShapedNeighborhoodIterator.h"
@@ -82,40 +82,34 @@ public:
 
   // this is the same as Procedure 1
   // Input is a binary image m_InputImage
-  // Output is a MalcolmSparseLevelSetBasePointer
+  // Output is a WhitakerSparseLevelSetBasePointer
   void Initialize()
   {
     std::cout << "Initialize()" << std::endl;
-    typename InputNeighborhoodIteratorType::RadiusType radius;
-    radius.Fill( 1 );
-
     m_SparseLevelSet = LevelSetType::New();
 
-    SparseImagePointer sparseImage = SparseImageType::New();
-    sparseImage->CopyInformation( m_InputImage );
-    sparseImage->SetLargestPossibleRegion( m_InputImage->GetLargestPossibleRegion() );
-    sparseImage->SetBufferedRegion( m_InputImage->GetBufferedRegion() );
-    sparseImage->SetRequestedRegion( m_InputImage->GetRequestedRegion() );
-    sparseImage->Allocate();
-    m_SparseLevelSet->SetImage( sparseImage );
+    m_SparseImage = SparseImageType::New();
+    m_SparseImage->CopyInformation( m_InputImage );
+    m_SparseImage->SetLargestPossibleRegion( m_InputImage->GetLargestPossibleRegion() );
+    m_SparseImage->SetBufferedRegion( m_InputImage->GetBufferedRegion() );
+    m_SparseImage->SetRequestedRegion( m_InputImage->GetRequestedRegion() );
+    m_SparseImage->Allocate();
+    m_SparseLevelSet->SetImage( m_SparseImage );
     std::cout << "Allocated sparse image" << std::endl;
 
     // Precondition labelmap and phi
-    LevelSetNodeAttributeType p, q;
-    LevelSetNodePairType nodePair;
-
-    SparseIteratorType sIt( sparseImage, sparseImage->GetRequestedRegion() );
+    SparseIteratorType sIt( m_SparseImage, m_SparseImage->GetRequestedRegion() );
     sIt.GoToBegin();
     InputIteratorType iIt( m_InputImage, m_InputImage->GetRequestedRegion() );
     iIt.GoToBegin();
 
     LevelSetNodeAttributeType p_plus1;
-    p_plus3.m_Status = 1;
-    p_plus3.m_Value = 1;
+    p_plus1.m_Status = 1;
+    p_plus1.m_Value = 1;
 
     LevelSetNodeAttributeType p_minus1;
-    p_minus3.m_Status = -1;
-    p_minus3.m_Value = -1;
+    p_minus1.m_Status = -1;
+    p_minus1.m_Value = -1;
 
     while( !iIt.IsAtEnd() )
       {
@@ -131,40 +125,61 @@ public:
       ++sIt;
       }
 
+    FindActiveLayer();
+  }
+
+  void FindActiveLayer()
+  {
+    LevelSetNodePairType nodePair;
+
+    typename InputNeighborhoodIteratorType::RadiusType radius;
+    radius.Fill( 1 );
+
     ZeroFluxNeumannBoundaryCondition< InputImageType > im_nbc;
 
     // Find the zero levelset
-    InputNeighborhoodIteratorType
-        inputNeighborhoodIt( radius, m_InputImage,
-                            m_InputImage->GetLargestPossibleRegion() );
-    inputNeighborhoodIt.OverrideBoundaryCondition( &im_nbc );
+    typedef typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType > InputFaceCalculatorType;
+    InputFaceCalculatorType faceCalculator;
+    typename InputFaceCalculatorType::FaceListType faceList;
+    faceList = faceCalculator(m_InputImage, m_InputImage->GetLargestPossibleRegion(), radius);
+    typename InputFaceCalculatorType::FaceListType::iterator faceListIterator;
 
     typename InputNeighborhoodIteratorType::OffsetType temp_offset;
     temp_offset.Fill( 0 );
 
-    for( unsigned int dim = 0; dim < ImageDimension; dim++ )
-      {
-      temp_offset[dim] = -1;
-      inputNeighborhoodIt.ActivateOffset( temp_offset );
-      temp_offset[dim] = 1;
-      inputNeighborhoodIt.ActivateOffset( temp_offset );
-      temp_offset[dim] = 0;
-      }
+    for ( faceListIterator=faceList.begin(); faceListIterator != faceList.end(); ++faceListIterator)
+    {
+      InputNeighborhoodIteratorType
+      inputNeighborhoodIt( radius, m_InputImage,
+                           *faceListIterator );
+                           inputNeighborhoodIt.OverrideBoundaryCondition( &im_nbc );
 
-    inputNeighborhoodIt.GoToBegin();
-    sIt.GoToBegin();
+      inputNeighborhoodIt.GoToBegin();
+      SparseIteratorType sIt( m_SparseImage, *faceListIterator );
+      sIt.GoToBegin();
+      InputIteratorType iIt( m_InputImage, *faceListIterator );
+      iIt.GoToBegin();
 
-    LevelSetNodeAttributeType p_zero;
-    p_zero.m_Status = 0;
-    p_zero.m_Value = static_cast< LevelSetOutputType >( 0.0 );
+      for( unsigned int dim = 0; dim < ImageDimension; dim++ )
+        {
+        temp_offset[dim] = -1;
+        inputNeighborhoodIt.ActivateOffset( temp_offset );
+        temp_offset[dim] = 1;
+        inputNeighborhoodIt.ActivateOffset( temp_offset );
+        temp_offset[dim] = 0;
+        }
 
-    while( !inputNeighborhoodIt.IsAtEnd() )
-      {
-      bool flag = false;
+      LevelSetNodeAttributeType p_zero;
+      p_zero.m_Status = 0;
+      p_zero.m_Value = static_cast< LevelSetOutputType >( 0.0 );
 
-      // Iterate through all the pixels in the neighborhood
-      for( typename InputNeighborhoodIteratorType::Iterator i = inputNeighborhoodIt.Begin();
-          i != inputNeighborhoodIt.End(); ++i )
+      while( !iIt.IsAtEnd() )
+        {
+        bool flag = false;
+
+        // Iterate through all the pixels in the neighborhood
+        for( typename InputNeighborhoodIteratorType::Iterator i = inputNeighborhoodIt.Begin();
+        !i.IsAtEnd(); ++i )
         {
         if( i.Get() == NumericTraits< InputImagePixelType >::Zero )
           {
@@ -173,17 +188,19 @@ public:
           }
         }
 
-      if ( ( inputNeighborhoodIt.GetCenterPixel() !=
-            NumericTraits< InputImagePixelType >::Zero ) && ( flag ) )
-        {
-        nodePair.first = inputNeighborhoodIt.GetIndex();
-        nodePair.second = p_zero;
-        m_SparseLevelSet->GetListNode( 0 )->push_back( nodePair );
-        sIt.Set( p );
-        }
-      ++inputNeighborhoodIt;
-      ++sIt;
+        if ( ( iIt.Get() != NumericTraits< InputImagePixelType >::Zero ) && ( flag ) )
+          {
+          nodePair.first = inputNeighborhoodIt.GetIndex();
+          nodePair.second = p_zero;
+          m_SparseLevelSet->GetListNode( 0 )->push_back( nodePair );
+          sIt.Set( p_zero );
+          }
+        ++inputNeighborhoodIt;
+        ++sIt;
+        ++iIt;
       }
+    }
+  }
 
   // Set/Get the sparse levet set image
   itkSetObjectMacro( SparseLevelSet, LevelSetType );
@@ -197,8 +214,9 @@ protected:
   BinaryImageToMalcolmSparseLevelSetAdaptor() {}
   ~BinaryImageToMalcolmSparseLevelSetAdaptor() {}
 
-  InputImagePointer m_InputImage;
-  LevelSetPointer   m_SparseLevelSet;
+  InputImagePointer  m_InputImage;
+  LevelSetPointer    m_SparseLevelSet;
+  SparseImagePointer m_SparseImage;
 
 private:
   BinaryImageToMalcolmSparseLevelSetAdaptor( const Self& );
