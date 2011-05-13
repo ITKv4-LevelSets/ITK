@@ -16,13 +16,12 @@
  *
  *=========================================================================*/
 
-
 #ifndef __itkBinaryImageToWhitakerSparseLevelSetAdaptor_h
 #define __itkBinaryImageToWhitakerSparseLevelSetAdaptor_h
 
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
-#include "itkSparseLevelSetBase.h"
+#include "itkWhitakerSparseLevelSetBase.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkShapedNeighborhoodIterator.h"
@@ -32,7 +31,7 @@
 
 namespace itk
 {
-template< class TInputImage, class TLevelSetType >
+template< class TInputImage, typename TLevelSetValueType >
 class BinaryImageToWhitakerSparseLevelSetAdaptor : public Object
 {
 public:
@@ -58,10 +57,12 @@ public:
   itkStaticConstMacro ( ImageDimension, unsigned int,
                        InputImageType::ImageDimension );
 
-  typedef TLevelSetType                                LevelSetType;
+  typedef TLevelSetValueType  LevelSetOutputType;
+
+  typedef WhitakerSparseLevelSetBase< LevelSetOutputType, ImageDimension >
+                                                       LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
-  typedef typename LevelSetType::OutputType            LevelSetOutputType;
 
   typedef typename LevelSetType::SparseImageType       SparseImageType;
   typedef typename SparseImageType::Pointer            SparseImagePointer;
