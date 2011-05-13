@@ -242,7 +242,6 @@ public:
     LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) - 0.5;
     LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) + 0.5;
 
-    bool flag;
     SparseImageIndexType idx;
     LevelSetNodePairType p;
     LevelSetNodeAttributeType q, r;
@@ -268,69 +267,75 @@ public:
       sparse_offset[dim] = 0;
       }
 
-    LevelSetNodeStatusType M;
+    LevelSetNodeStatusType status_minus_1 = status - 1;
+    LevelSetNodeStatusType status_plus_1 = status + 1;
+
     LevelSetNodeListType* list_plus = m_SparseLevelSet->GetListNode( status );
+
     while( !list_plus->empty() )
-    {
+      {
       p = list_plus->front();
       idx = p.first;
       sparseNeighborhoodIt.SetLocation( idx );
-      M = NumericTraits<LevelSetNodeStatusType>::Max();
 
-      flag = true;
-      for( typename SparseNeighborhoodIteratorType::Iterator i = sparseNeighborhoodIt.Begin();
-        !i.IsAtEnd(); ++i )
-      {
+      LevelSetNodeStatusType M = NumericTraits<LevelSetNodeStatusType>::Max();
+
+      bool flag = true;
+      for( typename SparseNeighborhoodIteratorType::Iterator
+            i = sparseNeighborhoodIt.Begin();
+          !i.IsAtEnd(); ++i )
+        {
         q = i.Get();
-        if ( q.m_Status == static_cast<LevelSetNodeStatusType>( status - 1 ) )
-        {
+        if ( q.m_Status == status_minus_1 )
+          {
           flag = false;
-        }
-        if ( ( M > q.m_Status ) && ( q.m_Status <= static_cast<LevelSetNodeStatusType>( status - 1 ) ) )
-        {
+          }
+        if ( ( M > q.m_Status ) &&
+            ( q.m_Status <= status_minus_1 ) )
+          {
           M = q.m_Status;
+          }
         }
-      }
 
       if (!flag)
-      {
+        {
         if ( status < m_MaxStatus )
-        {
-          m_StatusLists->GetListNode( status+1 )->push_back( p );
-        }
+          {
+          m_StatusLists->GetListNode( status_plus_1 )->push_back( p );
+          }
         else
-        {
+          {
           r.m_Status = m_MaxStatus;
           r.m_Value = 3.0;
           m_SparseImage->SetPixel( idx, r );
+          }
         }
-      }
       else
-      {
+        {
         r.m_Status = p.m_Status;
-        r.m_Value = static_cast< LevelSetNodeStatusType >( M+1 );
+        r.m_Value = static_cast< LevelSetOutputType >( M+1 );
         m_SparseImage->SetPixel( idx, r );
 
-        if ( r.m_Value <= static_cast<LevelSetOutputType>( o1 ) )
-        {
-          m_StatusLists->GetListNode( status-1 )->push_back( r );
-        }
-        if ( r.m_Value > static_cast<LevelSetOutputType>( o2 ) )
-        {
-          if ( status < m_MaxStatus )
+        if ( r.m_Value <= o1 )
           {
-            m_StatusLists->GetListNode( status+1 )->push_back( r );
+          m_StatusLists->GetListNode( status_minus_1 )->push_back( r );
           }
-          else
+        if ( r.m_Value > o2 )
           {
+          if ( status < m_MaxStatus )
+            {
+            m_StatusLists->GetListNode( status_plus_1 )->push_back( r );
+            }
+          else
+            {
             r.m_Status = m_MaxStatus;
             r.m_Value = 3.0;
             m_SparseImage->SetPixel( idx, r );
+            }
           }
         }
-      }
       list_plus->pop_front();
-    }
+      }
   }
 
   void GenerateData()
