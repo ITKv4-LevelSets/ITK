@@ -17,6 +17,8 @@ itkMalcolmSparseLevelSetBaseTest.cxx
 itkBinaryImageToWhitakerSparseLevelSetAdaptorTest.cxx
 itkBinaryImageToMalcolmSparseLevelSetAdaptorTest.cxx
 itkBinaryImageToShiSparseLevelSetAdaptorTest.cxx
+itkUpdateWhitakerSparseLevelSetTest.cxx
+
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -67,4 +69,10 @@ add_test(NAME itkBinaryImageToShiSparseLevelSetAdaptorTest
       itkBinaryImageToShiSparseLevelSetAdaptorTest
       ${ITK_DATA_ROOT}/Input/circle.png
       output_binary_shi_adaptor.mha
+      )
+add_test(NAME itkUpdateWhitakerSparseLevelSetTest
+      COMMAND ITK-LevelSetsv4TestDriver
+      itkUpdateWhitakerSparseLevelSetTest
+      ${ITK_DATA_ROOT}/Input/circle.png
+      output_update_whitaker_sparse.mha
       )

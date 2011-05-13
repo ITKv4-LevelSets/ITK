@@ -248,7 +248,7 @@ public:
       InputNeighborhoodIteratorType
       inputNeighborhoodIt( radius, m_InputImage,
                            *faceListIterator );
-                           inputNeighborhoodIt.OverrideBoundaryCondition( &im_nbc );
+      inputNeighborhoodIt.OverrideBoundaryCondition( &im_nbc );
 
       inputNeighborhoodIt.GoToBegin();
       SparseIteratorType sIt( m_SparseImage, *faceListIterator );
@@ -294,7 +294,7 @@ public:
         ++inputNeighborhoodIt;
         ++sIt;
         ++iIt;
-      }
+        }
     }
   }
 
