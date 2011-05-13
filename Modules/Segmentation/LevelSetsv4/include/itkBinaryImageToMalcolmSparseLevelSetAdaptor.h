@@ -25,6 +25,7 @@
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkShapedNeighborhoodIterator.h"
+#include "itkNeighborhoodAlgorithm.h"
 #include <list>
 #include "itkObject.h"
 
