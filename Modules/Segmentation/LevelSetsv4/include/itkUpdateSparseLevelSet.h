@@ -359,6 +359,8 @@ public:
     UpdatePlusLevelSet( 1 );
     UpdateMinusLevelSet( -2 );
     UpdatePlusLevelSet( 2 );
+
+    UpdatePointsChangingStatus();
   }
 
   void UpdatePointsChangingStatus()
@@ -366,7 +368,6 @@ public:
     // Move points into the zero levelset
     LevelSetNodeListType* list_0 = m_StatusLists->GetListNode( 0 );
     LevelSetNodePairType p;
-    LevelSetNodeAttributeType q;
 
     //for each point p in Sz
     while( !list_0->empty() )
@@ -379,10 +380,10 @@ public:
       // p.second.m_Value = 0;
 
       // add p to Lz
-      m_SparseLevel->GetListNode( 0 )->push_back( p );
+      m_SparseLevelSet->GetListNode( 0 )->push_back( p );
 
       // remove p from Sz
-      list_0->pop();
+      list_0->pop_front();
       }
 
    UpdatePointsChangingStatus( -1 );
@@ -410,7 +411,16 @@ public:
     // Move points into -1 and +1 level sets
   // and ensure -2, +2 neighbors
   LevelSetNodeListType* list_minus_1 = m_StatusLists->GetListNode( iStatus );
+  LevelSetNodePairType p;
+  LevelSetNodeAttributeType q;
+
   SparseImageIndexType idx;
+
+  typename SparseNeighborhoodIteratorType::RadiusType radius;
+  radius.Fill( 1 );
+
+  ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
+
   while( !list_minus_1->empty() )
     {
     p = list_minus_1->front();
@@ -419,10 +429,10 @@ public:
     p.second.m_Status = iStatus;
 
     // add p to Ln1
-    m_SparseLevel->GetListNode( iStatus )->push_back( p );
+    m_SparseLevelSet->GetListNode( iStatus )->push_back( p );
 
     // remove p from Sn1
-    list_minus_1->pop();
+    list_minus_1->pop_front();
 
     if( m_MaxStatus - vnl_math_abs( iStatus ) > 1 )
       {
