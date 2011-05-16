@@ -361,6 +361,112 @@ public:
     UpdatePlusLevelSet( 2 );
   }
 
+  void UpdatePointsChangingStatus()
+  {
+    // Move points into the zero levelset
+    LevelSetNodeListType* list_0 = m_StatusLists->GetListNode( 0 );
+    LevelSetNodePairType p;
+    LevelSetNodeAttributeType q;
+
+    //for each point p in Sz
+    while( !list_0->empty() )
+      {
+      p = list_0->front();
+
+      //label(p) = 0
+      p.second.m_Status = 0;
+      std::cout << p.second.m_Value << std::endl;
+      // p.second.m_Value = 0;
+
+      // add p to Lz
+      m_SparseLevel->GetListNode( 0 )->push_back( p );
+
+      // remove p from Sz
+      list_0->pop();
+      }
+
+   UpdatePointsChangingStatus( -1 );
+
+   //for each point in Sp1
+    //label(p) = 1, add p to Lp1, remove p from Sp1
+    //for each point q in N(p)
+      //if(phi(q)== 3), phi(q)=phi(p)+1, add q to Sp2
+   UpdatePointsChangingStatus( 1 );
+
+   // Move points into -2 and +2 level sets
+  //for each point p in Sn2
+    //label(p) = -2, add p to Ln2, remove p from Sn2
+   UpdatePointsChangingStatus( -2 );
+
+   //for each point p in Sp2
+    //label(p) = 2, add p to Lp2, remove p from Sp2
+   UpdatePointsChangingStatus( 2 );
+  }
+
+  void UpdatePointsChangingStatus( const LevelSetNodeStatusType& iStatus )
+  {
+  int iSign = ( iStatus > 0 ) ? 1 : -1;
+
+    // Move points into -1 and +1 level sets
+  // and ensure -2, +2 neighbors
+  LevelSetNodeListType* list_minus_1 = m_StatusLists->GetListNode( iStatus );
+  SparseImageIndexType idx;
+  while( !list_minus_1->empty() )
+    {
+    p = list_minus_1->front();
+
+    // label(p) = -1
+    p.second.m_Status = iStatus;
+
+    // add p to Ln1
+    m_SparseLevel->GetListNode( iStatus )->push_back( p );
+
+    // remove p from Sn1
+    list_minus_1->pop();
+
+    if( m_MaxStatus - vnl_math_abs( iStatus ) > 1 )
+      {
+      SparseNeighborhoodIteratorType
+      sparseNeighborhoodIt( radius, m_SparseImage,
+                            m_SparseImage->GetLargestPossibleRegion() );
+      sparseNeighborhoodIt.OverrideBoundaryCondition( &sp_nbc );
+
+      typename SparseNeighborhoodIteratorType::OffsetType sparse_offset;
+      sparse_offset.Fill( 0 );
+
+      for( unsigned int dim = 0; dim < ImageDimension; dim++ )
+        {
+        sparse_offset[dim] = -1;
+        sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+        sparse_offset[dim] = 1;
+        sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+        sparse_offset[dim] = 0;
+        }
+
+      idx = p.first;
+      sparseNeighborhoodIt.SetLocation( idx );
+
+      // for each point q in N(p)
+      for( typename SparseNeighborhoodIteratorType::Iterator
+        i = sparseNeighborhoodIt.Begin(); !i.IsAtEnd(); ++i )
+        {
+        q = i.Get();
+
+        // if(phi(q)==-3)
+        if( q.m_Value == iStatus + 2 * iSign )
+          {
+          // phi(q)=phi(p) + iSign
+          // TODO: Check if p.second.m_Value is same as m_SparseImage->GetPixel( idx )
+          q.m_Value = p.second.m_Value + iSign;
+
+          // add q to Sn2
+          m_StatusLists->GetListNode( iStatus + iSign )->push_back( p );
+          }
+        }
+      }
+    }
+  }
+
   // Set/Get the sparse levet set image
   itkSetObjectMacro( SparseLevelSet, LevelSetType );
   itkGetObjectMacro( SparseLevelSet, LevelSetType );
