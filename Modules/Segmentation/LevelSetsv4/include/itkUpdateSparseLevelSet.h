@@ -186,6 +186,7 @@ public:
         if ( q.m_Status == status_plus_1 )
           {
           flag = false;
+          // what about adding a break?
           }
         if ( ( q.m_Status > M ) && ( q.m_Status >= status_plus_1 ) )
           {
@@ -289,6 +290,7 @@ public:
         if ( q.m_Status == status_minus_1 )
           {
           flag = false;
+          // break; ??
           }
         if ( ( M > q.m_Status ) &&
             ( q.m_Status <= status_minus_1 ) )
