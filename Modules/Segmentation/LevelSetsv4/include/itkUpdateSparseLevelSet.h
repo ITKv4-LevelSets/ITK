@@ -186,6 +186,7 @@ public:
         if ( q.m_Status == status_plus_1 )
           {
           flag = false;
+          // what about adding a break?
           }
         if ( ( q.m_Status > M ) && ( q.m_Status >= status_plus_1 ) )
           {
@@ -195,7 +196,7 @@ public:
 
       if (!flag)
         {
-        if ( status < m_MaxStatus )
+        if ( status_minus_1 > m_MinStatus )
           {
           m_StatusLists->GetListNode( status_minus_1 )->push_back( p );
           }
@@ -219,7 +220,7 @@ public:
           }
         if ( r.m_Value < static_cast<LevelSetOutputType>( o2 ) )
           {
-          if ( status > m_MinStatus )
+          if ( status_minus_1 > m_MinStatus )
             {
             m_StatusLists->GetListNode( status_minus_1 )->push_back(
                   LevelSetNodePairType( idx, r ) );
@@ -289,6 +290,7 @@ public:
         if ( q.m_Status == status_minus_1 )
           {
           flag = false;
+          // break; ??
           }
         if ( ( M > q.m_Status ) &&
             ( q.m_Status <= status_minus_1 ) )
@@ -299,7 +301,7 @@ public:
 
       if (!flag)
         {
-        if ( status < m_MaxStatus )
+        if ( status_plus_1 < m_MaxStatus )
           {
           m_StatusLists->GetListNode( status_plus_1 )->push_back( p );
           }
@@ -323,7 +325,7 @@ public:
           }
         if ( r.m_Value > o2 )
           {
-          if ( status < m_MaxStatus )
+          if ( status_plus_1 < m_MaxStatus )
             {
             m_StatusLists->GetListNode( status_plus_1 )->push_back(
                   LevelSetNodePairType( idx, r ) );
@@ -342,10 +344,15 @@ public:
 
   void Update()
   {
+    if( m_SparseLevelSet.IsNull() )
+      {
+      itkGenericExceptionMacro( <<"m_SparseLevelSet is NULL" );
+      }
+    if( !m_Update )
+      {
+      itkGenericExceptionMacro( <<"m_Update is NULL" );
+      }
     m_SparseImage = m_SparseLevelSet->GetImage();
-
-    m_MinStatus = -3;
-    m_MaxStatus = 3;
 
     UpdateZeroLevelSet();
     UpdateMinusLevelSet( -1 );
@@ -365,10 +372,10 @@ public:
 
 protected:
   UpdateSparseLevelSet() : m_Dt( NumericTraits< LevelSetOutputType >::One ),
-    m_Update( NULL )
-  {
+    m_Update( NULL ), m_MinStatus( -3 ), m_MaxStatus( 3 )
+    {
     m_StatusLists = LevelSetType::New();
-  }
+    }
   ~UpdateSparseLevelSet() {}
 
   LevelSetOutputType m_Dt;

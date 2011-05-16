@@ -70,9 +70,24 @@ add_test(NAME itkBinaryImageToShiSparseLevelSetAdaptorTest
       ${ITK_DATA_ROOT}/Input/circle.png
       output_binary_shi_adaptor.mha
       )
-add_test(NAME itkUpdateWhitakerSparseLevelSetTest
+add_test(NAME itkUpdateWhitakerSparseLevelSetTest0
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest
       ${ITK_DATA_ROOT}/Input/circle.png
-      output_update_whitaker_sparse.mha
+      0
+      output_update_whitaker_sparse0.mha
+      )
+add_test(NAME itkUpdateWhitakerSparseLevelSetTest1
+      COMMAND ITK-LevelSetsv4TestDriver
+      itkUpdateWhitakerSparseLevelSetTest
+      ${ITK_DATA_ROOT}/Input/circle.png
+      1
+      output_update_whitaker_sparse1.mha
+      )
+add_test(NAME itkUpdateWhitakerSparseLevelSetTest2
+      COMMAND ITK-LevelSetsv4TestDriver
+      itkUpdateWhitakerSparseLevelSetTest
+      ${ITK_DATA_ROOT}/Input/circle.png
+      2
+      output_update_whitaker_sparse2.mha
       )

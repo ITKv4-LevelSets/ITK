@@ -77,15 +77,40 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode( 0 )->begin();
   SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode( 0 )->end();
 
+  size_t k = 0;
+
   while( list_it != list_end )
     {
-    update_list->push_back( 1. );
+    if( atoi( argv[2]) == 2 )
+      {
+      update_list->push_back( -1. );
+      }
+    else
+      {
+      if( atoi( argv[2] ) == 0 )
+        {
+        update_list->push_back( 1. );
+        }
+      else
+        {
+        if( ( k % 5 ) == 0 )
+          {
+          update_list->push_back( -1. );
+          }
+        else
+          {
+          update_list->push_back( 1. );
+          }
+        }
+      }
+    ++k;
     ++list_it;
     }
 
   update_levelset->SetUpdate( update_list );
   update_levelset->Update();
 
+  delete update_list;
 
   NodeAttributeType p;
   SparseIteratorType sIt( sparseLevelSet->GetImage(),
@@ -110,7 +135,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
     }
 
   OutputWriterType::Pointer writer = OutputWriterType::New();
-  writer->SetFileName( argv[2] );
+  writer->SetFileName( argv[3] );
   writer->SetInput( output );
 
   try
