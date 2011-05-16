@@ -93,7 +93,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
         }
       else
         {
-        if( ( k % 5 ) == 0 )
+        if( ( k % 5 ) < 3 )
           {
           update_list->push_back( -1. );
           }
