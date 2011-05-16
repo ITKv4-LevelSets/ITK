@@ -81,14 +81,6 @@ public:
   // Input is also WhitakerSparseLevelSetBasePointer
   void UpdateZeroLevelSet()
   {
-    /* Procedure 2 Update Level Set Lists
-    // Update the zero level set
-    1: for each point p in Lz
-    2: add F(p) to phi(p)
-    3: if(phi(p)> .5), remove p from Lz, add p to Sp1
-    4: if(phi(p)<-.5), remove p from Lz, add p to Sn1
-    */
-
     LevelSetNodeListType new_list_0;
     LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
     LevelSetNodePairType p;
@@ -98,24 +90,29 @@ public:
     m_StatusLists->GetListNode( 1 )->clear();
     m_StatusLists->GetListNode( -1 )->clear();
 
+    // for each point in Lz
     while( !m_Update->empty() )
       {
       p = list_0->front();
-      update = m_Update->front();
 
+      // update the level set
+      update = m_Update->front();
       p.second.m_Value += m_Dt * update;
       m_SparseImage->SetPixel( p.first, p.second );
 
+      // if(phi(p)> .5), remove p from Lz, add p to Sp1
       if( q.m_Value > static_cast<LevelSetOutputType>( 0.5 ) )
         {
         m_StatusLists->GetListNode( 1 )->push_back( p );
         }
       else
         {
+        // if(phi(p)<-.5), remove p from Lz, add p to Sn1
         if( q.m_Value < static_cast<LevelSetOutputType>( -0.5 ) )
           {
           m_StatusLists->GetListNode( -1 )->push_back( p );
           }
+        // else keep it in Lz
         else
           {
           new_list_0.push_back( p );
@@ -203,7 +200,7 @@ public:
         else
           {
           r.m_Status = m_MinStatus;
-          r.m_Value = -3.0;
+          r.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
           m_SparseImage->SetPixel( idx, r );
           }
         }
@@ -228,7 +225,7 @@ public:
           else
             {
             r.m_Status = m_MinStatus;
-            r.m_Value = -3.0;
+            r.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
             m_SparseImage->SetPixel( idx, r );
             }
           }
@@ -308,7 +305,7 @@ public:
         else
           {
           r.m_Status = m_MaxStatus;
-          r.m_Value = 3.0;
+          r.m_Value = static_cast< LevelSetOutputType >( m_MaxStatus );
           m_SparseImage->SetPixel( idx, r );
           }
         }
@@ -333,7 +330,7 @@ public:
           else
             {
             r.m_Status = m_MaxStatus;
-            r.m_Value = 3.0;
+            r.m_Value = static_cast< LevelSetOutputType >( m_MaxStatus );
             m_SparseImage->SetPixel( idx, r );
             }
           }
