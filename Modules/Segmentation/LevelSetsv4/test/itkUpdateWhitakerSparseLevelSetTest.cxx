@@ -47,17 +47,51 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
 
-  InputReaderType::Pointer reader = InputReaderType::New();
-  reader->SetFileName( argv[1] );
-  try
+  InputImageType::Pointer input = InputImageType::New();
+  InputImageType::RegionType region;
+
+  InputImageType::SizeType size;
+  size.Fill( 25 );
+
+  InputImageType::IndexType start;
+  start.Fill( 0 );
+
+  region.SetSize( size );
+  region.SetIndex( start );
+  input->SetRegions( region );
+  input->Allocate();
+  input->FillBuffer( 0 );
+
+  size[0] = 10;
+  region.SetSize( size );
+
+  typedef itk::ImageRegionIterator< InputImageType > InputIteratorType;
+  InputIteratorType i_it( input, region );
+  i_it.GoToBegin();
+
+  while( !i_it.IsAtEnd() )
     {
-    reader->Update();
+    i_it.Set( 255 );
+    ++i_it;
     }
-  catch ( itk::ExceptionObject& err )
-    {
-    std::cout << err << std::endl;
-    }
-  InputImageType::Pointer input = reader->GetOutput();
+
+//  itk::ImageFileWriter< InputImageType >::Pointer input_writer =
+//      itk::ImageFileWriter< InputImageType >::New();
+//  input_writer->SetInput( input );
+//  input_writer->SetFileName( "input.mha" );
+//  input_writer->Update();
+
+//  InputReaderType::Pointer reader = InputReaderType::New();
+//  reader->SetFileName( argv[1] );
+//  try
+//    {
+//    reader->Update();
+//    }
+//  catch ( itk::ExceptionObject& err )
+//    {
+//    std::cout << err << std::endl;
+//    }
+//  InputImageType::Pointer input = reader->GetOutput();
   std::cout << "Input image read" << std::endl;
 
   BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
