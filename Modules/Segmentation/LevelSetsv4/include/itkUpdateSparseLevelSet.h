@@ -166,6 +166,8 @@ public:
 
     // for each point p in Ln1 -- status = -1
     LevelSetNodeListType* list = m_SparseLevelSet->GetListNode( status );
+    LevelSetNodeListType temp_list;
+
     while( !list->empty() )
       {
       p = list->front();
@@ -175,7 +177,9 @@ public:
       LevelSetNodeStatusType M =
           NumericTraits<LevelSetNodeStatusType>::NonpositiveMin();
 
-      bool flag = true;
+      // flag = is there at least one neighbor q s.t. ( q.m_Status == status + 1 )
+      bool IsNeighborEqualToStatusPlus1 = false;
+
       for( typename SparseNeighborhoodIteratorType::Iterator
               i = sparseNeighborhoodIt.Begin();
           !i.IsAtEnd(); ++i )
@@ -183,9 +187,7 @@ public:
         q = i.Get();
         if ( q.m_Status == status_plus_1 )
           {
-          flag = false;
-          // ARNAUD: what about adding a break?
-          // KISHORE: No break since we are computing M below for all the iterations
+          IsNeighborEqualToStatusPlus1 = true;
           }
         if ( ( q.m_Status > M ) && ( q.m_Status >= status_plus_1 ) )
           {
@@ -193,8 +195,10 @@ public:
           }
         }
 
-      if ( flag )
+      if ( !IsNeighborEqualToStatusPlus1 )
         {
+        // let's make sure the layer at status_minus_1 is in the active layers
+        // before pushing back the current node
         if ( status_minus_1 > m_MinStatus )
           {
           m_StatusLists->GetListNode( status_minus_1 )->push_back( p );
@@ -212,27 +216,40 @@ public:
         r.m_Value = static_cast< LevelSetOutputType >( M-1 );
         m_SparseImage->SetPixel( idx, r );
 
-        if ( r.m_Value >= static_cast<LevelSetOutputType>( o1 ) )
+        if ( r.m_Value >= o1 )
           {
           m_StatusLists->GetListNode( status_plus_1 )->push_back(
                 LevelSetNodePairType( idx, r ) );
           }
-        if ( r.m_Value < static_cast<LevelSetOutputType>( o2 ) )
+        else
           {
-          if ( status_minus_1 > m_MinStatus )
+          if ( r.m_Value < o2 )
             {
-            m_StatusLists->GetListNode( status_minus_1 )->push_back(
+            if ( status_minus_1 > m_MinStatus )
+              {
+              m_StatusLists->GetListNode( status_minus_1 )->push_back(
                   LevelSetNodePairType( idx, r ) );
+              }
+            else
+              {
+              r.m_Status = m_MinStatus;
+              r.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
+              m_SparseImage->SetPixel( idx, r );
+              }
             }
           else
             {
-            r.m_Status = m_MinStatus;
-            r.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
-            m_SparseImage->SetPixel( idx, r );
+            temp_list.push_back( p );
             }
           }
         }
-      list->pop_front();
+       list->pop_front();
+      }
+
+    while( temp_list.empty() )
+      {
+      list->push_back( temp_list.front() );
+      temp_list.pop_front();
       }
     }
 
@@ -270,17 +287,18 @@ public:
     LevelSetNodeStatusType status_minus_1 = status - 1;
     LevelSetNodeStatusType status_plus_1 = status + 1;
 
-    LevelSetNodeListType* list_plus = m_SparseLevelSet->GetListNode( status );
+    LevelSetNodeListType* list = m_SparseLevelSet->GetListNode( status );
+    LevelSetNodeListType temp_list;
 
-    while( !list_plus->empty() )
+    while( !list->empty() )
       {
-      p = list_plus->front();
+      p = list->front();
       idx = p.first;
       sparseNeighborhoodIt.SetLocation( idx );
 
       LevelSetNodeStatusType M = NumericTraits<LevelSetNodeStatusType>::max();
 
-      bool flag = true;
+      bool IsNeighborEqualToStatusMinus1 = false;
       for( typename SparseNeighborhoodIteratorType::Iterator
             i = sparseNeighborhoodIt.Begin();
           !i.IsAtEnd(); ++i )
@@ -288,9 +306,7 @@ public:
         q = i.Get();
         if ( q.m_Status == status_minus_1 )
           {
-          flag = false;
-        // ARNAUD: what about adding a break?
-        // KISHORE: No break since we are computing M below for all the iterations
+          IsNeighborEqualToStatusMinus1 = true;
           }
         if ( ( M > q.m_Status ) &&
             ( q.m_Status <= status_minus_1 ) )
@@ -299,8 +315,10 @@ public:
           }
         }
 
-      if ( flag )
+      if ( !IsNeighborEqualToStatusMinus1 )
         {
+        // let's make sure the layer at status_plus_1 is in the active layers
+        // before pushing back the current node
         if ( status_plus_1 < m_MaxStatus )
           {
           m_StatusLists->GetListNode( status_plus_1 )->push_back( p );
@@ -323,22 +341,35 @@ public:
           m_StatusLists->GetListNode( status_minus_1 )->push_back(
                 LevelSetNodePairType( idx, r ) );
           }
-        if ( r.m_Value > o2 )
+        else
           {
-          if ( status_plus_1 < m_MaxStatus )
+          if ( r.m_Value > o2 )
             {
-            m_StatusLists->GetListNode( status_plus_1 )->push_back(
-                  LevelSetNodePairType( idx, r ) );
+            if ( status_plus_1 < m_MaxStatus )
+              {
+              m_StatusLists->GetListNode( status_plus_1 )->push_back(
+                    LevelSetNodePairType( idx, r ) );
+              }
+            else
+              {
+              r.m_Status = m_MaxStatus;
+              r.m_Value = static_cast< LevelSetOutputType >( m_MaxStatus );
+              m_SparseImage->SetPixel( idx, r );
+              }
             }
           else
             {
-            r.m_Status = m_MaxStatus;
-            r.m_Value = static_cast< LevelSetOutputType >( m_MaxStatus );
-            m_SparseImage->SetPixel( idx, r );
+            temp_list.push_back( p );
             }
           }
         }
-      list_plus->pop_front();
+      list->pop_front();
+      }
+
+    while( temp_list.empty() )
+      {
+      list->push_back( temp_list.front() );
+      temp_list.pop_front();
       }
   }
 
