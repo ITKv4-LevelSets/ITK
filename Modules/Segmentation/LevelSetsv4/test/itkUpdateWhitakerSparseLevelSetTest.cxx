@@ -31,21 +31,26 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef unsigned char InputPixelType;
   typedef double        OutputPixelType;
 
-  typedef itk::Image< InputPixelType, Dimension >                  InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension >                 OutputImageType;
+  typedef itk::Image< InputPixelType, Dimension >   InputImageType;
+  typedef itk::Image< OutputPixelType, Dimension >  OutputImageType;
 
-  typedef itk::ImageFileReader< InputImageType >                   InputReaderType;
-  typedef itk::ImageFileWriter< OutputImageType >                  OutputWriterType;
+  typedef itk::ImageFileReader< InputImageType >  InputReaderType;
+  typedef itk::ImageFileWriter< OutputImageType > OutputWriterType;
+
   typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType,
       OutputPixelType > BinaryToSparseAdaptorType;
 
   typedef BinaryToSparseAdaptorType::LevelSetType                  SparseLevelSetType;
   typedef SparseLevelSetType::SparseImageType                      SparseImageType;
   typedef SparseLevelSetType::NodeAttributeType                    NodeAttributeType;
+  typedef BinaryToSparseAdaptorType::LevelSetNodeStatusType        StatusPixelType;
 
+  typedef itk::Image< StatusPixelType, Dimension >  StatusImageType;
+  typedef itk::ImageFileWriter< StatusImageType > StatusWriterType;
 
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
+  typedef itk::ImageRegionIterator< StatusImageType > StatusIteratorType;
 
   InputImageType::Pointer input = InputImageType::New();
   InputImageType::RegionType region;
@@ -147,9 +152,9 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   delete update_list;
 
   NodeAttributeType p;
-  SparseIteratorType sIt( sparseLevelSet->GetImage(),
+  SparseIteratorType ls_It( sparseLevelSet->GetImage(),
                          sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
-  sIt.GoToBegin();
+  ls_It.GoToBegin();
 
   OutputImageType::Pointer output = OutputImageType::New();
   output->SetRegions( sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
@@ -157,13 +162,25 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   output->Allocate();
   output->FillBuffer( 0.0 );
 
+  StatusImageType::Pointer status = StatusImageType::New();
+  status->SetRegions( sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
+  status->CopyInformation( sparseLevelSet->GetImage() );
+  status->Allocate();
+  status->FillBuffer( 0 );
+
   OutputIteratorType oIt( output,
                           output->GetLargestPossibleRegion() );
   oIt.GoToBegin();
+
+  StatusIteratorType sIt( status, status->GetLargestPossibleRegion() );
+  sIt.GoToBegin();
+
   while( !oIt.IsAtEnd() )
     {
-    p = sIt.Get();
+    p = ls_It.Get();
     oIt.Set( p.m_Value );
+    sIt.Set( p.m_Status );
+    ++ls_It;
     ++oIt;
     ++sIt;
     }
@@ -175,6 +192,19 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   try
     {
     writer->Update();
+    }
+  catch ( itk::ExceptionObject& err )
+    {
+    std::cout << err << std::endl;
+    }
+
+  StatusWriterType::Pointer status_writer = StatusWriterType::New();
+  status_writer->SetFileName( argv[4] );
+  status_writer->SetInput( status );
+
+  try
+    {
+    status_writer->Update();
     }
   catch ( itk::ExceptionObject& err )
     {

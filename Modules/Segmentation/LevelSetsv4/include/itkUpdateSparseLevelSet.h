@@ -156,8 +156,9 @@ public:
 
   void UpdateMinusLevelSet( const LevelSetNodeStatusType& status )
   {
-    std::cout <<__FILE__ <<" " <<__LINE__ <<std::endl;
-    DebugPrint();
+//    std::cout <<__FILE__ <<" " <<__LINE__ <<std::endl;
+    std::cout << "UpdateMinusLevelSet" <<std::endl;
+    //DebugPrint();
 
     LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) + 0.5;
     LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) - 0.5;
@@ -222,9 +223,8 @@ public:
           }
         }
 
-      std::cout << "***" <<std::endl;
-      std::cout << "M=" << static_cast< int >( M )<< std::endl;
-      std::cout <<"IsThereNeighborEqualToStatusPlus1=" <<static_cast< int >( IsThereNeighborEqualToStatusPlus1 ) <<std::endl;
+      std::cout << "*** " << idx <<std::endl;
+
       if ( !IsThereNeighborEqualToStatusPlus1 )
         {
         // let's make sure the layer at status_minus_1 is in the active layers
@@ -250,7 +250,10 @@ public:
         std::cout << p.second.m_Value << std::endl;
         if ( p.second.m_Value >= o1 )
           {
-          std::cout << "entering" <<std::endl;
+          std::cout << "M=" << static_cast< int >( M )<< std::endl;
+          std::cout <<"IsThereNeighborEqualToStatusPlus1=" <<static_cast< int >( IsThereNeighborEqualToStatusPlus1 ) <<std::endl;
+          std::cout << "entering " << idx <<std::endl;
+
 //          r.m_Status = status_plus_1;
           m_SparseImage->SetPixel( idx, p.second );
           m_StatusLists->GetListNode( status_plus_1 )->push_back(
@@ -269,6 +272,7 @@ public:
               }
             else
               {
+              p.second.m_Status = m_MinStatus;
               p.second.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
               m_SparseImage->SetPixel( idx, p.second );
               }
@@ -295,8 +299,8 @@ public:
 
   void UpdatePlusLevelSet( const LevelSetNodeStatusType& status )
   {
-    std::cout <<__FILE__ <<" " <<__LINE__ <<std::endl;
-    DebugPrint();
+//    std::cout <<__FILE__ <<" " <<__LINE__ <<std::endl;
+//    DebugPrint();
 
     LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) - 0.5;
     LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) + 0.5;
@@ -350,7 +354,7 @@ public:
           {
           IsThereNeighborEqualToStatusMinus1 = true;
           }
-        if ( ( M > q.m_Value ) &&
+        if ( ( q.m_Value < M ) &&
             ( q.m_Status <= status_minus_1 ) )
           {
           M = q.m_Value;
@@ -365,7 +369,7 @@ public:
           {
 //          p.second.m_Status = status_plus_1;
           m_StatusLists->GetListNode( status_plus_1 )->push_back( p );
-          m_SparseImage->SetPixel( p.first, p.second );
+//          m_SparseImage->SetPixel( p.first, p.second );
           }
         else
           {
@@ -380,6 +384,10 @@ public:
 
         if ( p.second.m_Value <= o1 )
           {
+          std::cout << "M=" << static_cast< int >( M )<< std::endl;
+          std::cout <<"IsThereNeighborEqualToStatusMinus1=" <<static_cast< int >( IsThereNeighborEqualToStatusMinus1 ) <<std::endl;
+          std::cout << "entering " << idx <<std::endl;
+
 //          r.m_Status = status_minus_1;
           m_SparseImage->SetPixel( idx, p.second );
           m_StatusLists->GetListNode( status_minus_1 )->push_back(
@@ -417,8 +425,8 @@ public:
       list->push_back( temp_list.front() );
       temp_list.pop_front();
       }
-    std::cout <<__FILE__ <<" " <<__LINE__ <<std::endl;
-    DebugPrint();
+//    std::cout <<__FILE__ <<" " <<__LINE__ <<std::endl;
+//    DebugPrint();
   }
 
   void Update()
@@ -439,13 +447,13 @@ public:
     UpdateMinusLevelSet( -2 );
     UpdatePlusLevelSet( 2 );
 
-    std::cout << ":::::::::::" <<std::endl;
-    DebugPrint();
+//    std::cout << ":::::::::::" <<std::endl;
+//    DebugPrint();
 
     UpdatePointsChangingStatus();
 
-    std::cout <<"$$$$$$$$$$$$$$$" << std::endl;
-    DebugPrint();
+//    std::cout <<"$$$$$$$$$$$$$$$" << std::endl;
+//    DebugPrint();
   }
 
   void UpdatePointsChangingStatus()
@@ -466,6 +474,7 @@ public:
 
       // add p to Lz
       m_SparseLevelSet->GetListNode( 0 )->push_back( p );
+      m_SparseImage->SetPixel( p.first, p.second );
 
       // remove p from Sz
       list_0->pop_front();
@@ -509,13 +518,14 @@ public:
     {
     p = list_minus_1->front();
 
-    // label(p) = -1
+    // label(p) = iStatus
     p.second.m_Status = iStatus;
 
-    // add p to Ln1
+    // add p to L_{iStatus}
     m_SparseLevelSet->GetListNode( iStatus )->push_back( p );
+    m_SparseImage->SetPixel( p.first, p.second );
 
-    // remove p from Sn1
+    // remove p from S_{iStatus}
     list_minus_1->pop_front();
 
     if( m_MaxStatus - static_cast< char >( vnl_math_abs( iStatus ) ) > 1 )
@@ -548,23 +558,27 @@ public:
         q.second = i.Get();
 
         // if(phi(q)==-3)
-        std::cout << q.second.m_Value <<std::endl;
+//        std::cout << q.second.m_Value <<std::endl;
 
         if( q.second.m_Value == static_cast< LevelSetOutputType >( iStatus + 2 * iSign ) )
           {
+          // label( q ) = label( p ) + iSign
+          q.second.m_Status = iStatus + iSign;
+
           // phi(q)=phi(p) + iSign
-          // TODO: Check if p.second.m_Value is same as m_SparseImage->GetPixel( idx )
           q.second.m_Value = p.second.m_Value + iSign;
 
-          // add q to Sn2
-          m_SparseImage->SetPixel( q.first, q.second );
+
+//          m_SparseImage->SetPixel( q.first, q.second );
+
+          // add q to S_{label+iSign}
           m_StatusLists->GetListNode( iStatus + iSign )->push_back( q );
           }
         }
       }
     }
-  std::cout <<"***" <<std::endl;
-  DebugPrint();
+//  std::cout <<"***" <<std::endl;
+//  DebugPrint();
   }
 
   // Set/Get the sparse levet set image
