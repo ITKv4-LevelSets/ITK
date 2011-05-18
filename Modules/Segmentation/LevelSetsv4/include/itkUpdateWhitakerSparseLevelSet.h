@@ -16,8 +16,8 @@
  *
  *=========================================================================*/
 
-#ifndef __itkUpdateSparseLevelSet_h
-#define __itkUpdateSparseLevelSet_h
+#ifndef __itkUpdateWhitakerSparseLevelSet_h
+#define __itkUpdateWhitakerSparseLevelSet_h
 
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
@@ -32,19 +32,19 @@
 namespace itk
 {
 template< unsigned int VDimension, typename TLevelSetValueType >
-class UpdateSparseLevelSet : public Object
+class UpdateWhitakerSparseLevelSet : public Object
 {
 public:
-  typedef UpdateSparseLevelSet       Self;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
-  typedef Object                     Superclass;
+  typedef UpdateWhitakerSparseLevelSet  Self;
+  typedef SmartPointer< Self >          Pointer;
+  typedef SmartPointer< const Self >    ConstPointer;
+  typedef Object                        Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro( Self );
 
   /** Run-time type information */
-  itkTypeMacro( UpdateSparseLevelSet, Object );
+  itkTypeMacro( UpdateWhitakerSparseLevelSet, Object );
 
   itkStaticConstMacro( ImageDimension, unsigned int, VDimension );
 
@@ -594,12 +594,12 @@ public:
     }
 
 protected:
-  UpdateSparseLevelSet() : m_Dt( NumericTraits< LevelSetOutputType >::One ),
+  UpdateWhitakerSparseLevelSet() : m_Dt( NumericTraits< LevelSetOutputType >::One ),
     m_Update( NULL ), m_MinStatus( -3 ), m_MaxStatus( 3 )
     {
     m_StatusLists = LevelSetType::New();
     }
-  ~UpdateSparseLevelSet() {}
+  ~UpdateWhitakerSparseLevelSet() {}
 
   LevelSetOutputType m_Dt;
 
@@ -612,8 +612,8 @@ protected:
   LevelSetNodeStatusType m_MaxStatus;
 
 private:
-  UpdateSparseLevelSet( const Self& );
+  UpdateWhitakerSparseLevelSet( const Self& );
   void operator = ( const Self& );
 };
 }
-#endif // __itkUpdateSparseLevelSet_h
+#endif // __itkUpdateWhitakerSparseLevelSet_h

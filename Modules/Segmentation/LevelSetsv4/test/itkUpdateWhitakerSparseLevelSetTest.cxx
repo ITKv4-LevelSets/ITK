@@ -21,7 +21,7 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
-#include "itkUpdateSparseLevelSet.h"
+#include "itkUpdateWhitakerSparseLevelSet.h"
 #include "itkImageRegionIterator.h"
 
 int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
@@ -89,7 +89,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
 
   SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
 
-  typedef itk::UpdateSparseLevelSet< Dimension, OutputPixelType > UpdateLevelSetType;
+  typedef itk::UpdateWhitakerSparseLevelSet< Dimension, OutputPixelType > UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
   update_levelset->SetSparseLevelSet( sparseLevelSet );
 
