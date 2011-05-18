@@ -80,24 +80,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
     ++i_it;
     }
 
-//  itk::ImageFileWriter< InputImageType >::Pointer input_writer =
-//      itk::ImageFileWriter< InputImageType >::New();
-//  input_writer->SetInput( input );
-//  input_writer->SetFileName( "input.mha" );
-//  input_writer->Update();
-
-//  InputReaderType::Pointer reader = InputReaderType::New();
-//  reader->SetFileName( argv[1] );
-//  try
-//    {
-//    reader->Update();
-//    }
-//  catch ( itk::ExceptionObject& err )
-//    {
-//    std::cout << err << std::endl;
-//    }
-//  InputImageType::Pointer input = reader->GetOutput();
-  std::cout << "Input image read" << std::endl;
+  std::cout << "Input image computed" << std::endl;
 
   BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
   adaptor->SetInputImage( input );
@@ -120,13 +103,13 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
 
   while( list_it != list_end )
     {
-    if( atoi( argv[2]) == 2 )
+    if( atoi( argv[1]) == 2 )
       {
       update_list->push_back( -1. );
       }
     else
       {
-      if( atoi( argv[2] ) == 0 )
+      if( atoi( argv[1] ) == 0 )
         {
         update_list->push_back( 1. );
         }
@@ -186,7 +169,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
     }
 
   OutputWriterType::Pointer writer = OutputWriterType::New();
-  writer->SetFileName( argv[3] );
+  writer->SetFileName( argv[2] );
   writer->SetInput( output );
 
   try
@@ -199,7 +182,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
     }
 
   StatusWriterType::Pointer status_writer = StatusWriterType::New();
-  status_writer->SetFileName( argv[4] );
+  status_writer->SetFileName( argv[3] );
   status_writer->SetInput( status );
 
   try
