@@ -196,9 +196,9 @@ public:
         if ( ( iIt.Get() != NumericTraits< InputImagePixelType >::Zero ) && ( flag ) )
           {
           nodePair.first = inputNeighborhoodIt.GetIndex();
-          nodePair.second = p_plus_1;
-          m_SparseLevelSet->GetListNode( 1 )->push_back( nodePair );
-          sIt.Set( p_plus_1 );
+          nodePair.second = p_minus_1;
+          m_SparseLevelSet->GetListNode( -1 )->push_back( nodePair );
+          sIt.Set( p_minus_1 );
           }
 
         flag = false;
@@ -217,9 +217,9 @@ public:
         if ( ( iIt.Get() == NumericTraits< InputImagePixelType >::Zero ) && ( flag ) )
           {
           nodePair.first = inputNeighborhoodIt.GetIndex();
-          nodePair.second = p_minus_1;
-          m_SparseLevelSet->GetListNode( -1 )->push_back( nodePair );
-          sIt.Set( p_minus_1 );
+          nodePair.second = p_plus_1;
+          m_SparseLevelSet->GetListNode( 1 )->push_back( nodePair );
+          sIt.Set( p_plus_1 );
           }
         ++inputNeighborhoodIt;
         ++sIt;
