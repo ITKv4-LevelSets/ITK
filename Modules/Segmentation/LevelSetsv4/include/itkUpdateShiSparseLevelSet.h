@@ -51,6 +51,7 @@ public:
   typedef ShiSparseLevelSetBase< ImageDimension >      LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
+  typedef typename LevelSetType::OutputType            LevelSetOutputType;
 
   typedef std::list< LevelSetOutputType >              UpdateListType;
 
@@ -78,7 +79,7 @@ public:
   // Input is also ShiSparseLevelSetBasePointer
   void UpdateL_out()
   {
-    LevelSetNodeListType new_list_0;
+    LevelSetNodeListType new_list_out;
     LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
     LevelSetNodePairType p;
     LevelSetOutputType update;
@@ -130,6 +131,8 @@ public:
 
           sparseNeighborhoodIt.SetLocation( p.first );
 
+          LevelSetNodeAttributeType q;
+
           for( typename SparseNeighborhoodIteratorType::Iterator
               i = sparseNeighborhoodIt.Begin();
               !i.IsAtEnd(); ++i )
@@ -164,7 +167,7 @@ public:
 
   void UpdateL_in()
   {
-    LevelSetNodeListType new_list_0;
+    LevelSetNodeListType new_list_in;
     LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
     LevelSetNodePairType p;
     LevelSetOutputType update;
@@ -243,14 +246,14 @@ public:
 
     while( !new_list_in.empty() )
       {
-      list_out->push_back( new_list_in.front() );
+      list_in->push_back( new_list_in.front() );
       new_list_in.pop_front();
       }
     }
 
   bool Con( const SparseImageIndexType& iIdx,
             const LevelSetNodeStatusType& iCurrentStatus,
-            const LevelSetOutputType& iCurrentUpdate )
+            const LevelSetOutputType& iCurrentUpdate ) const
   {
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -277,7 +280,9 @@ public:
 
     sparseNeighborhoodIt.SetLocation( iIdx );
 
-    opposite_status = ( CurrentStatus == 1 ) ? -1 : 1;
+    LevelSetNodeStatusType opposite_status = ( iCurrentStatus == 1 ) ? -1 : 1;
+
+    LevelSetNodeAttributeType q;
 
     for( typename SparseNeighborhoodIteratorType::Iterator
               i = sparseNeighborhoodIt.Begin();
@@ -286,7 +291,7 @@ public:
       q = i.Get();
       if ( q.m_Status == opposite_status )
         {
-        if ( q.m_Value * CurrentUpdate < 0. )
+        if ( q.m_Value * iCurrentUpdate < 0. )
           {
           return true;
           }
@@ -308,13 +313,8 @@ public:
       }
     m_SparseImage = m_SparseLevelSet->GetImage();
 
-    UpdateZeroLevelSet();
-    UpdateMinusLevelSet( -1 );
-    UpdatePlusLevelSet( 1 );
-    UpdateMinusLevelSet( -2 );
-    UpdatePlusLevelSet( 2 );
-
-    UpdatePointsChangingStatus();
+    UpdateL_out();
+    UpdateL_in();
   }
 
   // Set/Get the sparse levet set image
