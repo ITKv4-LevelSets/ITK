@@ -20,7 +20,7 @@
 
 int itkShiSparseLevelSetBaseTest( int , char* [] )
 {
-  const unsigned int Dimension = 3;
+  const unsigned int Dimension = 2;
   typedef itk::ShiSparseLevelSetBase< Dimension > SparseLevelSetType;
 
   SparseLevelSetType::Pointer phi = SparseLevelSetType::New();

@@ -21,7 +21,7 @@
 int itkWhitakerSparseLevelSetBaseTest( int , char* [] )
 {
   typedef double OutputType;
-  const unsigned int Dimension = 3;
+  const unsigned int Dimension = 2;
   typedef itk::WhitakerSparseLevelSetBase< OutputType, Dimension >
       SparseLevelSetType;
 

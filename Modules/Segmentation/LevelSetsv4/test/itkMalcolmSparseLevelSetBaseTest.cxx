@@ -20,7 +20,7 @@
 
 int itkMalcolmSparseLevelSetBaseTest( int , char* [] )
 {
-  const unsigned int Dimension = 3;
+  const unsigned int Dimension = 2;
   typedef itk::MalcolmSparseLevelSetBase< Dimension > SparseLevelSetType;
 
   SparseLevelSetType::Pointer phi = SparseLevelSetType::New();
