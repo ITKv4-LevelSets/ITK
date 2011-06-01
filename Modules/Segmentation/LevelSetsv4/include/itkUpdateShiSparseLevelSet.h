@@ -83,7 +83,6 @@ public:
     LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
     LevelSetNodePairType p;
     LevelSetOutputType update;
-    LevelSetNodeAttributeType q;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
     typename SparseNeighborhoodIteratorType::RadiusType radius;
@@ -119,7 +118,7 @@ public:
 
       if( update > NumericTraits< LevelSetOutputType >::Zero )
         {
-        if( Con( p.first, p.second.status, update ) )
+        if( Con( p.first, p.second.m_Status, update ) )
           {
           // CheckIn
           p.second.m_Status = -1;
@@ -137,9 +136,12 @@ public:
             q = i.Get();
             if ( q.m_Status == 3 )
               {
-              q.second.m_Status = 1;
-              q.second.m_Value = 1;
-              m_StatusLists->GetListNode( 1 )->push_back( q );
+              LevelSetNodePairType temp;
+              temp.first =
+                sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
+              temp.second.m_Status = 1;
+              temp.second.m_Value = 1;
+              m_StatusLists->GetListNode( 1 )->push_back( temp);
               // compute the update here of q;
               }
             }
@@ -161,14 +163,14 @@ public:
       new_list_out.pop_front();
       }
 
-    while( !m_StatusLists->GetListNode( -1 )->Empty() )
+    while( !m_StatusLists->GetListNode( -1 )->empty() )
       {
       m_SparseLevelSet->GetListNode( -1 )->push_back(
         m_StatusLists->GetListNode( -1 )->front() );
       m_StatusLists->GetListNode( -1 )->pop_front();
       }
 
-    while( !m_StatusLists->GetListNode( 1 )->Empty() )
+    while( !m_StatusLists->GetListNode( 1 )->empty() )
       {
       m_SparseLevelSet->GetListNode( 1 )->push_back(
         m_StatusLists->GetListNode( 1 )->front() );
@@ -221,7 +223,7 @@ public:
 
       if( update < NumericTraits< LevelSetOutputType >::Zero )
         {
-        if( Con( p.first, p.second.status, update ) )
+        if( Con( p.first, p.second.m_Status, update ) )
           {
           // CheckOut
           p.second.m_Status = 1;
@@ -237,9 +239,13 @@ public:
             q = i.Get();
             if ( q.m_Status == -3 )
               {
-              q.second.m_Status = -1;
-              q.second.m_Value = -1;
-              m_StatusLists->GetListNode( -1 )->push_back( q );
+              LevelSetNodePairType temp;
+              temp.first =
+                sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
+              temp.second.m_Status = 1;
+              temp.second.m_Value = 1;
+              m_StatusLists->GetListNode( 1 )->push_back( temp);
+
               // compute the update here of q;
               }
             }
@@ -261,14 +267,14 @@ public:
       new_list_in.pop_front();
       }
 
-    while( !m_StatusLists->GetListNode( -1 )->Empty() )
+    while( !m_StatusLists->GetListNode( -1 )->empty() )
       {
       m_SparseLevelSet->GetListNode( -1 )->push_back(
         m_StatusLists->GetListNode( -1 )->front() );
       m_StatusLists->GetListNode( -1 )->pop_front();
       }
 
-    while( !m_StatusLists->GetListNode( 1 )->Empty() )
+    while( !m_StatusLists->GetListNode( 1 )->empty() )
       {
       m_SparseLevelSet->GetListNode( 1 )->push_back(
         m_StatusLists->GetListNode( 1 )->front() );
@@ -391,8 +397,8 @@ public:
         }
       if( to_be_deleted )
         {
-        p.m_Status = -3;
-        p.m_Value = -3;
+        p.second.m_Status = -3;
+        p.second.m_Value = -3;
         }
       else
         {
@@ -400,7 +406,7 @@ public:
         }
       }
 
-    while( m_StatusLists->GetListNode( -1 )->Empty() )
+    while( m_StatusLists->GetListNode( -1 )->empty() )
       {
       m_SparseLevelSet->GetListNode( -1 )->push_back(
         m_StatusLists->GetListNode( -1 )->front() );
@@ -432,8 +438,8 @@ public:
         }
       if( to_be_deleted )
         {
-        p.m_Status = 3;
-        p.m_Value = 3;
+        p.second.m_Status = 3;
+        p.second.m_Value = 3;
         }
       else
         {
@@ -441,7 +447,7 @@ public:
         }
       }
 
-    while( m_StatusLists->GetListNode( 1 )->Empty() )
+    while( m_StatusLists->GetListNode( 1 )->empty() )
       {
       m_SparseLevelSet->GetListNode( 1 )->push_back(
         m_StatusLists->GetListNode( 1 )->front() );
