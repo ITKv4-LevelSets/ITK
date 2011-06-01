@@ -85,9 +85,9 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
   BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
   adaptor->SetInputImage( input );
   adaptor->Initialize();
-  std::cout << "Finished converting to sparse format" << std::endl;
-
   SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
+
+  std::cout << "Finished converting to sparse format" << std::endl;
 
   typedef itk::UpdateShiSparseLevelSet< Dimension > UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
@@ -97,8 +97,8 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
   update_list[-1] = new UpdateLevelSetType::UpdateListType;
   update_list[1] = new UpdateLevelSetType::UpdateListType;
 
-  SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode( 0 )->begin();
-  SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode( 0 )->end();
+  SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode( -1 )->begin();
+  SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode( -1 )->end();
 
   size_t k = 0;
 
@@ -107,26 +107,22 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
     if( atoi( argv[1] ) == 2 )
       {
       update_list[-1]->push_back( -1. );
-      update_list[1]->push_back( -1. );
       }
     else
       {
       if( atoi( argv[1] ) == 0 )
         {
         update_list[-1]->push_back( 1. );
-        update_list[1]->push_back( 1. );
         }
       else
         {
         if( ( k % 20 ) < 10 )
           {
           update_list[-1]->push_back( -1. );
-          update_list[1]->push_back( -1. );
           }
         else
           {
           update_list[-1]->push_back( 1. );
-          update_list[1]->push_back( 1. );
           }
         }
       }
@@ -134,11 +130,43 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
     ++list_it;
     }
 
+
+  list_it = sparseLevelSet->GetListNode( 1 )->begin();
+  list_end = sparseLevelSet->GetListNode( 1 )->end();
+
+  k = 0;
+  while( list_it != list_end )
+    {
+    if( atoi( argv[1] ) == 2 )
+      {
+      update_list[1]->push_back( -1. );
+      }
+    else
+      {
+      if( atoi( argv[1] ) == 0 )
+        {
+        update_list[1]->push_back( 1. );
+        }
+      else
+        {
+        if( ( k % 20 ) < 10 )
+          {
+          update_list[1]->push_back( -1. );
+          }
+        else
+          {
+          update_list[1]->push_back( 1. );
+          }
+        }
+      }
+    ++k;
+    ++list_it;
+    }
   update_levelset->SetUpdate( update_list );
   update_levelset->Update();
 
-  delete update_list[-1];
-  delete update_list[1];
+//  delete update_list[-1];
+//  delete update_list[1];
 
   NodeAttributeType p;
   SparseIteratorType ls_It( sparseLevelSet->GetImage(),

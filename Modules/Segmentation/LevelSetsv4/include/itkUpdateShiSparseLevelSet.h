@@ -110,11 +110,11 @@ public:
     while( !m_Update[1]->empty() )
       {
       p = list_out->front();
-
       list_out->pop_front();
 
       // update the level set
       update = m_Update[1]->front();
+      m_Update[1]->pop_front();
 
       if( update > NumericTraits< LevelSetOutputType >::Zero )
         {
@@ -215,11 +215,11 @@ public:
     while( !m_Update[-1]->empty() )
       {
       p = list_in->front();
-
       list_in->pop_front();
 
       // update the level set
       update = m_Update[-1]->front();
+      m_Update[-1]->pop_front();
 
       if( update < NumericTraits< LevelSetOutputType >::Zero )
         {
@@ -377,7 +377,6 @@ public:
     while( !m_SparseLevelSet->GetListNode( -1 )->empty() )
       {
       p = m_SparseLevelSet->GetListNode( -1 )->front();
-
       m_SparseLevelSet->GetListNode( -1 )->pop_front();
 
       sparseNeighborhoodIt.SetLocation( p.first );
@@ -406,7 +405,7 @@ public:
         }
       }
 
-    while( m_StatusLists->GetListNode( -1 )->empty() )
+    while( !m_StatusLists->GetListNode( -1 )->empty() )
       {
       m_SparseLevelSet->GetListNode( -1 )->push_back(
         m_StatusLists->GetListNode( -1 )->front() );
@@ -418,7 +417,6 @@ public:
     while( !m_SparseLevelSet->GetListNode( 1 )->empty() )
       {
       p = m_SparseLevelSet->GetListNode( 1 )->front();
-
       m_SparseLevelSet->GetListNode( 1 )->pop_front();
 
       sparseNeighborhoodIt.SetLocation( p.first );
@@ -447,7 +445,7 @@ public:
         }
       }
 
-    while( m_StatusLists->GetListNode( 1 )->empty() )
+    while( !m_StatusLists->GetListNode( 1 )->empty() )
       {
       m_SparseLevelSet->GetListNode( 1 )->push_back(
         m_StatusLists->GetListNode( 1 )->front() );
@@ -471,14 +469,12 @@ public:
     }
 
 protected:
-  UpdateShiSparseLevelSet() : m_Dt( NumericTraits< LevelSetOutputType >::One ),
+  UpdateShiSparseLevelSet() :
     m_MinStatus( -3 ), m_MaxStatus( 3 )
     {
     m_StatusLists = LevelSetType::New();
     }
   ~UpdateShiSparseLevelSet() {}
-
-  LevelSetOutputType m_Dt;
 
   std::map< char, UpdateListType* > m_Update;
 
