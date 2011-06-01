@@ -100,7 +100,7 @@ add_test(NAME itkUpdateShiSparseLevelSetTest0
       output_update_shi_sparse0.mha
       status_update_shi_sparse0.mha
       )
-add_test(NAME itkUpdateshiSparseLevelSetTest1
+add_test(NAME itkUpdateShiSparseLevelSetTest1
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateShiSparseLevelSetTest
       1
