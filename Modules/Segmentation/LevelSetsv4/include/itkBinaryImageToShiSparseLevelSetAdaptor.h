@@ -185,13 +185,13 @@ public:
         // Iterate through all the pixels in the neighborhood
         for( typename InputNeighborhoodIteratorType::Iterator i = inputNeighborhoodIt.Begin();
         !i.IsAtEnd(); ++i )
-        {
-        if( i.Get() == NumericTraits< InputImagePixelType >::Zero )
           {
-          flag = true;
-          break;
+          if( i.Get() == NumericTraits< InputImagePixelType >::Zero )
+            {
+            flag = true;
+            break;
+            }
           }
-        }
 
         if ( ( iIt.Get() != NumericTraits< InputImagePixelType >::Zero ) && ( flag ) )
           {
@@ -206,13 +206,13 @@ public:
         // Iterate through all the pixels in the neighborhood
         for( typename InputNeighborhoodIteratorType::Iterator i = inputNeighborhoodIt.Begin();
         !i.IsAtEnd(); ++i )
-        {
-        if( i.Get() != NumericTraits< InputImagePixelType >::Zero )
           {
-          flag = true;
-          break;
+          if( i.Get() != NumericTraits< InputImagePixelType >::Zero )
+            {
+            flag = true;
+            break;
+            }
           }
-        }
 
         if ( ( iIt.Get() == NumericTraits< InputImagePixelType >::Zero ) && ( flag ) )
           {
@@ -224,8 +224,8 @@ public:
         ++inputNeighborhoodIt;
         ++sIt;
         ++iIt;
+        }
       }
-    }
   }
 
   // Set/Get the sparse levet set image
