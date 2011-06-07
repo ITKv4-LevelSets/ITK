@@ -185,20 +185,20 @@ public:
         // Iterate through all the pixels in the neighborhood
         for( typename InputNeighborhoodIteratorType::Iterator i = inputNeighborhoodIt.Begin();
         !i.IsAtEnd(); ++i )
-        {
-        if( i.Get() == NumericTraits< InputImagePixelType >::Zero )
           {
-          flag = true;
-          break;
+          if( i.Get() == NumericTraits< InputImagePixelType >::Zero )
+            {
+            flag = true;
+            break;
+            }
           }
-        }
 
         if ( ( iIt.Get() != NumericTraits< InputImagePixelType >::Zero ) && ( flag ) )
           {
           nodePair.first = inputNeighborhoodIt.GetIndex();
-          nodePair.second = p_plus_1;
-          m_SparseLevelSet->GetListNode( 1 )->push_back( nodePair );
-          sIt.Set( p_plus_1 );
+          nodePair.second = p_minus_1;
+          m_SparseLevelSet->GetListNode( -1 )->push_back( nodePair );
+          sIt.Set( p_minus_1 );
           }
 
         flag = false;
@@ -206,26 +206,26 @@ public:
         // Iterate through all the pixels in the neighborhood
         for( typename InputNeighborhoodIteratorType::Iterator i = inputNeighborhoodIt.Begin();
         !i.IsAtEnd(); ++i )
-        {
-        if( i.Get() != NumericTraits< InputImagePixelType >::Zero )
           {
-          flag = true;
-          break;
+          if( i.Get() != NumericTraits< InputImagePixelType >::Zero )
+            {
+            flag = true;
+            break;
+            }
           }
-        }
 
         if ( ( iIt.Get() == NumericTraits< InputImagePixelType >::Zero ) && ( flag ) )
           {
           nodePair.first = inputNeighborhoodIt.GetIndex();
-          nodePair.second = p_minus_1;
-          m_SparseLevelSet->GetListNode( -1 )->push_back( nodePair );
-          sIt.Set( p_minus_1 );
+          nodePair.second = p_plus_1;
+          m_SparseLevelSet->GetListNode( 1 )->push_back( nodePair );
+          sIt.Set( p_plus_1 );
           }
         ++inputNeighborhoodIt;
         ++sIt;
         ++iIt;
+        }
       }
-    }
   }
 
   // Set/Get the sparse levet set image
