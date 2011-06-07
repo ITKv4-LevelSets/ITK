@@ -81,6 +81,7 @@ public:
   {
     LevelSetNodeListType new_list_out;
     LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
+    LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
     LevelSetNodePairType p;
     LevelSetOutputType update;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
@@ -106,6 +107,11 @@ public:
       sparse_offset[dim] = 0;
       }
 
+    if( m_Update[1]->size() != list_out->size() )
+      {
+      itkGenericExceptionMacro( "m_Update[1]->size() != list_out->size()" );
+      }
+
     // for each point in Lz
     while( !m_Update[1]->empty() )
       {
@@ -123,6 +129,7 @@ public:
           // CheckIn
           p.second.m_Status = -1;
           p.second.m_Value = -1.;
+          this->m_SparseImage->SetPixel( p.first, p.second );
           m_StatusLists->GetListNode( -1 )->push_back( p );
 
           sparseNeighborhoodIt.SetLocation( p.first );
@@ -142,6 +149,7 @@ public:
               temp.second.m_Status = 1;
               temp.second.m_Value = 1;
               m_StatusLists->GetListNode( 1 )->push_back( temp);
+              this->m_SparseImage->SetPixel( temp.first, temp.second );
               // compute the update here of q;
               }
             }
@@ -165,15 +173,13 @@ public:
 
     while( !m_StatusLists->GetListNode( -1 )->empty() )
       {
-      m_SparseLevelSet->GetListNode( -1 )->push_back(
-        m_StatusLists->GetListNode( -1 )->front() );
+      list_in->push_back( m_StatusLists->GetListNode( -1 )->front() );
       m_StatusLists->GetListNode( -1 )->pop_front();
       }
 
     while( !m_StatusLists->GetListNode( 1 )->empty() )
       {
-      m_SparseLevelSet->GetListNode( 1 )->push_back(
-        m_StatusLists->GetListNode( 1 )->front() );
+      list_out->push_back( m_StatusLists->GetListNode( 1 )->front() );
       m_StatusLists->GetListNode( 1 )->pop_front();
       }
     }
@@ -182,6 +188,7 @@ public:
   {
     LevelSetNodeListType new_list_in;
     LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
+    LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
     LevelSetNodePairType p;
     LevelSetOutputType update;
     LevelSetNodeAttributeType q;
@@ -228,6 +235,7 @@ public:
           // CheckOut
           p.second.m_Status = 1;
           p.second.m_Value = 1.;
+          this->m_SparseImage->SetPixel( p.first, p.second );
           m_StatusLists->GetListNode( 1 )->push_back( p );
 
           sparseNeighborhoodIt.SetLocation( p.first );
@@ -242,9 +250,10 @@ public:
               LevelSetNodePairType temp;
               temp.first =
                 sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
-              temp.second.m_Status = 1;
-              temp.second.m_Value = 1;
-              m_StatusLists->GetListNode( 1 )->push_back( temp);
+              temp.second.m_Status = -1;
+              temp.second.m_Value = -1;
+              m_StatusLists->GetListNode( -1 )->push_back( temp);
+              this->m_SparseImage->SetPixel( temp.first, temp.second );
 
               // compute the update here of q;
               }
@@ -269,15 +278,13 @@ public:
 
     while( !m_StatusLists->GetListNode( -1 )->empty() )
       {
-      m_SparseLevelSet->GetListNode( -1 )->push_back(
-        m_StatusLists->GetListNode( -1 )->front() );
+      list_in->push_back( m_StatusLists->GetListNode( -1 )->front() );
       m_StatusLists->GetListNode( -1 )->pop_front();
       }
 
     while( !m_StatusLists->GetListNode( 1 )->empty() )
       {
-      m_SparseLevelSet->GetListNode( 1 )->push_back(
-        m_StatusLists->GetListNode( 1 )->front() );
+      list_out->push_back( m_StatusLists->GetListNode( 1 )->front() );
       m_StatusLists->GetListNode( 1 )->pop_front();
       }
     }
@@ -322,7 +329,7 @@ public:
       q = i.Get();
       if ( q.m_Status == opposite_status )
         {
-        if ( q.m_Value * iCurrentUpdate < 0. )
+        if ( q.m_Value * iCurrentUpdate < NumericTraits< LevelSetOutputType >::Zero )
           {
           return true;
           }
@@ -381,7 +388,7 @@ public:
 
       sparseNeighborhoodIt.SetLocation( p.first );
 
-      bool to_be_deleted = false;
+      bool to_be_deleted = true;
 
       for( typename SparseNeighborhoodIteratorType::Iterator
               i = sparseNeighborhoodIt.Begin();
@@ -390,7 +397,7 @@ public:
         q = i.Get();
         if ( q.m_Value > NumericTraits< LevelSetOutputType >::Zero )
           {
-          to_be_deleted = true;
+          to_be_deleted = false;
           break;
           }
         }
@@ -398,6 +405,7 @@ public:
         {
         p.second.m_Status = -3;
         p.second.m_Value = -3;
+        this->m_SparseImage->SetPixel( p.first, p.second );
         }
       else
         {
@@ -421,7 +429,7 @@ public:
 
       sparseNeighborhoodIt.SetLocation( p.first );
 
-      bool to_be_deleted = false;
+      bool to_be_deleted = true;
 
       for( typename SparseNeighborhoodIteratorType::Iterator
               i = sparseNeighborhoodIt.Begin();
@@ -430,7 +438,7 @@ public:
         q = i.Get();
         if ( q.m_Value < NumericTraits< LevelSetOutputType >::Zero )
           {
-          to_be_deleted = true;
+          to_be_deleted = false;
           break;
           }
         }
@@ -438,6 +446,7 @@ public:
         {
         p.second.m_Status = 3;
         p.second.m_Value = 3;
+        this->m_SparseImage->SetPixel( p.first, p.second );
         }
       else
         {
