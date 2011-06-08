@@ -162,7 +162,6 @@ public:
 
   void PhasedPropagation( const bool& iContraction )
     {
-    LevelSetNodeListType new_list_0;
     LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
 
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
@@ -242,27 +241,27 @@ public:
                 sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
               temp.second.m_Status = 0;
               temp.second.m_Value = 0;
-              new_list_0.push_back( temp );
+              m_StatusLists->GetListNode(0)->push_back( temp );
               m_SparseImage->SetPixel( temp.first, temp.second );
               }
             }
           }
         else
           {
-          new_list_0.push_back( p );
+          m_StatusLists->GetListNode(0)->push_back( p );
           }
         }
       else
         {
-        new_list_0.push_back( p );
+        m_StatusLists->GetListNode(0)->push_back( p );
         }
       }
 
-    while( !new_list_0.empty() )
-      {
-      list_0->push_back( new_list_0.front() );
-      new_list_0.pop_front();
-      }
+//    while( !new_list_0.empty() )
+//      {
+//      list_0->push_back( new_list_0.front() );
+//      new_list_0.pop_front();
+//      }
     }
 
   void MinimalInterface()
@@ -312,7 +311,7 @@ public:
         {
         q = i.Get();
 
-        if( q.m_Status != 0 )
+        if( q.m_Status != NumericTraits< LevelSetNodeStatusType >::Zero )
           {
           if( q.m_Status == -1 )
             {
@@ -323,7 +322,7 @@ public:
               }
             }
           else // if( q.m_Status == 1 )
-          {
+            {
             positive = true;
             if( negative )
               {
@@ -334,16 +333,16 @@ public:
         }
       if( negative && !positive )
         {
-        p.second.m_Status = 1;
-        p.second.m_Value = 1;
+        p.second.m_Status = -1;
+        p.second.m_Value = -1;
         m_SparseImage->SetPixel( p.first, p.second );
         }
       else
         {
         if( positive && !negative )
           {
-          p.second.m_Status = -1;
-          p.second.m_Value = -1;
+          p.second.m_Status = 1;
+          p.second.m_Value = 1;
           m_SparseImage->SetPixel( p.first, p.second );
           }
         else
@@ -386,6 +385,13 @@ public:
       // dilation
       PhasedPropagation( false );
       MinimalInterface();
+
+      while( !m_StatusLists->GetListNode(0)->empty() )
+        {
+        m_SparseLevelSet->GetListNode( 0 )->push_back(
+              m_StatusLists->GetListNode( 0 )->front() );
+        m_StatusLists->GetListNode( 0 )->pop_front();
+        }
       }
   }
 
@@ -402,12 +408,16 @@ public:
     }
 
 protected:
-  UpdateMalcolmSparseLevelSet() : m_UnPhased( true ){}
+  UpdateMalcolmSparseLevelSet() : m_UnPhased( true )
+    {
+    m_StatusLists = LevelSetType::New();
+    }
 
   ~UpdateMalcolmSparseLevelSet() {}
 
   UpdateListType* m_Update;
 
+  LevelSetPointer    m_StatusLists;
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
 
