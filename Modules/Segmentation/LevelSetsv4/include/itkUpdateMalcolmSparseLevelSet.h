@@ -160,9 +160,14 @@ public:
       }
     }
 
-  void PhasedPropagation( const bool& iContraction )
+  void PhasedPropagation( LevelSetNodeListType& ioList,
+                         UpdateListType& ioUpdate,
+                         const bool& iContraction )
     {
-    LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
+    if( ioList.size() != ioUpdate.size() )
+      {
+      itkGenericExceptionMacro( "ioList and ioUpdate have different size!" );
+      }
 
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -191,13 +196,13 @@ public:
     LevelSetNodeAttributeType q;
     LevelSetOutputType update;
 
-    while( !m_Update->empty() )
+    while( !ioUpdate.empty() )
       {
-      update = m_Update->front();
-      m_Update->pop_front();
+      update = ioUpdate.front();
+      ioUpdate.pop_front();
 
-      p = list_0->front();
-      list_0->pop_front();
+      p = ioList.front();
+      ioList.pop_front();
 
       bool to_be_updated = false;
 
@@ -256,12 +261,6 @@ public:
         m_StatusLists->GetListNode(0)->push_back( p );
         }
       }
-
-//    while( !new_list_0.empty() )
-//      {
-//      list_0->push_back( new_list_0.front() );
-//      new_list_0.pop_front();
-//      }
     }
 
   void MinimalInterface()
@@ -378,12 +377,43 @@ public:
       }
     else
       {
+      LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
+
+      LevelSetNodeListType list_pos;
+      UpdateListType update_pos;
+
+      LevelSetNodeListType list_neg;
+      UpdateListType update_neg;
+
+      LevelSetNodePairType p;
+      LevelSetOutputType update;
+
+      while( !m_Update->empty() )
+        {
+        p = list_0->front();
+        list_0->pop_front();
+
+        update = m_Update->front();
+        m_Update->pop_front();
+
+        if( update > 0 )
+          {
+          list_pos.push_back( p );
+          update_pos.push_back( update );
+          }
+        else
+          {
+          list_neg.push_back( p );
+          update_neg.push_back( update );
+          }
+        }
+
       // contraction
-      PhasedPropagation( true );
+      PhasedPropagation( list_pos, update_pos, true );
       MinimalInterface();
 
       // dilation
-      PhasedPropagation( false );
+      PhasedPropagation( list_neg, update_neg, false );
       MinimalInterface();
 
       while( !m_StatusLists->GetListNode(0)->empty() )
@@ -392,6 +422,8 @@ public:
               m_StatusLists->GetListNode( 0 )->front() );
         m_StatusLists->GetListNode( 0 )->pop_front();
         }
+
+      MinimalInterface();
       }
   }
 
@@ -408,7 +440,7 @@ public:
     }
 
 protected:
-  UpdateMalcolmSparseLevelSet() : m_UnPhased( true )
+  UpdateMalcolmSparseLevelSet() : m_UnPhased( false )
     {
     m_StatusLists = LevelSetType::New();
     }
