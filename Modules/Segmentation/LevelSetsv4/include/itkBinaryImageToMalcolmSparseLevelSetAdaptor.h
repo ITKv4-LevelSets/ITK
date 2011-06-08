@@ -148,7 +148,9 @@ public:
     typename InputNeighborhoodIteratorType::OffsetType temp_offset;
     temp_offset.Fill( 0 );
 
-    for ( faceListIterator=faceList.begin(); faceListIterator != faceList.end(); ++faceListIterator)
+    for ( faceListIterator=faceList.begin();
+         faceListIterator != faceList.end();
+         ++faceListIterator)
     {
       InputNeighborhoodIteratorType
       inputNeighborhoodIt( radius, m_InputImage,
