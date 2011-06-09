@@ -54,8 +54,9 @@ public:
                                                        LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
+  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
 
-  typedef std::list< LevelSetOutputType >              UpdateListType;
+  typedef std::list< LevelSetOutputRealType >          UpdateListType;
 
 
   typedef typename LevelSetType::SparseImageType       SparseImageType;
@@ -84,7 +85,7 @@ public:
     LevelSetNodeListType new_list_0;
     LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
     LevelSetNodePairType p;
-    LevelSetOutputType update;
+    LevelSetOutputRealType update;
     LevelSetNodeAttributeType q;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -122,7 +123,8 @@ public:
       // update the level set
       update = m_Update->front();
 //      p.second.m_Value += m_Dt * update;
-      LevelSetOutputType temp_value = p.second.m_Value + m_Dt * update;
+      LevelSetOutputType temp_value = p.second.m_Value +
+          m_Dt * static_cast< LevelSetOutputType >( update );
 
       // if(phi(p)> .5), remove p from Lz, add p to Sp1
       if( temp_value > static_cast<LevelSetOutputType>( 0.5 ) )

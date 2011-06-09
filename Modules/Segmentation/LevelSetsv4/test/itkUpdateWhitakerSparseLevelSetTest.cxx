@@ -46,7 +46,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef BinaryToSparseAdaptorType::LevelSetNodeStatusType        StatusPixelType;
 
   typedef itk::Image< StatusPixelType, Dimension >  StatusImageType;
-  typedef itk::ImageFileWriter< StatusImageType > StatusWriterType;
+  typedef itk::ImageFileWriter< StatusImageType >   StatusWriterType;
 
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
@@ -115,7 +115,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
         }
       else
         {
-        if( ( k % 20 ) < 10 )
+        if( ( ( list_it->first )[1] % 20 ) < 10 )
           {
           update_list->push_back( -1. );
           }

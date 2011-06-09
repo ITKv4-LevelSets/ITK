@@ -52,9 +52,9 @@ public:
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
+  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
 
-  typedef std::list< LevelSetOutputType >              UpdateListType;
-
+  typedef std::list< LevelSetOutputRealType >          UpdateListType;
 
   typedef typename LevelSetType::SparseImageType       SparseImageType;
   typedef typename SparseImageType::Pointer            SparseImagePointer;
@@ -98,7 +98,7 @@ public:
 
     LevelSetNodePairType p;
     LevelSetOutputType q;
-    LevelSetOutputType update;
+    LevelSetOutputRealType update;
 
     while( !m_Update->empty() )
       {
@@ -108,13 +108,13 @@ public:
       p = list_0->front();
       list_0->pop_front();
 
-      if( update != NumericTraits< LevelSetOutputType >::Zero )
+      if( update != NumericTraits< LevelSetOutputRealType >::Zero )
         {
-        if( update > NumericTraits< LevelSetOutputType >::Zero )
+        if( update > NumericTraits< LevelSetOutputRealType >::Zero )
           {
           p.second = -1;
           }
-        if( update < NumericTraits< LevelSetOutputType >::Zero )
+        if( update < NumericTraits< LevelSetOutputRealType >::Zero )
           {
           p.second = 1;
           }
@@ -185,7 +185,7 @@ public:
 
     LevelSetNodePairType p;
     LevelSetOutputType q;
-    LevelSetOutputType update;
+    LevelSetOutputRealType update;
 
     while( !ioUpdate.empty() )
       {
@@ -197,12 +197,12 @@ public:
 
       bool to_be_updated = false;
 
-      if( update != NumericTraits< LevelSetOutputType >::Zero )
+      if( update != NumericTraits< LevelSetOutputRealType >::Zero )
         {
         if( iContraction ) // contraction
           {
           // only allow positive forces
-          if( update > NumericTraits< LevelSetOutputType >::Zero )
+          if( update > NumericTraits< LevelSetOutputRealType >::Zero )
             {
             p.second = -1;
             to_be_updated = true;
@@ -211,7 +211,7 @@ public:
         else // Dilation
           {
           // only allow negative forces
-          if( update < NumericTraits< LevelSetOutputType >::Zero )
+          if( update < NumericTraits< LevelSetOutputRealType >::Zero )
             {
             p.second = 1;
             to_be_updated = true;
@@ -372,7 +372,7 @@ public:
       UpdateListType update_neg;
 
       LevelSetNodePairType p;
-      LevelSetOutputType update;
+      LevelSetOutputRealType update;
 
       while( !m_Update->empty() )
         {

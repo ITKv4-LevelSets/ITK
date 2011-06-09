@@ -105,7 +105,7 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
         }
       else
         {
-        if( ( k % 20 ) < 10 )
+        if( ( ( list_it->first )[1] % 20 ) < 10 )
           {
           update_list->push_back( -1. );
           }

@@ -52,8 +52,9 @@ public:
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
+  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
 
-  typedef std::list< LevelSetOutputType >              UpdateListType;
+  typedef std::list< LevelSetOutputRealType >          UpdateListType;
 
   typedef typename LevelSetType::SparseImageType       SparseImageType;
   typedef typename SparseImageType::Pointer            SparseImagePointer;
@@ -76,11 +77,10 @@ public:
   // Input is also ShiSparseLevelSetBasePointer
   void UpdateL_out()
   {
-    LevelSetNodeListType new_list_out;
     LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
     LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
     LevelSetNodePairType p;
-    LevelSetOutputType update;
+    LevelSetOutputRealType update;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
     typename SparseNeighborhoodIteratorType::RadiusType radius;
@@ -119,7 +119,7 @@ public:
       update = m_Update[1]->front();
       m_Update[1]->pop_front();
 
-      if( update > NumericTraits< LevelSetOutputType >::Zero )
+      if( update > NumericTraits< LevelSetOutputRealType >::Zero )
         {
         if( Con( p.first, p.second , update ) )
           {
@@ -149,19 +149,13 @@ public:
           }
         else
           {
-          new_list_out.push_back( p );
+          m_StatusLists->GetListNode( 1 )->push_back( p );
           }
         }
       else
         {
-        new_list_out.push_back( p );
+        m_StatusLists->GetListNode( 1 )->push_back( p );
         }
-      }
-
-    while( !new_list_out.empty() )
-      {
-      list_out->push_back( new_list_out.front() );
-      new_list_out.pop_front();
       }
 
     while( !m_StatusLists->GetListNode( -1 )->empty() )
@@ -179,11 +173,10 @@ public:
 
   void UpdateL_in()
   {
-    LevelSetNodeListType new_list_in;
     LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
     LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
     LevelSetNodePairType p;
-    LevelSetOutputType update;
+    LevelSetOutputRealType update;
     LevelSetOutputType q;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -221,7 +214,7 @@ public:
       update = m_Update[-1]->front();
       m_Update[-1]->pop_front();
 
-      if( update < NumericTraits< LevelSetOutputType >::Zero )
+      if( update < NumericTraits< LevelSetOutputRealType >::Zero )
         {
         if( Con( p.first, p.second , update ) )
           {
@@ -252,19 +245,13 @@ public:
           }
         else
           {
-          new_list_in.push_back( p );
+          m_StatusLists->GetListNode( -1 )->push_back( p );
           }
         }
       else
         {
-        new_list_in.push_back( p );
+        m_StatusLists->GetListNode( -1 )->push_back( p );
         }
-      }
-
-    while( !new_list_in.empty() )
-      {
-      list_in->push_back( new_list_in.front() );
-      new_list_in.pop_front();
       }
 
     while( !m_StatusLists->GetListNode( -1 )->empty() )
@@ -282,7 +269,7 @@ public:
 
   bool Con( const SparseImageIndexType& iIdx,
             const LevelSetOutputType& iCurrentStatus,
-            const LevelSetOutputType& iCurrentUpdate ) const
+            const LevelSetOutputRealType& iCurrentUpdate ) const
   {
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -320,7 +307,10 @@ public:
       q = i.Get();
       if ( q == opposite_status )
         {
-        return true;
+        if ( q * iCurrentUpdate < NumericTraits< LevelSetOutputType >::Zero )
+          {
+          return true;
+          }
         }
       }
    return false;
