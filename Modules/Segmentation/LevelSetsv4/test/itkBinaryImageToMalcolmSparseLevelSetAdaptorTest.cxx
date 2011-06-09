@@ -28,20 +28,9 @@ int itkBinaryImageToMalcolmSparseLevelSetAdaptorTest( int argc, char* argv[] )
   const unsigned int Dimension = 2;
 
   typedef unsigned char InputPixelType;
-  typedef double        OutputPixelType;
 
-  typedef itk::Image< InputPixelType, Dimension >                  InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension >                 OutputImageType;
-
-  typedef itk::ImageFileReader< InputImageType >                   InputReaderType;
-  typedef itk::ImageFileWriter< OutputImageType >                  OutputWriterType;
-  typedef itk::BinaryImageToMalcolmSparseLevelSetAdaptor< InputImageType >
-    BinaryToSparseAdaptorType;
-
-  typedef BinaryToSparseAdaptorType::SparseImageType  SparseImageType;
-  typedef BinaryToSparseAdaptorType::LevelSetType     SparseLevelSetType;
-  typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
-  typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
+  typedef itk::Image< InputPixelType, Dimension > InputImageType;
+  typedef itk::ImageFileReader< InputImageType >  InputReaderType;
 
   InputReaderType::Pointer reader = InputReaderType::New();
   reader->SetFileName( argv[1] );
@@ -56,39 +45,23 @@ int itkBinaryImageToMalcolmSparseLevelSetAdaptorTest( int argc, char* argv[] )
   InputImageType::Pointer input = reader->GetOutput();
   std::cout << "Input image read" << std::endl;
 
+  typedef itk::BinaryImageToMalcolmSparseLevelSetAdaptor< InputImageType >
+    BinaryToSparseAdaptorType;
+
   BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
   adaptor->SetInputImage( input );
   adaptor->Initialize();
   std::cout << "Finished converting to sparse format" << std::endl;
 
+  typedef BinaryToSparseAdaptorType::LevelSetType     SparseLevelSetType;
   SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
-  SparseImageType::Pointer sparseImage = sparseLevelSet->GetImage();
 
-  OutputImageType::Pointer output = OutputImageType::New();
-  output->SetRegions( sparseImage->GetLargestPossibleRegion() );
-  output->CopyInformation( sparseImage );
-  output->Allocate();
-  output->FillBuffer( 0.0 );
-
-  typedef BinaryToSparseAdaptorType::LevelSetOutputType LevelSetOutputType;
-
-  LevelSetOutputType p;
-  SparseIteratorType sIt( sparseImage, sparseImage->GetLargestPossibleRegion() );
-  sIt.GoToBegin();
-
-  OutputIteratorType oIt( output, output->GetLargestPossibleRegion() );
-  oIt.GoToBegin();
-  while( !oIt.IsAtEnd() )
-    {
-    p = sIt.Get();
-    oIt.Set( p );
-    ++oIt;
-    ++sIt;
-    }
+  typedef BinaryToSparseAdaptorType::SparseImageType  SparseImageType;
+  typedef itk::ImageFileWriter< SparseImageType >     OutputWriterType;
 
   OutputWriterType::Pointer writer = OutputWriterType::New();
   writer->SetFileName( argv[2] );
-  writer->SetInput( output );
+  writer->SetInput( sparseLevelSet->GetImage() );
 
   try
     {
