@@ -21,7 +21,6 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkBinaryImageToShiSparseLevelSetAdaptor.h"
-#include "itkSparseLevelSetBase.h"
 #include "itkImageRegionIterator.h"
 
 int itkBinaryImageToShiSparseLevelSetAdaptorTest( int argc, char* argv[] )

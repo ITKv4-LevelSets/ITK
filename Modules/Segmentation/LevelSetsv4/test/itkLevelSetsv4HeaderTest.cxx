@@ -35,7 +35,6 @@
 #include "itkLevelSetEquationChanAndVeseExternalTerm.h"
 #include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 #include "itkLevelSetEvolutionBase.h"
-#include "itkSparseLevelSetBase.h"
 #include "itkWhitakerSparseLevelSetBase.h"
 #include "itkShiSparseLevelSetBase.h"
 #include "itkMalcolmSparseLevelSetBase.h"

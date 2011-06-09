@@ -21,7 +21,6 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkBinaryImageToMalcolmSparseLevelSetAdaptor.h"
-#include "itkSparseLevelSetBase.h"
 #include "itkImageRegionIterator.h"
 
 int itkBinaryImageToMalcolmSparseLevelSetAdaptorTest( int argc, char* argv[] )

@@ -10,7 +10,6 @@ itkMultiLevelSetChanAndVeseInternalTermTest.cxx
 itkMultiLevelSetEvolutionTest.cxx
 itkSingleLevelSetDense2DTest.cxx
 # Sparse
-itkSparseLevelSetBaseTest.cxx
 itkWhitakerSparseLevelSetBaseTest.cxx
 itkShiSparseLevelSetBaseTest.cxx
 itkMalcolmSparseLevelSetBaseTest.cxx
@@ -46,8 +45,6 @@ add_test(NAME itkSingleLevelSetDense2DTest
       ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
 
 # Sparse
-add_test(NAME itkSparseLevelSetBaseTest
-      COMMAND ITK-LevelSetsv4TestDriver itkSparseLevelSetBaseTest)
 add_test(NAME itkWhitakerSparseLevelSetBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkWhitakerSparseLevelSetBaseTest)
 add_test(NAME itkShiSparseLevelSetBaseTest
