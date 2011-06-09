@@ -29,22 +29,18 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
   const unsigned int Dimension = 2;
 
   typedef unsigned char InputPixelType;
-  typedef char          OutputPixelType;
 
   typedef itk::Image< InputPixelType, Dimension >   InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension >  OutputImageType;
 
   typedef itk::ImageFileReader< InputImageType >  InputReaderType;
-  typedef itk::ImageFileWriter< OutputImageType > OutputWriterType;
 
   typedef itk::BinaryImageToMalcolmSparseLevelSetAdaptor< InputImageType >
     BinaryToSparseAdaptorType;
 
-  typedef BinaryToSparseAdaptorType::LevelSetType                  SparseLevelSetType;
-  typedef SparseLevelSetType::SparseImageType                      SparseImageType;
+  typedef BinaryToSparseAdaptorType::LevelSetType   SparseLevelSetType;
+  typedef SparseLevelSetType::SparseImageType       SparseImageType;
 
-  typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
-  typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
+  typedef itk::ImageFileWriter< SparseImageType >   OutputWriterType;
 
   InputImageType::Pointer input = InputImageType::New();
   InputImageType::RegionType region;
@@ -129,32 +125,9 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 //  delete update_list;
 //  delete update_list[1];
 
-  OutputPixelType p;
-  SparseIteratorType ls_It( sparseLevelSet->GetImage(),
-                         sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
-  ls_It.GoToBegin();
-
-  OutputImageType::Pointer output = OutputImageType::New();
-  output->SetRegions( sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
-  output->CopyInformation( sparseLevelSet->GetImage() );
-  output->Allocate();
-  output->FillBuffer( 0 );
-
-  OutputIteratorType oIt( output,
-                          output->GetLargestPossibleRegion() );
-  oIt.GoToBegin();
-
-  while( !oIt.IsAtEnd() )
-    {
-    p = ls_It.Get();
-    oIt.Set( p );
-    ++ls_It;
-    ++oIt;
-    }
-
   OutputWriterType::Pointer writer = OutputWriterType::New();
   writer->SetFileName( argv[2] );
-  writer->SetInput( output );
+  writer->SetInput( sparseLevelSet->GetImage() );
 
   try
     {
