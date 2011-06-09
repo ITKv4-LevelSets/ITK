@@ -21,6 +21,7 @@
 
 #include <iostream>
 
+#include "itkSparseCityBlockNeighborList.h"
 #include "itkLevelSetDomainPartitionBase.h"
 #include "itkLevelSetDomainPartition.h"
 #include "itkLevelSetDomainPartitionImageWithKdTree.h"
