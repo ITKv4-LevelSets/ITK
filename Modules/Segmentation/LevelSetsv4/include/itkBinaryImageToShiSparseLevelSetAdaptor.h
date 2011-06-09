@@ -65,8 +65,6 @@ public:
   typedef typename LevelSetType::SparseImageType       SparseImageType;
   typedef typename SparseImageType::Pointer            SparseImagePointer;
 
-  typedef typename LevelSetType::NodeAttributeType     LevelSetNodeAttributeType;
-  typedef typename LevelSetType::NodeStatusType        LevelSetNodeStatusType;
   typedef typename LevelSetType::NodePairType          LevelSetNodePairType;
   typedef typename LevelSetType::NodeListType          LevelSetNodeListType;
   typedef typename LevelSetType::NodeListIterator      LevelSetNodeListIterator;
@@ -104,13 +102,8 @@ public:
     InputIteratorType iIt( m_InputImage, m_InputImage->GetRequestedRegion() );
     iIt.GoToBegin();
 
-    LevelSetNodeAttributeType p_plus3;
-    p_plus3.m_Status = 3;
-    p_plus3.m_Value = static_cast< LevelSetOutputType >( 3.0 );
-
-    LevelSetNodeAttributeType p_minus3;
-    p_minus3.m_Status = -3;
-    p_minus3.m_Value = static_cast< LevelSetOutputType >( -3.0 );
+    LevelSetOutputType p_plus3 = 3;
+    LevelSetOutputType p_minus3 = -3;
 
     while( !iIt.IsAtEnd() )
       {
@@ -170,13 +163,8 @@ public:
         temp_offset[dim] = 0;
         }
 
-      LevelSetNodeAttributeType p_plus_1;
-      p_plus_1.m_Status = 1;
-      p_plus_1.m_Value = 1;
-
-      LevelSetNodeAttributeType p_minus_1;
-      p_minus_1.m_Status = -1;
-      p_minus_1.m_Value = -1;
+      LevelSetOutputType p_plus_1   = 1;
+      LevelSetOutputType p_minus_1  = -1;
 
       while( !iIt.IsAtEnd() )
         {

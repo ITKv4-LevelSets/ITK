@@ -19,54 +19,78 @@
 #ifndef __itkMalcolmSparseLevelSetBase_h
 #define __itkMalcolmSparseLevelSetBase_h
 
-#include "itkSparseLevelSetBase.h"
+#include "itkImage.h"
+#include "itkIndex.h"
+#include "itkLevelSetBase.h"
 
 namespace itk
 {
 template< unsigned int VDimension >
 class MalcolmSparseLevelSetBase :
-    public SparseLevelSetBase< char, VDimension >
+    public LevelSetBase< Index< VDimension >,
+                         VDimension,
+                         char >
 {
 public:
-  typedef MalcolmSparseLevelSetBase                 Self;
-  typedef SmartPointer< Self >                      Pointer;
-  typedef SmartPointer< const Self >                ConstPointer;
-  typedef SparseLevelSetBase< char, VDimension >    Superclass;
+  typedef Index< VDimension >                     InputType;
+  typedef char                                    OutputType;
+
+  typedef MalcolmSparseLevelSetBase               Self;
+  typedef SmartPointer< Self >                    Pointer;
+  typedef SmartPointer< const Self >              ConstPointer;
+  typedef LevelSetBase< InputType,
+                        VDimension,
+                        OutputType >              Superclass;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(MalcolmSparseLevelSetBase, SparseLevelSetBase);
+  itkTypeMacro(MalcolmSparseLevelSetBase, LevelSetBase);
 
-  typedef typename Superclass::InputType    InputType;
-  typedef typename Superclass::OutputType   OutputType;
   typedef typename Superclass::GradientType GradientType;
   typedef typename Superclass::HessianType  HessianType;
 
-  typedef typename Superclass::NodeStatusType         NodeStatusType;
+  typedef std::pair< InputType, OutputType >        NodePairType;
+  typedef std::list< NodePairType >                 NodeListType;
+  typedef typename NodeListType::iterator           NodeListIterator;
+  typedef typename NodeListType::const_iterator     NodeListConstIterator;
 
-  typedef typename Superclass::NodePairType           NodePairType;
-  typedef typename Superclass::NodeListType           NodeListType;
-  typedef typename Superclass::NodeListIterator       NodeListIterator;
-  typedef typename Superclass::NodeListConstIterator  NodeListConstIterator;
+  typedef Image< OutputType, VDimension >         SparseImageType;
+  typedef typename SparseImageType::Pointer       SparseImagePointer;
 
-  typedef typename Superclass::SparseLayerMapType           SparseLayerMapType;
-  typedef typename Superclass::SparseLayerMapIterator       SparseLayerMapIterator;
-  typedef typename Superclass::SparseLayerMapConstIterator  SparseLayerMapConstIterator;
+  OutputType Evaluate( const InputType& iP ) const
+    {
+    return m_Image->GetPixel( iP );
+    }
+
+  GradientType EvaluateGradient( const InputType& iP ) const
+    {
+    return GradientType();
+    }
+
+  HessianType EvaluateHessian( const InputType& iP ) const
+    {
+    return HessianType();
+    }
+
+  NodeListType* GetListNode()
+    {
+    return &m_List;
+    }
+
+  itkSetObjectMacro( Image, SparseImageType );
+  itkGetObjectMacro( Image, SparseImageType );
 
 protected:
 
   MalcolmSparseLevelSetBase() : Superclass()
-  {
-    this->InitializeLayers();
-  }
-  ~MalcolmSparseLevelSetBase() {}
+  {}
 
-  void InitializeLayers()
-    {
-    this->m_LayerList[ 0 ] = NodeListType();
-    }
+  ~MalcolmSparseLevelSetBase()    {}
+
+  SparseImagePointer  m_Image;
+  NodeListType        m_List;
 
 private:
   MalcolmSparseLevelSetBase( const Self& );

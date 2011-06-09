@@ -29,7 +29,7 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
   const unsigned int Dimension = 2;
 
   typedef unsigned char InputPixelType;
-  typedef double        OutputPixelType;
+  typedef char          OutputPixelType;
 
   typedef itk::Image< InputPixelType, Dimension >   InputImageType;
   typedef itk::Image< OutputPixelType, Dimension >  OutputImageType;
@@ -42,15 +42,9 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 
   typedef BinaryToSparseAdaptorType::LevelSetType                  SparseLevelSetType;
   typedef SparseLevelSetType::SparseImageType                      SparseImageType;
-  typedef SparseLevelSetType::NodeAttributeType                    NodeAttributeType;
-  typedef BinaryToSparseAdaptorType::LevelSetNodeStatusType        StatusPixelType;
-
-  typedef itk::Image< StatusPixelType, Dimension >  StatusImageType;
-  typedef itk::ImageFileWriter< StatusImageType >   StatusWriterType;
 
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
-  typedef itk::ImageRegionIterator< StatusImageType > StatusIteratorType;
 
   InputImageType::Pointer input = InputImageType::New();
   InputImageType::RegionType region;
@@ -96,8 +90,8 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
   UpdateLevelSetType::UpdateListType*  update_list =
       new UpdateLevelSetType::UpdateListType;
 
-  SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode( 0 )->begin();
-  SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode( 0 )->end();
+  SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode()->begin();
+  SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode()->end();
 
   size_t k = 0;
 
@@ -135,7 +129,7 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 //  delete update_list;
 //  delete update_list[1];
 
-  NodeAttributeType p;
+  OutputPixelType p;
   SparseIteratorType ls_It( sparseLevelSet->GetImage(),
                          sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
   ls_It.GoToBegin();
@@ -144,29 +138,18 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
   output->SetRegions( sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
   output->CopyInformation( sparseLevelSet->GetImage() );
   output->Allocate();
-  output->FillBuffer( 0.0 );
-
-  StatusImageType::Pointer status = StatusImageType::New();
-  status->SetRegions( sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
-  status->CopyInformation( sparseLevelSet->GetImage() );
-  status->Allocate();
-  status->FillBuffer( 0 );
+  output->FillBuffer( 0 );
 
   OutputIteratorType oIt( output,
                           output->GetLargestPossibleRegion() );
   oIt.GoToBegin();
 
-  StatusIteratorType sIt( status, status->GetLargestPossibleRegion() );
-  sIt.GoToBegin();
-
   while( !oIt.IsAtEnd() )
     {
     p = ls_It.Get();
-    oIt.Set( p.m_Value );
-    sIt.Set( p.m_Status );
+    oIt.Set( p );
     ++ls_It;
     ++oIt;
-    ++sIt;
     }
 
   OutputWriterType::Pointer writer = OutputWriterType::New();
@@ -176,19 +159,6 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
   try
     {
     writer->Update();
-    }
-  catch ( itk::ExceptionObject& err )
-    {
-    std::cout << err << std::endl;
-    }
-
-  StatusWriterType::Pointer status_writer = StatusWriterType::New();
-  status_writer->SetFileName( argv[3] );
-  status_writer->SetInput( status );
-
-  try
-    {
-    status_writer->Update();
     }
   catch ( itk::ExceptionObject& err )
     {

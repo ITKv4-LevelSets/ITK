@@ -19,50 +19,92 @@
 #ifndef __itkShiSparseLevelSetBase_h
 #define __itkShiSparseLevelSetBase_h
 
-#include "itkSparseLevelSetBase.h"
+#include "itkImage.h"
+#include "itkIndex.h"
+#include "itkLevelSetBase.h"
 
 namespace itk
 {
 template< unsigned int VDimension >
 class ShiSparseLevelSetBase :
-    public SparseLevelSetBase< char, VDimension >
+    public LevelSetBase< Index< VDimension >,
+                         VDimension,
+                         char >
 {
 public:
+  typedef Index< VDimension >                     InputType;
+  typedef char                                    OutputType;
+
   typedef ShiSparseLevelSetBase                   Self;
   typedef SmartPointer< Self >                    Pointer;
   typedef SmartPointer< const Self >              ConstPointer;
-  typedef SparseLevelSetBase< char, VDimension >  Superclass;
+  typedef LevelSetBase< InputType,
+                        VDimension,
+                        OutputType >              Superclass;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(ShiSparseLevelSetBase, SparseLevelSetBase);
+  itkTypeMacro(ShiSparseLevelSetBase, LevelSetBase);
 
-  typedef typename Superclass::InputType    InputType;
-  typedef typename Superclass::OutputType   OutputType;
   typedef typename Superclass::GradientType GradientType;
   typedef typename Superclass::HessianType  HessianType;
 
-  typedef typename Superclass::NodeStatusType         NodeStatusType;
+  typedef std::pair< InputType, OutputType >        NodePairType;
+  typedef std::list< NodePairType >                 NodeListType;
+  typedef typename NodeListType::iterator           NodeListIterator;
+  typedef typename NodeListType::const_iterator     NodeListConstIterator;
 
-  typedef typename Superclass::NodePairType           NodePairType;
-  typedef typename Superclass::NodeListType           NodeListType;
-  typedef typename Superclass::NodeListIterator       NodeListIterator;
-  typedef typename Superclass::NodeListConstIterator  NodeListConstIterator;
+  typedef std::map< OutputType, NodeListType >        SparseLayerMapType;
+  typedef typename SparseLayerMapType::iterator       SparseLayerMapIterator;
+  typedef typename SparseLayerMapType::const_iterator SparseLayerMapConstIterator;
 
-  typedef typename Superclass::SparseLayerMapType           SparseLayerMapType;
-  typedef typename Superclass::SparseLayerMapIterator       SparseLayerMapIterator;
-  typedef typename Superclass::SparseLayerMapConstIterator  SparseLayerMapConstIterator;
+  typedef Image< OutputType, VDimension >         SparseImageType;
+  typedef typename SparseImageType::Pointer       SparseImagePointer;
 
+  OutputType Evaluate( const InputType& iP ) const
+    {
+    return m_Image->GetPixel( iP );
+    }
+
+  GradientType EvaluateGradient( const InputType& iP ) const
+    {
+    return GradientType();
+    }
+
+  HessianType EvaluateHessian( const InputType& iP ) const
+    {
+    return HessianType();
+    }
+
+  NodeListType* GetListNode( const OutputType& iId )
+    {
+    typename SparseLayerMapType::iterator it = m_LayerList.find( iId );
+    if( it != m_LayerList.end() )
+      {
+      return & (it->second);
+      }
+    else
+      {
+      itkGenericExceptionMacro( << "this layer " << iId << " does not exist" );
+      return NULL;
+      }
+    }
+
+  itkSetObjectMacro( Image, SparseImageType );
+  itkGetObjectMacro( Image, SparseImageType );
 
 protected:
 
   ShiSparseLevelSetBase() : Superclass()
     {
-    this->InitializeLayers();
+    InitializeLayers();
     }
   ~ShiSparseLevelSetBase() {}
+
+  SparseImagePointer m_Image;
+  SparseLayerMapType m_LayerList;
 
   void InitializeLayers()
     {

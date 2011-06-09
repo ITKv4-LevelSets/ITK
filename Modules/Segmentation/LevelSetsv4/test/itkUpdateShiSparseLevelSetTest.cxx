@@ -42,15 +42,9 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
 
   typedef BinaryToSparseAdaptorType::LevelSetType                  SparseLevelSetType;
   typedef SparseLevelSetType::SparseImageType                      SparseImageType;
-  typedef SparseLevelSetType::NodeAttributeType                    NodeAttributeType;
-  typedef BinaryToSparseAdaptorType::LevelSetNodeStatusType        StatusPixelType;
-
-  typedef itk::Image< StatusPixelType, Dimension >  StatusImageType;
-  typedef itk::ImageFileWriter< StatusImageType >   StatusWriterType;
 
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
-  typedef itk::ImageRegionIterator< StatusImageType > StatusIteratorType;
 
   InputImageType::Pointer input = InputImageType::New();
   InputImageType::RegionType region;
@@ -168,7 +162,7 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
 //  delete update_list[-1];
 //  delete update_list[1];
 
-  NodeAttributeType p;
+  char p;
   SparseIteratorType ls_It( sparseLevelSet->GetImage(),
                          sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
   ls_It.GoToBegin();
@@ -179,27 +173,16 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
   output->Allocate();
   output->FillBuffer( 0.0 );
 
-  StatusImageType::Pointer status = StatusImageType::New();
-  status->SetRegions( sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
-  status->CopyInformation( sparseLevelSet->GetImage() );
-  status->Allocate();
-  status->FillBuffer( 0 );
-
   OutputIteratorType oIt( output,
                           output->GetLargestPossibleRegion() );
   oIt.GoToBegin();
 
-  StatusIteratorType sIt( status, status->GetLargestPossibleRegion() );
-  sIt.GoToBegin();
-
   while( !oIt.IsAtEnd() )
     {
     p = ls_It.Get();
-    oIt.Set( p.m_Value );
-    sIt.Set( p.m_Status );
+    oIt.Set( p );
     ++ls_It;
     ++oIt;
-    ++sIt;
     }
 
   OutputWriterType::Pointer writer = OutputWriterType::New();
@@ -209,19 +192,6 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
   try
     {
     writer->Update();
-    }
-  catch ( itk::ExceptionObject& err )
-    {
-    std::cout << err << std::endl;
-    }
-
-  StatusWriterType::Pointer status_writer = StatusWriterType::New();
-  status_writer->SetFileName( argv[3] );
-  status_writer->SetInput( status );
-
-  try
-    {
-    status_writer->Update();
     }
   catch ( itk::ExceptionObject& err )
     {

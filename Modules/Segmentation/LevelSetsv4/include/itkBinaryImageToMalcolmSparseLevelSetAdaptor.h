@@ -65,16 +65,10 @@ public:
   typedef typename LevelSetType::SparseImageType        SparseImageType;
   typedef typename SparseImageType::Pointer             SparseImagePointer;
 
-  typedef typename LevelSetType::NodeAttributeType      LevelSetNodeAttributeType;
-  typedef typename LevelSetType::NodeStatusType         LevelSetNodeStatusType;
   typedef typename LevelSetType::NodePairType           LevelSetNodePairType;
   typedef typename LevelSetType::NodeListType           LevelSetNodeListType;
   typedef typename LevelSetType::NodeListIterator       LevelSetNodeListIterator;
   typedef typename LevelSetType::NodeListConstIterator  LevelSetNodeListConstIterator;
-
-  typedef typename LevelSetType::SparseLayerMapType           SparseLayerMapType;
-  typedef typename LevelSetType::SparseLayerMapIterator       SparseLayerMapIterator;
-  typedef typename LevelSetType::SparseLayerMapConstIterator  SparseLayerMapConstIterator;
 
   typedef ImageRegionIteratorWithIndex< InputImageType >  InputIteratorType;
   typedef ImageRegionIteratorWithIndex< SparseImageType > SparseIteratorType;
@@ -104,13 +98,8 @@ public:
     InputIteratorType iIt( m_InputImage, m_InputImage->GetRequestedRegion() );
     iIt.GoToBegin();
 
-    LevelSetNodeAttributeType p_plus1;
-    p_plus1.m_Status = 1;
-    p_plus1.m_Value = 1;
-
-    LevelSetNodeAttributeType p_minus1;
-    p_minus1.m_Status = -1;
-    p_minus1.m_Value = -1;
+    LevelSetOutputType p_plus1 = 1;
+    LevelSetOutputType p_minus1 = -1;
 
     while( !iIt.IsAtEnd() )
       {
@@ -172,9 +161,7 @@ public:
         temp_offset[dim] = 0;
         }
 
-      LevelSetNodeAttributeType p_zero;
-      p_zero.m_Status = 0;
-      p_zero.m_Value = static_cast< LevelSetOutputType >( 0.0 );
+      LevelSetOutputType p_zero = 0;
 
       while( !iIt.IsAtEnd() )
         {
@@ -195,7 +182,7 @@ public:
           {
           nodePair.first = inputNeighborhoodIt.GetIndex();
           nodePair.second = p_zero;
-          m_SparseLevelSet->GetListNode( 0 )->push_back( nodePair );
+          m_SparseLevelSet->GetListNode()->push_back( nodePair );
           sIt.Set( p_zero );
           }
         ++inputNeighborhoodIt;

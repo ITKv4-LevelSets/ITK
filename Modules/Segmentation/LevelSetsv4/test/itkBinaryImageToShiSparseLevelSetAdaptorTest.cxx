@@ -71,9 +71,9 @@ int itkBinaryImageToShiSparseLevelSetAdaptorTest( int argc, char* argv[] )
   output->Allocate();
   output->FillBuffer( 0.0 );
 
-  typedef BinaryToSparseAdaptorType::LevelSetNodeAttributeType NodeAttributeType;
+  typedef BinaryToSparseAdaptorType::LevelSetOutputType LevelSetOutputType;
 
-  NodeAttributeType p;
+  LevelSetOutputType p;
   SparseIteratorType sIt( sparseImage, sparseImage->GetLargestPossibleRegion() );
   sIt.GoToBegin();
 
@@ -82,7 +82,7 @@ int itkBinaryImageToShiSparseLevelSetAdaptorTest( int argc, char* argv[] )
   while( !oIt.IsAtEnd() )
     {
     p = sIt.Get();
-    oIt.Set( p.m_Value );
+    oIt.Set( p );
     ++oIt;
     ++sIt;
     }

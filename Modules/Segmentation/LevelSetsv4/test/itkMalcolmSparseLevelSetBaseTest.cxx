@@ -39,9 +39,7 @@ int itkMalcolmSparseLevelSetBaseTest( int , char* [] )
   region.SetIndex( index );
   region.SetSize( size );
 
-  SparseLevelSetType::NodeAttributeType value;
-  value.m_Status = -3;
-  value.m_Value = -3.;
+  SparseLevelSetType::OutputType value = -1;
 
   SparseImageType::Pointer image = SparseImageType::New();
   image->SetRegions( region );

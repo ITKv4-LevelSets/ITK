@@ -22,6 +22,7 @@
 #include "itkLevelSetBase.h"
 #include "itkVector.h"
 #include "itkMatrix.h"
+#include "itkNumericTraits.h"
 #include "itkConceptChecking.h"
 
 namespace itk
@@ -40,10 +41,11 @@ public:
   /** Run-time type information */
   itkTypeMacro ( LevelSetBase, Object );
 
-  typedef TInput                                       InputType;
-  typedef TOutput                                      OutputType;
-  typedef Vector< OutputType, VDimension >             GradientType;
-  typedef Matrix< OutputType, VDimension, VDimension > HessianType;
+  typedef TInput                                           InputType;
+  typedef TOutput                                          OutputType;
+  typedef typename NumericTraits< OutputType >::RealType   OutputRealType;
+  typedef Vector< OutputRealType, VDimension >             GradientType;
+  typedef Matrix< OutputRealType, VDimension, VDimension > HessianType;
 
   virtual OutputType    Evaluate( const InputType& iP ) const = 0;
   virtual GradientType  EvaluateGradient( const InputType& iP ) const = 0;

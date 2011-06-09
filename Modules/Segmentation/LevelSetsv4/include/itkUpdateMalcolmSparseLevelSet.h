@@ -60,16 +60,10 @@ public:
   typedef typename SparseImageType::Pointer            SparseImagePointer;
   typedef typename SparseImageType::IndexType          SparseImageIndexType;
 
-  typedef typename LevelSetType::NodeAttributeType     LevelSetNodeAttributeType;
-  typedef typename LevelSetType::NodeStatusType        LevelSetNodeStatusType;
   typedef typename LevelSetType::NodePairType          LevelSetNodePairType;
   typedef typename LevelSetType::NodeListType          LevelSetNodeListType;
   typedef typename LevelSetType::NodeListIterator      LevelSetNodeListIterator;
   typedef typename LevelSetType::NodeListConstIterator LevelSetNodeListConstIterator;
-
-  typedef typename LevelSetType::SparseLayerMapType           SparseLayerMapType;
-  typedef typename LevelSetType::SparseLayerMapIterator       SparseLayerMapIterator;
-  typedef typename LevelSetType::SparseLayerMapConstIterator  SparseLayerMapConstIterator;
 
   typedef ImageRegionIteratorWithIndex< SparseImageType > SparseIteratorType;
   typedef ShapedNeighborhoodIterator< SparseImageType >   SparseNeighborhoodIteratorType;
@@ -77,7 +71,7 @@ public:
   void UnPhasedPropagation()
     {
     LevelSetNodeListType new_list_0;
-    LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
+    LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode();
 
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -103,7 +97,7 @@ public:
       }
 
     LevelSetNodePairType p;
-    LevelSetNodeAttributeType q;
+    LevelSetOutputType q;
     LevelSetOutputType update;
 
     while( !m_Update->empty() )
@@ -118,13 +112,11 @@ public:
         {
         if( update > NumericTraits< LevelSetOutputType >::Zero )
           {
-          p.second.m_Status = -1;
-          p.second.m_Value = -1;
+          p.second = -1;
           }
         if( update < NumericTraits< LevelSetOutputType >::Zero )
           {
-          p.second.m_Status = 1;
-          p.second.m_Value = 1;
+          p.second = 1;
           }
         m_SparseImage->SetPixel( p.first, p.second );
         sparseNeighborhoodIt.SetLocation( p.first );
@@ -135,13 +127,12 @@ public:
           {
           q = i.Get();
 
-          if( q.m_Status * p.second.m_Status == -1 )
+          if( q * p.second == -1 )
             {
             LevelSetNodePairType temp;
             temp.first =
               sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
-            temp.second.m_Status = 0;
-            temp.second.m_Value = 0;
+            temp.second = 0;
             new_list_0.push_back( temp );
             m_SparseImage->SetPixel( temp.first, temp.second );
             }
@@ -193,7 +184,7 @@ public:
       }
 
     LevelSetNodePairType p;
-    LevelSetNodeAttributeType q;
+    LevelSetOutputType q;
     LevelSetOutputType update;
 
     while( !ioUpdate.empty() )
@@ -213,8 +204,7 @@ public:
           // only allow positive forces
           if( update > NumericTraits< LevelSetOutputType >::Zero )
             {
-            p.second.m_Status = -1;
-            p.second.m_Value = -1;
+            p.second = -1;
             to_be_updated = true;
             }
           }
@@ -223,8 +213,7 @@ public:
           // only allow negative forces
           if( update < NumericTraits< LevelSetOutputType >::Zero )
             {
-            p.second.m_Status = 1;
-            p.second.m_Value = 1;
+            p.second = 1;
             to_be_updated = true;
             }
           }
@@ -239,26 +228,25 @@ public:
             {
             q = i.Get();
 
-            if( q.m_Status * p.second.m_Status == -1 )
+            if( q * p.second == -1 )
               {
               LevelSetNodePairType temp;
               temp.first =
                 sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
-              temp.second.m_Status = 0;
-              temp.second.m_Value = 0;
-              m_StatusLists->GetListNode(0)->push_back( temp );
+              temp.second = 0;
+              m_StatusLists->GetListNode()->push_back( temp );
               m_SparseImage->SetPixel( temp.first, temp.second );
               }
             }
           }
         else
           {
-          m_StatusLists->GetListNode(0)->push_back( p );
+          m_StatusLists->GetListNode()->push_back( p );
           }
         }
       else
         {
-        m_StatusLists->GetListNode(0)->push_back( p );
+        m_StatusLists->GetListNode()->push_back( p );
         }
       }
     }
@@ -266,7 +254,7 @@ public:
   void MinimalInterface()
     {
     LevelSetNodeListType new_list_0;
-    LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
+    LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode();
 
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -292,7 +280,7 @@ public:
       }
 
     LevelSetNodePairType p;
-    LevelSetNodeAttributeType q;
+    LevelSetOutputType q;
 
     while( !list_0->empty() )
       {
@@ -310,9 +298,9 @@ public:
         {
         q = i.Get();
 
-        if( q.m_Status != NumericTraits< LevelSetNodeStatusType >::Zero )
+        if( q != NumericTraits< LevelSetOutputType >::Zero )
           {
-          if( q.m_Status == -1 )
+          if( q == -1 )
             {
             negative = true;
             if( positive )
@@ -320,7 +308,7 @@ public:
               break;
               }
             }
-          else // if( q.m_Status == 1 )
+          else // ( q == 1 )
             {
             positive = true;
             if( negative )
@@ -332,16 +320,14 @@ public:
         }
       if( negative && !positive )
         {
-        p.second.m_Status = -1;
-        p.second.m_Value = -1;
+        p.second = -1;
         m_SparseImage->SetPixel( p.first, p.second );
         }
       else
         {
         if( positive && !negative )
           {
-          p.second.m_Status = 1;
-          p.second.m_Value = 1;
+          p.second = 1;
           m_SparseImage->SetPixel( p.first, p.second );
           }
         else
@@ -377,7 +363,7 @@ public:
       }
     else
       {
-      LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
+      LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode();
 
       LevelSetNodeListType list_pos;
       UpdateListType update_pos;
@@ -416,11 +402,11 @@ public:
       PhasedPropagation( list_neg, update_neg, false );
       MinimalInterface();
 
-      while( !m_StatusLists->GetListNode(0)->empty() )
+      while( !m_StatusLists->GetListNode()->empty() )
         {
-        m_SparseLevelSet->GetListNode( 0 )->push_back(
-              m_StatusLists->GetListNode( 0 )->front() );
-        m_StatusLists->GetListNode( 0 )->pop_front();
+        m_SparseLevelSet->GetListNode()->push_back(
+              m_StatusLists->GetListNode()->front() );
+        m_StatusLists->GetListNode()->pop_front();
         }
 
       MinimalInterface();
