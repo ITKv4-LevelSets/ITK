@@ -35,6 +35,9 @@ public:
   typedef SmartPointer< const Self > ConstPointer;
   typedef Object                     Superclass;
 
+  /** Run-time type information */
+  itkTypeMacro( LevelSetEquationTermBase, Object );
+
   typedef TInput                                          InputType;
   typedef typename InputType::Pointer                     InputPointer;
   typedef typename InputType::PixelType                   InputPixelType;

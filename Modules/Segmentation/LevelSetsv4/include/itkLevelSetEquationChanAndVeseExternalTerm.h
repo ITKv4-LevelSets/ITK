@@ -58,7 +58,7 @@ public:
   typedef typename Superclass::LevelSetHessianType        LevelSetHessianType;
   typedef typename Superclass::LevelSetIdentifierType     LevelSetIdentifierType;
 
-  typedef std::list< IdentifierType >                    IdListType;
+  typedef std::list< LevelSetIdentifierType >            IdListType;
   typedef typename IdListType::iterator                  IdListIterator;
 
   typedef typename Superclass::HeavisideType    HeavisideType;
@@ -69,9 +69,13 @@ public:
 
   virtual void Update()
   {
-    if( m_TotalH > NumericTraits< LevelSetOutputType >::epsilon() )
+    if( m_TotalH > NumericTraits< LevelSetOutputRealType >::epsilon() )
       {
-      m_Mean = m_TotalValue / m_TotalH;
+      LevelSetOutputRealType inv_total_h = 1. / m_TotalH;
+
+      // depending on the pixel type, it may be more efficient to do
+      // a multiplication than to do a division
+      m_Mean = m_TotalValue * inv_total_h;
       }
     else
       {
@@ -80,50 +84,53 @@ public:
 
     std::cout << m_TotalValue << '/' << m_TotalH << '=' << m_Mean << std::endl;
     m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
-    m_TotalH = NumericTraits< LevelSetOutputType >::Zero;
+    m_TotalH = NumericTraits< LevelSetOutputRealType >::Zero;
+    this->m_CFLContribution = NumericTraits< LevelSetOutputRealType >::Zero;
   }
 
   // this will work for scalars and vectors. For matrices, one may have to reimplement
   // his specialized term
   virtual void Initialize( const LevelSetInputType& iP )
   {
-    IdentifierType id = this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
+    LevelSetIdentifierType id =
+        this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
+
     IdListType lout = this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
 
     if( m_CurrentLevelSetPointer.IsNull() )
-    {
+      {
       m_CurrentLevelSetPointer =
       this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
 
       if( m_CurrentLevelSetPointer.IsNull() )
-      {
+        {
         itkWarningMacro(
         << "m_CurrentLevelSet does not exist in the level set container" );
+        }
       }
-    }
 
     if( this->m_Heaviside.IsNotNull() )
-    {
+      {
       LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
 
       InputPixelType pixel = this->m_Input->GetPixel( iP );
 
       LevelSetOutputType prod = 1.;
       for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-      {
-        if ( *lIt-1 != this->m_CurrentLevelSet )
         {
+        if ( *lIt-1 != this->m_CurrentLevelSet )
+          {
           LevelSetPointer levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1 );
           value = levelSet->Evaluate( iP );
           prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
+          }
         }
-      }
       this->Accumulate( pixel, prod );
-    }
+      }
     else
-    {
+      {
       itkWarningMacro( << "m_Heaviside is NULL" );
-    }
+      }
   }
 
 //   virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
@@ -135,7 +142,7 @@ protected:
   LevelSetEquationChanAndVeseExternalTerm() : Superclass(),
     m_CurrentLevelSetPointer( NULL ),
     m_Mean( NumericTraits< InputPixelRealType >::Zero ),
-    m_TotalH( NumericTraits< LevelSetOutputType >::Zero ),
+    m_TotalH( NumericTraits< LevelSetOutputRealType >::Zero ),
     m_TotalValue( NumericTraits< InputPixelRealType >::Zero )
   {}
 
@@ -152,11 +159,14 @@ protected:
     {
     if( this->m_Heaviside.IsNotNull() )
       {
-      IdentifierType id = this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
-      IdListType lout = this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
+      LevelSetIdentifierType id =
+          this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
+      IdListType lout =
+          this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
 
-      LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
-      LevelSetOutputType d_val = this->m_Heaviside->EvaluateDerivative( -value );
+      LevelSetOutputRealType value =
+          static_cast< LevelSetOutputRealType  >( m_CurrentLevelSetPointer->Evaluate( iP ) );
+      LevelSetOutputRealType d_val = this->m_Heaviside->EvaluateDerivative( -value );
 
       InputPixelType pixel = this->m_Input->GetPixel( iP );
 
@@ -165,13 +175,11 @@ protected:
       for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
         {
         LevelSetPointer levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
-        value = levelSet->Evaluate( iP );
-        prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
+        value = static_cast< LevelSetOutputRealType  >( levelSet->Evaluate( iP ) );
+        prod *= ( 1 - this->m_Heaviside->Evaluate( -value ) );
         }
       LevelSetOutputRealType oValue = -d_val * prod *
         static_cast< LevelSetOutputRealType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
-
-//       this->Accumulate( pixel, 1 - h_val );
 
       return oValue;
       }
@@ -191,15 +199,10 @@ protected:
     m_TotalH += static_cast< InputPixelRealType >( iH );
     }
 
-  LevelSetPointer     m_CurrentLevelSetPointer;
-  InputPixelRealType  m_Mean;
-  LevelSetOutputType  m_TotalH;
-  InputPixelRealType  m_TotalValue;
-
-//   InputPointer m_Input;
-//   LevelSetContainerPointer m_LevelSetContainer;
-//   LevelSetOutputType m_Cofficient;
-//   std::string m_TermName;
+  LevelSetPointer         m_CurrentLevelSetPointer;
+  InputPixelRealType      m_Mean;
+  LevelSetOutputRealType  m_TotalH;
+  InputPixelRealType      m_TotalValue;
 
 private:
   LevelSetEquationChanAndVeseExternalTerm( const Self& );
