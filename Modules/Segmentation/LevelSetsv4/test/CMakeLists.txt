@@ -20,6 +20,7 @@ itkUpdateWhitakerSparseLevelSetTest.cxx
 itkUpdateWhitakerSparseLevelSetTest.cxx
 itkUpdateShiSparseLevelSetTest.cxx
 itkUpdateMalcolmSparseLevelSetTest.cxx
+itkSingleLevelSetSparse2DTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -128,3 +129,6 @@ add_test(NAME itkUpdateMalcolmSparseLevelSetTest2
       2
       output_update_malcolm_sparse2.mha
     )
+add_test(NAME itkSingleLevelSetSparse2DTest
+      COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
