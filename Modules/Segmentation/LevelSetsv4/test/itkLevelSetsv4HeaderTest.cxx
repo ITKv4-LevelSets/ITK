@@ -45,6 +45,7 @@
 #include "itkBinaryImageToShiSparseLevelSetAdaptor.h"
 #include "itkUpdateWhitakerSparseLevelSet.h"
 #include "itkUpdateShiSparseLevelSet.h"
+#include "itkLevelSetSparseEvolutionBase.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
