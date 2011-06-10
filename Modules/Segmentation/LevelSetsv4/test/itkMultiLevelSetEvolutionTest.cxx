@@ -39,6 +39,7 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   typedef float                                          PixelType;
   typedef itk::Image< PixelType, Dimension >             ImageType;
   typedef itk::LevelSetImageBase< ImageType >            LevelSetType;
+  typedef LevelSetType::OutputRealType                   LevelSetOutputRealType;
   typedef itk::ImageRegionIteratorWithIndex< ImageType > IteratorType;
   typedef itk::IdentifierType                            IdentifierType;
   typedef std::list< IdentifierType >                    IdListType;
@@ -59,8 +60,8 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   typedef itk::LevelSetEquationContainerBase< TermContainerType >     EquationContainerType;
 
   typedef itk::LevelSetEvolutionBase< EquationContainerType >             LevelSetEvolutionType;
-  typedef itk::AtanRegularizedHeavisideStepFunction< PixelType, PixelType >
-                                                                      HeavisideFunctionBaseType;
+  typedef itk::AtanRegularizedHeavisideStepFunction<
+      LevelSetOutputRealType, LevelSetOutputRealType > HeavisideFunctionBaseType;
 
   ImageType::IndexType index;
   index[0] = 0;

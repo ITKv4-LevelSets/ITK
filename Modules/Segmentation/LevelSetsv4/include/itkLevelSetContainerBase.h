@@ -57,8 +57,9 @@ public:
   typedef typename LevelSetContainerType::const_iterator LevelSetContainerConstIteratorType;
   typedef typename LevelSetContainerType::iterator       LevelSetContainerIteratorType;
 
-  typedef HeavisideStepFunctionBase< OutputType, OutputType > HeavisideType;
-  typedef typename HeavisideType::Pointer                     HeavisidePointer;
+  typedef HeavisideStepFunctionBase< OutputRealType, OutputRealType >
+                                            HeavisideType;
+  typedef typename HeavisideType::Pointer   HeavisidePointer;
 
   itkStaticConstMacro ( ImageDimension, unsigned int, LevelSetImageType::ImageDimension );
 

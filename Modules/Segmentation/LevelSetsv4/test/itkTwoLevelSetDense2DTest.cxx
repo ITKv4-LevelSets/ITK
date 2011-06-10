@@ -43,6 +43,7 @@ int itkTwoLevelSetDense2DTest( int argc, char* argv[] )
   typedef float                                          PixelType;
   typedef itk::Image< PixelType, Dimension >             ImageType;
   typedef itk::LevelSetImageBase< ImageType >            LevelSetType;
+  typedef LevelSetType::OutputRealType                   LevelSetOutputRealType;
   typedef itk::ImageRegionIteratorWithIndex< ImageType > IteratorType;
 
   typedef itk::IdentifierType                            IdentifierType;
@@ -63,8 +64,9 @@ int itkTwoLevelSetDense2DTest( int argc, char* argv[] )
   typedef itk::LevelSetEquationContainerBase< TermContainerType >     EquationContainerType;
 
   typedef itk::LevelSetEvolutionBase< EquationContainerType >         LevelSetEvolutionType;
-  typedef itk::AtanRegularizedHeavisideStepFunction< PixelType, PixelType >
-                                                                      HeavisideFunctionBaseType;
+
+  typedef itk::AtanRegularizedHeavisideStepFunction<
+      LevelSetOutputRealType, LevelSetOutputRealType >  HeavisideFunctionBaseType;
 
   typedef  itk::FastMarchingImageFilter< ImageType, ImageType > FastMarchingFilterType;
   typedef FastMarchingFilterType::NodeContainer                 NodeContainer;

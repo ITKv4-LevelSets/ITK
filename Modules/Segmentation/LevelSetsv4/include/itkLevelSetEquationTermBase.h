@@ -46,7 +46,8 @@ public:
   typedef typename LevelSetContainerType::GradientType   GradientType;
   typedef typename LevelSetContainerType::HessianType    HessianType;
 
-  typedef HeavisideStepFunctionBase< LevelSetOutputType, LevelSetOutputType >
+  typedef HeavisideStepFunctionBase< LevelSetOutputRealType,
+                                     LevelSetOutputRealType >
                                           HeavisideType;
   typedef typename HeavisideType::Pointer HeavisidePointer;
 

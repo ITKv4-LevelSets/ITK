@@ -36,6 +36,7 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   typedef float                                          PixelType;
   typedef itk::Image< PixelType, Dimension >             ImageType;
   typedef itk::LevelSetImageBase< ImageType >            LevelSetType;
+  typedef LevelSetType::OutputRealType                   LevelSetOutputRealType;
   typedef itk::ImageRegionIteratorWithIndex< ImageType > IteratorType;
   typedef itk::IdentifierType                            IdentifierType;
   typedef std::list< IdentifierType >                    IdListType;
@@ -48,7 +49,8 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   typedef itk::LevelSetEquationChanAndVeseInternalTerm< InputImageType, LevelSetContainerType > ChanAndVeseTermType;
   typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType > TermContainerType;
 
-  typedef itk::AtanRegularizedHeavisideStepFunction< PixelType, PixelType >  HeavisideFunctionBaseType;
+  typedef itk::AtanRegularizedHeavisideStepFunction<
+      LevelSetOutputRealType, LevelSetOutputRealType >  HeavisideFunctionBaseType;
 
   ImageType::IndexType index;
   index[0] = 0;
