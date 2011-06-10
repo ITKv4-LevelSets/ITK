@@ -64,8 +64,8 @@ public:
   itkSetObjectMacro( Input, InputType );
   itkGetObjectMacro( Input, InputType );
 
-  itkSetMacro( Coefficient, LevelSetOutputType );
-  itkGetMacro( Coefficient, LevelSetOutputType );
+  itkSetMacro( Coefficient, LevelSetOutputRealType );
+  itkGetMacro( Coefficient, LevelSetOutputRealType );
 
   itkSetMacro( CurrentLevelSet, LevelSetIdentifierType );
   itkGetMacro( CurrentLevelSet, LevelSetIdentifierType );
@@ -75,6 +75,7 @@ public:
   {
     m_LevelSetContainer = ptr;
     m_Heaviside = ptr->GetHeaviside();
+    this->Modified();
   }
 
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
@@ -86,7 +87,7 @@ public:
 
   virtual void Initialize( const LevelSetInputType& iP ) = 0;
 
-  itkGetMacro( CFLContribution, LevelSetOutputType );
+  itkGetMacro( CFLContribution, LevelSetOutputRealType );
 
   itkSetStringMacro( TermName );
   itkGetStringMacro( TermName );
