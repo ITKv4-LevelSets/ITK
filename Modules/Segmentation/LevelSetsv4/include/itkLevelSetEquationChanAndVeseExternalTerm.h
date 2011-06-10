@@ -54,6 +54,7 @@ public:
   typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
   typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
   typedef typename LevelSetContainerType::OutputType      LevelSetOutputType;
+  typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
   typedef typename LevelSetContainerType::InputType       LevelSetInputType;
   typedef typename LevelSetContainerType::GradientType    GradientType;
   typedef typename LevelSetContainerType::HessianType     HessianType;
@@ -62,8 +63,8 @@ public:
   typedef std::list< IdentifierType >                    IdListType;
   typedef typename IdListType::iterator                  IdListIterator;
 
-  typedef typename Superclass::HeavisideType HeavisideType;
-  typedef typename HeavisideType::Pointer    HeavisidePointer;
+  typedef typename Superclass::HeavisideType    HeavisideType;
+  typedef typename Superclass::HeavisidePointer HeavisidePointer;
 
   itkSetMacro( Mean, InputPixelRealType );
   itkGetMacro( Mean, InputPixelRealType );
@@ -149,7 +150,7 @@ protected:
 
   // this will work for scalars and vectors. For matrices, one may have to reimplement
   // his specialized term
-  virtual LevelSetOutputType Value( const LevelSetInputType& iP )
+  virtual LevelSetOutputRealType Value( const LevelSetInputType& iP )
     {
     if( this->m_Heaviside.IsNotNull() )
       {
@@ -161,15 +162,16 @@ protected:
 
       InputPixelType pixel = this->m_Input->GetPixel( iP );
 
-      LevelSetOutputType prod = 1.;
+      LevelSetOutputRealType prod = NumericTraits< LevelSetOutputRealType >::One;
+
       for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-      {
+        {
         LevelSetPointer levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
         value = levelSet->Evaluate( iP );
         prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
-      }
-      LevelSetOutputType oValue = -d_val * prod *
-        static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
+        }
+      LevelSetOutputRealType oValue = -d_val * prod *
+        static_cast< LevelSetOutputRealType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
 
 //       this->Accumulate( pixel, 1 - h_val );
 
@@ -180,13 +182,14 @@ protected:
       itkWarningMacro( << "m_Heaviside is NULL" );
       }
 
-    return NumericTraits< LevelSetOutputType >::Zero;
+    return NumericTraits< LevelSetOutputRealType >::Zero;
     }
 
   void Accumulate( const InputPixelType& iPix,
-                   const LevelSetOutputType& iH )
+                   const LevelSetOutputRealType& iH )
     {
-    m_TotalValue += static_cast< InputPixelRealType >( iPix ) * static_cast< InputPixelRealType >( iH );
+    m_TotalValue += static_cast< InputPixelRealType >( iPix ) *
+        static_cast< InputPixelRealType >( iH );
     m_TotalH += static_cast< InputPixelRealType >( iH );
     }
 

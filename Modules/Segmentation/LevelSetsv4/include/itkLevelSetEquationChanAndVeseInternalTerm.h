@@ -54,6 +54,7 @@ public:
   typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
   typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
   typedef typename LevelSetContainerType::OutputType      LevelSetOutputType;
+  typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
   typedef typename LevelSetContainerType::InputType       LevelSetInputType;
   typedef typename LevelSetContainerType::GradientType    GradientType;
   typedef typename LevelSetContainerType::HessianType     HessianType;
@@ -130,7 +131,7 @@ protected:
 
   // this will work for scalars and vectors. For matrices, one may have to reimplement
   // his specialized term
-  virtual LevelSetOutputType Value( const LevelSetInputType& iP )
+  virtual LevelSetOutputRealType Value( const LevelSetInputType& iP )
     {
     if( this->m_Heaviside.IsNotNull() )
       {

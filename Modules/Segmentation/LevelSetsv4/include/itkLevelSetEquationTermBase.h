@@ -41,6 +41,7 @@ public:
   typedef typename LevelSetContainerType::IdentifierType LevelSetIdentifierType;
   typedef typename LevelSetContainerType::Pointer        LevelSetContainerPointer;
   typedef typename LevelSetContainerType::OutputType     LevelSetOutputType;
+  typedef typename LevelSetContainerType::OutputRealType LevelSetOutputRealType;
   typedef typename LevelSetContainerType::InputType      LevelSetInputType;
   typedef typename LevelSetContainerType::GradientType   GradientType;
   typedef typename LevelSetContainerType::HessianType    HessianType;
@@ -68,7 +69,7 @@ public:
 
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
-  virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
+  virtual LevelSetOutputRealType Evaluate( const LevelSetInputType& iP )
     {
     return m_Coefficient * this->Value( iP );
     }
@@ -84,20 +85,20 @@ public:
 
 protected:
   LevelSetEquationTermBase() : Superclass(),
-    m_Coefficient( NumericTraits< LevelSetOutputType >::One ),
-    m_CFLContribution( NumericTraits< LevelSetOutputType >::Zero )
+    m_Coefficient( NumericTraits< LevelSetOutputRealType >::One ),
+    m_CFLContribution( NumericTraits< LevelSetOutputRealType >::Zero )
   {}
 
   virtual ~LevelSetEquationTermBase() {}
 
   virtual void SetDefaultTermName() = 0;
-  virtual LevelSetOutputType Value( const LevelSetInputType& iP ) = 0;
+  virtual LevelSetOutputRealType Value( const LevelSetInputType& iP ) = 0;
 
   InputPointer             m_Input;
   LevelSetContainerPointer m_LevelSetContainer;
   LevelSetIdentifierType   m_CurrentLevelSet;
-  LevelSetOutputType       m_Coefficient;
-  LevelSetOutputType       m_CFLContribution;
+  LevelSetOutputRealType   m_Coefficient;
+  LevelSetOutputRealType   m_CFLContribution;
   HeavisidePointer         m_Heaviside;
   std::string              m_TermName;
 
