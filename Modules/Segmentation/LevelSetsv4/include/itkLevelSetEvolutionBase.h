@@ -286,8 +286,10 @@ protected:
       }
     }
 
+  /** \brief Compute time step m_Dt for the next iteration. */
   void ComputeDtForNextIteration()
     {
+    // if the time step is not globally set
     if( !m_UserDefinedDt )
       {
       if( ( m_Alpha > NumericTraits< LevelSetOutputType >::Zero ) &&

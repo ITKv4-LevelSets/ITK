@@ -21,7 +21,7 @@
 #include "itkImageFileWriter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
-#include "itkLevelSetSparseContainerBase.h"
+#include "itkLevelSetContainerBase.h"
 #include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 #include "itkLevelSetEquationChanAndVeseExternalTerm.h"
 #include "itkLevelSetEquationTermContainerBase.h"
@@ -46,11 +46,11 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
                                                             BinaryToSparseAdaptorType;
 
   typedef itk::IdentifierType                               IdentifierType;
-  typedef BinaryToSparseAdaptorType::LevelSetType           LevelSetType;
-  typedef SparseLevelSetType::SparseImageType               ImageType;
+  typedef BinaryToSparseAdaptorType::LevelSetType           SparseLevelSetType;
+  typedef SparseLevelSetType::ImageType                     SparseImageType;
   typedef SparseLevelSetType::NodeAttributeType             NodeAttributeType;
 
-  typedef itk::LevelSetSparseContainerBase< IdentifierType, LevelSetType >
+  typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
                                                             LevelSetContainerType;
 
   typedef std::list< IdentifierType >                       IdListType;
@@ -71,9 +71,9 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 
   typedef itk::LevelSetSparseEvolutionBase< EquationContainerType >
                                                             LevelSetEvolutionType;
-  typedef itk::SinRegularizedHeavisideStepFunction< PixelType, PixelType >
+  typedef itk::SinRegularizedHeavisideStepFunction< OutputPixelType, OutputPixelType >
                                                             HeavisideFunctionBaseType;
-  typedef itk::ImageRegionIteratorWithIndex< ImageType >    IteratorType;
+  typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
 
   // load binary mask
   ReaderType::Pointer reader = ReaderType::New();
@@ -87,8 +87,8 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   adaptor->Initialize();
   std::cout << "Finished converting to sparse format" << std::endl;
 
-  LevelSetType::Pointer level_set = adaptor->GetSparseLevelSet();
-  ImageType::Pointer sparseImage = level_set->GetImage();
+  SparseLevelSetType::Pointer level_set = adaptor->GetSparseLevelSet();
+  SparseImageType::Pointer sparseImage = level_set->GetImage();
 
   IdListType list_ids;
   list_ids.push_back( 1 );

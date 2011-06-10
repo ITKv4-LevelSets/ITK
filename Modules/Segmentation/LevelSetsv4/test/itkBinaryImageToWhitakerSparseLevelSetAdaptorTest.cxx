@@ -35,12 +35,13 @@ int itkBinaryImageToWhitakerSparseLevelSetAdaptorTest( int argc, char* argv[] )
 
   typedef itk::ImageFileReader< InputImageType >                   InputReaderType;
   typedef itk::ImageFileWriter< OutputImageType >                  OutputWriterType;
+
   typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType,
       OutputPixelType > BinaryToSparseAdaptorType;
 
-  typedef BinaryToSparseAdaptorType::LevelSetType                  SparseLevelSetType;
-  typedef SparseLevelSetType::SparseImageType                      SparseImageType;
-  typedef SparseLevelSetType::NodeAttributeType                    NodeAttributeType;
+  typedef BinaryToSparseAdaptorType::LevelSetType           SparseLevelSetType;
+  typedef SparseLevelSetType::ImageType                     SparseImageType;
+  typedef SparseLevelSetType::NodeAttributeType             NodeAttributeType;
 
 
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;

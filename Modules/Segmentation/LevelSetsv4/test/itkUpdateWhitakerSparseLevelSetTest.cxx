@@ -40,10 +40,10 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType,
       OutputPixelType > BinaryToSparseAdaptorType;
 
-  typedef BinaryToSparseAdaptorType::LevelSetType                  SparseLevelSetType;
-  typedef SparseLevelSetType::SparseImageType                      SparseImageType;
-  typedef SparseLevelSetType::NodeAttributeType                    NodeAttributeType;
-  typedef BinaryToSparseAdaptorType::LevelSetNodeStatusType        StatusPixelType;
+  typedef BinaryToSparseAdaptorType::LevelSetType            SparseLevelSetType;
+  typedef SparseLevelSetType::ImageType                      SparseImageType;
+  typedef SparseLevelSetType::NodeAttributeType              NodeAttributeType;
+  typedef BinaryToSparseAdaptorType::LevelSetNodeStatusType  StatusPixelType;
 
   typedef itk::Image< StatusPixelType, Dimension >  StatusImageType;
   typedef itk::ImageFileWriter< StatusImageType >   StatusWriterType;

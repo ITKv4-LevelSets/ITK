@@ -74,8 +74,8 @@ public:
   typedef typename SparseLayerMapType::iterator       SparseLayerMapIterator;
   typedef typename SparseLayerMapType::const_iterator SparseLayerMapConstIterator;
 
-  typedef Image< NodeAttributeType, VDimension >  SparseImageType;
-  typedef typename SparseImageType::Pointer       SparseImagePointer;
+  typedef Image< NodeAttributeType, VDimension >      ImageType;
+  typedef typename ImageType::Pointer                 ImagePointer;
 
   char GetStatus( const InputType& iP ) const
     {
@@ -113,8 +113,8 @@ public:
       }
     }
 
-  itkSetObjectMacro( Image, SparseImageType );
-  itkGetObjectMacro( Image, SparseImageType );
+  itkSetObjectMacro( Image, ImageType );
+  itkGetObjectMacro( Image, ImageType );
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
@@ -133,8 +133,8 @@ protected:
   }
   ~WhitakerSparseLevelSetBase() {}
 
-  SparseImagePointer m_Image;
-  SparseLayerMapType m_LayerList;
+  ImagePointer        m_Image;
+  SparseLayerMapType  m_LayerList;
 
   void InitializeLayers()
     {

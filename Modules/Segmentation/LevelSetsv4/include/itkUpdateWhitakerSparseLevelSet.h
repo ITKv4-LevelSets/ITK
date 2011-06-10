@@ -59,7 +59,7 @@ public:
   typedef std::list< LevelSetOutputRealType >          UpdateListType;
 
 
-  typedef typename LevelSetType::SparseImageType       SparseImageType;
+  typedef typename LevelSetType::ImageType             SparseImageType;
   typedef typename SparseImageType::Pointer            SparseImagePointer;
   typedef typename SparseImageType::IndexType          SparseImageIndexType;
 

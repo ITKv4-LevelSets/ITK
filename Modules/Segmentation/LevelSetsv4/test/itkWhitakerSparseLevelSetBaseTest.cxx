@@ -27,7 +27,7 @@ int itkWhitakerSparseLevelSetBaseTest( int , char* [] )
 
   SparseLevelSetType::Pointer phi = SparseLevelSetType::New();
 
-  typedef SparseLevelSetType::SparseImageType SparseImageType;
+  typedef SparseLevelSetType::ImageType SparseImageType;
 
   SparseImageType::IndexType index;
   index[0] = 0;

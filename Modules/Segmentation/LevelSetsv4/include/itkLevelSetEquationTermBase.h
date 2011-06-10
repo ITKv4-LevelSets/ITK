@@ -20,7 +20,7 @@
 #define __itkLevelSetEquationTermBase_h
 
 #include "itkObject.h"
-#include "itkAtanRegularizedHeavisideStepFunction.h"
+#include "itkHeavisideStepFunctionBase.h"
 
 namespace itk
 {
