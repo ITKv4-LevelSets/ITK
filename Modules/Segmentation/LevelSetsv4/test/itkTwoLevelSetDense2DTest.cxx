@@ -23,7 +23,7 @@
 #include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
-#include "itkLevelSetContainerBase.h"
+#include "itkDenseLevelSetContainer.h"
 #include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 #include "itkLevelSetEquationChanAndVeseExternalTerm.h"
 #include "itkLevelSetEquationTermContainerBase.h"
@@ -52,7 +52,7 @@ int itkTwoLevelSetDense2DTest( int argc, char* argv[] )
   typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
                                                          DomainMapImageFilterType;
 
-  typedef itk::LevelSetContainerBase< IdentifierType, LevelSetType >  LevelSetContainerType;
+  typedef itk::DenseLevelSetContainer< IdentifierType, LevelSetType >  LevelSetContainerType;
   typedef itk::LevelSetEquationChanAndVeseInternalTerm< InputImageType, LevelSetContainerType >
                                                                       ChanAndVeseInternalTermType;
   typedef itk::LevelSetEquationChanAndVeseExternalTerm< InputImageType, LevelSetContainerType >

@@ -44,13 +44,14 @@ public:
 
   typedef TIdentifier IdentifierType;
 
-  typedef TLevelSet                           LevelSetType;
-  typedef typename LevelSetType::Pointer      LevelSetPointer;
-  typedef typename LevelSetType::ImageType    LevelSetImageType;
-  typedef typename LevelSetType::InputType    InputType;
-  typedef typename LevelSetType::OutputType   OutputType;
-  typedef typename LevelSetType::GradientType GradientType;
-  typedef typename LevelSetType::HessianType  HessianType;
+  typedef TLevelSet                             LevelSetType;
+  typedef typename LevelSetType::Pointer        LevelSetPointer;
+  typedef typename LevelSetType::ImageType      LevelSetImageType;
+  typedef typename LevelSetType::InputType      InputType;
+  typedef typename LevelSetType::OutputType     OutputType;
+  typedef typename LevelSetType::OutputRealType OutputRealType;
+  typedef typename LevelSetType::GradientType   GradientType;
+  typedef typename LevelSetType::HessianType    HessianType;
 
   typedef std::map< IdentifierType, LevelSetPointer >    LevelSetContainerType;
   typedef typename LevelSetContainerType::const_iterator LevelSetContainerConstIteratorType;
@@ -91,41 +92,6 @@ public:
   LevelSetContainerConstIteratorType End() const
     {
     return m_Container.end();
-    }
-
-  void CopyInformationAndAllocate( Pointer iOther,
-                                   const bool& iAllocate )
-    {
-    LevelSetContainerConstIteratorType it = iOther->m_Container.begin();
-
-    while( it != iOther->m_Container.end() )
-      {
-      if( iAllocate )
-        {
-        LevelSetPointer temp_ls = LevelSetType::New();
-
-        typedef typename LevelSetType::ImageType    LevelSetImageType;
-        typedef typename LevelSetImageType::Pointer LevelSetImagePointer;
-        // Note LevelSetImageType::PixelType is identical to OutputType
-
-        LevelSetImagePointer image = LevelSetImageType::New();
-        image->CopyInformation( ( it->second )->GetImage() );
-        image->SetBufferedRegion( ( it->second )->GetImage()->GetBufferedRegion() );
-        image->SetRequestedRegion( ( it->second )->GetImage()->GetRequestedRegion() );
-        image->SetLargestPossibleRegion( ( it->second )->GetImage()->GetLargestPossibleRegion() );
-        image->Allocate();
-        image->FillBuffer( NumericTraits< OutputType >::Zero );
-
-        temp_ls->SetImage( image );
-        m_Container[ it->first ] = temp_ls;
-        }
-      else
-        {
-        LevelSetPointer temp_ls;
-        m_Container[ it->first ] = temp_ls;
-        }
-      ++it;
-      }
     }
 
   LevelSetPointer GetLevelSet( const IdentifierType& iId ) const
