@@ -95,6 +95,16 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   id_image->Allocate();
   id_image->FillBuffer( list_ids );
 
+  // Define the Heaviside function
+  HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
+  heaviside->SetEpsilon( 1.0 );
+
+  DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
+  domainMapFilter->SetInput( id_image );
+  domainMapFilter->Update();
+  CacheImageType::Pointer output = domainMapFilter->GetOutput();
+  std::cout << "Domain partition computed" << std::endl;
+
   IteratorType it1( input1, input1->GetLargestPossibleRegion() );
   IteratorType it2( input2, input2->GetLargestPossibleRegion() );
   it1.GoToBegin();
@@ -140,6 +150,9 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   // Insert the levelsets in a levelset container
   bool LevelSetNotYetAdded;
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
+  lscontainer->SetHeaviside( heaviside );
+  lscontainer->SetDomainMapFilter( domainMapFilter );
+
   LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set[1], false );
   if ( !LevelSetNotYetAdded )
   {
@@ -152,13 +165,8 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   }
   std::cout << "Level set container created" << std::endl;
 
-  // Define the Heaviside function
-  HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
-  heaviside->SetEpsilon( 1.0 );
-
   // Create ChanAndVeseTerm
   ChanAndVeseTermType::Pointer cvTerm = ChanAndVeseTermType::New();
-  cvTerm->SetHeaviside( heaviside );
   cvTerm->SetInput( input );
   cvTerm->SetCoefficient( 1.0 );
   cvTerm->SetCurrentLevelSet( 0 );
@@ -170,12 +178,6 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
   TermContainerType::Pointer termContainer = TermContainerType::New();
   termContainer->AddTerm( 0, temp );
   std::cout << "Term container created" << std::endl;
-
-  DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
-  domainMapFilter->SetInput( id_image );
-  domainMapFilter->Update();
-  CacheImageType::Pointer output = domainMapFilter->GetOutput();
-  std::cout << "Domain partition computed" << std::endl;
 
   typedef std::map< itk::IdentifierType, DomainMapImageFilterType::NounToBeDefined >::iterator DomainMapIterator;
   DomainMapIterator map_it = domainMapFilter->m_LevelSetMap.begin();

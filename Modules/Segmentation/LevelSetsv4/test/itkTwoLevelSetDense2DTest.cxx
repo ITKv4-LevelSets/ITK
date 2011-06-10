@@ -31,7 +31,7 @@
 #include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetEvolutionBase.h"
 
-int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
+int itkTwoLevelSetDense2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
@@ -122,6 +122,7 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
 
   IdListType list_ids;
   list_ids.push_back( 1 );
+  list_ids.push_back( 2 );
 
   IdListImageType::Pointer id_image = IdListImageType::New();
   id_image->SetRegions( input->GetLargestPossibleRegion() );
@@ -138,19 +139,28 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
   heaviside->SetEpsilon( 1.0 );
 
   // Map of levelset bases
-  LevelSetType::Pointer  level_set = LevelSetType::New();
-  level_set->SetImage( fastMarching->GetOutput() );
+  LevelSetType::Pointer  level_set1 = LevelSetType::New();
+  level_set1->SetImage( fastMarching->GetOutput() );
+
+  LevelSetType::Pointer  level_set2 = LevelSetType::New();
+  level_set2->SetImage( fastMarching->GetOutput() );
 
   // Insert the levelsets in a levelset container
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
   lscontainer->SetHeaviside( heaviside );
   lscontainer->SetDomainMapFilter( domainMapFilter );
 
-  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set, false );
+  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set1, false );
   if ( !LevelSetNotYetAdded )
     {
     return EXIT_FAILURE;
     }
+
+  LevelSetNotYetAdded = lscontainer->AddLevelSet( 1, level_set2, false );
+  if ( !LevelSetNotYetAdded )
+  {
+    return EXIT_FAILURE;
+  }
   std::cout << "Level set container created" << std::endl;
 
   // **************** CREATE ALL TERMS ****************
@@ -174,6 +184,24 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
   cvExternalTerm0->SetLevelSetContainer( lscontainer );
   std::cout << "LevelSet 1: CV external term created" << std::endl;
 
+  // -----------------------------
+  // *** 2nd Level Set phi ***
+
+  ChanAndVeseInternalTermType::Pointer cvInternalTerm1 = ChanAndVeseInternalTermType::New();
+  cvInternalTerm1->SetInput( input );
+  cvInternalTerm1->SetCoefficient( 1.0 );
+  cvInternalTerm1->SetCurrentLevelSet( 1 );
+  cvInternalTerm1->SetLevelSetContainer( lscontainer );
+  std::cout << "LevelSet 2: CV internal term created" << std::endl;
+
+  // Create ChanAndVese external term for phi_{1}
+  ChanAndVeseExternalTermType::Pointer cvExternalTerm1 = ChanAndVeseExternalTermType::New();
+  cvExternalTerm1->SetInput( input );
+  cvExternalTerm1->SetCoefficient( 1.0 );
+  cvExternalTerm1->SetCurrentLevelSet( 1 );
+  cvExternalTerm1->SetLevelSetContainer( lscontainer );
+  std::cout << "LevelSet 2: CV external term created" << std::endl;
+
   // **************** CREATE ALL EQUATIONS ****************
 
   // Create Term Container
@@ -188,8 +216,20 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
   termContainer0->AddTerm( 1, temp );
   std::cout << "Term container 0 created" << std::endl;
 
+  // Create Term Container
+  TermContainerType::Pointer termContainer1 = TermContainerType::New();
+  termContainer1->SetInput( input );
+
+  temp = dynamic_cast< TermContainerType::TermType* >( cvInternalTerm1.GetPointer() );
+  termContainer1->AddTerm( 0, temp );
+
+  temp = dynamic_cast< TermContainerType::TermType* >( cvExternalTerm1.GetPointer() );
+  termContainer1->AddTerm( 1, temp );
+  std::cout << "Term container 1 created" << std::endl;
+
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
   equationContainer->AddEquation( 0, termContainer0 );
+  equationContainer->AddEquation( 1, termContainer1 );
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
@@ -205,17 +245,17 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
     std::cout << err << std::endl;
     }
 
-  PixelType mean = cvInternalTerm0->GetMean();
-  if ( ( mean < 24900 ) || ( mean > 24910 ) )
-  {
-    return EXIT_FAILURE;
-  }
-
-  mean = cvExternalTerm0->GetMean();
-  if ( ( mean < 1350 ) || ( mean > 1360 ) )
-  {
-    return EXIT_FAILURE;
-  }
+//   PixelType mean = cvInternalTerm0->GetMean();
+//   if ( ( mean < 24900 ) || ( mean > 24910 ) )
+//   {
+//     return EXIT_FAILURE;
+//   }
+//
+//   mean = cvExternalTerm0->GetMean();
+//   if ( ( mean < 1350 ) || ( mean > 1360 ) )
+//   {
+//     return EXIT_FAILURE;
+//   }
 
   return EXIT_SUCCESS;
 }

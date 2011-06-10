@@ -20,6 +20,7 @@
 #define __itkLevelSetEquationTermBase_h
 
 #include "itkObject.h"
+#include "itkAtanRegularizedHeavisideStepFunction.h"
 
 namespace itk
 {
@@ -44,13 +45,23 @@ public:
   typedef typename LevelSetContainerType::GradientType   GradientType;
   typedef typename LevelSetContainerType::HessianType    HessianType;
 
+  typedef HeavisideStepFunctionBase< LevelSetOutputType, LevelSetOutputType >
+                                          HeavisideType;
+  typedef typename HeavisideType::Pointer HeavisidePointer;
+
   itkSetMacro( Coefficient, LevelSetOutputType );
   itkGetMacro( Coefficient, LevelSetOutputType );
 
   itkSetMacro( CurrentLevelSet, LevelSetIdentifierType );
   itkGetMacro( CurrentLevelSet, LevelSetIdentifierType );
 
-  itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
+//   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
+  void SetLevelSetContainer( LevelSetContainerPointer ptr )
+  {
+    m_LevelSetContainer = ptr;
+    m_Heaviside = ptr->GetHeaviside();
+  }
+
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
   itkSetObjectMacro( Input, InputType );
@@ -87,6 +98,7 @@ protected:
   LevelSetOutputType       m_Coefficient;
   LevelSetOutputType       m_CFLContribution;
   std::string              m_TermName;
+  HeavisidePointer         m_Heaviside;
 
 private:
   LevelSetEquationTermBase( const Self& );

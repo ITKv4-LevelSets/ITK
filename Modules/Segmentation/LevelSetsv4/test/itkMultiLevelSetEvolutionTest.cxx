@@ -128,17 +128,26 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
       }
 
     id_image->SetPixel( idx, list_ids );
+    input->SetPixel( idx, idx[0] );
 
     it1.Set( vcl_sqrt(
              static_cast< float> ( ( idx[0] - 2 ) * ( idx[0] - 2 ) +
-                                   ( idx[1] - 2 ) * ( idx[1] - 2 ) ) ) );
+                                   ( idx[1] - 2 ) * ( idx[1] - 2 ) ) ) - 1.5);
 
     it2.Set( vcl_sqrt(
              static_cast< float> ( ( idx[0] - 5 ) * ( idx[0] - 5 ) +
-                                   ( idx[1] - 5 ) * ( idx[1] - 5 ) ) ) );
+                                   ( idx[1] - 5 ) * ( idx[1] - 5 ) ) ) - 2.5 );
     ++it1;
     ++it2;
     }
+
+  DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
+  domainMapFilter->SetInput( id_image );
+  domainMapFilter->Update();
+
+  // Define the Heaviside function
+  HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
+  heaviside->SetEpsilon( 1.0 );
 
   // Map of levelset bases
   std::map< itk::IdentifierType, LevelSetType::Pointer > level_set;
@@ -150,8 +159,10 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
 
   // Insert the levelsets in a levelset container
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
-  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set[1], false );
+  lscontainer->SetHeaviside( heaviside );
+  lscontainer->SetDomainMapFilter( domainMapFilter );
 
+  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set[1], false );
   if ( !LevelSetNotYetAdded )
     {
     return EXIT_FAILURE;
@@ -164,10 +175,6 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
     }
   std::cout << "Level set container created" << std::endl;
 
-  // Define the Heaviside function
-  HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
-  heaviside->SetEpsilon( 1.0 );
-
   // **************** CREATE ALL TERMS ****************
 
   // -----------------------------
@@ -175,7 +182,6 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
 
   // Create ChanAndVese internal term for phi_{1}
   ChanAndVeseInternalTermType::Pointer cvInternalTerm0 = ChanAndVeseInternalTermType::New();
-  cvInternalTerm0->SetHeaviside( heaviside );
   cvInternalTerm0->SetInput( input );
   cvInternalTerm0->SetCoefficient( 1.0 );
   cvInternalTerm0->SetCurrentLevelSet( 0 );
@@ -184,7 +190,6 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
 
   // Create ChanAndVese external term for phi_{1}
   ChanAndVeseExternalTermType::Pointer cvExternalTerm0 = ChanAndVeseExternalTermType::New();
-  cvExternalTerm0->SetHeaviside( heaviside );
   cvExternalTerm0->SetInput( input );
   cvExternalTerm0->SetCoefficient( 1.0 );
   cvExternalTerm0->SetCurrentLevelSet( 0 );
@@ -196,7 +201,6 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
 
   // Create ChanAndVese internal term for phi_{1}
   ChanAndVeseInternalTermType::Pointer cvInternalTerm1 = ChanAndVeseInternalTermType::New();
-  cvInternalTerm1->SetHeaviside( heaviside );
   cvInternalTerm1->SetInput( input );
   cvInternalTerm1->SetCoefficient( 1.0 );
   cvInternalTerm1->SetCurrentLevelSet( 1 );
@@ -205,7 +209,6 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
 
   // Create ChanAndVese external term for phi_{2}
   ChanAndVeseExternalTermType::Pointer cvExternalTerm1 = ChanAndVeseExternalTermType::New();
-  cvExternalTerm1->SetHeaviside( heaviside );
   cvExternalTerm1->SetInput( input );
   cvExternalTerm1->SetCoefficient( 1.0 );
   cvExternalTerm1->SetCurrentLevelSet( 1 );
@@ -226,9 +229,6 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   termContainer0->AddTerm( 1, temp );
   std::cout << "Term container 0 created" << std::endl;
 
-  EquationContainerType::Pointer equationContainer = EquationContainerType::New();
-  equationContainer->AddEquation( 0, termContainer0 );
-
   TermContainerType::Pointer termContainer1 = TermContainerType::New();
   termContainer1->SetInput( input );
 
@@ -239,18 +239,22 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   termContainer1->AddTerm( 1, temp );
   std::cout << "Term container 1 created" << std::endl;
 
+  EquationContainerType::Pointer equationContainer = EquationContainerType::New();
+  equationContainer->AddEquation( 0, termContainer0 );
   equationContainer->AddEquation( 1, termContainer1 );
-
-  DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
-  domainMapFilter->SetInput( id_image );
-  domainMapFilter->Update();
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
   evolution->SetNumberOfIterations( 2 );
   evolution->SetLevelSetContainer( lscontainer );
-  evolution->SetDomainMapFilter( domainMapFilter );
-  evolution->Update();
+  try
+  {
+    evolution->Update();
+  }
+  catch ( itk::ExceptionObject& err )
+  {
+    std::cout << err << std::endl;
+  }
 
   return EXIT_SUCCESS;
 }

@@ -21,6 +21,8 @@
 
 #include <map>
 #include "itkObject.h"
+#include "itkHeavisideStepFunctionBase.h"
+#include "itkLevelSetDomainMapImageFilter.h"
 
 namespace itk
 {
@@ -44,6 +46,7 @@ public:
 
   typedef TLevelSet                           LevelSetType;
   typedef typename LevelSetType::Pointer      LevelSetPointer;
+  typedef typename LevelSetType::ImageType    LevelSetImageType;
   typedef typename LevelSetType::InputType    InputType;
   typedef typename LevelSetType::OutputType   OutputType;
   typedef typename LevelSetType::GradientType GradientType;
@@ -52,6 +55,23 @@ public:
   typedef std::map< IdentifierType, LevelSetPointer >    LevelSetContainerType;
   typedef typename LevelSetContainerType::const_iterator LevelSetContainerConstIteratorType;
   typedef typename LevelSetContainerType::iterator       LevelSetContainerIteratorType;
+
+  typedef HeavisideStepFunctionBase< OutputType, OutputType > HeavisideType;
+  typedef typename HeavisideType::Pointer                     HeavisidePointer;
+
+  itkStaticConstMacro ( ImageDimension, unsigned int, LevelSetImageType::ImageDimension );
+
+  typedef std::list< IdentifierType >                    IdListType;
+  typedef typename IdListType::iterator                  IdListIterator;
+  typedef Image< IdListType, ImageDimension >            IdListImageType;
+  typedef Image< short, ImageDimension >                 CacheImageType;
+  typedef LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
+                                                         DomainMapImageFilterType;
+
+  typedef typename DomainMapImageFilterType::Pointer         DomainMapImageFilterPointer;
+  typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
+
+  typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   LevelSetContainerIteratorType Begin()
     {
@@ -168,11 +188,20 @@ public:
       }
     }
 
+  itkSetObjectMacro( Heaviside, HeavisideType );
+  itkGetObjectMacro( Heaviside, HeavisideType );
+
+  // set the domain map image filter
+  itkSetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
+  itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
+
 protected:
   LevelSetContainerBase() {}
   ~LevelSetContainerBase() {}
 
-  LevelSetContainerType m_Container;
+  HeavisidePointer            m_Heaviside;
+  DomainMapImageFilterPointer m_DomainMapFilter;
+  LevelSetContainerType       m_Container;
 
 private:
   LevelSetContainerBase( const Self & );

@@ -23,7 +23,6 @@
 #include "itkImage.h"
 #include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
-#include "itkLevelSetDomainMapImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkSignedMaurerDistanceMapImageFilter.h"
 #include <list>
@@ -98,7 +97,7 @@ public:
   typedef typename IdListType::iterator                  IdListIterator;
   typedef Image< IdListType, ImageDimension >            IdListImageType;
   typedef Image< short, ImageDimension >                 CacheImageType;
-  typedef LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
+  typedef typename LevelSetContainerType::DomainMapImageFilterType
                                                          DomainMapImageFilterType;
   typedef typename DomainMapImageFilterType::Pointer     DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
@@ -116,6 +115,7 @@ public:
 
   void Update()
     {
+    m_DomainMapFilter = m_LevelSetContainer->GetDomainMapFilter();
     //Run iteration
     this->GenerateData();
     }
@@ -145,9 +145,6 @@ public:
   itkSetMacro( NumberOfIterations, unsigned int );
   itkGetMacro( NumberOfIterations, unsigned int );
 
-  // set the domain map image filter
-  itkSetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
-  itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
 
 protected:
   LevelSetEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
@@ -249,8 +246,10 @@ protected:
 
         for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
         {
+//           std::cout << *lIt -1 << " ";
           m_EquationContainer->GetEquation( *lIt - 1 )->Initialize( it.GetIndex() );
         }
+//         std::cout << std::endl;
         ++it;
       }
       ++map_it;
@@ -260,6 +259,7 @@ protected:
 
   void GenerateData()
     {
+    std::cout << "Generate data" << std::endl;
     m_InputImage = m_EquationContainer->GetInput();
 
     // Get the LevelSetContainer from the EquationContainer
