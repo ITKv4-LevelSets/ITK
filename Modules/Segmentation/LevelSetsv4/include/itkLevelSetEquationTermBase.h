@@ -49,6 +49,10 @@ public:
                                           HeavisideType;
   typedef typename HeavisideType::Pointer HeavisidePointer;
 
+  /** Set/Get the image to be segmented */
+  itkSetObjectMacro( Input, InputType );
+  itkGetObjectMacro( Input, InputType );
+
   itkSetMacro( Coefficient, LevelSetOutputType );
   itkGetMacro( Coefficient, LevelSetOutputType );
 
@@ -63,9 +67,6 @@ public:
   }
 
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
-
-  itkSetObjectMacro( Input, InputType );
-  itkGetObjectMacro( Input, InputType );
 
   virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
     {
@@ -97,8 +98,8 @@ protected:
   LevelSetIdentifierType   m_CurrentLevelSet;
   LevelSetOutputType       m_Coefficient;
   LevelSetOutputType       m_CFLContribution;
-  std::string              m_TermName;
   HeavisidePointer         m_Heaviside;
+  std::string              m_TermName;
 
 private:
   LevelSetEquationTermBase( const Self& );

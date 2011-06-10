@@ -94,6 +94,10 @@ public:
     return m_Container.end();
     }
 
+  /** \brief Get the level set function given its id
+    \param[in] iId
+    \return the level set function if it is in the container, else NULL.
+  */
   LevelSetPointer GetLevelSet( const IdentifierType& iId ) const
     {
     LevelSetContainerConstIteratorType it = m_Container.find( iId );
@@ -108,6 +112,15 @@ public:
       }
     }
 
+  /** \brief Add one level set function given its id.
+
+    \param[in] iId id of the level set function
+    \param[in] iLevelSet the level set function to be added
+    \param[in] iForce if iForce is true (default) the level set function will be
+    added to the container even if there is already one with the same id.
+
+    \return true if the level set has been added.
+  */
   bool AddLevelSet( const IdentifierType& iId,
                     LevelSetPointer iLevelSet,
                     const bool& iForce = true )
@@ -135,6 +148,11 @@ public:
       }
     }
 
+  /** \brief Remove one level set function given its id.
+    \param[in] iId id of the level set function to be removed
+    \return true if it has been removed, false if the id was not present in the
+    container.
+  */
   bool RemoveLevelSet( const IdentifierType& iId )
     {
     LevelSetContainerIteratorType it = m_Container.find( iId );
@@ -154,6 +172,7 @@ public:
       }
     }
 
+  /// \warning why
   itkSetObjectMacro( Heaviside, HeavisideType );
   itkGetObjectMacro( Heaviside, HeavisideType );
 
@@ -162,7 +181,10 @@ public:
   itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
 
 protected:
+  /** \brief Default Constructor */
   LevelSetContainerBase() {}
+
+  /** \brief Default Destructor */
   ~LevelSetContainerBase() {}
 
   HeavisidePointer            m_Heaviside;
