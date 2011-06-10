@@ -20,7 +20,6 @@
 #define __itkLevelSetEquationChanAndVeseInternalTerm_h
 
 #include "itkLevelSetEquationTermBase.h"
-#include "itkNumericTraits.h"
 
 namespace itk
 {
@@ -43,24 +42,24 @@ public:
   itkTypeMacro( LevelSetEquationChanAndVeseInternalTerm,
                 LevelSetEquationTermBase );
 
-  typedef TInput                                  InputType;
-  typedef typename InputType::Pointer             InputPointer;
-  typedef typename InputType::PixelType           InputPixelType;
-  typedef typename NumericTraits< InputPixelType >::RealType
-                                                  InputPixelRealType;
+  typedef typename Superclass::InputType          InputType;
+  typedef typename Superclass::InputPointer       InputPointer;
+  typedef typename Superclass::InputPixelType     InputPixelType;
+  typedef typename Superclass::InputPixelRealType InputPixelRealType;
 
-  typedef TLevelSetContainer                              LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
-  typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
-  typedef typename LevelSetContainerType::OutputType      LevelSetOutputType;
-  typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
-  typedef typename LevelSetContainerType::InputType       LevelSetInputType;
-  typedef typename LevelSetContainerType::GradientType    GradientType;
-  typedef typename LevelSetContainerType::HessianType     HessianType;
+  typedef typename Superclass::LevelSetContainerType      LevelSetContainerType;
+  typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
+  typedef typename Superclass::LevelSetType               LevelSetType;
+  typedef typename Superclass::LevelSetPointer            LevelSetPointer;
+  typedef typename Superclass::LevelSetOutputType         LevelSetOutputType;
+  typedef typename Superclass::LevelSetOutputRealType     LevelSetOutputRealType;
+  typedef typename Superclass::LevelSetInputType          LevelSetInputType;
+  typedef typename Superclass::LevelSetGradientType       LevelSetGradientType;
+  typedef typename Superclass::LevelSetHessianType        LevelSetHessianType;
+  typedef typename Superclass::LevelSetIdentifierType     LevelSetIdentifierType;
 
-  typedef typename Superclass::HeavisideType HeavisideType;
-  typedef typename HeavisideType::Pointer    HeavisidePointer;
+  typedef typename Superclass::HeavisideType    HeavisideType;
+  typedef typename Superclass::HeavisidePointer HeavisidePointer;
 
   itkSetMacro( Mean, InputPixelRealType );
   itkGetMacro( Mean, InputPixelRealType );

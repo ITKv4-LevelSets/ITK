@@ -21,6 +21,7 @@
 
 #include "itkObject.h"
 #include "itkHeavisideStepFunctionBase.h"
+#include "itkNumericTraits.h"
 
 namespace itk
 {
@@ -34,17 +35,22 @@ public:
   typedef SmartPointer< const Self > ConstPointer;
   typedef Object                     Superclass;
 
-  typedef TInput                      InputType;
-  typedef typename InputType::Pointer InputPointer;
+  typedef TInput                                          InputType;
+  typedef typename InputType::Pointer                     InputPointer;
+  typedef typename InputType::PixelType                   InputPixelType;
+  typedef typename NumericTraits< InputPixelType >::RealType
+                                                          InputPixelRealType;
 
-  typedef TLevelSetContainer                             LevelSetContainerType;
-  typedef typename LevelSetContainerType::IdentifierType LevelSetIdentifierType;
-  typedef typename LevelSetContainerType::Pointer        LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::OutputType     LevelSetOutputType;
-  typedef typename LevelSetContainerType::OutputRealType LevelSetOutputRealType;
-  typedef typename LevelSetContainerType::InputType      LevelSetInputType;
-  typedef typename LevelSetContainerType::GradientType   GradientType;
-  typedef typename LevelSetContainerType::HessianType    HessianType;
+  typedef TLevelSetContainer                              LevelSetContainerType;
+  typedef typename LevelSetContainerType::IdentifierType  LevelSetIdentifierType;
+  typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
+  typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
+  typedef typename LevelSetContainerType::OutputType      LevelSetOutputType;
+  typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
+  typedef typename LevelSetContainerType::InputType       LevelSetInputType;
+  typedef typename LevelSetContainerType::GradientType    LevelSetGradientType;
+  typedef typename LevelSetContainerType::HessianType     LevelSetHessianType;
 
   typedef HeavisideStepFunctionBase< LevelSetOutputRealType,
                                      LevelSetOutputRealType >
