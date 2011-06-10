@@ -19,106 +19,76 @@
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkFastMarchingImageFilter.h"
-#include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
-#include "itkLevelSetContainerBase.h"
+#include "itkLevelSetSparseContainerBase.h"
 #include "itkLevelSetEquationChanAndVeseInternalTerm.h"
 #include "itkLevelSetEquationChanAndVeseExternalTerm.h"
 #include "itkLevelSetEquationTermContainerBase.h"
 #include "itkLevelSetEquationContainerBase.h"
-#include "itkAtanRegularizedHeavisideStepFunction.h"
+#include "itkSinRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetSparseEvolutionBase.h"
+#include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 
 int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
-  typedef unsigned short                                      InputPixelType;
-  typedef itk::Image< InputPixelType, Dimension >             InputImageType;
-  typedef itk::ImageRegionIteratorWithIndex< InputImageType > InputIteratorType;
-  typedef itk::ImageFileReader< InputImageType >              ReaderType;
+  typedef unsigned char                                     InputPixelType;
+  typedef itk::Image< InputPixelType, Dimension >           InputImageType;
+  typedef itk::ImageRegionIteratorWithIndex< InputImageType >
+                                                            InputIteratorType;
+  typedef itk::ImageFileReader< InputImageType >            ReaderType;
 
-  typedef float                                          PixelType;
-  typedef itk::Image< PixelType, Dimension >             ImageType;
-  typedef itk::LevelSetImageBase< ImageType >            LevelSetType;
-  typedef itk::ImageRegionIteratorWithIndex< ImageType > IteratorType;
+  typedef float                                             OutputPixelType;
 
-  typedef itk::IdentifierType                            IdentifierType;
-  typedef std::list< IdentifierType >                    IdListType;
-  typedef itk::Image< IdListType, Dimension >            IdListImageType;
-  typedef itk::Image< short, Dimension >                 CacheImageType;
+  typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType, OutputPixelType >
+                                                            BinaryToSparseAdaptorType;
+
+  typedef itk::IdentifierType                               IdentifierType;
+  typedef BinaryToSparseAdaptorType::LevelSetType           LevelSetType;
+  typedef SparseLevelSetType::SparseImageType               ImageType;
+  typedef SparseLevelSetType::NodeAttributeType             NodeAttributeType;
+
+  typedef itk::LevelSetSparseContainerBase< IdentifierType, LevelSetType >
+                                                            LevelSetContainerType;
+
+  typedef std::list< IdentifierType >                       IdListType;
+  typedef itk::Image< IdListType, Dimension >               IdListImageType;
+  typedef itk::Image< short, Dimension >                    CacheImageType;
   typedef itk::LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
-                                                         DomainMapImageFilterType;
+                                                            DomainMapImageFilterType;
 
-  typedef itk::LevelSetContainerBase< IdentifierType, LevelSetType >  LevelSetContainerType;
   typedef itk::LevelSetEquationChanAndVeseInternalTerm< InputImageType, LevelSetContainerType >
-                                                                      ChanAndVeseInternalTermType;
+                                                            ChanAndVeseInternalTermType;
   typedef itk::LevelSetEquationChanAndVeseExternalTerm< InputImageType, LevelSetContainerType >
-                                                                      ChanAndVeseExternalTermType;
+                                                            ChanAndVeseExternalTermType;
   typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
-                                                                      TermContainerType;
+                                                            TermContainerType;
 
-  typedef itk::LevelSetEquationContainerBase< TermContainerType >     EquationContainerType;
+  typedef itk::LevelSetEquationContainerBase< TermContainerType >
+                                                            EquationContainerType;
 
-  typedef itk::LevelSetSparseEvolutionBase< EquationContainerType >   SLevelSetEvolutionType;
-  typedef itk::AtanRegularizedHeavisideStepFunction< PixelType, PixelType >
-                                                                      HeavisideFunctionBaseType;
+  typedef itk::LevelSetSparseEvolutionBase< EquationContainerType >
+                                                            LevelSetEvolutionType;
+  typedef itk::SinRegularizedHeavisideStepFunction< PixelType, PixelType >
+                                                            HeavisideFunctionBaseType;
+  typedef itk::ImageRegionIteratorWithIndex< ImageType >    IteratorType;
 
-  typedef  itk::FastMarchingImageFilter< ImageType, ImageType > FastMarchingFilterType;
-  typedef FastMarchingFilterType::NodeContainer                 NodeContainer;
-  typedef FastMarchingFilterType::NodeType                      NodeType;
-
-  // Read the binary image to be segmented
+  // load binary mask
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
   reader->Update();
   InputImageType::Pointer input = reader->GetOutput();
 
-  FastMarchingFilterType::Pointer  fastMarching = FastMarchingFilterType::New();
+  // Convert binary mask to sparse level set
+  BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
+  adaptor->SetInputImage( input );
+  adaptor->Initialize();
+  std::cout << "Finished converting to sparse format" << std::endl;
 
-  NodeContainer::Pointer seeds = NodeContainer::New();
-
-  ImageType::IndexType  seedPosition;
-  seedPosition[0] = atoi( argv[2] );
-  seedPosition[1] = atoi( argv[3] );
-
-  const double initialDistance = atof( argv[4] );
-  const double seedValue = - initialDistance;
-
-  NodeType node;
-  node.SetValue( seedValue );
-  node.SetIndex( seedPosition );
-
-  //  The list of nodes is initialized and then every node is inserted using
-  //  the \code{InsertElement()}.
-  //
-  seeds->Initialize();
-  seeds->InsertElement( 0, node );
-
-  //  The set of seed nodes is passed now to the
-  //  FastMarchingImageFilter with the method
-  //  \code{SetTrialPoints()}.
-  //
-  fastMarching->SetTrialPoints(  seeds  );
-
-  //  Since the FastMarchingImageFilter is used here just as a
-  //  Distance Map generator. It does not require a speed image as input.
-  //  Instead the constant value $1.0$ is passed using the
-  //  \code{SetSpeedConstant()} method.
-  //
-  fastMarching->SetSpeedConstant( 1.0 );
-
-  //  The FastMarchingImageFilter requires the user to specify the
-  //  size of the image to be produced as output. This is done using the
-  //  \code{SetOutputSize()}. Note that the size is obtained here from the
-  //  output image of the smoothing filter. The size of this image is valid
-  //  only after the \code{Update()} methods of this filter has been called
-  //  directly or indirectly.
-  //
-  fastMarching->SetOutputSize( input->GetBufferedRegion().GetSize() );
-  fastMarching->Update();
+  LevelSetType::Pointer level_set = adaptor->GetSparseLevelSet();
+  ImageType::Pointer sparseImage = level_set->GetImage();
 
   IdListType list_ids;
   list_ids.push_back( 1 );
@@ -127,10 +97,6 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   id_image->SetRegions( input->GetLargestPossibleRegion() );
   id_image->Allocate();
   id_image->FillBuffer( list_ids );
-
-  // Map of levelset bases
-  LevelSetType::Pointer  level_set = LevelSetType::New();
-  level_set->SetImage( fastMarching->GetOutput() );
 
   // Insert the levelsets in a levelset container
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
