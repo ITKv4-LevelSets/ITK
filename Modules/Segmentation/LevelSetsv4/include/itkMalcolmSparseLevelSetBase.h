@@ -20,50 +20,41 @@
 #define __itkMalcolmSparseLevelSetBase_h
 
 #include "itkImage.h"
-#include "itkIndex.h"
-#include "itkLevelSetBase.h"
+#include "itkLevelSetImageBase.h"
 
 namespace itk
 {
 template< unsigned int VDimension >
 class MalcolmSparseLevelSetBase :
-    public LevelSetBase< Index< VDimension >,
-                         VDimension,
-                         char >
+    public LevelSetImageBase< Image< char, VDimension > >
 {
 public:
-  typedef Index< VDimension >                     InputType;
   typedef char                                    OutputType;
+  typedef Image< OutputType, VDimension >         ImageType;
+  typedef typename ImageType::Pointer             ImagePointer;
 
   typedef MalcolmSparseLevelSetBase               Self;
   typedef SmartPointer< Self >                    Pointer;
   typedef SmartPointer< const Self >              ConstPointer;
-  typedef LevelSetBase< InputType,
-                        VDimension,
-                        OutputType >              Superclass;
+  typedef LevelSetImageBase< ImageType >          Superclass;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(MalcolmSparseLevelSetBase, LevelSetBase);
+  itkTypeMacro(MalcolmSparseLevelSetBase, LevelSetImageBase);
 
-  typedef typename Superclass::GradientType GradientType;
-  typedef typename Superclass::HessianType  HessianType;
+  typedef typename Superclass::InputType      InputType;
+  typedef typename Superclass::OutputRealType OutputRealType;
+  typedef typename Superclass::GradientType   GradientType;
+  typedef typename Superclass::HessianType    HessianType;
 
   typedef std::pair< InputType, OutputType >        NodePairType;
   typedef std::list< NodePairType >                 NodeListType;
   typedef typename NodeListType::iterator           NodeListIterator;
   typedef typename NodeListType::const_iterator     NodeListConstIterator;
 
-  typedef Image< OutputType, VDimension >         SparseImageType;
-  typedef typename SparseImageType::Pointer       SparseImagePointer;
-
-  OutputType Evaluate( const InputType& iP ) const
-    {
-    return m_Image->GetPixel( iP );
-    }
-
+  /*
   GradientType EvaluateGradient( const InputType& iP ) const
     {
     return GradientType();
@@ -72,15 +63,12 @@ public:
   HessianType EvaluateHessian( const InputType& iP ) const
     {
     return HessianType();
-    }
+    }*/
 
   NodeListType* GetListNode()
     {
     return &m_List;
     }
-
-  itkSetObjectMacro( Image, SparseImageType );
-  itkGetObjectMacro( Image, SparseImageType );
 
 protected:
 
@@ -89,7 +77,6 @@ protected:
 
   ~MalcolmSparseLevelSetBase()    {}
 
-  SparseImagePointer  m_Image;
   NodeListType        m_List;
 
 private:
