@@ -38,7 +38,7 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
     BinaryToSparseAdaptorType;
 
   typedef BinaryToSparseAdaptorType::LevelSetType   SparseLevelSetType;
-  typedef SparseLevelSetType::SparseImageType       SparseImageType;
+  typedef SparseLevelSetType::ImageType             SparseImageType;
 
   typedef itk::ImageFileWriter< SparseImageType >  OutputWriterType;
 

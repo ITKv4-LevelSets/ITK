@@ -23,7 +23,7 @@
 
 namespace itk
 {
-template<class TImage>
+template< class TImage >
 class LevelSetImageBase :
   public LevelSetBase<
       typename TImage::IndexType,
