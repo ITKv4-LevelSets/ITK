@@ -84,18 +84,81 @@ public:
       }
     }
 
+  virtual void Initialize()
+    {
+    Superclass::Initialize();
+
+    this->InitializeLayers();
+    }
+
+  virtual void CopyInformation( const DataObject* data )
+    {
+    Superclass::CopyInformation( data );
+
+    const Self *LevelSet = NULL;
+
+    try
+      {
+      LevelSet = dynamic_cast< const Self* >( data );
+      }
+    catch( ... )
+      {
+      // LevelSet could not be cast back down
+      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    if ( !LevelSet )
+      {
+      // pointer could not be cast back down
+      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+    }
+
+  virtual void Graft( const DataObject* data )
+    {
+    Superclass::Graft( data );
+    const Self *LevelSet = 0;
+
+    try
+      {
+      LevelSet = dynamic_cast< const Self* >( data );
+      }
+    catch( ... )
+      {
+      // mesh could not be cast back down
+      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    if ( !LevelSet )
+      {
+      // pointer could not be cast back down
+      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    this->m_LayerList = LevelSet->m_LayerList;
+    }
+
 protected:
 
   ShiSparseLevelSetBase() : Superclass()
     {
     InitializeLayers();
     }
-  ~ShiSparseLevelSetBase() {}
+  virtual ~ShiSparseLevelSetBase() {}
 
   SparseLayerMapType m_LayerList;
 
   void InitializeLayers()
     {
+    this->m_LayerList.clear();
     this->m_LayerList[ -1 ] = NodeListType();
     this->m_LayerList[  1 ] = NodeListType();
     }
