@@ -47,8 +47,8 @@ public:
   typedef TLevelSet                             LevelSetType;
   typedef typename LevelSetType::Pointer        LevelSetPointer;
   typedef typename LevelSetType::ImageType      LevelSetImageType;
-  typedef typename LevelSetType::InputType      InputType;
-  typedef typename LevelSetType::OutputType     OutputType;
+  typedef typename LevelSetType::InputType      InputIndexType;
+  typedef typename LevelSetType::OutputType     OutputPixelType;
   typedef typename LevelSetType::OutputRealType OutputRealType;
   typedef typename LevelSetType::GradientType   GradientType;
   typedef typename LevelSetType::HessianType    HessianType;

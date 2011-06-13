@@ -49,9 +49,9 @@ public:
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
   typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
   typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
-  typedef typename LevelSetContainerType::OutputType      LevelSetOutputType;
+  typedef typename LevelSetContainerType::OutputPixelType LevelSetOutputPixelType;
   typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
-  typedef typename LevelSetContainerType::InputType       LevelSetInputType;
+  typedef typename LevelSetContainerType::InputIndexType  LevelSetInputIndexType;
   typedef typename LevelSetContainerType::GradientType    LevelSetGradientType;
   typedef typename LevelSetContainerType::HessianType     LevelSetHessianType;
 
@@ -80,12 +80,12 @@ public:
 
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
-  virtual LevelSetOutputRealType Evaluate( const LevelSetInputType& iP )
+  virtual LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP )
     {
     return m_Coefficient * this->Value( iP );
     }
 
-  virtual void Initialize( const LevelSetInputType& iP ) = 0;
+  virtual void Initialize( const LevelSetInputIndexType& iP ) = 0;
 
   itkGetMacro( CFLContribution, LevelSetOutputRealType );
 
@@ -103,7 +103,7 @@ protected:
   virtual ~LevelSetEquationTermBase() {}
 
   virtual void SetDefaultTermName() = 0;
-  virtual LevelSetOutputRealType Value( const LevelSetInputType& iP ) = 0;
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP ) = 0;
 
   InputImagePointer        m_Input;
   LevelSetContainerPointer m_LevelSetContainer;

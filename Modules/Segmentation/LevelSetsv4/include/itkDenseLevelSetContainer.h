@@ -46,8 +46,8 @@ public:
   typedef typename Superclass::LevelSetType       LevelSetType;
   typedef typename Superclass::LevelSetPointer    LevelSetPointer;
   typedef typename Superclass::LevelSetImageType  LevelSetImageType;
-  typedef typename Superclass::InputType          InputType;
-  typedef typename Superclass::OutputType         OutputType;
+  typedef typename Superclass::InputIndexType     InputIndexType;
+  typedef typename Superclass::OutputPixelType    OutputPixelType;
   typedef typename Superclass::OutputRealType     OutputRealType;
   typedef typename Superclass::GradientType       GradientType;
   typedef typename Superclass::HessianType        HessianType;
@@ -94,7 +94,7 @@ public:
         image->SetRequestedRegion( ( it->second )->GetImage()->GetRequestedRegion() );
         image->SetLargestPossibleRegion( ( it->second )->GetImage()->GetLargestPossibleRegion() );
         image->Allocate();
-        image->FillBuffer( NumericTraits< OutputType >::Zero );
+        image->FillBuffer( NumericTraits< OutputPixelType >::Zero );
 
         temp_ls->SetImage( image );
         this->m_Container[ it->first ] = temp_ls;

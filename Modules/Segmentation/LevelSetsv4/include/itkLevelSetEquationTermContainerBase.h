@@ -44,12 +44,12 @@ public:
   typedef TInputImage                      InputImageType;
   typedef typename InputImageType::Pointer InputImagePointer;
 
-  typedef TLevelSetContainer                           LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer      LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::OutputType   LevelSetOutputType;
-  typedef typename LevelSetContainerType::InputType    LevelSetInputType;
-  typedef typename LevelSetContainerType::GradientType GradientType;
-  typedef typename LevelSetContainerType::HessianType  HessianType;
+  typedef TLevelSetContainer                              LevelSetContainerType;
+  typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::OutputPixelType LevelSetOutputPixelType;
+  typedef typename LevelSetContainerType::InputIndexType  LevelSetInputIndexType;
+  typedef typename LevelSetContainerType::GradientType    GradientType;
+  typedef typename LevelSetContainerType::HessianType     HessianType;
 
   typedef LevelSetEquationTermBase< InputImageType, LevelSetContainerType >
                                                                        TermType;
@@ -74,7 +74,7 @@ public:
           }
         }
       m_Container[iId] = iTerm;
-      m_TermContribution[iId] = NumericTraits< LevelSetOutputType >::Zero;
+      m_TermContribution[iId] = NumericTraits< LevelSetOutputPixelType >::Zero;
 
       this->Modified();
       }
@@ -101,7 +101,7 @@ public:
     }
 
 
-  void Initialize( const LevelSetInputType& iP )
+  void Initialize( const LevelSetInputIndexType& iP )
   {
     typename std::map< unsigned int, TermPointer >::iterator
     term_it = m_Container.begin();
@@ -116,18 +116,18 @@ public:
   }
 
 
-  LevelSetOutputType Evaluate( const LevelSetInputType& iP )
+  LevelSetOutputPixelType Evaluate( const LevelSetInputIndexType& iP )
     {
     typename std::map< unsigned int, TermPointer >::iterator
         term_it = m_Container.begin();
     typename std::map< unsigned int, TermPointer >::iterator
         term_end = m_Container.end();
 
-    LevelSetOutputType oValue = NumericTraits< LevelSetOutputType >::Zero;
+    LevelSetOutputPixelType oValue = NumericTraits< LevelSetOutputPixelType >::Zero;
 
     while( term_it != term_end )
       {
-      LevelSetOutputType temp_val = ( term_it->second )->Evaluate( iP );
+      LevelSetOutputPixelType temp_val = ( term_it->second )->Evaluate( iP );
       m_TermContribution[ term_it->first ] =
           vnl_math_max( temp_val, m_TermContribution[ term_it->first ] );
       oValue += temp_val;
@@ -148,24 +148,24 @@ public:
       {
       ( term_it->second )->Update();
       m_TermContribution[ term_it->first ] =
-          NumericTraits< LevelSetOutputType >::Zero;
+          NumericTraits< LevelSetOutputPixelType >::Zero;
       ++term_it;
       }
     }
 
-  LevelSetOutputType GetCFLContribution()
+  LevelSetOutputPixelType GetCFLContribution()
     {
     typename std::map< unsigned int, TermPointer >::iterator
         term_it = m_Container.begin();
     typename std::map< unsigned int, TermPointer >::iterator
         term_end = m_Container.end();
 
-    LevelSetOutputType oValue = NumericTraits< LevelSetOutputType >::Zero;
+    LevelSetOutputPixelType oValue = NumericTraits< LevelSetOutputPixelType >::Zero;
 
     while( term_it != term_end )
       {
-      LevelSetOutputType cfl = ( term_it->second )->GetCFLContribution();
-      if( cfl == NumericTraits< LevelSetOutputType >::Zero )
+      LevelSetOutputPixelType cfl = ( term_it->second )->GetCFLContribution();
+      if( cfl == NumericTraits< LevelSetOutputPixelType >::Zero )
         {
         cfl = m_TermContribution[ term_it->first ];
         }
@@ -182,8 +182,8 @@ protected:
 
   virtual ~LevelSetEquationTermContainerBase() {}
 
-  std::map< unsigned int, TermPointer >         m_Container;
-  std::map< unsigned int, LevelSetOutputType >  m_TermContribution;
+  std::map< unsigned int, TermPointer >              m_Container;
+  std::map< unsigned int, LevelSetOutputPixelType >  m_TermContribution;
 
   InputImagePointer                             m_Input;
 

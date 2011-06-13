@@ -41,10 +41,10 @@ public:
   typedef TTermContainer                            TermContainerType;
   typedef typename TermContainerType::Pointer       TermContainerPointer;
 
-  typedef typename TermContainerType::InputImageType    InputType;
-  typedef typename TermContainerType::InputImagePointer InputPointer;
+  typedef typename TermContainerType::InputImageType    InputImageType;
+  typedef typename TermContainerType::InputImagePointer InputImagePointer;
 
-  typedef typename TermContainerType::LevelSetOutputType LevelSetOutputType;
+  typedef typename TermContainerType::LevelSetOutputPixelType LevelSetOutputPixelType;
 
   void AddEquation( const unsigned int& iId, TermContainerPointer iEquation )
     {
@@ -91,12 +91,12 @@ public:
       }
     }
 
-  LevelSetOutputType GetCFLContribution()
+  LevelSetOutputPixelType GetCFLContribution()
     {
     typedef typename std::map< unsigned int, TermContainerPointer >::iterator
         ContainerIterator;
 
-    LevelSetOutputType oValue = NumericTraits< LevelSetOutputType >::max();
+    LevelSetOutputPixelType oValue = NumericTraits< LevelSetOutputPixelType >::max();
 
     for( ContainerIterator it = m_Container.begin();
          it != m_Container.end();
@@ -108,8 +108,8 @@ public:
     return oValue;
     }
 
-  itkSetObjectMacro( Input, InputType );
-  itkGetObjectMacro( Input, InputType );
+  itkSetObjectMacro( Input, InputImageType );
+  itkGetObjectMacro( Input, InputImageType );
 
 protected:
 
@@ -117,7 +117,7 @@ protected:
   ~LevelSetEquationContainerBase() {}
 
   std::map< unsigned int, TermContainerPointer >  m_Container;
-  InputPointer                                    m_Input;
+  InputImagePointer                               m_Input;
 
 
 private:

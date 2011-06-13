@@ -51,9 +51,9 @@ public:
   typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
   typedef typename Superclass::LevelSetType               LevelSetType;
   typedef typename Superclass::LevelSetPointer            LevelSetPointer;
-  typedef typename Superclass::LevelSetOutputType         LevelSetOutputType;
+  typedef typename Superclass::LevelSetOutputPixelType    LevelSetOutputPixelType;
   typedef typename Superclass::LevelSetOutputRealType     LevelSetOutputRealType;
-  typedef typename Superclass::LevelSetInputType          LevelSetInputType;
+  typedef typename Superclass::LevelSetInputIndexType     LevelSetInputIndexType;
   typedef typename Superclass::LevelSetGradientType       LevelSetGradientType;
   typedef typename Superclass::LevelSetHessianType        LevelSetHessianType;
   typedef typename Superclass::LevelSetIdentifierType     LevelSetIdentifierType;
@@ -90,7 +90,7 @@ public:
 
   // this will work for scalars and vectors. For matrices, one may have to reimplement
   // his specialized term
-  virtual void Initialize( const LevelSetInputType& iP )
+  virtual void Initialize( const LevelSetInputIndexType& iP )
   {
     LevelSetIdentifierType id =
         this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
@@ -111,11 +111,11 @@ public:
 
     if( this->m_Heaviside.IsNotNull() )
       {
-      LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
+      LevelSetOutputPixelType value = m_CurrentLevelSetPointer->Evaluate( iP );
 
       InputPixelType pixel = this->m_Input->GetPixel( iP );
 
-      LevelSetOutputType prod = 1.;
+      LevelSetOutputPixelType prod = 1.;
       for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
         {
         if ( *lIt-1 != this->m_CurrentLevelSet )
@@ -155,7 +155,7 @@ protected:
 
   // this will work for scalars and vectors. For matrices, one may have to reimplement
   // his specialized term
-  virtual LevelSetOutputRealType Value( const LevelSetInputType& iP )
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
     {
     if( this->m_Heaviside.IsNotNull() )
       {
