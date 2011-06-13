@@ -30,6 +30,7 @@
 #include "itkLevelSetSparseEvolutionBase.h"
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 
+
 int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
@@ -40,9 +41,9 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
                                                             InputIteratorType;
   typedef itk::ImageFileReader< InputImageType >            ReaderType;
 
-  typedef float                                             OutputPixelType;
+  typedef float                                             PixelType;
 
-  typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType, OutputPixelType >
+  typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType, PixelType >
                                                             BinaryToSparseAdaptorType;
 
   typedef itk::IdentifierType                               IdentifierType;
@@ -71,7 +72,9 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 
   typedef itk::LevelSetSparseEvolutionBase< EquationContainerType >
                                                             LevelSetEvolutionType;
-  typedef itk::SinRegularizedHeavisideStepFunction< OutputPixelType, OutputPixelType >
+
+  typedef SparseLevelSetType::OutputRealType                      LevelSetOutputRealType;
+  typedef itk::SinRegularizedHeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
                                                             HeavisideFunctionBaseType;
   typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
 
@@ -81,9 +84,15 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   reader->Update();
   InputImageType::Pointer input = reader->GetOutput();
 
+  // Read the image to be segmented
+  ReaderType::Pointer binary_reader = ReaderType::New();
+  binary_reader->SetFileName( argv[2] );
+  binary_reader->Update();
+  InputImageType::Pointer binary = binary_reader->GetOutput();
+
   // Convert binary mask to sparse level set
   BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
-  adaptor->SetInputImage( input );
+  adaptor->SetInputImage( binary );
   adaptor->Initialize();
   std::cout << "Finished converting to sparse format" << std::endl;
 
@@ -98,19 +107,26 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   id_image->Allocate();
   id_image->FillBuffer( list_ids );
 
+  DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
+  domainMapFilter->SetInput( id_image );
+  domainMapFilter->Update();
+  std::cout << "Domain map computed" << std::endl;
+
+  // Define the Heaviside function
+  HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
+  heaviside->SetEpsilon( 1.0 );
+
   // Insert the levelsets in a levelset container
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
-  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set, false );
+  lscontainer->SetHeaviside( heaviside );
+  lscontainer->SetDomainMapFilter( domainMapFilter );
 
+  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set, false );
   if ( !LevelSetNotYetAdded )
     {
     return EXIT_FAILURE;
     }
   std::cout << "Level set container created" << std::endl;
-
-  // Define the Heaviside function
-  HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
-  heaviside->SetEpsilon( 1.0 );
 
   // **************** CREATE ALL TERMS ****************
 
@@ -119,7 +135,6 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 
   // Create ChanAndVese internal term for phi_{1}
   ChanAndVeseInternalTermType::Pointer cvInternalTerm0 = ChanAndVeseInternalTermType::New();
-  cvInternalTerm0->SetHeaviside( heaviside );
   cvInternalTerm0->SetInput( input );
   cvInternalTerm0->SetCoefficient( 1.0 );
   cvInternalTerm0->SetCurrentLevelSet( 0 );
@@ -128,7 +143,6 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 
   // Create ChanAndVese external term for phi_{1}
   ChanAndVeseExternalTermType::Pointer cvExternalTerm0 = ChanAndVeseExternalTermType::New();
-  cvExternalTerm0->SetHeaviside( heaviside );
   cvExternalTerm0->SetInput( input );
   cvExternalTerm0->SetCoefficient( 1.0 );
   cvExternalTerm0->SetCurrentLevelSet( 0 );
@@ -151,10 +165,6 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
   equationContainer->AddEquation( 0, termContainer0 );
-
-  DomainMapImageFilterType::Pointer domainMapFilter = DomainMapImageFilterType::New();
-  domainMapFilter->SetInput( id_image );
-  domainMapFilter->Update();
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );

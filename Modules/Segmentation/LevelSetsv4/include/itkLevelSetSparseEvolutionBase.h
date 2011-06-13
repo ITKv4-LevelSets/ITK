@@ -24,8 +24,6 @@
 #include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkSignedMaurerDistanceMapImageFilter.h"
 #include <list>
 #include "itkObject.h"
 
@@ -36,9 +34,9 @@ class LevelSetSparseEvolutionBase : public Object
 {
 public:
   typedef LevelSetSparseEvolutionBase      Self;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
-  typedef Object                     Superclass;
+  typedef SmartPointer< Self >             Pointer;
+  typedef SmartPointer< const Self >       ConstPointer;
+  typedef Object                           Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro( Self );
@@ -78,14 +76,6 @@ public:
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
-
-  typedef BinaryThresholdImageFilter< LevelSetImageType, LevelSetImageType >
-                                                       ThresholdFilterType;
-  typedef typename ThresholdFilterType::Pointer        ThresholdFilterPointer;
-  typedef SignedMaurerDistanceMapImageFilter< LevelSetImageType, LevelSetImageType >
-                                                       MaurerType;
-  typedef typename MaurerType::Pointer                 MaurerPointer;
-
   typedef ImageRegionIteratorWithIndex< LevelSetImageType > LevelSetImageIteratorType;
 
   typedef ImageRegionConstIteratorWithIndex< LevelSetImageType > LevelSetImageConstIteratorType;
@@ -110,7 +100,8 @@ public:
   // i.e. it is a container of term container :-):
   // set the i^th term container
   // This container should also hold the LevelSetContainer
-//   void SetLevelSetEquations( EquationContainer );
+  //   void SetLevelSetEquations( EquationContainer );
+
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
@@ -155,7 +146,6 @@ protected:
     m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
   {}
-
   ~LevelSetSparseEvolutionBase() {}
 
   unsigned int                m_NumberOfIterations;
@@ -175,7 +165,7 @@ protected:
   void AllocateUpdateBuffer()
     {
     this->m_UpdateBuffer = LevelSetContainerType::New();
-    this->m_UpdateBuffer->CopyInformationAndAllocate( m_LevelSetContainer, true );
+//     this->m_UpdateBuffer->CopyInformationAndAllocate( m_LevelSetContainer, true );
     }
 
   void ComputeIteration()
@@ -210,10 +200,10 @@ protected:
 
           LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
 
-          InputPixelRealType temp_update =
-              m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
+//           InputPixelRealType temp_update =
+//               m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
 
-          levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
+//           levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
           }
 //         std::cout << std::endl;
         ++it;
@@ -260,6 +250,7 @@ protected:
 
   void GenerateData()
     {
+    // Get the image to be segmented
     m_InputImage = m_EquationContainer->GetInput();
 
     // Get the LevelSetContainer from the EquationContainer
@@ -319,7 +310,7 @@ protected:
     LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
     LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
 
-    LevelSetOutputType p;
+//     LevelSetOutputType p;
 
     while( it1 != m_LevelSetContainer->End() )
       {
@@ -331,16 +322,16 @@ protected:
       It1.GoToBegin();
       It2.GoToBegin();
 
-      while( !It1.IsAtEnd() )
-        {
-        p = m_Dt * It2.Get();
-        It1.Set( It1.Get() + p );
-
-        m_RMSChangeAccumulator += p*p;
-
-        ++It1;
-        ++It2;
-        }
+//       while( !It1.IsAtEnd() )
+//         {
+//         p = m_Dt * It2.Get();
+//         It1.Set( It1.Get() + p );
+//
+//         m_RMSChangeAccumulator += p*p;
+//
+//         ++It1;
+//         ++It2;
+//         }
 
       ++it1;
       ++it2;
@@ -355,40 +346,6 @@ protected:
 
   void Reinitialize()
   {
-    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-
-    while( it != m_LevelSetContainer->End() )
-      {
-      LevelSetImagePointer image = it->second->GetImage();
-
-      ThresholdFilterPointer thresh = ThresholdFilterType::New();
-      thresh->SetLowerThreshold(
-            NumericTraits< LevelSetOutputType >::NonpositiveMin() );
-      thresh->SetUpperThreshold( 0 );
-      thresh->SetInsideValue( 1 );
-      thresh->SetOutsideValue( 0 );
-      thresh->SetInput( image );
-      thresh->Update();
-
-      MaurerPointer maurer = MaurerType::New();
-      maurer->SetInput( thresh->GetOutput() );
-      maurer->SetSquaredDistance( false );
-      maurer->SetUseImageSpacing( true );
-      maurer->SetInsideIsPositive( false );
-      maurer->Update();
-
-      LevelSetImageIteratorType It1( image, image->GetBufferedRegion() );
-      LevelSetImageIteratorType It2( maurer->GetOutput(), image->GetBufferedRegion() );
-      It1.GoToBegin();
-      It2.GoToBegin();
-      while( !It1.IsAtEnd() )
-        {
-        It1.Set( It2.Get() );
-        ++It1;
-        ++It2;
-        }
-      ++it;
-      }
   }
 
 private:
