@@ -24,7 +24,7 @@
 
 namespace itk
 {
-template< class TInput,
+template< class TInputImage,
           class TLevelSetContainer >
 class LevelSetEquationTermContainerBase : public Object
 {
@@ -41,8 +41,8 @@ public:
   itkTypeMacro( LevelSetEquationTermContainerBase,
                 Object );
 
-  typedef TInput                      InputType;
-  typedef typename InputType::Pointer InputPointer;
+  typedef TInputImage                      InputImageType;
+  typedef typename InputImageType::Pointer InputImagePointer;
 
   typedef TLevelSetContainer                           LevelSetContainerType;
   typedef typename LevelSetContainerType::Pointer      LevelSetContainerPointer;
@@ -51,11 +51,12 @@ public:
   typedef typename LevelSetContainerType::GradientType GradientType;
   typedef typename LevelSetContainerType::HessianType  HessianType;
 
-  typedef LevelSetEquationTermBase< InputType, LevelSetContainerType > TermType;
+  typedef LevelSetEquationTermBase< InputImageType, LevelSetContainerType >
+                                                                       TermType;
   typedef typename TermType::Pointer                                   TermPointer;
 
-  itkSetObjectMacro( Input, InputType );
-  itkGetObjectMacro( Input, InputType );
+  itkSetObjectMacro( Input, InputImageType );
+  itkGetObjectMacro( Input, InputImageType );
 
   void AddTerm( const unsigned int& iId, TermPointer iTerm )
     {
@@ -184,7 +185,7 @@ protected:
   std::map< unsigned int, TermPointer >         m_Container;
   std::map< unsigned int, LevelSetOutputType >  m_TermContribution;
 
-  InputPointer                                  m_Input;
+  InputImagePointer                             m_Input;
 
 
 private:

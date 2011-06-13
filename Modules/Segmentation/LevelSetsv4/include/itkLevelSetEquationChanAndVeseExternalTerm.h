@@ -42,8 +42,8 @@ public:
   itkTypeMacro( LevelSetEquationChanAndVeseExternalTerm,
                 LevelSetEquationTermBase );
 
-  typedef typename Superclass::InputType          InputType;
-  typedef typename Superclass::InputPointer       InputPointer;
+  typedef typename Superclass::InputImageType     InputImageType;
+  typedef typename Superclass::InputImagePointer  InputImagePointer;
   typedef typename Superclass::InputPixelType     InputPixelType;
   typedef typename Superclass::InputPixelRealType InputPixelRealType;
 

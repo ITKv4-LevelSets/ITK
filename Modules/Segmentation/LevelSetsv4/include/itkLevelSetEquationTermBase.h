@@ -25,7 +25,7 @@
 
 namespace itk
 {
-template< class TInput, // Input image
+template< class TInputImage, // Input image
           class TLevelSetContainer >
 class LevelSetEquationTermBase : public Object
 {
@@ -38,9 +38,9 @@ public:
   /** Run-time type information */
   itkTypeMacro( LevelSetEquationTermBase, Object );
 
-  typedef TInput                                          InputType;
-  typedef typename InputType::Pointer                     InputPointer;
-  typedef typename InputType::PixelType                   InputPixelType;
+  typedef TInputImage                                     InputImageType;
+  typedef typename InputImageType::Pointer                InputImagePointer;
+  typedef typename InputImageType::PixelType              InputPixelType;
   typedef typename NumericTraits< InputPixelType >::RealType
                                                           InputPixelRealType;
 
@@ -61,8 +61,8 @@ public:
   typedef typename HeavisideType::Pointer HeavisidePointer;
 
   /** Set/Get the image to be segmented */
-  itkSetObjectMacro( Input, InputType );
-  itkGetObjectMacro( Input, InputType );
+  itkSetObjectMacro( Input, InputImageType );
+  itkGetObjectMacro( Input, InputImageType );
 
   itkSetMacro( Coefficient, LevelSetOutputRealType );
   itkGetMacro( Coefficient, LevelSetOutputRealType );
@@ -105,7 +105,7 @@ protected:
   virtual void SetDefaultTermName() = 0;
   virtual LevelSetOutputRealType Value( const LevelSetInputType& iP ) = 0;
 
-  InputPointer             m_Input;
+  InputImagePointer        m_Input;
   LevelSetContainerPointer m_LevelSetContainer;
   LevelSetIdentifierType   m_CurrentLevelSet;
   LevelSetOutputRealType   m_Coefficient;

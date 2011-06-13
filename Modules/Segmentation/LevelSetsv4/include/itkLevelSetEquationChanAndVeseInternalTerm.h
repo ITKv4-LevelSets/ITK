@@ -42,8 +42,8 @@ public:
   itkTypeMacro( LevelSetEquationChanAndVeseInternalTerm,
                 LevelSetEquationTermBase );
 
-  typedef typename Superclass::InputType          InputType;
-  typedef typename Superclass::InputPointer       InputPointer;
+  typedef typename Superclass::InputImageType     InputImageType;
+  typedef typename Superclass::InputImagePointer  InputImagePointer;
   typedef typename Superclass::InputPixelType     InputPixelType;
   typedef typename Superclass::InputPixelRealType InputPixelRealType;
 
@@ -100,7 +100,7 @@ public:
         itkWarningMacro(
         << "m_CurrentLevelSet does not exist in the level set container" );
         }
-    }
+      }
 
     if( this->m_Heaviside.IsNotNull() )
       {

@@ -54,12 +54,12 @@ public:
   typedef typename TermContainerType::TermType TermType;
   typedef typename TermType::Pointer           TermPointer;
 
-  typedef typename TermContainerType::InputType InputImageType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
+  typedef typename TermContainerType::InputImageType InputImageType;
+  typedef typename InputImageType::PixelType         InputImagePixelType;
+  typedef typename InputImageType::Pointer           InputImagePointer;
+  typedef typename InputImageType::RegionType        InputImageRegionType;
   typedef typename NumericTraits< InputImagePixelType >::RealType
-                                                InputPixelRealType;
+                                                     InputPixelRealType;
 
   itkStaticConstMacro ( ImageDimension, unsigned int, InputImageType::ImageDimension );
 

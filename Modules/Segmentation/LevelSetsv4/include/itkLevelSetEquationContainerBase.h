@@ -41,8 +41,8 @@ public:
   typedef TTermContainer                            TermContainerType;
   typedef typename TermContainerType::Pointer       TermContainerPointer;
 
-  typedef typename TermContainerType::InputType     InputType;
-  typedef typename TermContainerType::InputPointer  InputPointer;
+  typedef typename TermContainerType::InputImageType    InputType;
+  typedef typename TermContainerType::InputImagePointer InputPointer;
 
   typedef typename TermContainerType::LevelSetOutputType LevelSetOutputType;
 

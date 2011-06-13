@@ -24,6 +24,7 @@
 #include "itkLevelSetImageBase.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
+#include "itkUpdateWhitakerSparseLevelSet.h"
 #include <list>
 #include "itkObject.h"
 
@@ -53,12 +54,12 @@ public:
   typedef typename TermContainerType::TermType TermType;
   typedef typename TermType::Pointer           TermPointer;
 
-  typedef typename TermContainerType::InputType InputImageType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
+  typedef typename TermContainerType::InputImageType InputImageType;
+  typedef typename InputImageType::PixelType         InputImagePixelType;
+  typedef typename InputImageType::Pointer           InputImagePointer;
+  typedef typename InputImageType::RegionType        InputImageRegionType;
   typedef typename NumericTraits< InputImagePixelType >::RealType
-                                                InputPixelRealType;
+                                                     InputPixelRealType;
 
   itkStaticConstMacro ( ImageDimension, unsigned int, InputImageType::ImageDimension );
 
@@ -96,6 +97,9 @@ public:
   //   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
+  typedef UpdateWhitakerSparseLevelSet< ImageDimension, LevelSetOutputType > UpdateLevelSetFilterType;
+  typedef typename UpdateLevelSetFilterType::UpdateListType UpdateListType;
+
   // create another class which contains all the equations
   // i.e. it is a container of term container :-):
   // set the i^th term container
@@ -107,6 +111,8 @@ public:
 
   void Update()
     {
+    m_DomainMapFilter = m_LevelSetContainer->GetDomainMapFilter();
+
     //Run iteration
     this->GenerateData();
     }
@@ -154,7 +160,9 @@ protected:
   InputImagePointer           m_InputImage;
   EquationContainerPointer    m_EquationContainer;
   LevelSetContainerPointer    m_LevelSetContainer;
-  LevelSetContainerPointer    m_UpdateBuffer;
+
+  // For sparse case, the update buffer needs to be the size of the active layer
+  UpdateListType*             m_UpdateBuffer;
   DomainMapImageFilterPointer m_DomainMapFilter;
 
   LevelSetOutputType          m_Alpha;
@@ -164,52 +172,35 @@ protected:
 
   void AllocateUpdateBuffer()
     {
-    this->m_UpdateBuffer = LevelSetContainerType::New();
-//     this->m_UpdateBuffer->CopyInformationAndAllocate( m_LevelSetContainer, true );
+    m_UpdateBuffer =  new UpdateListType;
     }
 
-  void ComputeIteration()
+
+  void GenerateData()
     {
-    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
-    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+    // Get the image to be segmented
+    m_InputImage = m_EquationContainer->GetInput();
 
-    std::cout << "Begin iteration" << std::endl;
+    // Get the LevelSetContainer from the EquationContainer
+    m_LevelSetContainer = m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
+    AllocateUpdateBuffer();
 
-    while( map_it != map_end )
-      {
-//       std::cout << map_it->second.m_Region << std::endl;
+    InitializeIteration();
 
-      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
-      it.GoToBegin();
-
-      while( !it.IsAtEnd() )
-        {
-//         std::cout << it.GetIndex() << std::endl;
-        IdListType lout = map_it->second.m_List;
-
-        if( lout.empty() )
-          {
-          itkGenericExceptionMacro( <<"No level set exists at voxel" );
-          }
-
-        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-          {
-//           std::cout << *lIt << " ";
-          LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
-//           std::cout << levelSet->Evaluate( it.GetIndex() ) << ' ';
-
-          LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
-
-//           InputPixelRealType temp_update =
-//               m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
-
-//           levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
-          }
-//         std::cout << std::endl;
-        ++it;
-        }
-      ++map_it;
-      }
+//     for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
+//       {
+//       m_RMSChangeAccumulator = 0;
+//
+//       // one iteration over all container
+//       // update each level set based on the different equations provided
+//       ComputeIteration();
+//
+//       ComputeDtForNextIteration();
+//
+//       UpdateLevelSets();
+//       Reinitialize();
+//       UpdateEquations();
+//       }
     }
 
 
@@ -222,14 +213,14 @@ protected:
 
     while( map_it != map_end )
     {
-//       std::cout << map_it->second.m_Region << std::endl;
+      //       std::cout << map_it->second.m_Region << std::endl;
 
       InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
       it.GoToBegin();
 
       while( !it.IsAtEnd() )
       {
-//         std::cout << it.GetIndex() << std::endl;
+        //         std::cout << it.GetIndex() << std::endl;
         IdListType lout = map_it->second.m_List;
 
         if( lout.empty() )
@@ -248,34 +239,50 @@ protected:
     m_EquationContainer->Update();
   }
 
-  void GenerateData()
+  void ComputeIteration()
+  {
+    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
+    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+
+    std::cout << "Begin iteration" << std::endl;
+
+    while( map_it != map_end )
     {
-    // Get the image to be segmented
-    m_InputImage = m_EquationContainer->GetInput();
+      //       std::cout << map_it->second.m_Region << std::endl;
 
-    // Get the LevelSetContainer from the EquationContainer
-    m_LevelSetContainer = m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
-    AllocateUpdateBuffer();
+      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
+      it.GoToBegin();
 
-    InitializeIteration();
-
-    for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
+      while( !it.IsAtEnd() )
       {
-      m_RMSChangeAccumulator = 0;
+        //         std::cout << it.GetIndex() << std::endl;
+        IdListType lout = map_it->second.m_List;
 
-      // one iteration over all container
-      // update each level set based on the different equations provided
-      ComputeIteration();
+        if( lout.empty() )
+        {
+          itkGenericExceptionMacro( <<"No level set exists at voxel" );
+        }
 
-//       ComputeCFL();
+        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+        {
+          //           std::cout << *lIt << " ";
+          LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
+          //           std::cout << levelSet->Evaluate( it.GetIndex() ) << ' ';
 
-      ComputeDtForNextIteration();
+          LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
 
-      UpdateLevelSets();
-      Reinitialize();
-      UpdateEquations();
+          //           InputPixelRealType temp_update =
+          //               m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
+
+          //           levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
+        }
+        //         std::cout << std::endl;
+        ++it;
       }
+      ++map_it;
     }
+  }
+
 
   void ComputeDtForNextIteration()
     {
@@ -305,23 +312,23 @@ protected:
 //       m_Dt = 0.08;
     }
 
-  virtual void UpdateLevelSets()
-    {
-    LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
-    LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
-
-//     LevelSetOutputType p;
-
-    while( it1 != m_LevelSetContainer->End() )
-      {
-      LevelSetImagePointer image1 = it1->second->GetImage();
-      LevelSetImagePointer image2 = it2->second->GetImage();
-
-      LevelSetImageIteratorType It1( image1, image1->GetBufferedRegion() );
-      LevelSetImageIteratorType It2( image2, image2->GetBufferedRegion() );
-      It1.GoToBegin();
-      It2.GoToBegin();
-
+//   virtual void UpdateLevelSets()
+//     {
+//     LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
+//     LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
+//
+// //     LevelSetOutputType p;
+//
+//     while( it1 != m_LevelSetContainer->End() )
+//       {
+//       LevelSetImagePointer image1 = it1->second->GetImage();
+//       LevelSetImagePointer image2 = it2->second->GetImage();
+//
+//       LevelSetImageIteratorType It1( image1, image1->GetBufferedRegion() );
+//       LevelSetImageIteratorType It2( image2, image2->GetBufferedRegion() );
+//       It1.GoToBegin();
+//       It2.GoToBegin();
+//
 //       while( !It1.IsAtEnd() )
 //         {
 //         p = m_Dt * It2.Get();
@@ -332,11 +339,11 @@ protected:
 //         ++It1;
 //         ++It2;
 //         }
-
-      ++it1;
-      ++it2;
-      }
-  }
+//
+//       ++it1;
+//       ++it2;
+//       }
+//   }
 
   void UpdateEquations()
     {
