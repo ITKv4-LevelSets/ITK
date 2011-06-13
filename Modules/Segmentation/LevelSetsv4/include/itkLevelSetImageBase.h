@@ -96,6 +96,13 @@ public:
     return oData;
     }
 
+  virtual void Initialize()
+    {
+    Superclass::Initialize();
+
+    m_Image = 0;
+    }
+
 protected:
   LevelSetImageBase() {}
 
