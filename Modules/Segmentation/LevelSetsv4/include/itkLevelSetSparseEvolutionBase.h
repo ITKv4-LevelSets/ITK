@@ -77,6 +77,9 @@ public:
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
+  typedef typename LevelSetType::NodePairType     NodePairType;
+  typedef typename LevelSetType::NodeListIterator NodeListIterator;
+
   typedef ImageRegionIteratorWithIndex< LevelSetImageType > LevelSetImageIteratorType;
 
   typedef ImageRegionConstIteratorWithIndex< LevelSetImageType > LevelSetImageConstIteratorType;
@@ -98,7 +101,8 @@ public:
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   typedef UpdateWhitakerSparseLevelSet< ImageDimension, LevelSetOutputType > UpdateLevelSetFilterType;
-  typedef typename UpdateLevelSetFilterType::UpdateListType UpdateListType;
+  typedef typename UpdateLevelSetFilterType::Pointer                         UpdateLevelSetFilterPointer;
+  typedef typename UpdateLevelSetFilterType::UpdateListType                  UpdateListType;
 
   // create another class which contains all the equations
   // i.e. it is a container of term container :-):
@@ -152,7 +156,10 @@ protected:
     m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
   {}
-  ~LevelSetSparseEvolutionBase() {}
+  ~LevelSetSparseEvolutionBase()
+  {
+    delete m_UpdateBuffer;
+  }
 
   unsigned int                m_NumberOfIterations;
   /// \todo is it useful?
@@ -187,20 +194,19 @@ protected:
 
     InitializeIteration();
 
-//     for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
-//       {
-//       m_RMSChangeAccumulator = 0;
-//
-//       // one iteration over all container
-//       // update each level set based on the different equations provided
-//       ComputeIteration();
-//
-//       ComputeDtForNextIteration();
-//
-//       UpdateLevelSets();
-//       Reinitialize();
-//       UpdateEquations();
-//       }
+    for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
+      {
+      m_RMSChangeAccumulator = 0;
+
+      // one iteration over all container
+      // update each level set based on the different equations provided
+      ComputeIteration();
+
+      ComputeDtForNextIteration();
+
+      UpdateLevelSets();
+      UpdateEquations();
+      }
     }
 
 
@@ -241,45 +247,19 @@ protected:
 
   void ComputeIteration()
   {
-    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
-    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
-
-    std::cout << "Begin iteration" << std::endl;
-
-    while( map_it != map_end )
+    LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
+    NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
+    NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
+    NodePairType p;
+    while( list_it != list_end )
     {
-      //       std::cout << map_it->second.m_Region << std::endl;
+      p = (*list_it);
 
-      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
-      it.GoToBegin();
-
-      while( !it.IsAtEnd() )
-      {
-        //         std::cout << it.GetIndex() << std::endl;
-        IdListType lout = map_it->second.m_List;
-
-        if( lout.empty() )
-        {
-          itkGenericExceptionMacro( <<"No level set exists at voxel" );
-        }
-
-        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-        {
-          //           std::cout << *lIt << " ";
-          LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
-          //           std::cout << levelSet->Evaluate( it.GetIndex() ) << ' ';
-
-          LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
-
-          //           InputPixelRealType temp_update =
-          //               m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
-
-          //           levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
-        }
-        //         std::cout << std::endl;
-        ++it;
-      }
-      ++map_it;
+      // Terms should update their values here dynamically
+      // no need to call Update() later on
+      InputPixelRealType temp_update = m_EquationContainer->GetEquation( 0 )->Evaluate( p.first );
+      m_UpdateBuffer->push_back( temp_update );
+      ++list_it;
     }
   }
 
@@ -312,48 +292,25 @@ protected:
 //       m_Dt = 0.08;
     }
 
-//   virtual void UpdateLevelSets()
-//     {
-//     LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
-//     LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
-//
-// //     LevelSetOutputType p;
-//
-//     while( it1 != m_LevelSetContainer->End() )
-//       {
-//       LevelSetImagePointer image1 = it1->second->GetImage();
-//       LevelSetImagePointer image2 = it2->second->GetImage();
-//
-//       LevelSetImageIteratorType It1( image1, image1->GetBufferedRegion() );
-//       LevelSetImageIteratorType It2( image2, image2->GetBufferedRegion() );
-//       It1.GoToBegin();
-//       It2.GoToBegin();
-//
-//       while( !It1.IsAtEnd() )
-//         {
-//         p = m_Dt * It2.Get();
-//         It1.Set( It1.Get() + p );
-//
-//         m_RMSChangeAccumulator += p*p;
-//
-//         ++It1;
-//         ++It2;
-//         }
-//
-//       ++it1;
-//       ++it2;
-//       }
-//   }
+  virtual void UpdateLevelSets()
+    {
+      // TODO: Multiple with dt;
+      // Get change in RMS accumulator
+
+      LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
+
+      UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
+      update_levelset->SetSparseLevelSet( levelSet );
+      update_levelset->SetUpdate( m_UpdateBuffer );
+      update_levelset->Update();
+
+      m_UpdateBuffer->clear();
+    }
 
   void UpdateEquations()
     {
-    InitializeIteration();
-//     m_EquationContainer->Update();
+    m_EquationContainer->Update();
     }
-
-  void Reinitialize()
-  {
-  }
 
 private:
   LevelSetSparseEvolutionBase( const Self& );

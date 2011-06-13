@@ -101,7 +101,7 @@ public:
 
   NodeListType* GetListNode( const int& iId )
     {
-    typename SparseLayerMapType::iterator it = m_LayerList.find( iId );
+    SparseLayerMapIterator it = m_LayerList.find( iId );
     if( it != m_LayerList.end() )
       {
       return & (it->second);

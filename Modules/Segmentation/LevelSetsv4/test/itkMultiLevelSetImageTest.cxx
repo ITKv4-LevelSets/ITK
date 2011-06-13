@@ -180,6 +180,7 @@ int itkMultiLevelSetImageTest( int , char* [] )
         temp_it( id_image, temp_region );
     temp_it.GoToBegin();
 
+    // Iterate through image regions with same list pixels
     while( !temp_it.IsAtEnd() )
       {
       std::cout << temp_it.GetIndex() << std::endl;
@@ -190,6 +191,7 @@ int itkMultiLevelSetImageTest( int , char* [] )
         return EXIT_FAILURE;
         }
 
+      // Iterate through all the levelsets at a given pixel location
       for( IdListType::iterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
         {
         std::cout << *lIt <<" " << level_set[*lIt]->Evaluate( temp_it.GetIndex() )
@@ -200,8 +202,6 @@ int itkMultiLevelSetImageTest( int , char* [] )
       }
     ++map_it;
     }
-
-
 
   return EXIT_SUCCESS;
 }
