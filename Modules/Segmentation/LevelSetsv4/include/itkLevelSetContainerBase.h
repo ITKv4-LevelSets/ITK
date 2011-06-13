@@ -61,7 +61,8 @@ public:
                                             HeavisideType;
   typedef typename HeavisideType::Pointer   HeavisidePointer;
 
-  itkStaticConstMacro ( ImageDimension, unsigned int, LevelSetImageType::ImageDimension );
+  itkStaticConstMacro ( ImageDimension, unsigned int,
+                       LevelSetImageType::ImageDimension );
 
   typedef std::list< IdentifierType >                    IdListType;
   typedef typename IdListType::iterator                  IdListIterator;
@@ -144,6 +145,7 @@ public:
         {
         m_Container.insert(
               std::pair< IdentifierType, LevelSetPointer >( iId, iLevelSet ) );
+        this->Modified();
         return true;
         }
       }
