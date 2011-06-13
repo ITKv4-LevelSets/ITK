@@ -6,6 +6,7 @@ itkConstantPadImageTest.cxx
 itkCyclicReferences.cxx
 itkInterpolateImagePointsFilterTest.cxx
 itkCropImageFilterTest.cxx
+itkCropImageFilter3DTest.cxx
 itkFlipImageFilterTest.cxx
 itkExpandImageFilterTest.cxx
 itkRegionOfInterestImageFilterTest.cxx
@@ -41,6 +42,7 @@ itkPushPopTileImageFilterTest.cxx
 itkShrinkImagePreserveObjectPhysicalLocations.cxx
 itkShrinkImageStreamingTest.cxx
 itkShrinkImageTest.cxx
+itkZeroFluxNeumannPadImageFilterTest.cxx
 )
 
 CreateTestDriver(ITK-ImageGrid  "${ITK-ImageGrid-Test_LIBRARIES}" "${ITK-ImageGridTests}")
@@ -59,6 +61,8 @@ itk_add_test(NAME itkInterpolateImagePointsFilterTest
       COMMAND ITK-ImageGridTestDriver itkInterpolateImagePointsFilterTest)
 itk_add_test(NAME itkCropImageFilterTest
       COMMAND ITK-ImageGridTestDriver itkCropImageFilterTest)
+itk_add_test(NAME itkCropImageFilter3DTest
+      COMMAND ITK-ImageGridTestDriver itkCropImageFilter3DTest)
 itk_add_test(NAME itkFlipImageFilterTest
       COMMAND ITK-ImageGridTestDriver itkFlipImageFilterTest)
 itk_add_test(NAME itkExpandImageFilterTest
@@ -148,3 +152,5 @@ itk_add_test(NAME itkShrinkImageStreamingTest
       COMMAND ITK-ImageGridTestDriver itkShrinkImageStreamingTest)
 itk_add_test(NAME itkShrinkImageTest
       COMMAND ITK-ImageGridTestDriver itkShrinkImageTest)
+itk_add_test(NAME itkZeroFluxNeumannPadImageFilterTest
+      COMMAND ITK-ImageGridTestDriver itkZeroFluxNeumannPadImageFilterTest)
