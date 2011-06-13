@@ -23,7 +23,7 @@
 
 namespace itk
 {
-template<class TImage>
+template< class TImage >
 class LevelSetImageBase :
   public LevelSetBase<
       typename TImage::IndexType,
@@ -96,8 +96,70 @@ public:
     return oData;
     }
 
+  virtual void Initialize()
+    {
+    Superclass::Initialize();
+
+    m_Image = 0;
+    }
+
+  virtual void CopyInformation(const DataObject *data)
+    {
+    Superclass::CopyInformation( data );
+
+    const Self *LevelSet = NULL;
+
+    try
+      {
+      LevelSet = dynamic_cast< const Self * >( data );
+      }
+    catch ( ... )
+      {
+      // LevelSet could not be cast back down
+      itkExceptionMacro( << "itk::LevelSetImageBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    if ( !LevelSet )
+      {
+      // pointer could not be cast back down
+      itkExceptionMacro( << "itk::Mesh::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+    }
+
+  virtual void Graft( const DataObject* data )
+    {
+    Superclass::Graft( data );
+    const Self *LevelSet = 0;
+
+    try
+      {
+      LevelSet = dynamic_cast< const Self* >( data );
+      }
+    catch( ... )
+      {
+      // mesh could not be cast back down
+      itkExceptionMacro( << "itk::LevelSetImageBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    if ( !LevelSet )
+      {
+      // pointer could not be cast back down
+      itkExceptionMacro( << "itk::LevelSetImageBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    this->m_Image = LevelSet->m_Image;
+    }
+
 protected:
-  LevelSetImageBase() {}
+  LevelSetImageBase() : Superclass() {}
 
   virtual ~LevelSetImageBase() {}
 

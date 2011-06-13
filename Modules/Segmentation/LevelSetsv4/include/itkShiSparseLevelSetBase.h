@@ -20,36 +20,34 @@
 #define __itkShiSparseLevelSetBase_h
 
 #include "itkImage.h"
-#include "itkIndex.h"
-#include "itkLevelSetBase.h"
+#include "itkLevelSetImageBase.h"
 
 namespace itk
 {
 template< unsigned int VDimension >
 class ShiSparseLevelSetBase :
-    public LevelSetBase< Index< VDimension >,
-                         VDimension,
-                         char >
+    public LevelSetImageBase< Image< char, VDimension > >
 {
 public:
-  typedef Index< VDimension >                     InputType;
   typedef char                                    OutputType;
+  typedef Image< OutputType, VDimension >         ImageType;
+  typedef typename ImageType::Pointer             ImagePointer;
 
   typedef ShiSparseLevelSetBase                   Self;
   typedef SmartPointer< Self >                    Pointer;
   typedef SmartPointer< const Self >              ConstPointer;
-  typedef LevelSetBase< InputType,
-                        VDimension,
-                        OutputType >              Superclass;
+  typedef LevelSetImageBase< ImageType >          Superclass;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(ShiSparseLevelSetBase, LevelSetBase);
+  itkTypeMacro(ShiSparseLevelSetBase, LevelSetImageBase);
 
-  typedef typename Superclass::GradientType GradientType;
-  typedef typename Superclass::HessianType  HessianType;
+  typedef typename Superclass::InputType      InputType;
+  typedef typename Superclass::OutputRealType OutputRealType;
+  typedef typename Superclass::GradientType   GradientType;
+  typedef typename Superclass::HessianType    HessianType;
 
   typedef std::pair< InputType, OutputType >        NodePairType;
   typedef std::list< NodePairType >                 NodeListType;
@@ -60,14 +58,7 @@ public:
   typedef typename SparseLayerMapType::iterator       SparseLayerMapIterator;
   typedef typename SparseLayerMapType::const_iterator SparseLayerMapConstIterator;
 
-  typedef Image< OutputType, VDimension >         SparseImageType;
-  typedef typename SparseImageType::Pointer       SparseImagePointer;
-
-  OutputType Evaluate( const InputType& iP ) const
-    {
-    return m_Image->GetPixel( iP );
-    }
-
+  /*
   GradientType EvaluateGradient( const InputType& iP ) const
     {
     return GradientType();
@@ -77,6 +68,7 @@ public:
     {
     return HessianType();
     }
+  */
 
   NodeListType* GetListNode( const OutputType& iId )
     {
@@ -92,8 +84,67 @@ public:
       }
     }
 
-  itkSetObjectMacro( Image, SparseImageType );
-  itkGetObjectMacro( Image, SparseImageType );
+  virtual void Initialize()
+    {
+    Superclass::Initialize();
+
+    this->InitializeLayers();
+    }
+
+  virtual void CopyInformation( const DataObject* data )
+    {
+    Superclass::CopyInformation( data );
+
+    const Self *LevelSet = NULL;
+
+    try
+      {
+      LevelSet = dynamic_cast< const Self* >( data );
+      }
+    catch( ... )
+      {
+      // LevelSet could not be cast back down
+      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    if ( !LevelSet )
+      {
+      // pointer could not be cast back down
+      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+    }
+
+  virtual void Graft( const DataObject* data )
+    {
+    Superclass::Graft( data );
+    const Self *LevelSet = 0;
+
+    try
+      {
+      LevelSet = dynamic_cast< const Self* >( data );
+      }
+    catch( ... )
+      {
+      // mesh could not be cast back down
+      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    if ( !LevelSet )
+      {
+      // pointer could not be cast back down
+      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    this->m_LayerList = LevelSet->m_LayerList;
+    }
 
 protected:
 
@@ -101,13 +152,13 @@ protected:
     {
     InitializeLayers();
     }
-  ~ShiSparseLevelSetBase() {}
+  virtual ~ShiSparseLevelSetBase() {}
 
-  SparseImagePointer m_Image;
   SparseLayerMapType m_LayerList;
 
   void InitializeLayers()
     {
+    this->m_LayerList.clear();
     this->m_LayerList[ -1 ] = NodeListType();
     this->m_LayerList[  1 ] = NodeListType();
     }
