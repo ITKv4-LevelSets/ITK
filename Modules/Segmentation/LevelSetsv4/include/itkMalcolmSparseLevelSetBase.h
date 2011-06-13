@@ -70,12 +70,74 @@ public:
     return &m_List;
     }
 
+  virtual void Initialize()
+    {
+    Superclass::Initialize();
+
+    m_List.clear();
+    }
+
+  virtual void CopyInformation( const DataObject* data )
+    {
+    Superclass::CopyInformation( data );
+
+    const Self *LevelSet = NULL;
+
+    try
+      {
+      LevelSet = dynamic_cast< const Self* >( data );
+      }
+    catch( ... )
+      {
+      // LevelSet could not be cast back down
+      itkExceptionMacro( << "itk::MalcolmSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    if ( !LevelSet )
+      {
+      // pointer could not be cast back down
+      itkExceptionMacro( << "itk::MalcolmSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+    }
+
+  virtual void Graft( const DataObject* data )
+    {
+    Superclass::Graft( data );
+    const Self *LevelSet = 0;
+
+    try
+      {
+      LevelSet = dynamic_cast< const Self* >( data );
+      }
+    catch( ... )
+      {
+      // mesh could not be cast back down
+      itkExceptionMacro( << "itk::MalcolmSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    if ( !LevelSet )
+      {
+      // pointer could not be cast back down
+      itkExceptionMacro( << "itk::MalcolmSparseLevelSetBase::CopyInformation() cannot cast "
+                         << typeid( data ).name() << " to "
+                         << typeid( Self * ).name() );
+      }
+
+    this->m_List = LevelSet->m_List;
+    }
+
 protected:
 
   MalcolmSparseLevelSetBase() : Superclass()
   {}
 
-  ~MalcolmSparseLevelSetBase()    {}
+  virtual ~MalcolmSparseLevelSetBase()    {}
 
   NodeListType        m_List;
 
