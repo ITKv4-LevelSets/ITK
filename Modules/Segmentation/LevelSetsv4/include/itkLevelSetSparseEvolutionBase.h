@@ -294,15 +294,15 @@ protected:
 
   virtual void UpdateLevelSets()
     {
-      // TODO: Multiple with dt;
-      // Get change in RMS accumulator
-
-      LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
+      LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 )  ;
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
       update_levelset->SetUpdate( m_UpdateBuffer );
+      update_levelset->SetDt( m_Dt );
       update_levelset->Update();
+
+      m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 
       m_UpdateBuffer->clear();
     }

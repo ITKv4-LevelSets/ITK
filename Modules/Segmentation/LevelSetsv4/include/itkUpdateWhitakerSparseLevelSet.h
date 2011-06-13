@@ -86,6 +86,7 @@ public:
     LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
     LevelSetNodePairType p;
     LevelSetOutputRealType update;
+    LevelSetOutputType temp;
     LevelSetNodeAttributeType q;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -122,9 +123,11 @@ public:
 
       // update the level set
       update = m_Update->front();
-//      p.second.m_Value += m_Dt * update;
-      LevelSetOutputType temp_value = p.second.m_Value +
-          m_Dt * static_cast< LevelSetOutputType >( update );
+//       p.second.m_Value += m_Dt * update;
+      temp = m_Dt * static_cast< LevelSetOutputType >( update );
+      LevelSetOutputType temp_value = p.second.m_Value + temp;
+
+      m_RMSChangeAccumulator += temp*temp;
 
       // if(phi(p)> .5), remove p from Lz, add p to Sp1
       if( temp_value > static_cast<LevelSetOutputType>( 0.5 ) )
@@ -590,6 +593,14 @@ public:
   itkSetObjectMacro( SparseLevelSet, LevelSetType );
   itkGetObjectMacro( SparseLevelSet, LevelSetType );
 
+  // Set/Get the Dt for the update
+  itkSetMacro( Dt, LevelSetOutputType );
+  itkGetMacro( Dt, LevelSetOutputType );
+
+  // Set/Get the RMS change for the update
+  itkSetMacro( RMSChangeAccumulator, LevelSetOutputType );
+  itkGetMacro( RMSChangeAccumulator, LevelSetOutputType );
+
   void SetUpdate( UpdateListType* iUpdate )
     {
     m_Update = iUpdate;
@@ -597,13 +608,15 @@ public:
 
 protected:
   UpdateWhitakerSparseLevelSet() : m_Dt( NumericTraits< LevelSetOutputType >::One ),
-    m_Update( NULL ), m_MinStatus( -3 ), m_MaxStatus( 3 )
+  m_RMSChangeAccumulator( NumericTraits< LevelSetOutputType >::Zero ), m_Update( NULL ), m_MinStatus( -3 ),
+  m_MaxStatus( 3 )
     {
     m_StatusLists = LevelSetType::New();
     }
   ~UpdateWhitakerSparseLevelSet() {}
 
   LevelSetOutputType m_Dt;
+  LevelSetOutputType m_RMSChangeAccumulator;
 
   UpdateListType*    m_Update;
   LevelSetPointer    m_SparseLevelSet;
