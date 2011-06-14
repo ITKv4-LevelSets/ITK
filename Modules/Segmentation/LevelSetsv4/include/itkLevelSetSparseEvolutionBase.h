@@ -27,6 +27,7 @@
 #include "itkUpdateWhitakerSparseLevelSet.h"
 #include <list>
 #include "itkObject.h"
+#include "itkImageFileWriter.h"
 
 namespace itk
 {
@@ -101,6 +102,10 @@ public:
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   typedef UpdateWhitakerSparseLevelSet< ImageDimension, LevelSetOutputType > UpdateLevelSetFilterType;
+
+  typedef typename LevelSetType::StatusImageType  StatusImageType;
+  typedef typename LevelSetType::OutputImageType  OutputImageType;
+
   typedef typename UpdateLevelSetFilterType::Pointer                         UpdateLevelSetFilterPointer;
   typedef typename UpdateLevelSetFilterType::UpdateListType                  UpdateListType;
 
@@ -260,11 +265,12 @@ protected:
 
         // TODO: Terms should update their values here dynamically
         // no need to call Update() later on
-        std::cout << p.first << std::endl;
+//         std::cout << p.first << std::endl;
         InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
 
         // TODO: Need to index the correct levelset
         m_UpdateBuffer->push_back( temp_update );
+//         std::cout << temp_update << std::endl;
         ++list_it;
       }
     ++it;
@@ -306,11 +312,33 @@ protected:
       std::cout << "Update levelsets" << std::endl;
       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 )  ;
 
+      typedef ImageFileWriter< StatusImageType > WriterType;
+      typedef typename WriterType::Pointer WriterPointer;
+      WriterPointer writer1 = WriterType::New();
+      writer1->SetInput( levelSet->GetStatusImage() );
+      writer1->SetFileName("/home/krm15/1.mha");
+      writer1->Update();
+
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
       update_levelset->SetUpdate( m_UpdateBuffer );
       update_levelset->SetDt( m_Dt );
       update_levelset->Update();
+
+//             NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
+//             NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
+//             NodePairType p;
+//             while( list_it != list_end )
+//             {
+//               p = (*list_it);
+// //               std::cout << p.first << std::endl;
+//               ++list_it;
+//             }
+
+      WriterPointer writer2 = WriterType::New();
+      writer2->SetInput( levelSet->GetStatusImage() );
+      writer2->SetFileName("/home/krm15/2.mha");
+      writer2->Update();
 
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 

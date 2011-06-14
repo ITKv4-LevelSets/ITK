@@ -21,6 +21,8 @@
 
 #include "itkLevelSetBase.h"
 
+#include "itkImageRegionIteratorWithIndex.h"
+
 #include "itkImage.h"
 #include "itkIndex.h"
 
@@ -76,6 +78,16 @@ public:
 
   typedef Image< NodeAttributeType, VDimension >      ImageType;
   typedef typename ImageType::Pointer                 ImagePointer;
+
+  typedef Image< NodeStatusType, VDimension>      StatusImageType;
+  typedef typename StatusImageType::Pointer           StatusImagePointer;
+
+  typedef Image< OutputType, VDimension>          OutputImageType;
+  typedef typename OutputImageType::Pointer           OutputImagePointer;
+
+  typedef ImageRegionIteratorWithIndex< ImageType >       SparseIteratorType;
+  typedef ImageRegionIteratorWithIndex< StatusImageType > StatusIteratorType;
+  typedef ImageRegionIteratorWithIndex< OutputImageType > OutputIteratorType;
 
   char GetStatus( const InputType& iP ) const
     {
@@ -190,6 +202,51 @@ public:
     this->m_LayerList = LevelSet->m_LayerList;
     }
 
+  StatusImagePointer GetStatusImage()
+  {
+    GetSparseImageComponents();
+    return m_StatusImage;
+  }
+
+  OutputImagePointer GetOutputImage()
+  {
+    GetSparseImageComponents();
+    return m_OutputImage;
+  }
+
+  void GetSparseImageComponents()
+  {
+    m_StatusImage = StatusImageType::New();
+    m_StatusImage->SetRegions( m_Image->GetLargestPossibleRegion() );
+    m_StatusImage->CopyInformation( m_Image );
+    m_StatusImage->Allocate();
+    m_StatusImage->FillBuffer( NumericTraits< NodeStatusType >::Zero );
+
+    m_OutputImage = OutputImageType::New();
+    m_OutputImage->SetRegions( m_Image->GetLargestPossibleRegion() );
+    m_OutputImage->CopyInformation( m_Image );
+    m_OutputImage->Allocate();
+    m_OutputImage->FillBuffer( NumericTraits< NodeStatusType >::Zero );
+
+    SparseIteratorType spIt ( m_Image, m_Image->GetLargestPossibleRegion() );
+    OutputIteratorType oIt( m_OutputImage, m_OutputImage->GetLargestPossibleRegion() );
+    StatusIteratorType sIt( m_StatusImage, m_StatusImage->GetLargestPossibleRegion() );
+    spIt.GoToBegin();
+    sIt.GoToBegin();
+    oIt.GoToBegin();
+
+    NodeAttributeType p;
+    while( !spIt.IsAtEnd() )
+    {
+      p = spIt.Get();
+      oIt.Set( p.m_Value );
+      sIt.Set( p.m_Status );
+      ++sIt;
+      ++spIt;
+      ++oIt;
+    }
+  }
+
 protected:
 
   WhitakerSparseLevelSetBase() : Superclass()
@@ -200,6 +257,9 @@ protected:
 
   ImagePointer        m_Image;
   SparseLayerMapType  m_LayerList;
+
+  StatusImagePointer m_StatusImage;
+  OutputImagePointer m_OutputImage;
 
   void InitializeLayers()
     {
