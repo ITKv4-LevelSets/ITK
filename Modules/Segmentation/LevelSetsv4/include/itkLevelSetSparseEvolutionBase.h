@@ -117,6 +117,12 @@ public:
     {
     m_DomainMapFilter = m_LevelSetContainer->GetDomainMapFilter();
 
+    // Get the image to be segmented
+    m_InputImage = m_EquationContainer->GetInput();
+
+    // Get the LevelSetContainer from the EquationContainer
+    m_LevelSetContainer = m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
+
     //Run iteration
     this->GenerateData();
     }
@@ -185,11 +191,6 @@ protected:
 
   void GenerateData()
     {
-    // Get the image to be segmented
-    m_InputImage = m_EquationContainer->GetInput();
-
-    // Get the LevelSetContainer from the EquationContainer
-    m_LevelSetContainer = m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
     AllocateUpdateBuffer();
 
     InitializeIteration();
@@ -212,21 +213,19 @@ protected:
 
   void InitializeIteration()
   {
+    std::cout << "Initialize iteration" << std::endl;
     DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
     DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
 
-    std::cout << "Initialize iteration" << std::endl;
-
     while( map_it != map_end )
     {
-      //       std::cout << map_it->second.m_Region << std::endl;
-
+      // std::cout << map_it->second.m_Region << std::endl;
       InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
       it.GoToBegin();
 
       while( !it.IsAtEnd() )
       {
-        //         std::cout << it.GetIndex() << std::endl;
+        // std::cout << it.GetIndex() << std::endl;
         IdListType lout = map_it->second.m_List;
 
         if( lout.empty() )
@@ -247,25 +246,35 @@ protected:
 
   void ComputeIteration()
   {
-    LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
-    NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
-    NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
-    NodePairType p;
-    while( list_it != list_end )
+    std::cout << "Compute iteration" << std::endl;
+    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    while( it != m_LevelSetContainer->End() )
     {
-      p = (*list_it);
+      LevelSetPointer levelSet = it->second;
+      NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
+      NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
+      NodePairType p;
+      while( list_it != list_end )
+      {
+        p = (*list_it);
 
-      // Terms should update their values here dynamically
-      // no need to call Update() later on
-      InputPixelRealType temp_update = m_EquationContainer->GetEquation( 0 )->Evaluate( p.first );
-      m_UpdateBuffer->push_back( temp_update );
-      ++list_it;
+        // TODO: Terms should update their values here dynamically
+        // no need to call Update() later on
+        std::cout << p.first << std::endl;
+        InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
+
+        // TODO: Need to index the correct levelset
+        m_UpdateBuffer->push_back( temp_update );
+        ++list_it;
+      }
+    ++it;
     }
   }
 
 
   void ComputeDtForNextIteration()
     {
+    std::cout << "ComputeDtForNextIteration" << std::endl;
     if( !m_UserDefinedDt )
       {
       if( ( m_Alpha > NumericTraits< LevelSetOutputType >::Zero ) &&
@@ -294,6 +303,7 @@ protected:
 
   virtual void UpdateLevelSets()
     {
+      std::cout << "Update levelsets" << std::endl;
       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 )  ;
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
@@ -309,7 +319,9 @@ protected:
 
   void UpdateEquations()
     {
-    m_EquationContainer->Update();
+    std::cout << "Update equations" << std::endl;
+    InitializeIteration();
+//     m_EquationContainer->Update();
     }
 
 private:
