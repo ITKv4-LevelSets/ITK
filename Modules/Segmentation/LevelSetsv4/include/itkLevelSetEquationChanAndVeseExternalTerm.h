@@ -52,6 +52,7 @@ public:
   typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
   typedef typename Superclass::LevelSetType               LevelSetType;
   typedef typename Superclass::LevelSetPointer            LevelSetPointer;
+  typedef typename Superclass::LevelSetI
   typedef typename Superclass::LevelSetOutputPixelType    LevelSetOutputPixelType;
   typedef typename Superclass::LevelSetOutputRealType     LevelSetOutputRealType;
   typedef typename Superclass::LevelSetInputIndexType     LevelSetInputIndexType;
@@ -65,7 +66,8 @@ public:
   typedef typename Superclass::HeavisideType    HeavisideType;
   typedef typename Superclass::HeavisidePointer HeavisidePointer;
 
-  virtual void ComputeProduct( const LevelSetInputType& iP, LevelSetOutputType& prod )
+  virtual void ComputeProduct( const LevelSetInputIndexType& iP,
+                               LevelSetOutputRealType& prod )
   {
     LevelSetIdentifierType id =
         this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
@@ -73,33 +75,36 @@ public:
     IdListType lout = this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
 
     LevelSetPointer levelSet;
-    LevelSetOutputType value;
+    LevelSetOutputRealType value;
     prod = 1;
     for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-    {
-      if ( *lIt-1 != this->m_CurrentLevelSet )
       {
+      if ( *lIt-1 != this->m_CurrentLevelSet )
+        {
         levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1 );
         value = levelSet->Evaluate( iP );
         prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
+        }
       }
-    }
   }
 
-  virtual void ComputeProductTerm( const LevelSetInputType& iP, LevelSetOutputType& prod )
+  virtual void ComputeProductTerm( const LevelSetInputIndexType& iP,
+                                   LevelSetOutputRealType& prod )
   {
     prod = -1.;
-    IdentifierType id = this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
-    IdListType lout = this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
+    LevelSetIdentifierType id =
+        this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
+    IdListType lout =
+        this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
 
     LevelSetPointer levelSet;
-    LevelSetOutputType value;
+    LevelSetOutputRealType value;
     for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-    {
+      {
       levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
       value = levelSet->Evaluate( iP );
       prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
-    }
+      }
   }
 
 protected:
