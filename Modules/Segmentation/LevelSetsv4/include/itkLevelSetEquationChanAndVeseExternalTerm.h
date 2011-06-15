@@ -19,20 +19,21 @@
 #ifndef __itkLevelSetEquationChanAndVeseExternalTerm_h
 #define __itkLevelSetEquationChanAndVeseExternalTerm_h
 
-#include "itkLevelSetEquationTermBase.h"
+#include "itkLevelSetEquationChanAndVeseInternalTerm.h"
+#include "itkNumericTraits.h"
 
 namespace itk
 {
 template< class TInput, // Input image
           class TLevelSetContainer >
 class LevelSetEquationChanAndVeseExternalTerm :
-    public LevelSetEquationTermBase< TInput, TLevelSetContainer >
+    public LevelSetEquationChanAndVeseInternalTerm< TInput, TLevelSetContainer >
 {
 public:
   typedef LevelSetEquationChanAndVeseExternalTerm         Self;
   typedef SmartPointer< Self >                            Pointer;
   typedef SmartPointer< const Self >                      ConstPointer;
-  typedef LevelSetEquationTermBase< TInput,
+  typedef LevelSetEquationChanAndVeseInternalTerm< TInput,
                                     TLevelSetContainer >  Superclass;
 
   /** Method for creation through object factory */
@@ -40,7 +41,7 @@ public:
 
   /** Run-time type information */
   itkTypeMacro( LevelSetEquationChanAndVeseExternalTerm,
-                LevelSetEquationTermBase );
+                LevelSetEquationChanAndVeseInternalTerm );
 
   typedef typename Superclass::InputImageType     InputImageType;
   typedef typename Superclass::InputImagePointer  InputImagePointer;
@@ -64,86 +65,45 @@ public:
   typedef typename Superclass::HeavisideType    HeavisideType;
   typedef typename Superclass::HeavisidePointer HeavisidePointer;
 
-  itkSetMacro( Mean, InputPixelRealType );
-  itkGetMacro( Mean, InputPixelRealType );
-
-  virtual void Update()
-  {
-    if( m_TotalH > NumericTraits< LevelSetOutputRealType >::epsilon() )
-      {
-      LevelSetOutputRealType inv_total_h = 1. / m_TotalH;
-
-      // depending on the pixel type, it may be more efficient to do
-      // a multiplication than to do a division
-      m_Mean = m_TotalValue * inv_total_h;
-      }
-    else
-      {
-      m_Mean = NumericTraits< InputPixelRealType >::Zero;
-      }
-
-    std::cout << m_TotalValue << '/' << m_TotalH << '=' << m_Mean << std::endl;
-    m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
-    m_TotalH = NumericTraits< LevelSetOutputRealType >::Zero;
-    this->m_CFLContribution = NumericTraits< LevelSetOutputRealType >::Zero;
-  }
-
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
-  virtual void Initialize( const LevelSetInputIndexType& iP )
+  virtual void ComputeProduct( const LevelSetInputType& iP, LevelSetOutputType& prod )
   {
     LevelSetIdentifierType id =
         this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
 
     IdListType lout = this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
 
-    if( m_CurrentLevelSetPointer.IsNull() )
+    LevelSetPointer levelSet;
+    LevelSetOutputType value;
+    prod = 1;
+    for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+    {
+      if ( *lIt-1 != this->m_CurrentLevelSet )
       {
-      m_CurrentLevelSetPointer =
-      this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
-
-      if( m_CurrentLevelSetPointer.IsNull() )
-        {
-        itkWarningMacro(
-        << "m_CurrentLevelSet does not exist in the level set container" );
-        }
+        levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1 );
+        value = levelSet->Evaluate( iP );
+        prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
       }
-
-    if( this->m_Heaviside.IsNotNull() )
-      {
-      LevelSetOutputPixelType value = m_CurrentLevelSetPointer->Evaluate( iP );
-
-      InputPixelType pixel = this->m_Input->GetPixel( iP );
-
-      LevelSetOutputPixelType prod = 1.;
-      for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-        {
-        if ( *lIt-1 != this->m_CurrentLevelSet )
-          {
-          LevelSetPointer levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1 );
-          value = levelSet->Evaluate( iP );
-          prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
-          }
-        }
-      this->Accumulate( pixel, prod );
-      }
-    else
-      {
-      itkWarningMacro( << "m_Heaviside is NULL" );
-      }
+    }
   }
 
-//   virtual LevelSetOutputType Evaluate( const LevelSetInputType& iP )
-//     {
-//     return m_Coefficient * this->Value( iP );
-//     }
+  virtual void ComputeProductTerm( const LevelSetInputType& iP, LevelSetOutputType& prod )
+  {
+    prod = -1.;
+    IdentifierType id = this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
+    IdListType lout = this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
+
+    LevelSetPointer levelSet;
+    LevelSetOutputType value;
+    for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+    {
+      levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
+      value = levelSet->Evaluate( iP );
+      prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
+    }
+  }
 
 protected:
-  LevelSetEquationChanAndVeseExternalTerm() : Superclass(),
-    m_CurrentLevelSetPointer( NULL ),
-    m_Mean( NumericTraits< InputPixelRealType >::Zero ),
-    m_TotalH( NumericTraits< LevelSetOutputRealType >::Zero ),
-    m_TotalValue( NumericTraits< InputPixelRealType >::Zero )
+  LevelSetEquationChanAndVeseExternalTerm() : Superclass()
   {}
 
   virtual ~LevelSetEquationChanAndVeseExternalTerm() {}
@@ -152,57 +112,6 @@ protected:
     {
     this->m_TermName = "External Chan And Vese term";
     }
-
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
-    {
-    if( this->m_Heaviside.IsNotNull() )
-      {
-      LevelSetIdentifierType id =
-          this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
-      IdListType lout =
-          this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
-
-      LevelSetOutputRealType value =
-          static_cast< LevelSetOutputRealType  >( m_CurrentLevelSetPointer->Evaluate( iP ) );
-      LevelSetOutputRealType d_val = this->m_Heaviside->EvaluateDerivative( -value );
-
-      InputPixelType pixel = this->m_Input->GetPixel( iP );
-
-      LevelSetOutputRealType prod = NumericTraits< LevelSetOutputRealType >::One;
-
-      for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-        {
-        LevelSetPointer levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
-        value = static_cast< LevelSetOutputRealType  >( levelSet->Evaluate( iP ) );
-        prod *= ( 1 - this->m_Heaviside->Evaluate( -value ) );
-        }
-      LevelSetOutputRealType oValue = -d_val * prod *
-        static_cast< LevelSetOutputRealType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
-
-      return oValue;
-      }
-    else
-      {
-      itkWarningMacro( << "m_Heaviside is NULL" );
-      }
-
-    return NumericTraits< LevelSetOutputRealType >::Zero;
-    }
-
-  void Accumulate( const InputPixelType& iPix,
-                   const LevelSetOutputRealType& iH )
-    {
-    m_TotalValue += static_cast< InputPixelRealType >( iPix ) *
-        static_cast< InputPixelRealType >( iH );
-    m_TotalH += static_cast< InputPixelRealType >( iH );
-    }
-
-  LevelSetPointer         m_CurrentLevelSetPointer;
-  InputPixelRealType      m_Mean;
-  LevelSetOutputRealType  m_TotalH;
-  InputPixelRealType      m_TotalValue;
 
 private:
   LevelSetEquationChanAndVeseExternalTerm( const Self& );

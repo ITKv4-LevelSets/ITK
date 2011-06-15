@@ -103,6 +103,7 @@ public:
       }
 
     if( this->m_Heaviside.IsNotNull() )
+/*
       {
       LevelSetOutputRealType value =
           static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
@@ -112,11 +113,28 @@ public:
       InputPixelType pixel = this->m_Input->GetPixel( iP );
       this->Accumulate( pixel, h_val );
       }
+*/
+    {
+      InputPixelType pixel = this->m_Input->GetPixel( iP );
+
+      LevelSetOutputType prod;
+      this->ComputeProduct( iP, prod );
+      this->Accumulate( pixel, prod );
+    }
     else
       {
       itkWarningMacro( << "m_Heaviside is NULL" );
       }
   }
+
+  virtual void ComputeProduct( const LevelSetInputType& iP, LevelSetOutputType& prod )
+  {
+    LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
+    prod = this->m_Heaviside->Evaluate( -value );
+  }
+
+  virtual void ComputeProductTerm( const LevelSetInputType& iP, LevelSetOutputType& prod )
+  {}
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
@@ -140,6 +158,7 @@ protected:
     {
     if( this->m_Heaviside.IsNotNull() )
       {
+/*
       LevelSetOutputRealType value =
           static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
 
@@ -149,6 +168,17 @@ protected:
 
       LevelSetOutputRealType oValue = d_val *
         static_cast< LevelSetOutputRealType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
+
+*/
+      LevelSetOutputType value = m_CurrentLevelSetPointer->Evaluate( iP );
+      LevelSetOutputType d_val = this->m_Heaviside->EvaluateDerivative( -value );
+
+      InputPixelType pixel = this->m_Input->GetPixel( iP );
+      LevelSetOutputType prod = 1;
+
+      ComputeProductTerm( iP, prod );
+      LevelSetOutputType oValue = d_val * prod *
+        static_cast< LevelSetOutputType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
 
       return oValue;
       }
