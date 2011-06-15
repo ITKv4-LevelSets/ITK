@@ -265,7 +265,7 @@ protected:
 
         // TODO: Terms should update their values here dynamically
         // no need to call Update() later on
-        std::cout << p.first << std::endl;
+//         std::cout << p.first << std::endl;
         InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
 
         // TODO: Need to index the correct levelset
@@ -312,13 +312,13 @@ protected:
       std::cout << "Update levelsets" << std::endl;
       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
 
-      typedef ImageFileWriter< OutputImageType > WriterType;
+      typedef ImageFileWriter< StatusImageType > WriterType;
       typedef typename WriterType::Pointer       WriterPointer;
 
-      WriterPointer writer1 = WriterType::New();
-      writer1->SetInput( levelSet->GetOutputImage() );
-      writer1->SetFileName("/home/krm15/1.mha");
-      writer1->Update();
+//       WriterPointer writer1 = WriterType::New();
+//       writer1->SetInput( levelSet->GetOutputImage() );
+//       writer1->SetFileName("/home/krm15/1.mha");
+//       writer1->Update();
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
@@ -326,18 +326,18 @@ protected:
       update_levelset->SetDt( m_Dt );
       update_levelset->Update();
 
-            NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
-            NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
-            NodePairType p;
-            while( list_it != list_end )
-            {
-              p = (*list_it);
-              std::cout << p.first << std::endl;
-              ++list_it;
-            }
+//             NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
+//             NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
+//             NodePairType p;
+//             while( list_it != list_end )
+//             {
+//               p = (*list_it);
+//               std::cout << p.first << std::endl;
+//               ++list_it;
+//             }
 
       WriterPointer writer2 = WriterType::New();
-      writer2->SetInput( levelSet->GetOutputImage() );
+      writer2->SetInput( levelSet->GetStatusImage() );
       writer2->SetFileName("/home/krm15/2.mha");
       writer2->Update();
 

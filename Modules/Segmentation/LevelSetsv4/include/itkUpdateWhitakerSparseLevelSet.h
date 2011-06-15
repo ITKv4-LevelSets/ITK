@@ -134,6 +134,7 @@ public:
       {
         temp = -0.5;
       }
+//       std::cout << temp << std::endl;
 
       LevelSetOutputType temp_value = p.second.m_Value + temp;
       m_RMSChangeAccumulator += temp*temp;

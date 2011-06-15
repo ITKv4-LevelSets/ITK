@@ -143,4 +143,4 @@ add_test(NAME itkUpdateMalcolmSparseLevelSetTest2
     )
 add_test(NAME itkSingleLevelSetSparse2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
-      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
+      /home/krm15/test3.png )
