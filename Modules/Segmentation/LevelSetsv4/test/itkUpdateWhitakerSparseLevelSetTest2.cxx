@@ -17,6 +17,8 @@
  *=========================================================================*/
 
 #include <string>
+#include <iostream>
+#include <fstream>
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -24,7 +26,7 @@
 #include "itkUpdateWhitakerSparseLevelSet.h"
 #include "itkImageRegionIterator.h"
 
-int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
+int itkUpdateWhitakerSparseLevelSetTest2( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
@@ -52,23 +54,33 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
   typedef itk::ImageRegionIterator< StatusImageType > StatusIteratorType;
 
-  InputImageType::Pointer input = InputImageType::New();
   InputImageType::RegionType region;
 
   InputImageType::SizeType size;
-  size.Fill( 25 );
+  size.Fill( 51 );
 
   InputImageType::IndexType start;
   start.Fill( 0 );
 
   region.SetSize( size );
   region.SetIndex( start );
+
+  // TODO: Spacing not taken into account in levelset
+  InputImageType::SpacingType spacing;
+  spacing.Fill( 0.5 );
+
+  // Create a binary image
+  InputImageType::Pointer input = InputImageType::New();
   input->SetRegions( region );
+  input->SetSpacing( spacing );
   input->Allocate();
   input->FillBuffer( 0 );
 
-  size[0] = 10;
+  size.Fill( 30 );
   region.SetSize( size );
+
+  start.Fill( 10 );
+  region.SetIndex( start );
 
   typedef itk::ImageRegionIterator< InputImageType > InputIteratorType;
   InputIteratorType i_it( input, region );
@@ -79,57 +91,43 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
     i_it.Set( 255 );
     ++i_it;
     }
-
   std::cout << "Input image computed" << std::endl;
 
   BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
   adaptor->SetInputImage( input );
   adaptor->Initialize();
-  std::cout << "Finished converting to sparse format" << std::endl;
-
   SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
+  std::cout << "Converted to sparse levelset" << std::endl;
 
   typedef itk::UpdateWhitakerSparseLevelSet< Dimension, OutputPixelType > UpdateLevelSetType;
-  UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
-  update_levelset->SetSparseLevelSet( sparseLevelSet );
-
   UpdateLevelSetType::UpdateListType* update_list =
       new UpdateLevelSetType::UpdateListType;
 
   SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode( 0 )->begin();
   SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode( 0 )->end();
 
-  size_t k = 0;
+  std::ifstream file;
+  file.open( argv[1] );
 
-  while( list_it != list_end )
+  if( !file.is_open() )
     {
-    if( atoi( argv[1]) == 2 )
-      {
-      update_list->push_back( -1.0 );
-      }
-    else
-      {
-      if( atoi( argv[1] ) == 0 )
-        {
-        update_list->push_back( 1.0 );
-        }
-      else
-        {
-        if( ( ( list_it->first )[1] % 20 ) < 10 )
-          {
-          update_list->push_back( -1.0 );
-          }
-        else
-          {
-          update_list->push_back( 1.0 );
-          }
-        }
-      }
-    ++k;
-    ++list_it;
+    std::cout << argv[1] <<" can't be opened" << std::endl;
+    return EXIT_FAILURE;
     }
 
+  OutputPixelType t;
+  while( ( list_it != list_end ) && ( file.good() ) )
+    {
+    file >> t;
+    update_list->push_back( t );
+    ++list_it;
+    }
+  file.close();
+
+  UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
+  update_levelset->SetSparseLevelSet( sparseLevelSet );
   update_levelset->SetUpdate( update_list );
+  update_levelset->SetDt( 1.0 );
   update_levelset->Update();
 
   delete update_list;
