@@ -265,7 +265,7 @@ protected:
 
         // TODO: Terms should update their values here dynamically
         // no need to call Update() later on
-//         std::cout << p.first << std::endl;
+        std::cout << p.first << std::endl;
         InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
 
         // TODO: Need to index the correct levelset
@@ -326,15 +326,15 @@ protected:
       update_levelset->SetDt( m_Dt );
       update_levelset->Update();
 
-//             NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
-//             NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
-//             NodePairType p;
-//             while( list_it != list_end )
-//             {
-//               p = (*list_it);
-// //               std::cout << p.first << std::endl;
-//               ++list_it;
-//             }
+            NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
+            NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
+            NodePairType p;
+            while( list_it != list_end )
+            {
+              p = (*list_it);
+              std::cout << p.first << std::endl;
+              ++list_it;
+            }
 
       WriterPointer writer2 = WriterType::New();
       writer2->SetInput( levelSet->GetOutputImage() );
