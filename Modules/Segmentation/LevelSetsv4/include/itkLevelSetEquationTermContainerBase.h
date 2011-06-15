@@ -128,6 +128,7 @@ public:
     while( term_it != term_end )
       {
       LevelSetOutputPixelType temp_val = ( term_it->second )->Evaluate( iP );
+
       m_TermContribution[ term_it->first ] =
           vnl_math_max( temp_val, m_TermContribution[ term_it->first ] );
       oValue += temp_val;

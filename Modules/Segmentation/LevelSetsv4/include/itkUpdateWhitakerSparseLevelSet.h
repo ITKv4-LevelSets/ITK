@@ -127,6 +127,7 @@ public:
       temp = m_Dt * static_cast< LevelSetOutputType >( update );
       LevelSetOutputType temp_value = p.second.m_Value + temp;
       m_RMSChangeAccumulator += temp*temp;
+//       std::cout << temp << std::endl;
 
       // if(phi(p)> .5), remove p from Lz, add p to Sp1
       if( temp_value > static_cast<LevelSetOutputType>( 0.5 ) )
