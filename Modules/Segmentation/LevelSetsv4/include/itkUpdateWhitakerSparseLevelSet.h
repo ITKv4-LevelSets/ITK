@@ -123,10 +123,9 @@ public:
 
       // update the level set
       update = m_Update->front();
-//       p.second.m_Value += m_Dt * update;
+
       temp = m_Dt * static_cast< LevelSetOutputType >( update );
       LevelSetOutputType temp_value = p.second.m_Value + temp;
-//       std::cout << temp_value << std::endl;
       m_RMSChangeAccumulator += temp*temp;
 
       // if(phi(p)> .5), remove p from Lz, add p to Sp1
@@ -253,8 +252,8 @@ public:
       idx = p.first;
       sparseNeighborhoodIt.SetLocation( idx );
 
-      LevelSetNodeStatusType M =
-          NumericTraits<LevelSetNodeStatusType>::NonpositiveMin();
+      LevelSetOutputType M =
+        NumericTraits<LevelSetOutputType>::NonpositiveMin();
 
       // flag = is there at least one neighbor q s.t. ( q.m_Status == status + 1 )
       bool IsThereNeighborEqualToStatusPlus1 = false;
@@ -296,7 +295,6 @@ public:
 
         if ( p.second.m_Value >= o1 )
           {
-          m_SparseImage->SetPixel( idx, p.second );
           m_StatusLists->GetListNode( status_plus_1 )->push_back( p );
           }
         else
@@ -305,14 +303,12 @@ public:
             {
             if ( status_minus_1 > m_MinStatus )
               {
-              m_SparseImage->SetPixel( idx, p.second );
               m_StatusLists->GetListNode( status_minus_1 )->push_back( p );
               }
             else
               {
               p.second.m_Status = m_MinStatus;
               p.second.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
-              m_SparseImage->SetPixel( idx, p.second );
               }
             }
           else
@@ -320,6 +316,7 @@ public:
             temp_list.push_back( p );
             }
           }
+          m_SparseImage->SetPixel( idx, p.second );
         }
        list->pop_front();
      }
@@ -374,7 +371,7 @@ public:
       idx = p.first;
       sparseNeighborhoodIt.SetLocation( idx );
 
-      LevelSetNodeStatusType M = NumericTraits<LevelSetNodeStatusType>::max();
+    LevelSetOutputType M = NumericTraits<LevelSetOutputType>::max();
 
       bool IsThereNeighborEqualToStatusMinus1 = false;
       for( typename SparseNeighborhoodIteratorType::Iterator
@@ -414,7 +411,6 @@ public:
 
         if ( p.second.m_Value <= o1 )
           {
-          m_SparseImage->SetPixel( idx, p.second );
           m_StatusLists->GetListNode( status_minus_1 )->push_back( p );
           }
         else
@@ -423,14 +419,12 @@ public:
             {
             if ( status_plus_1 < m_MaxStatus )
               {
-              m_SparseImage->SetPixel( idx, p.second );
               m_StatusLists->GetListNode( status_plus_1 )->push_back( p );
               }
             else
               {
               p.second.m_Status = m_MaxStatus;
               p.second.m_Value = static_cast< LevelSetOutputType >( m_MaxStatus );
-              m_SparseImage->SetPixel( idx, p.second );
               }
             }
           else
@@ -438,6 +432,7 @@ public:
             temp_list.push_back( p );
             }
           }
+          m_SparseImage->SetPixel( idx, p.second );
         }
       list->pop_front();
       }

@@ -105,23 +105,23 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
     {
     if( atoi( argv[1]) == 2 )
       {
-      update_list->push_back( -1. );
+      update_list->push_back( -1.0 );
       }
     else
       {
       if( atoi( argv[1] ) == 0 )
         {
-        update_list->push_back( 1. );
+        update_list->push_back( 1.0 );
         }
       else
         {
         if( ( ( list_it->first )[1] % 20 ) < 10 )
           {
-          update_list->push_back( -1. );
+          update_list->push_back( -1.0 );
           }
         else
           {
-          update_list->push_back( 1. );
+          update_list->push_back( 1.0 );
           }
         }
       }
@@ -134,43 +134,9 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
 
   delete update_list;
 
-  NodeAttributeType p;
-  SparseIteratorType ls_It( sparseLevelSet->GetImage(),
-                         sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
-  ls_It.GoToBegin();
-
-  OutputImageType::Pointer output = OutputImageType::New();
-  output->SetRegions( sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
-  output->CopyInformation( sparseLevelSet->GetImage() );
-  output->Allocate();
-  output->FillBuffer( 0.0 );
-
-  StatusImageType::Pointer status = StatusImageType::New();
-  status->SetRegions( sparseLevelSet->GetImage()->GetLargestPossibleRegion() );
-  status->CopyInformation( sparseLevelSet->GetImage() );
-  status->Allocate();
-  status->FillBuffer( 0 );
-
-  OutputIteratorType oIt( output,
-                          output->GetLargestPossibleRegion() );
-  oIt.GoToBegin();
-
-  StatusIteratorType sIt( status, status->GetLargestPossibleRegion() );
-  sIt.GoToBegin();
-
-  while( !oIt.IsAtEnd() )
-    {
-    p = ls_It.Get();
-    oIt.Set( p.m_Value );
-    sIt.Set( p.m_Status );
-    ++ls_It;
-    ++oIt;
-    ++sIt;
-    }
-
   OutputWriterType::Pointer writer = OutputWriterType::New();
   writer->SetFileName( argv[2] );
-  writer->SetInput( output );
+  writer->SetInput( sparseLevelSet->GetOutputImage() );
 
   try
     {
@@ -183,7 +149,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
 
   StatusWriterType::Pointer status_writer = StatusWriterType::New();
   status_writer->SetFileName( argv[3] );
-  status_writer->SetInput( status );
+  status_writer->SetInput( sparseLevelSet->GetStatusImage() );
 
   try
     {

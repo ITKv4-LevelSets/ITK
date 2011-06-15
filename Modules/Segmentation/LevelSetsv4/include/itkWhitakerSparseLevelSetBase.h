@@ -79,10 +79,10 @@ public:
   typedef Image< NodeAttributeType, VDimension >      ImageType;
   typedef typename ImageType::Pointer                 ImagePointer;
 
-  typedef Image< NodeStatusType, VDimension>      StatusImageType;
+  typedef Image< NodeStatusType, VDimension>          StatusImageType;
   typedef typename StatusImageType::Pointer           StatusImagePointer;
 
-  typedef Image< OutputType, VDimension>          OutputImageType;
+  typedef Image< OutputType, VDimension>              OutputImageType;
   typedef typename OutputImageType::Pointer           OutputImagePointer;
 
   typedef ImageRegionIteratorWithIndex< ImageType >       SparseIteratorType;
@@ -204,13 +204,19 @@ public:
 
   StatusImagePointer GetStatusImage()
   {
-    GetSparseImageComponents();
+    if ( !m_StatusImage )
+      {
+      GetSparseImageComponents();
+      }
     return m_StatusImage;
   }
 
   OutputImagePointer GetOutputImage()
   {
-    GetSparseImageComponents();
+    if ( !m_OutputImage )
+      {
+      GetSparseImageComponents();
+      }
     return m_OutputImage;
   }
 
@@ -252,6 +258,8 @@ protected:
   WhitakerSparseLevelSetBase() : Superclass()
   {
     InitializeLayers();
+    m_StatusImage = 0;
+    m_OutputImage = 0;
   }
   virtual ~WhitakerSparseLevelSetBase() {}
 
