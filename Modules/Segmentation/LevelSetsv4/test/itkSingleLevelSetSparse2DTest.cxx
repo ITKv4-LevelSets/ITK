@@ -26,7 +26,7 @@
 #include "itkLevelSetEquationChanAndVeseExternalTerm.h"
 #include "itkLevelSetEquationTermContainerBase.h"
 #include "itkLevelSetEquationContainerBase.h"
-#include "itkHeavisideStepFunction.h"
+#include "itkSinRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetSparseEvolutionBase.h"
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 #include "itkNumericTraits.h"
@@ -74,7 +74,7 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
                                                             LevelSetEvolutionType;
 
   typedef SparseLevelSetType::OutputRealType                      LevelSetOutputRealType;
-  typedef itk::HeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
+  typedef itk::SinRegularizedHeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
                                                             HeavisideFunctionBaseType;
   typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
@@ -133,7 +133,7 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 
   // Define the Heaviside function
   HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
-//   heaviside->SetEpsilon( 1.0 );
+  heaviside->SetEpsilon( 1.0 );
 
   // Insert the levelsets in a levelset container
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
@@ -187,7 +187,7 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 1 );
+  evolution->SetNumberOfIterations( 100 );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

@@ -78,12 +78,9 @@ public:
     prod = 1;
     for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
       {
-      if ( *lIt-1 != this->m_CurrentLevelSet )
-        {
-        levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1 );
-        value = levelSet->Evaluate( iP );
-        prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
-        }
+      levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1 );
+      value = levelSet->Evaluate( iP );
+      prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
       }
   }
 
