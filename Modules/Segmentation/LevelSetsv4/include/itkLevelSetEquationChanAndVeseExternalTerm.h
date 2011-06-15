@@ -52,7 +52,6 @@ public:
   typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
   typedef typename Superclass::LevelSetType               LevelSetType;
   typedef typename Superclass::LevelSetPointer            LevelSetPointer;
-  typedef typename Superclass::LevelSetI
   typedef typename Superclass::LevelSetOutputPixelType    LevelSetOutputPixelType;
   typedef typename Superclass::LevelSetOutputRealType     LevelSetOutputRealType;
   typedef typename Superclass::LevelSetInputIndexType     LevelSetInputIndexType;
