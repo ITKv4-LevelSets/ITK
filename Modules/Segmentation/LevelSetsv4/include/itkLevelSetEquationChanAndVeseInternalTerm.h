@@ -125,10 +125,7 @@ public:
 
   virtual void ComputeProductTerm( const LevelSetInputIndexType& iP,
                                   LevelSetOutputRealType& prod )
-  {
-    LevelSetOutputRealType value = m_CurrentLevelSetPointer->Evaluate( iP );
-    prod = this->m_Heaviside->Evaluate( -value );
-  }
+  {}
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
