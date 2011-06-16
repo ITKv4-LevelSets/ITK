@@ -125,7 +125,10 @@ public:
 
   virtual void ComputeProductTerm( const LevelSetInputIndexType& iP,
                                   LevelSetOutputRealType& prod )
-  {}
+  {
+    LevelSetOutputRealType value = m_CurrentLevelSetPointer->Evaluate( iP );
+    prod = this->m_Heaviside->Evaluate( -value );
+  }
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
@@ -161,6 +164,7 @@ protected:
       LevelSetOutputRealType oValue = d_val * prod *
         static_cast< LevelSetOutputRealType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
 
+      std::cout << value << ' ' << int(pixel) << ' ' << prod << ' ' << oValue << std::endl;
       return oValue;
       }
     else

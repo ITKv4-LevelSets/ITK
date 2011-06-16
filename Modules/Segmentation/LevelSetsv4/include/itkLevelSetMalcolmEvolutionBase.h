@@ -264,7 +264,10 @@ protected:
 
         // TODO: Terms should update their values here dynamically
         // no need to call Update() later on
-        std::cout << p.first << ' ';
+        std::cout << p.first << std::endl;
+
+        // NOTE: No HeavisideStepFunction for Malcolm since external term will be 0 always
+        // since prod = 0 in ComputeProductTerm()
         InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
 
         // TODO: Need to index the correct levelset
