@@ -145,3 +145,6 @@ add_test(NAME itkUpdateMalcolmSparseLevelSetTest2
 add_test(NAME itkSingleLevelSetSparse2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
       /home/krm15/test3.png )
+add_test(NAME itkSingleLevelSetMalcolm2DTest
+      COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetMalcolm2DTest
+      /home/krm15/test3.png )
