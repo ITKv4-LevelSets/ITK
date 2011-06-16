@@ -75,7 +75,7 @@ public:
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::ImageType             LevelSetImageType;
-  typedef typename LevelSetType::OutputType            LevelSetOutputType;
+  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
   typedef typename LevelSetType::NodePairType     NodePairType;
@@ -131,12 +131,12 @@ public:
     this->GenerateData();
     }
 
-  itkSetMacro( Alpha, LevelSetOutputType );
-  itkGetMacro( Alpha, LevelSetOutputType );
+  itkSetMacro( Alpha, LevelSetOutputRealType );
+  itkGetMacro( Alpha, LevelSetOutputRealType );
 
-  void SetTimeStep( const LevelSetOutputType& iDt )
+  void SetTimeStep( const LevelSetOutputRealType& iDt )
     {
-    if( iDt > NumericTraits< LevelSetOutputType >::epsilon() )
+    if( iDt > NumericTraits< LevelSetOutputRealType >::epsilon() )
       {
       m_UserDefinedDt = true;
       m_Dt = iDt;
@@ -182,10 +182,10 @@ protected:
   UpdateListType*             m_UpdateBuffer;
   DomainMapImageFilterPointer m_DomainMapFilter;
 
-  LevelSetOutputType          m_Alpha;
-  LevelSetOutputType          m_Dt;
-  LevelSetOutputType          m_RMSChangeAccumulator;
-  bool                        m_UserDefinedDt;
+  LevelSetOutputRealType          m_Alpha;
+  LevelSetOutputRealType          m_Dt;
+  LevelSetOutputRealType          m_RMSChangeAccumulator;
+  bool                            m_UserDefinedDt;
 
   void AllocateUpdateBuffer()
     {
@@ -264,12 +264,12 @@ protected:
 
         // TODO: Terms should update their values here dynamically
         // no need to call Update() later on
-//         std::cout << p.first << std::endl;
+        std::cout << p.first << ' ';
         InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
 
         // TODO: Need to index the correct levelset
         m_UpdateBuffer->push_back( temp_update );
-//         std::cout << temp_update << std::endl;
+        std::cout << temp_update << std::endl;
         ++list_it;
       }
     ++it;
@@ -279,30 +279,30 @@ protected:
 
   void ComputeDtForNextIteration()
     {
-    std::cout << "ComputeDtForNextIteration" << std::endl;
-    if( !m_UserDefinedDt )
-      {
-      if( ( m_Alpha > NumericTraits< LevelSetOutputType >::Zero ) &&
-          ( m_Alpha < NumericTraits< LevelSetOutputType >::One ) )
-        {
-        LevelSetOutputType contribution = m_EquationContainer->GetCFLContribution();
-
-        if( contribution > NumericTraits< LevelSetOutputType >::epsilon() )
-          {
-          m_Dt = m_Alpha / contribution;
-          }
-        else
-          {
-          itkGenericExceptionMacro( << "contribution is too low" );
-          }
-        }
-      else
-        {
-        itkGenericExceptionMacro( <<"m_Alpha should be in [0,1]" );
-        }
-      }
-
-      std::cout << "Dt = " << m_Dt << std::endl;
+//     std::cout << "ComputeDtForNextIteration" << std::endl;
+//     if( !m_UserDefinedDt )
+//       {
+//       if( ( m_Alpha > NumericTraits< LevelSetOutputRealType >::Zero ) &&
+//           ( m_Alpha < NumericTraits< LevelSetOutputRealType >::One ) )
+//         {
+//         LevelSetOutputRealType contribution = m_EquationContainer->GetCFLContribution();
+//
+//         if( contribution > NumericTraits< LevelSetOutputRealType >::epsilon() )
+//           {
+//           m_Dt = m_Alpha / contribution;
+//           }
+//         else
+//           {
+//             itkGenericExceptionMacro( << "contribution " << contribution <<  "is too low" );
+//           }
+//         }
+//       else
+//         {
+//         itkGenericExceptionMacro( <<"m_Alpha " << m_Alpha << " should be in [0,1]" );
+//         }
+//       }
+//
+//       std::cout << "Dt = " << m_Dt << std::endl;
 //       m_Dt = 0.08;
     }
 
@@ -314,7 +314,7 @@ protected:
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
       update_levelset->SetUpdate( m_UpdateBuffer );
-      update_levelset->SetDt( m_Dt );
+      update_levelset->SetDt( 1 );
       update_levelset->Update();
 
       typedef ImageFileWriter< OutputImageType > WriterType;

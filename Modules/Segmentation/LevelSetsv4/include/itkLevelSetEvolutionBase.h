@@ -74,7 +74,7 @@ public:
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::ImageType             LevelSetImageType;
-  typedef typename LevelSetType::OutputType            LevelSetOutputType;
+  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
 
@@ -120,12 +120,12 @@ public:
     this->GenerateData();
     }
 
-  itkSetMacro( Alpha, LevelSetOutputType );
-  itkGetMacro( Alpha, LevelSetOutputType );
+  itkSetMacro( Alpha, LevelSetOutputRealType );
+  itkGetMacro( Alpha, LevelSetOutputRealType );
 
-  void SetTimeStep( const LevelSetOutputType& iDt )
+  void SetTimeStep( const LevelSetOutputRealType& iDt )
     {
-    if( iDt > NumericTraits< LevelSetOutputType >::epsilon() )
+    if( iDt > NumericTraits< LevelSetOutputRealType >::epsilon() )
       {
       m_UserDefinedDt = true;
       m_Dt = iDt;
@@ -164,9 +164,9 @@ protected:
   LevelSetContainerPointer    m_UpdateBuffer;
   DomainMapImageFilterPointer m_DomainMapFilter;
 
-  LevelSetOutputType          m_Alpha;
-  LevelSetOutputType          m_Dt;
-  LevelSetOutputType          m_RMSChangeAccumulator;
+  LevelSetOutputRealType      m_Alpha;
+  LevelSetOutputRealType      m_Dt;
+  LevelSetOutputRealType      m_RMSChangeAccumulator;
   bool                        m_UserDefinedDt;
 
   void AllocateUpdateBuffer()
@@ -207,7 +207,7 @@ protected:
 
           LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
 
-          InputPixelRealType temp_update =
+          LevelSetOutputRealType temp_update =
               m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
 
           levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
@@ -292,12 +292,12 @@ protected:
     // if the time step is not globally set
     if( !m_UserDefinedDt )
       {
-      if( ( m_Alpha > NumericTraits< LevelSetOutputType >::Zero ) &&
-          ( m_Alpha < NumericTraits< LevelSetOutputType >::One ) )
+      if( ( m_Alpha > NumericTraits< LevelSetOutputRealType >::Zero ) &&
+          ( m_Alpha < NumericTraits< LevelSetOutputRealType >::One ) )
         {
-        LevelSetOutputType contribution = m_EquationContainer->GetCFLContribution();
+        LevelSetOutputRealType contribution = m_EquationContainer->GetCFLContribution();
 
-        if( contribution > NumericTraits< LevelSetOutputType >::epsilon() )
+        if( contribution > NumericTraits< LevelSetOutputRealType >::epsilon() )
           {
           m_Dt = m_Alpha / contribution;
           }
@@ -321,7 +321,7 @@ protected:
     LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
     LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
 
-    LevelSetOutputType p;
+    LevelSetOutputRealType p;
 
     while( it1 != m_LevelSetContainer->End() )
       {
@@ -365,7 +365,7 @@ protected:
 
       ThresholdFilterPointer thresh = ThresholdFilterType::New();
       thresh->SetLowerThreshold(
-            NumericTraits< LevelSetOutputType >::NonpositiveMin() );
+            NumericTraits< LevelSetOutputRealType >::NonpositiveMin() );
       thresh->SetUpperThreshold( 0 );
       thresh->SetInsideValue( 1 );
       thresh->SetOutsideValue( 0 );

@@ -47,7 +47,8 @@ public:
   typedef typename Superclass::LevelSetPointer    LevelSetPointer;
   typedef typename Superclass::LevelSetImageType  LevelSetImageType;
   typedef typename Superclass::InputIndexType     InputIndexType;
-  typedef typename Superclass::OutputPixelType    OutputPixelType;
+//   typedef typename Superclass::OutputPixelType    OutputPixelType;
+  typedef typename Superclass::OutputType         OutputPixelType;
   typedef typename Superclass::OutputRealType     OutputRealType;
   typedef typename Superclass::GradientType       GradientType;
   typedef typename Superclass::HessianType        HessianType;

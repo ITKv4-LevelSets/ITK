@@ -49,7 +49,8 @@ public:
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
   typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
   typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
-  typedef typename LevelSetContainerType::OutputPixelType LevelSetOutputPixelType;
+  //typedef typename LevelSetContainerType::OutputPixelType LevelSetOutputPixelType;
+  typedef typename LevelSetContainerType::OutputType      LevelSetOutputPixelType;
   typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
   typedef typename LevelSetContainerType::InputIndexType  LevelSetInputIndexType;
   typedef typename LevelSetContainerType::GradientType    LevelSetGradientType;

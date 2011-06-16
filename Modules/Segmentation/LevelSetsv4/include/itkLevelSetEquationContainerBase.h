@@ -44,7 +44,7 @@ public:
   typedef typename TermContainerType::InputImageType    InputImageType;
   typedef typename TermContainerType::InputImagePointer InputImagePointer;
 
-  typedef typename TermContainerType::LevelSetOutputPixelType LevelSetOutputPixelType;
+  typedef typename TermContainerType::LevelSetOutputRealType LevelSetOutputRealType;
 
   void AddEquation( const unsigned int& iId, TermContainerPointer iEquation )
     {
@@ -91,12 +91,12 @@ public:
       }
     }
 
-  LevelSetOutputPixelType GetCFLContribution()
+  LevelSetOutputRealType GetCFLContribution()
     {
     typedef typename std::map< unsigned int, TermContainerPointer >::iterator
         ContainerIterator;
 
-    LevelSetOutputPixelType oValue = NumericTraits< LevelSetOutputPixelType >::max();
+    LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::max();
 
     for( ContainerIterator it = m_Container.begin();
          it != m_Container.end();

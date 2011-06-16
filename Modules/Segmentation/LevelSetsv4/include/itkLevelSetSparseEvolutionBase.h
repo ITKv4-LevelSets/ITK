@@ -75,6 +75,7 @@ public:
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::ImageType             LevelSetImageType;
+  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
@@ -132,12 +133,12 @@ public:
     this->GenerateData();
     }
 
-  itkSetMacro( Alpha, LevelSetOutputType );
-  itkGetMacro( Alpha, LevelSetOutputType );
+  itkSetMacro( Alpha, LevelSetOutputRealType );
+  itkGetMacro( Alpha, LevelSetOutputRealType );
 
-  void SetTimeStep( const LevelSetOutputType& iDt )
+  void SetTimeStep( const LevelSetOutputRealType& iDt )
     {
-    if( iDt > NumericTraits< LevelSetOutputType >::epsilon() )
+    if( iDt > NumericTraits< LevelSetOutputRealType >::epsilon() )
       {
       m_UserDefinedDt = true;
       m_Dt = iDt;
@@ -183,9 +184,9 @@ protected:
   UpdateListType*             m_UpdateBuffer;
   DomainMapImageFilterPointer m_DomainMapFilter;
 
-  LevelSetOutputType          m_Alpha;
-  LevelSetOutputType          m_Dt;
-  LevelSetOutputType          m_RMSChangeAccumulator;
+  LevelSetOutputRealType      m_Alpha;
+  LevelSetOutputRealType      m_Dt;
+  LevelSetOutputRealType      m_RMSChangeAccumulator;
   bool                        m_UserDefinedDt;
 
   void AllocateUpdateBuffer()
@@ -283,12 +284,12 @@ protected:
     std::cout << "ComputeDtForNextIteration" << std::endl;
     if( !m_UserDefinedDt )
       {
-      if( ( m_Alpha > NumericTraits< LevelSetOutputType >::Zero ) &&
-          ( m_Alpha < NumericTraits< LevelSetOutputType >::One ) )
+      if( ( m_Alpha > NumericTraits< LevelSetOutputRealType >::Zero ) &&
+          ( m_Alpha < NumericTraits< LevelSetOutputRealType >::One ) )
         {
-        LevelSetOutputType contribution = m_EquationContainer->GetCFLContribution();
+        LevelSetOutputRealType contribution = m_EquationContainer->GetCFLContribution();
 
-        if( contribution > NumericTraits< LevelSetOutputType >::epsilon() )
+        if( contribution > NumericTraits< LevelSetOutputRealType >::epsilon() )
           {
           m_Dt = m_Alpha / contribution;
           }

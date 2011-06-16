@@ -112,11 +112,11 @@ public:
         {
         if( update > NumericTraits< LevelSetOutputRealType >::Zero )
           {
-          p.second = -1;
+          p.second = 1;
           }
         if( update < NumericTraits< LevelSetOutputRealType >::Zero )
           {
-          p.second = 1;
+          p.second = -1;
           }
         m_SparseImage->SetPixel( p.first, p.second );
         sparseNeighborhoodIt.SetLocation( p.first );
@@ -204,7 +204,7 @@ public:
           // only allow positive forces
           if( update > NumericTraits< LevelSetOutputRealType >::Zero )
             {
-            p.second = -1;
+            p.second = 1;
             to_be_updated = true;
             }
           }
@@ -213,7 +213,7 @@ public:
           // only allow negative forces
           if( update < NumericTraits< LevelSetOutputRealType >::Zero )
             {
-            p.second = 1;
+            p.second = -1;
             to_be_updated = true;
             }
           }
@@ -432,7 +432,7 @@ public:
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputType );
 
 protected:
-  UpdateMalcolmSparseLevelSet() : m_UnPhased( false )
+  UpdateMalcolmSparseLevelSet() : m_UnPhased( true )
     {
     m_StatusLists = LevelSetType::New();
     }
