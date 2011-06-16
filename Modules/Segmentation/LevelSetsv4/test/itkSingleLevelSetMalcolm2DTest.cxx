@@ -72,7 +72,7 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
                                                             LevelSetEvolutionType;
 
   typedef SparseLevelSetType::OutputRealType                LevelSetOutputRealType;
-  typedef itk::HeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
+  typedef itk::SinRegularizedHeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
                                                             HeavisideFunctionBaseType;
   typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;

@@ -97,10 +97,12 @@ public:
     LevelSetOutputRealType value;
     for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
       {
-      levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
-      value = levelSet->Evaluate( iP );
-      prod *= ( NumericTraits< LevelSetOutputRealType >::One
-                - this->m_Heaviside->Evaluate( -value ) );
+      if( *lIt-1 != this->m_CurrentLevelSet )
+        {
+        levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
+        value = levelSet->Evaluate( iP );
+        prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
+        }
       }
   }
 
