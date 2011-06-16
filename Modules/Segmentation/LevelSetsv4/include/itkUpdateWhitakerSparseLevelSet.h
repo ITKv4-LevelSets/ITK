@@ -125,6 +125,17 @@ public:
       update = m_Update->front();
 
       temp = m_Dt * static_cast< LevelSetOutputType >( update );
+
+      if ( temp > 0.5 )
+      {
+        temp = 0.5;
+      }
+      if ( temp < -0.5 )
+      {
+        temp = -0.5;
+      }
+//       std::cout << temp << std::endl;
+
       LevelSetOutputType temp_value = p.second.m_Value + temp;
       m_RMSChangeAccumulator += temp*temp;
 //       std::cout << temp << std::endl;

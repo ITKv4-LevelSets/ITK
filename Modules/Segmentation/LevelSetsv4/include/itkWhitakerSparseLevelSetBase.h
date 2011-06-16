@@ -204,30 +204,31 @@ public:
 
   StatusImagePointer GetStatusImage()
   {
-    if ( !m_StatusImage )
-      {
-      GetSparseImageComponents();
-      }
-    return m_StatusImage;
-  }
-
-  OutputImagePointer GetOutputImage()
-  {
-    if ( !m_OutputImage )
-      {
-      GetSparseImageComponents();
-      }
-    return m_OutputImage;
-  }
-
-  void GetSparseImageComponents()
-  {
     m_StatusImage = StatusImageType::New();
     m_StatusImage->SetRegions( m_Image->GetLargestPossibleRegion() );
     m_StatusImage->CopyInformation( m_Image );
     m_StatusImage->Allocate();
     m_StatusImage->FillBuffer( NumericTraits< NodeStatusType >::Zero );
 
+    SparseIteratorType spIt ( m_Image, m_Image->GetLargestPossibleRegion() );
+    StatusIteratorType sIt( m_StatusImage, m_StatusImage->GetLargestPossibleRegion() );
+    spIt.GoToBegin();
+    sIt.GoToBegin();
+
+    NodeAttributeType p;
+    while( !spIt.IsAtEnd() )
+    {
+      p = spIt.Get();
+      sIt.Set( p.m_Status );
+      ++sIt;
+      ++spIt;
+    }
+
+    return m_StatusImage;
+  }
+
+  OutputImagePointer GetOutputImage()
+  {
     m_OutputImage = OutputImageType::New();
     m_OutputImage->SetRegions( m_Image->GetLargestPossibleRegion() );
     m_OutputImage->CopyInformation( m_Image );
@@ -236,9 +237,7 @@ public:
 
     SparseIteratorType spIt ( m_Image, m_Image->GetLargestPossibleRegion() );
     OutputIteratorType oIt( m_OutputImage, m_OutputImage->GetLargestPossibleRegion() );
-    StatusIteratorType sIt( m_StatusImage, m_StatusImage->GetLargestPossibleRegion() );
     spIt.GoToBegin();
-    sIt.GoToBegin();
     oIt.GoToBegin();
 
     NodeAttributeType p;
@@ -246,12 +245,13 @@ public:
     {
       p = spIt.Get();
       oIt.Set( p.m_Value );
-      sIt.Set( p.m_Status );
-      ++sIt;
       ++spIt;
       ++oIt;
     }
+
+    return m_OutputImage;
   }
+
 
 protected:
 

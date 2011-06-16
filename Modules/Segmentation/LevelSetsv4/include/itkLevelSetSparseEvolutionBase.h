@@ -312,13 +312,13 @@ protected:
       std::cout << "Update levelsets" << std::endl;
       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
 
-      typedef ImageFileWriter< OutputImageType > WriterType;
+      typedef ImageFileWriter< StatusImageType > WriterType;
       typedef typename WriterType::Pointer       WriterPointer;
 
-      WriterPointer writer1 = WriterType::New();
-      writer1->SetInput( levelSet->GetOutputImage() );
-      writer1->SetFileName("/home/krm15/1.mha");
-      writer1->Update();
+//       WriterPointer writer1 = WriterType::New();
+//       writer1->SetInput( levelSet->GetOutputImage() );
+//       writer1->SetFileName("/home/krm15/1.mha");
+//       writer1->Update();
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
@@ -332,12 +332,12 @@ protected:
 //             while( list_it != list_end )
 //             {
 //               p = (*list_it);
-// //               std::cout << p.first << std::endl;
+//               std::cout << p.first << std::endl;
 //               ++list_it;
 //             }
 
       WriterPointer writer2 = WriterType::New();
-      writer2->SetInput( levelSet->GetOutputImage() );
+      writer2->SetInput( levelSet->GetStatusImage() );
       writer2->SetFileName("/home/krm15/2.mha");
       writer2->Update();
 
