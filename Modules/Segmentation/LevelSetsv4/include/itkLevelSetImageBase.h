@@ -49,22 +49,14 @@ public:
   /** Run-time type information */
   itkTypeMacro ( LevelSetImageBase, LevelSetBase );
 
-  typedef typename Superclass::InputType    InputType;
-  typedef typename Superclass::OutputType   OutputType;
-  typedef typename Superclass::GradientType GradientType;
-  typedef typename Superclass::HessianType  HessianType;
+  typedef typename Superclass::InputType      InputType;
+  typedef typename Superclass::OutputType     OutputType;
+  typedef typename Superclass::OutputRealType OutputRealType;
+  typedef typename Superclass::GradientType   GradientType;
+  typedef typename Superclass::HessianType    HessianType;
 
   itkSetObjectMacro( Image, ImageType );
   itkGetObjectMacro( Image, ImageType );
-
-#ifdef ITK_USE_CONCEPT_CHECKING
-  /** Begin concept checking */
-
-  itkConceptMacro( DoubleConvertible,
-                    ( Concept::Convertible< double, OutputType > ) );
-
-  /** End concept checking */
-#endif // ITK_USE_CONCEPT_CHECKING
 
   virtual OutputType Evaluate( const InputType& iP ) const
     {
