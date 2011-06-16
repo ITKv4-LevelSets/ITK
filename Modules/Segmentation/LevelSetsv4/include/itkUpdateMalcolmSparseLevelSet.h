@@ -425,6 +425,12 @@ public:
       }
     }
 
+  itkSetMacro( Dt, LevelSetOutputType );
+  itkGetMacro( Dt, LevelSetOutputType );
+
+  itkSetMacro( RMSChangeAccumulator, LevelSetOutputType );
+  itkGetMacro( RMSChangeAccumulator, LevelSetOutputType );
+
 protected:
   UpdateMalcolmSparseLevelSet() : m_UnPhased( false )
     {
@@ -438,6 +444,9 @@ protected:
   LevelSetPointer    m_StatusLists;
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
+
+  LevelSetOutputType m_Dt;
+  LevelSetOutputType m_RMSChangeAccumulator;
 
   bool m_UnPhased;
 

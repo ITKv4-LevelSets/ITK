@@ -22,6 +22,7 @@ itkUpdateWhitakerSparseLevelSetTest2.cxx
 itkUpdateShiSparseLevelSetTest.cxx
 itkUpdateMalcolmSparseLevelSetTest.cxx
 itkSingleLevelSetSparse2DTest.cxx
+itkSingleLevelSetMalcolm2DTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")

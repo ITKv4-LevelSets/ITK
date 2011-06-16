@@ -61,6 +61,7 @@ public:
   typedef typename LevelSetType::Pointer                LevelSetPointer;
   typedef typename LevelSetType::InputType              LevelSetInputType;
   typedef typename LevelSetType::OutputType             LevelSetOutputType;
+  typedef typename LevelSetType::OutputRealType         LevelSetOutputRealType;
 
   typedef typename LevelSetType::ImageType              SparseImageType;
   typedef typename SparseImageType::Pointer             SparseImagePointer;
