@@ -46,6 +46,7 @@
 #include "itkUpdateShiSparseLevelSet.h"
 #include "itkLevelSetSparseEvolutionBase.h"
 #include "itkLevelSetMalcolmEvolutionBase.h"
+#include "itkLevelSetShiEvolutionBase.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {

@@ -443,6 +443,11 @@ public:
   itkSetObjectMacro( SparseLevelSet, LevelSetType );
   itkGetObjectMacro( SparseLevelSet, LevelSetType );
 
+  itkSetMacro( Dt, LevelSetOutputRealType );
+  itkGetMacro( Dt, LevelSetOutputRealType );
+
+  itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
+
   void SetUpdate( const std::map< char, UpdateListType* >& iUpdate )
     {
     if( ( iUpdate.find( -1 ) != iUpdate.end() ) &&
@@ -454,7 +459,8 @@ public:
     }
 
 protected:
-  UpdateShiSparseLevelSet()
+  UpdateShiSparseLevelSet() : m_Dt( NumericTraits< LevelSetOutputRealType >::Zero ),
+    m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero )
     {
     m_StatusLists = LevelSetType::New();
     }
@@ -466,6 +472,9 @@ protected:
   SparseImagePointer m_SparseImage;
 
   LevelSetPointer     m_StatusLists;
+
+  LevelSetOutputRealType m_Dt;
+  LevelSetOutputRealType m_RMSChangeAccumulator;
 
 private:
   UpdateShiSparseLevelSet( const Self& );

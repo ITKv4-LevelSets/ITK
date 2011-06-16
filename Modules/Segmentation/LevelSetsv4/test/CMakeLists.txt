@@ -23,6 +23,7 @@ itkUpdateShiSparseLevelSetTest.cxx
 itkUpdateMalcolmSparseLevelSetTest.cxx
 itkSingleLevelSetSparse2DTest.cxx
 itkSingleLevelSetMalcolm2DTest.cxx
+itkSingleLevelSetShi2DTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -148,4 +149,8 @@ add_test(NAME itkSingleLevelSetSparse2DTest
 
 add_test(NAME itkSingleLevelSetMalcolm2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetMalcolm2DTest
+      /home/krm15/test3.png )
+
+add_test(NAME itkSingleLevelSetShi2DTest
+      COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetShi2DTest
       /home/krm15/test3.png )
