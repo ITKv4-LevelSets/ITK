@@ -97,7 +97,7 @@ public:
     LevelSetOutputRealType value;
     for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
       {
-      if( lIt-1 != this->m_CurrentLevelSet )
+      if( *lIt-1 != this->m_CurrentLevelSet )
         {
         levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
         value = levelSet->Evaluate( iP );

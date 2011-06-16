@@ -161,7 +161,7 @@ protected:
       LevelSetOutputRealType oValue = d_val * prod *
         static_cast< LevelSetOutputRealType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
 
-      std::cout << value << ' ' << int(pixel) << ' ' << prod << ' ' << oValue << std::endl;
+//       std::cout << value << ' ' << int(pixel) << ' ' << prod << ' ' << oValue << std::endl;
       return oValue;
       }
     else

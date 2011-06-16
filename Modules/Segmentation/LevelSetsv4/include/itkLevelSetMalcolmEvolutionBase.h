@@ -264,7 +264,7 @@ protected:
 
         // TODO: Terms should update their values here dynamically
         // no need to call Update() later on
-        std::cout << p.first << std::endl;
+//         std::cout << p.first << std::endl;
 
         // NOTE: No HeavisideStepFunction for Malcolm since external term will be 0 always
         // since prod = 0 in ComputeProductTerm()
@@ -272,7 +272,7 @@ protected:
 
         // TODO: Need to index the correct levelset
         m_UpdateBuffer->push_back( temp_update );
-        std::cout << temp_update << std::endl;
+//         std::cout << temp_update << std::endl;
         ++list_it;
       }
     ++it;
@@ -335,7 +335,7 @@ protected:
 
   void UpdateEquations()
     {
-    std::cout << "Update equations" << std::endl;
+    std::cout << "Update equations" << std::endl << std::endl;
     InitializeIteration();
 //     m_EquationContainer->Update();
     }
