@@ -99,7 +99,8 @@ public:
       {
       levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
       value = levelSet->Evaluate( iP );
-      prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
+      prod *= ( NumericTraits< LevelSetOutputRealType >::One
+                - this->m_Heaviside->Evaluate( -value ) );
       }
   }
 

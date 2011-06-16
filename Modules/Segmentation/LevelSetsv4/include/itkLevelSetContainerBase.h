@@ -42,8 +42,7 @@ public:
   /** Run-time type information */
   itkTypeMacro ( LevelSetContainerBase, Object );
 
-  typedef TIdentifier IdentifierType;
-
+  /** typedefs related to the type of level set*/
   typedef TLevelSet                             LevelSetType;
   typedef typename LevelSetType::Pointer        LevelSetPointer;
   typedef typename LevelSetType::ImageType      LevelSetImageType;
@@ -52,6 +51,9 @@ public:
   typedef typename LevelSetType::OutputRealType OutputRealType;
   typedef typename LevelSetType::GradientType   GradientType;
   typedef typename LevelSetType::HessianType    HessianType;
+
+  /** IdentifierType */
+  typedef TIdentifier IdentifierType;
 
   typedef std::map< IdentifierType, LevelSetPointer >    LevelSetContainerType;
   typedef typename LevelSetContainerType::const_iterator LevelSetContainerConstIteratorType;
@@ -74,7 +76,7 @@ public:
   typedef typename DomainMapImageFilterType::Pointer         DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
 
-  typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
+  typedef typename std::map< IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   LevelSetContainerIteratorType Begin()
     {

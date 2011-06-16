@@ -131,8 +131,8 @@ protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
     m_CurrentLevelSetPointer( NULL ),
     m_Mean( NumericTraits< InputPixelRealType >::Zero ),
-    m_TotalH( NumericTraits< LevelSetOutputRealType >::Zero ),
-    m_TotalValue( NumericTraits< InputPixelRealType >::Zero )
+    m_TotalValue( NumericTraits< InputPixelRealType >::Zero ),
+    m_TotalH( NumericTraits< LevelSetOutputRealType >::Zero )
   {}
 
   virtual ~LevelSetEquationChanAndVeseInternalTerm() {}
@@ -174,15 +174,15 @@ protected:
   void Accumulate( const InputPixelType& iPix,
                    const LevelSetOutputRealType& iH )
     {
-    m_TotalValue +=
-        static_cast< InputPixelRealType >( iPix ) * static_cast< InputPixelRealType >( iH );
-    m_TotalH += static_cast< InputPixelRealType >( iH );
+    m_TotalValue += static_cast< InputPixelRealType >( iPix ) *
+        static_cast< LevelSetOutputRealType >( iH );
+    m_TotalH += static_cast< LevelSetOutputRealType >( iH );
     }
 
   LevelSetPointer         m_CurrentLevelSetPointer;
   InputPixelRealType      m_Mean;
-  LevelSetOutputRealType  m_TotalH;
   InputPixelRealType      m_TotalValue;
+  LevelSetOutputRealType  m_TotalH;
 
 private:
   LevelSetEquationChanAndVeseInternalTerm( const Self& );

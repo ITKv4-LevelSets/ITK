@@ -425,14 +425,17 @@ public:
       }
     }
 
-  itkSetMacro( Dt, LevelSetOutputType );
-  itkGetMacro( Dt, LevelSetOutputType );
+  itkSetMacro( Dt, LevelSetOutputRealType );
+  itkGetMacro( Dt, LevelSetOutputRealType );
 
-  itkSetMacro( RMSChangeAccumulator, LevelSetOutputType );
-  itkGetMacro( RMSChangeAccumulator, LevelSetOutputType );
+  itkSetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
+  itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
 
 protected:
-  UpdateMalcolmSparseLevelSet() : m_UnPhased( true )
+  UpdateMalcolmSparseLevelSet() :
+    m_Dt( NumericTraits< LevelSetOutputRealType >::Zero ),
+    m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
+    m_UnPhased( true )
     {
     m_StatusLists = LevelSetType::New();
     }
@@ -445,8 +448,8 @@ protected:
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
 
-  LevelSetOutputType m_Dt;
-  LevelSetOutputType m_RMSChangeAccumulator;
+  LevelSetOutputRealType m_Dt;
+  LevelSetOutputRealType m_RMSChangeAccumulator;
 
   bool m_UnPhased;
 

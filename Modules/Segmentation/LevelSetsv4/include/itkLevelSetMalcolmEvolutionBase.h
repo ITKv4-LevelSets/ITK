@@ -76,6 +76,7 @@ public:
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::ImageType             LevelSetImageType;
   typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
+  typedef typename LevelSetType::OutputType            LevelSetOutputType;
   typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
   typedef typename LevelSetType::NodePairType     NodePairType;
@@ -125,7 +126,8 @@ public:
     m_InputImage = m_EquationContainer->GetInput();
 
     // Get the LevelSetContainer from the EquationContainer
-    m_LevelSetContainer = m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
+    m_LevelSetContainer =
+        m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
 
     //Run iteration
     this->GenerateData();
@@ -265,7 +267,8 @@ protected:
         // TODO: Terms should update their values here dynamically
         // no need to call Update() later on
         std::cout << p.first << ' ';
-        InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
+        LevelSetOutputRealType temp_update =
+            m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
 
         // TODO: Need to index the correct levelset
         m_UpdateBuffer->push_back( temp_update );
@@ -314,7 +317,7 @@ protected:
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
       update_levelset->SetUpdate( m_UpdateBuffer );
-      update_levelset->SetDt( 1 );
+      update_levelset->SetDt( NumericTraits< LevelSetOutputRealType >::One );
       update_levelset->Update();
 
       typedef ImageFileWriter< OutputImageType > WriterType;

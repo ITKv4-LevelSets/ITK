@@ -106,15 +106,15 @@ public:
   void Initialize( const LevelSetInputIndexType& iP )
   {
     typename std::map< unsigned int, TermPointer >::iterator
-    term_it = m_Container.begin();
+      term_it = m_Container.begin();
     typename std::map< unsigned int, TermPointer >::iterator
-    term_end = m_Container.end();
+      term_end = m_Container.end();
 
     while( term_it != term_end )
-    {
+      {
       ( term_it->second )->Initialize( iP );
       ++term_it;
-    }
+      }
   }
 
 
@@ -133,6 +133,7 @@ public:
 
       m_TermContribution[ term_it->first ] =
           vnl_math_max( temp_val, m_TermContribution[ term_it->first ] );
+
       oValue += temp_val;
       ++term_it;
       }
