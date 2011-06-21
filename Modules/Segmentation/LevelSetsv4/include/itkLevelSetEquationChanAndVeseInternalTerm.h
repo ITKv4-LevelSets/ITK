@@ -119,7 +119,8 @@ public:
   virtual void ComputeProduct( const LevelSetInputIndexType& iP,
                               LevelSetOutputRealType& prod )
   {
-    LevelSetOutputRealType value = m_CurrentLevelSetPointer->Evaluate( iP );
+    LevelSetOutputRealType value =
+        static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
     prod = this->m_Heaviside->Evaluate( -value );
   }
 

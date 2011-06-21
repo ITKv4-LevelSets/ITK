@@ -44,6 +44,9 @@ public:
   typedef typename NumericTraits< InputPixelType >::RealType
                                                           InputPixelRealType;
 
+  itkStaticConstMacro( ImageDimension, unsigned int,
+                       TInputImage::ImageDimension );
+
   typedef TLevelSetContainer                              LevelSetContainerType;
   typedef typename LevelSetContainerType::IdentifierType  LevelSetIdentifierType;
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
