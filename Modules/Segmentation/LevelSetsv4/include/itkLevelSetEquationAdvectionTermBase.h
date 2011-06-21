@@ -36,7 +36,7 @@ public:
   typedef LevelSetEquationAdvectionTermBase               Self;
   typedef SmartPointer< Self >                            Pointer;
   typedef SmartPointer< const Self >                      ConstPointer;
-  typedef LevelSetEquationTermBase< TInput,
+  typedef LevelSetEquationTermBase< TInputImage,
                                     TLevelSetContainer >  Superclass;
 
   /** Method for creation through object factory */

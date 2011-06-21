@@ -48,6 +48,8 @@
 #include "itkLevelSetMalcolmEvolutionBase.h"
 #include "itkLevelSetShiEvolutionBase.h"
 
+#include "itkLevelSetEquationAdvectionTermBase.h"
+
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
   return EXIT_SUCCESS;
