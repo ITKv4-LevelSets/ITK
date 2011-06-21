@@ -79,97 +79,97 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
 
   std::cout << "Finished converting to sparse format" << std::endl;
 
-  typedef itk::UpdateShiSparseLevelSet< Dimension > UpdateLevelSetType;
-  UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
-  update_levelset->SetSparseLevelSet( sparseLevelSet );
-
-  std::map< char, UpdateLevelSetType::UpdateListType* > update_list;
-  update_list[-1] = new UpdateLevelSetType::UpdateListType;
-  update_list[1] = new UpdateLevelSetType::UpdateListType;
-
-  SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode( -1 )->begin();
-  SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode( -1 )->end();
-
-  size_t k = 0;
-
-  while( list_it != list_end )
-    {
-    if( atoi( argv[1] ) == 2 )
-      {
-      update_list[-1]->push_back( -1. );
-      }
-    else
-      {
-      if( atoi( argv[1] ) == 0 )
-        {
-        update_list[-1]->push_back( 1. );
-        }
-      else
-        {
-        if( ( ( list_it->first )[1] % 20 ) < 10 )
-          {
-          update_list[-1]->push_back( -1. );
-          }
-        else
-          {
-          update_list[-1]->push_back( 1. );
-          }
-        }
-      }
-    ++k;
-    ++list_it;
-    }
-
-
-  list_it = sparseLevelSet->GetListNode( 1 )->begin();
-  list_end = sparseLevelSet->GetListNode( 1 )->end();
-
-  k = 0;
-  while( list_it != list_end )
-    {
-    if( atoi( argv[1] ) == 2 )
-      {
-      update_list[1]->push_back( -1. );
-      }
-    else
-      {
-      if( atoi( argv[1] ) == 0 )
-        {
-        update_list[1]->push_back( 1. );
-        }
-      else
-        {
-        if( ( ( list_it->first )[1] % 20 ) < 10 )
-          {
-          update_list[1]->push_back( -1. );
-          }
-        else
-          {
-          update_list[1]->push_back( 1. );
-          }
-        }
-      }
-    ++k;
-    ++list_it;
-    }
-  update_levelset->SetUpdate( update_list );
-  update_levelset->Update();
-
-//  delete update_list[-1];
-//  delete update_list[1];
-
-  OutputWriterType::Pointer writer = OutputWriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( sparseLevelSet->GetImage() );
-
-  try
-    {
-    writer->Update();
-    }
-  catch ( itk::ExceptionObject& err )
-    {
-    std::cout << err << std::endl;
-    }
+//   typedef itk::UpdateShiSparseLevelSet< Dimension, EquationContainerType > UpdateLevelSetType;
+//   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
+//   update_levelset->SetSparseLevelSet( sparseLevelSet );
+//
+//   std::map< char, UpdateLevelSetType::UpdateListType* > update_list;
+//   update_list[-1] = new UpdateLevelSetType::UpdateListType;
+//   update_list[1] = new UpdateLevelSetType::UpdateListType;
+//
+//   SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode( -1 )->begin();
+//   SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode( -1 )->end();
+//
+//   size_t k = 0;
+//
+//   while( list_it != list_end )
+//     {
+//     if( atoi( argv[1] ) == 2 )
+//       {
+//       update_list[-1]->push_back( -1. );
+//       }
+//     else
+//       {
+//       if( atoi( argv[1] ) == 0 )
+//         {
+//         update_list[-1]->push_back( 1. );
+//         }
+//       else
+//         {
+//         if( ( ( list_it->first )[1] % 20 ) < 10 )
+//           {
+//           update_list[-1]->push_back( -1. );
+//           }
+//         else
+//           {
+//           update_list[-1]->push_back( 1. );
+//           }
+//         }
+//       }
+//     ++k;
+//     ++list_it;
+//     }
+//
+//
+//   list_it = sparseLevelSet->GetListNode( 1 )->begin();
+//   list_end = sparseLevelSet->GetListNode( 1 )->end();
+//
+//   k = 0;
+//   while( list_it != list_end )
+//     {
+//     if( atoi( argv[1] ) == 2 )
+//       {
+//       update_list[1]->push_back( -1. );
+//       }
+//     else
+//       {
+//       if( atoi( argv[1] ) == 0 )
+//         {
+//         update_list[1]->push_back( 1. );
+//         }
+//       else
+//         {
+//         if( ( ( list_it->first )[1] % 20 ) < 10 )
+//           {
+//           update_list[1]->push_back( -1. );
+//           }
+//         else
+//           {
+//           update_list[1]->push_back( 1. );
+//           }
+//         }
+//       }
+//     ++k;
+//     ++list_it;
+//     }
+//   update_levelset->SetUpdate( update_list );
+//   update_levelset->Update();
+//
+// //  delete update_list[-1];
+// //  delete update_list[1];
+//
+//   OutputWriterType::Pointer writer = OutputWriterType::New();
+//   writer->SetFileName( argv[2] );
+//   writer->SetInput( sparseLevelSet->GetImage() );
+//
+//   try
+//     {
+//     writer->Update();
+//     }
+//   catch ( itk::ExceptionObject& err )
+//     {
+//     std::cout << err << std::endl;
+//     }
 
   return EXIT_SUCCESS;
 }

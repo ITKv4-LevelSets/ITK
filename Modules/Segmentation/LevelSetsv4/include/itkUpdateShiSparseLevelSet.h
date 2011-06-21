@@ -31,7 +31,7 @@
 
 namespace itk
 {
-template< unsigned int VDimension >
+template< unsigned int VDimension, class TEquationContainer >
 class UpdateShiSparseLevelSet : public Object
 {
 public:
@@ -72,11 +72,15 @@ public:
   typedef ImageRegionIteratorWithIndex< SparseImageType > SparseIteratorType;
   typedef ShapedNeighborhoodIterator< SparseImageType >   SparseNeighborhoodIteratorType;
 
+  typedef TEquationContainer                      EquationContainerType;
+  typedef typename EquationContainerType::Pointer EquationContainerPointer;
+
   // this is the same as Procedure 2
   // Input is a update image point m_UpdateImage
   // Input is also ShiSparseLevelSetBasePointer
   void UpdateL_out()
   {
+    std::cout << "UpdateL_out" << std::endl;
     LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
     LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
     LevelSetNodePairType p;
@@ -104,31 +108,31 @@ public:
       sparse_offset[dim] = 0;
       }
 
-    if( m_Update[1]->size() != list_out->size() )
-      {
-      itkGenericExceptionMacro( "m_Update[1]->size() != list_out->size()" );
-      }
+//     if( m_Update[1]->size() != list_out->size() )
+//       {
+//       itkGenericExceptionMacro( "m_Update[1]->size() != list_out->size()" );
+//       }
 
     // for each point in Lz
-    while( !m_Update[1]->empty() )
+    while( !list_out->empty() )
       {
       p = list_out->front();
       list_out->pop_front();
 
       // update the level set
-      update = m_Update[1]->front();
-      m_Update[1]->pop_front();
+      update = m_EquationContainer->GetEquation( 0 )->Evaluate( p.first );
 
-      if( update > NumericTraits< LevelSetOutputRealType >::Zero )
+//       std::cout << p.first << ' ' << int(p.second) << ' ' << update << std::endl;
+
+      if( update < NumericTraits< LevelSetOutputRealType >::Zero )
         {
         if( Con( p.first, p.second , update ) )
           {
           // CheckIn
           p.second = -1;
           this->m_SparseImage->SetPixel( p.first, p.second );
-          m_StatusLists->GetListNode( -1 )->push_back( p );
-
-          // TODO: Insert update in the Update[-1]
+          list_in->push_back( p );
+//           m_Update[-1]->push_back( update );
 
           sparseNeighborhoodIt.SetLocation( p.first );
 
@@ -146,8 +150,9 @@ public:
               m_StatusLists->GetListNode( 1 )->push_back( temp);
               this->m_SparseImage->SetPixel( temp.first, temp.second );
 
-              // TODO: Compute the update here of temp;
-              // TODO: Insert update in Update[1]
+              // Compute the update here of temp;
+//               update =  m_EquationContainer->GetEquation( 0 )->Evaluate( temp.first );
+//               m_Update[1]->push_back( update );
               }
             }
           }
@@ -162,12 +167,6 @@ public:
         }
       }
 
-    while( !m_StatusLists->GetListNode( -1 )->empty() )
-      {
-      list_in->push_back( m_StatusLists->GetListNode( -1 )->front() );
-      m_StatusLists->GetListNode( -1 )->pop_front();
-      }
-
     while( !m_StatusLists->GetListNode( 1 )->empty() )
       {
       list_out->push_back( m_StatusLists->GetListNode( 1 )->front() );
@@ -177,6 +176,7 @@ public:
 
   void UpdateL_in()
   {
+    std::cout << "UpdateL_in" << std::endl;
     LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
     LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
     LevelSetNodePairType p;
@@ -208,26 +208,34 @@ public:
     m_StatusLists->GetListNode( 1 )->clear();
     m_StatusLists->GetListNode( -1 )->clear();
 
+    LevelSetNodePairType temp;
+
+//     if( m_Update[-1]->size() != list_in->size() )
+//     {
+//       itkGenericExceptionMacro( "m_Update[1]->size() != list_out->size()" );
+//     }
+
     // for each point in Lz
-    while( !m_Update[-1]->empty() )
+    while( !list_in->empty() )
       {
       p = list_in->front();
       list_in->pop_front();
 
       // update the level set
-      update = m_Update[-1]->front();
-      m_Update[-1]->pop_front();
+      update = m_EquationContainer->GetEquation( 0 )->Evaluate( p.first );
+//       std::cout << p.first << ' ' << int(p.second) << ' ' << update << std::endl;
 
-      if( update < NumericTraits< LevelSetOutputRealType >::Zero )
+      if( update > NumericTraits< LevelSetOutputRealType >::Zero )
         {
         if( Con( p.first, p.second , update ) )
           {
           // CheckOut
           p.second = 1;
           this->m_SparseImage->SetPixel( p.first, p.second );
-          m_StatusLists->GetListNode( 1 )->push_back( p );
+          list_out->push_back( p );
+//           m_Update[1]->push_back( update );
 
-          // TODO: Insert update in the Update[1]
+//           std::cout << p.first << std::endl;
 
           sparseNeighborhoodIt.SetLocation( p.first );
 
@@ -238,15 +246,15 @@ public:
             q = i.Get();
             if ( q == -3 )
               {
-              LevelSetNodePairType temp;
               temp.first =
                 sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
               temp.second = -1;
               m_StatusLists->GetListNode( -1 )->push_back( temp);
               this->m_SparseImage->SetPixel( temp.first, temp.second );
 
-              // TODO: Compute the update here of temp;
-              // TODO: Insert update in Update[-1]
+              // Compute the update here of temp;
+//               update =  m_EquationContainer->GetEquation( 0 )->Evaluate( temp.first );
+//               m_Update[-1]->push_back( update );
               }
             }
           }
@@ -265,12 +273,6 @@ public:
       {
       list_in->push_back( m_StatusLists->GetListNode( -1 )->front() );
       m_StatusLists->GetListNode( -1 )->pop_front();
-      }
-
-    while( !m_StatusLists->GetListNode( 1 )->empty() )
-      {
-      list_out->push_back( m_StatusLists->GetListNode( 1 )->front() );
-      m_StatusLists->GetListNode( 1 )->pop_front();
       }
     }
 
@@ -306,6 +308,8 @@ public:
     LevelSetOutputType opposite_status = ( iCurrentStatus == 1 ) ? -1 : 1;
 
     LevelSetOutputType q;
+    SparseImageIndexType idx;
+    LevelSetOutputRealType neighborUpdate;
 
     for( typename SparseNeighborhoodIteratorType::Iterator
               i = sparseNeighborhoodIt.Begin();
@@ -314,8 +318,9 @@ public:
       q = i.Get();
       if ( q == opposite_status )
         {
-        //TODO: Update of q required
-        if ( q * iCurrentUpdate > NumericTraits< LevelSetOutputType >::Zero )
+        idx = sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
+        neighborUpdate =  m_EquationContainer->GetEquation( 0 )->Evaluate( idx );
+        if ( neighborUpdate * iCurrentUpdate > NumericTraits< LevelSetOutputType >::Zero )
           {
           return true;
           }
@@ -331,10 +336,10 @@ public:
       {
       itkGenericExceptionMacro( <<"m_SparseLevelSet is NULL" );
       }
-    if( m_Update.empty() )
-      {
-      itkGenericExceptionMacro( <<"m_Update is empty" );
-      }
+//     if( m_Update.empty() )
+//       {
+//       itkGenericExceptionMacro( <<"m_Update is empty" );
+//       }
     m_SparseImage = m_SparseLevelSet->GetImage();
 
     // neighborhood iterator
@@ -390,6 +395,7 @@ public:
         }
       if( to_be_deleted )
         {
+        std::cout << p.first << std::endl;
         p.second = -3;
         this->m_SparseImage->SetPixel( p.first, p.second );
         }
@@ -453,38 +459,42 @@ public:
   itkSetObjectMacro( SparseLevelSet, LevelSetType );
   itkGetObjectMacro( SparseLevelSet, LevelSetType );
 
-  itkSetMacro( Dt, LevelSetOutputRealType );
-  itkGetMacro( Dt, LevelSetOutputRealType );
+//   itkSetMacro( Dt, LevelSetOutputRealType );
+//   itkGetMacro( Dt, LevelSetOutputRealType );
 
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
 
-  void SetUpdate( const std::map< char, UpdateListType* >& iUpdate )
-    {
-    if( ( iUpdate.find( -1 ) != iUpdate.end() ) &&
-        ( iUpdate.find( 1 ) != iUpdate.end() ) &&
-        ( iUpdate.size() == 2 ) )
-      {
-      m_Update = iUpdate;
-      }
-    }
+//   void SetUpdate( const std::map< char, UpdateListType* >& iUpdate )
+//     {
+//     if( ( iUpdate.find( -1 ) != iUpdate.end() ) &&
+//         ( iUpdate.find( 1 ) != iUpdate.end() ) &&
+//         ( iUpdate.size() == 2 ) )
+//       {
+//       m_Update = iUpdate;
+//       }
+//     }
+
+  // set the term container
+  itkSetObjectMacro( EquationContainer, EquationContainerType );
+  itkGetObjectMacro( EquationContainer, EquationContainerType );
 
 protected:
-  UpdateShiSparseLevelSet() : m_Dt( NumericTraits< LevelSetOutputRealType >::Zero ),
-    m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero )
+  UpdateShiSparseLevelSet() : m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero )
     {
     m_StatusLists = LevelSetType::New();
     }
   ~UpdateShiSparseLevelSet() {}
 
-  std::map< LevelSetOutputType, UpdateListType* > m_Update;
+//   std::map< LevelSetOutputType, UpdateListType* > m_Update;
 
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
 
   LevelSetPointer     m_StatusLists;
 
-  LevelSetOutputRealType m_Dt;
-  LevelSetOutputRealType m_RMSChangeAccumulator;
+//   LevelSetOutputRealType   m_Dt;
+  LevelSetOutputRealType   m_RMSChangeAccumulator;
+  EquationContainerPointer m_EquationContainer;
 
 private:
   UpdateShiSparseLevelSet( const Self& );

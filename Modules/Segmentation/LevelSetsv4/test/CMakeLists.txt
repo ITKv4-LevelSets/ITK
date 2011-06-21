@@ -153,4 +153,4 @@ add_test(NAME itkSingleLevelSetMalcolm2DTest
 
 add_test(NAME itkSingleLevelSetShi2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetShi2DTest
-      /home/krm15/test3.png )
+      /home/krm15/test1.png )

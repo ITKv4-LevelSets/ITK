@@ -102,7 +102,7 @@ public:
   //   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
-  typedef UpdateShiSparseLevelSet< ImageDimension > UpdateLevelSetFilterType;
+  typedef UpdateShiSparseLevelSet< ImageDimension, EquationContainerType > UpdateLevelSetFilterType;
 
   typedef typename LevelSetType::ImageType  OutputImageType;
 
@@ -195,8 +195,8 @@ protected:
 
   void AllocateUpdateBuffer()
     {
-    m_UpdateBuffer[-1]->clear();
-    m_UpdateBuffer[1]->clear();
+//     m_UpdateBuffer[-1]->clear();
+//     m_UpdateBuffer[1]->clear();
     }
 
 
@@ -256,57 +256,7 @@ protected:
   }
 
   void ComputeIteration()
-  {
-    std::cout << "Compute iteration" << std::endl;
-    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-    while( it != m_LevelSetContainer->End() )
-    {
-      LevelSetPointer levelSet = it->second;
-      NodeListIterator list_it = levelSet->GetListNode(-1)->begin();
-      NodeListIterator list_end = levelSet->GetListNode(-1)->end();
-      NodePairType p;
-      while( list_it != list_end )
-      {
-        p = (*list_it);
-
-        // TODO: Terms should update their values here dynamically
-        // no need to call Update() later on
-//         std::cout << p.first << std::endl;
-
-        // NOTE: No HeavisideStepFunction for Shi since external term will be 0 always
-        // since prod = 0 in ComputeProductTerm()
-        LevelSetOutputRealType temp_update =
-            m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
-
-        // TODO: Need to index the correct levelset
-        m_UpdateBuffer[-1]->push_back( temp_update );
-//         std::cout << temp_update << std::endl;
-        ++list_it;
-      }
-
-      list_it = levelSet->GetListNode(1)->begin();
-      list_end = levelSet->GetListNode(1)->end();
-
-      while( list_it != list_end )
-      {
-        p = (*list_it);
-
-        // TODO: Terms should update their values here dynamically
-        // no need to call Update() later on
-//         std::cout << p.first << std::endl;
-
-        // NOTE: No HeavisideStepFunction for Shi since external term will be 0 always
-        // since prod = 0 in ComputeProductTerm()
-        LevelSetOutputRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
-
-        // TODO: Need to index the correct levelset
-        m_UpdateBuffer[1]->push_back( temp_update );
-//         std::cout << temp_update << std::endl;
-        ++list_it;
-      }
-    ++it;
-    }
-  }
+  {}
 
 
   void ComputeDtForNextIteration()
@@ -319,8 +269,9 @@ protected:
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
-      update_levelset->SetUpdate( m_UpdateBuffer );
-      update_levelset->SetDt( NumericTraits< LevelSetOutputRealType >::One );
+//       update_levelset->SetUpdate( m_UpdateBuffer );
+      update_levelset->SetEquationContainer( m_EquationContainer );
+//       update_levelset->SetDt( NumericTraits< LevelSetOutputRealType >::One );
       update_levelset->Update();
 
       typedef ImageFileWriter< OutputImageType > WriterType;
@@ -333,8 +284,8 @@ protected:
 
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 
-      m_UpdateBuffer[-1]->clear();
-      m_UpdateBuffer[1]->clear();
+//       m_UpdateBuffer[-1]->clear();
+//       m_UpdateBuffer[1]->clear();
     }
 
   void UpdateEquations()
