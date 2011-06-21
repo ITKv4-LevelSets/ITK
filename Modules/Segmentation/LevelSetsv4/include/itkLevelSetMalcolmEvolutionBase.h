@@ -167,7 +167,9 @@ protected:
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
-  {}
+    {
+    m_UpdateBuffer = new UpdateListType;
+    }
   ~LevelSetMalcolmEvolutionBase()
   {
     delete m_UpdateBuffer;
@@ -191,7 +193,7 @@ protected:
 
   void AllocateUpdateBuffer()
     {
-    m_UpdateBuffer =  new UpdateListType;
+    m_UpdateBuffer->clear();
     }
 
 
