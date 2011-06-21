@@ -128,6 +128,8 @@ public:
           this->m_SparseImage->SetPixel( p.first, p.second );
           m_StatusLists->GetListNode( -1 )->push_back( p );
 
+          // TODO: Insert update in the Update[-1]
+
           sparseNeighborhoodIt.SetLocation( p.first );
 
           for( typename SparseNeighborhoodIteratorType::Iterator
@@ -143,7 +145,9 @@ public:
               temp.second = 1;
               m_StatusLists->GetListNode( 1 )->push_back( temp);
               this->m_SparseImage->SetPixel( temp.first, temp.second );
-              // compute the update here of q;
+
+              // TODO: Compute the update here of temp;
+              // TODO: Insert update in Update[1]
               }
             }
           }
@@ -223,6 +227,8 @@ public:
           this->m_SparseImage->SetPixel( p.first, p.second );
           m_StatusLists->GetListNode( 1 )->push_back( p );
 
+          // TODO: Insert update in the Update[1]
+
           sparseNeighborhoodIt.SetLocation( p.first );
 
           for( typename SparseNeighborhoodIteratorType::Iterator
@@ -239,7 +245,8 @@ public:
               m_StatusLists->GetListNode( -1 )->push_back( temp);
               this->m_SparseImage->SetPixel( temp.first, temp.second );
 
-              // compute the update here of q;
+              // TODO: Compute the update here of temp;
+              // TODO: Insert update in Update[-1]
               }
             }
           }
@@ -307,7 +314,8 @@ public:
       q = i.Get();
       if ( q == opposite_status )
         {
-        if ( q * iCurrentUpdate < NumericTraits< LevelSetOutputType >::Zero )
+        //TODO: Update of q required
+        if ( q * iCurrentUpdate > NumericTraits< LevelSetOutputType >::Zero )
           {
           return true;
           }
@@ -328,8 +336,6 @@ public:
       itkGenericExceptionMacro( <<"m_Update is empty" );
       }
     m_SparseImage = m_SparseLevelSet->GetImage();
-
-    UpdateL_out();
 
     // neighborhood iterator
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
@@ -358,7 +364,10 @@ public:
     LevelSetNodePairType p;
     LevelSetOutputType q;
 
-    // for each point x in L_in
+    // Step 2.1.1
+    UpdateL_out();
+
+    // Step 2.1.2 - for each point x in L_in
     while( !m_SparseLevelSet->GetListNode( -1 )->empty() )
       {
       p = m_SparseLevelSet->GetListNode( -1 )->front();
@@ -397,8 +406,10 @@ public:
       m_StatusLists->GetListNode( -1 )->pop_front();
       }
 
+    // Step 2.1.3 - for each point x in L_in
     UpdateL_in();
 
+    // Step 2.1.4
     while( !m_SparseLevelSet->GetListNode( 1 )->empty() )
       {
       p = m_SparseLevelSet->GetListNode( 1 )->front();
@@ -436,7 +447,6 @@ public:
         m_StatusLists->GetListNode( 1 )->front() );
       m_StatusLists->GetListNode( 1 )->pop_front();
       }
-
   }
 
   // Set/Get the sparse levet set image
