@@ -168,8 +168,8 @@ protected:
     m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
   {
-    m_UpdateBuffer[-1] = NULL;
-    m_UpdateBuffer[1] = NULL;
+    m_UpdateBuffer[-1] = new UpdateListType;
+    m_UpdateBuffer[1] = new UpdateListType;
   }
   ~LevelSetShiEvolutionBase()
   {
@@ -195,8 +195,8 @@ protected:
 
   void AllocateUpdateBuffer()
     {
-    m_UpdateBuffer[-1] =  new UpdateListType;
-    m_UpdateBuffer[1] =  new UpdateListType;
+    m_UpdateBuffer[-1]->clear();
+    m_UpdateBuffer[1]->clear();
     }
 
 
@@ -275,7 +275,8 @@ protected:
 
         // NOTE: No HeavisideStepFunction for Shi since external term will be 0 always
         // since prod = 0 in ComputeProductTerm()
-        LevelSetOutputRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
+        LevelSetOutputRealType temp_update =
+            m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
 
         // TODO: Need to index the correct levelset
         m_UpdateBuffer[-1]->push_back( temp_update );
@@ -309,33 +310,7 @@ protected:
 
 
   void ComputeDtForNextIteration()
-    {
-//     std::cout << "ComputeDtForNextIteration" << std::endl;
-//     if( !m_UserDefinedDt )
-//       {
-//       if( ( m_Alpha > NumericTraits< LevelSetOutputRealType >::Zero ) &&
-//           ( m_Alpha < NumericTraits< LevelSetOutputRealType >::One ) )
-//         {
-//         LevelSetOutputRealType contribution = m_EquationContainer->GetCFLContribution();
-//
-//         if( contribution > NumericTraits< LevelSetOutputRealType >::epsilon() )
-//           {
-//           m_Dt = m_Alpha / contribution;
-//           }
-//         else
-//           {
-//             itkGenericExceptionMacro( << "contribution " << contribution <<  "is too low" );
-//           }
-//         }
-//       else
-//         {
-//         itkGenericExceptionMacro( <<"m_Alpha " << m_Alpha << " should be in [0,1]" );
-//         }
-//       }
-//
-//       std::cout << "Dt = " << m_Dt << std::endl;
-//       m_Dt = 0.08;
-    }
+    {}
 
   virtual void UpdateLevelSets()
     {
