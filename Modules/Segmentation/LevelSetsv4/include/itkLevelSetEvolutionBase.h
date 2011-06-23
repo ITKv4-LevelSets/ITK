@@ -283,6 +283,8 @@ protected:
       UpdateLevelSets();
       Reinitialize();
       UpdateEquations();
+
+      this->InvokeEvent( IterationEvent() );
       }
     }
 
