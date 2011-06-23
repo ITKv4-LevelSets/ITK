@@ -285,6 +285,8 @@ protected:
       Reinitialize();
 
       UpdateEquations();
+
+      this->InvokeEvent( IterationEvent() );
       }
     }
 
