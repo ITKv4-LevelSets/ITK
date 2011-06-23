@@ -117,6 +117,19 @@ public:
       }
   }
 
+  void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
+  {
+    typename std::map< unsigned int, TermPointer >::iterator
+      term_it = m_Container.begin();
+    typename std::map< unsigned int, TermPointer >::iterator
+      term_end = m_Container.end();
+
+    while( term_it != term_end )
+    {
+      ( term_it->second )->UpdatePixel( iP, oldValue, newValue );
+      ++term_it;
+    }
+  }
 
   void InitializeParameters()
   {

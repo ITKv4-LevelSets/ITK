@@ -90,6 +90,8 @@ public:
 
   virtual void InitializeParameters() = 0;
 
+  virtual void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue ) = 0;
+
   itkGetMacro( CFLContribution, LevelSetOutputRealType );
 
   itkSetStringMacro( TermName );

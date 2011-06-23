@@ -45,6 +45,7 @@ public:
   typedef typename TermContainerType::InputImagePointer InputImagePointer;
 
   typedef typename TermContainerType::LevelSetOutputRealType LevelSetOutputRealType;
+  typedef typename TermContainerType::LevelSetInputIndexType LevelSetInputIndexType;
 
   void AddEquation( const unsigned int& iId, TermContainerPointer iEquation )
     {
@@ -90,6 +91,18 @@ public:
       (it->second )->Update();
       }
     }
+
+  void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
+  {
+    typedef typename std::map< unsigned int, TermContainerPointer >::iterator
+    ContainerIterator;
+
+    for( ContainerIterator it = m_Container.begin();
+        it != m_Container.end(); ++it )
+        {
+          (it->second )->UpdatePixel( iP, oldValue, newValue );
+        }
+  }
 
   void InitializeParameters()
   {

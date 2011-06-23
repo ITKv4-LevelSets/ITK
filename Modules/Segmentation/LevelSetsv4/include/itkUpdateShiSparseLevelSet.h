@@ -86,6 +86,7 @@ public:
     LevelSetNodeListType temp_list;
     LevelSetNodePairType p;
     LevelSetOutputRealType update;
+    LevelSetOutputRealType oldValue, newValue;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
     typename SparseNeighborhoodIteratorType::RadiusType radius;
@@ -132,7 +133,10 @@ public:
           // CheckIn
           p.second = -1;
           this->m_SparseImage->SetPixel( p.first, p.second );
-          // TODO: Update pixel here
+
+          oldValue = 1;
+          newValue = -1;
+//           m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
 
           list_in->push_back( p );
 
@@ -152,7 +156,10 @@ public:
               temp_list.push_back( temp );
 
               this->m_SparseImage->SetPixel( temp.first, temp.second );
-              // TODO: Update pixel here
+
+              oldValue = 3;
+              newValue = 1;
+//               m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
               }
             }
           }
@@ -182,6 +189,7 @@ public:
     LevelSetNodeListType temp_list;
     LevelSetNodePairType p;
     LevelSetOutputRealType update;
+    LevelSetOutputRealType oldValue, newValue;
     LevelSetOutputType q;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
@@ -225,7 +233,10 @@ public:
           // CheckOut
           p.second = 1;
           this->m_SparseImage->SetPixel( p.first, p.second );
-          // TODO: Update pixel here
+
+          oldValue = -1;
+          newValue = 1;
+//           m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
 
           list_out->push_back( p );
 
@@ -243,7 +254,10 @@ public:
               temp.second = -1;
               temp_list.push_back( temp);
               this->m_SparseImage->SetPixel( temp.first, temp.second );
-              // TODO: Update pixel here
+
+              oldValue = -3;
+              newValue = -1;
+//               m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
               }
             }
           }
@@ -325,10 +339,7 @@ public:
       {
       itkGenericExceptionMacro( <<"m_SparseLevelSet is NULL" );
       }
-//     if( m_Update.empty() )
-//       {
-//       itkGenericExceptionMacro( <<"m_Update is empty" );
-//       }
+
     m_SparseImage = m_SparseLevelSet->GetImage();
 
     // neighborhood iterator
@@ -357,7 +368,7 @@ public:
 
     LevelSetNodePairType p;
     LevelSetOutputType q;
-
+    LevelSetOutputRealType oldValue, newValue;
     LevelSetNodeListType temp_list;
 
     // Step 2.1.1
@@ -389,7 +400,10 @@ public:
 //         std::cout << p.first << std::endl;
         p.second = -3;
         this->m_SparseImage->SetPixel( p.first, p.second );
-        // TODO: Update pixel here
+
+        oldValue = -1;
+        newValue = -3;
+//         m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
         }
       else
         {
@@ -431,7 +445,11 @@ public:
         {
         p.second = 3;
         this->m_SparseImage->SetPixel( p.first, p.second );
-        // TODO: Update pixel here
+
+        oldValue = 1;
+        newValue = 3;
+//         m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+
         }
       else
         {
