@@ -218,6 +218,8 @@ protected:
 
       UpdateLevelSets();
       UpdateEquations();
+
+      this->InvokeEvent( IterationEvent() );
       }
     }
 
