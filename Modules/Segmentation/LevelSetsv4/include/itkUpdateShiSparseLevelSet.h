@@ -131,8 +131,9 @@ public:
           // CheckIn
           p.second = -1;
           this->m_SparseImage->SetPixel( p.first, p.second );
+          // TODO: Update pixel here
+
           list_in->push_back( p );
-//           m_Update[-1]->push_back( update );
 
           sparseNeighborhoodIt.SetLocation( p.first );
 
@@ -149,10 +150,7 @@ public:
               temp.second = 1;
               m_StatusLists->GetListNode( 1 )->push_back( temp);
               this->m_SparseImage->SetPixel( temp.first, temp.second );
-
-              // Compute the update here of temp;
-//               update =  m_EquationContainer->GetEquation( 0 )->Evaluate( temp.first );
-//               m_Update[1]->push_back( update );
+              // TODO: Update pixel here
               }
             }
           }
@@ -210,11 +208,6 @@ public:
 
     LevelSetNodePairType temp;
 
-//     if( m_Update[-1]->size() != list_in->size() )
-//     {
-//       itkGenericExceptionMacro( "m_Update[1]->size() != list_out->size()" );
-//     }
-
     // for each point in Lz
     while( !list_in->empty() )
       {
@@ -232,10 +225,9 @@ public:
           // CheckOut
           p.second = 1;
           this->m_SparseImage->SetPixel( p.first, p.second );
-          list_out->push_back( p );
-//           m_Update[1]->push_back( update );
+          // TODO: Update pixel here
 
-//           std::cout << p.first << std::endl;
+          list_out->push_back( p );
 
           sparseNeighborhoodIt.SetLocation( p.first );
 
@@ -251,10 +243,7 @@ public:
               temp.second = -1;
               m_StatusLists->GetListNode( -1 )->push_back( temp);
               this->m_SparseImage->SetPixel( temp.first, temp.second );
-
-              // Compute the update here of temp;
-//               update =  m_EquationContainer->GetEquation( 0 )->Evaluate( temp.first );
-//               m_Update[-1]->push_back( update );
+              // TODO: Update pixel here
               }
             }
           }
@@ -395,9 +384,10 @@ public:
         }
       if( to_be_deleted )
         {
-        std::cout << p.first << std::endl;
+//         std::cout << p.first << std::endl;
         p.second = -3;
         this->m_SparseImage->SetPixel( p.first, p.second );
+        // TODO: Update pixel here
         }
       else
         {
@@ -440,6 +430,7 @@ public:
         {
         p.second = 3;
         this->m_SparseImage->SetPixel( p.first, p.second );
+        // TODO: Update pixel here
         }
       else
         {

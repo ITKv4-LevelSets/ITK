@@ -80,6 +80,10 @@ public:
       }
 
     std::cout << m_TotalValue << '/' << m_TotalH << '=' << m_Mean << std::endl;
+  }
+
+  virtual void InitializeParameters()
+  {
     m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
     m_TotalH = NumericTraits< LevelSetOutputRealType >::Zero;
     this->m_CFLContribution = NumericTraits< LevelSetOutputRealType >::Zero;
@@ -126,6 +130,26 @@ public:
   virtual void ComputeProductTerm( const LevelSetInputIndexType& iP,
                                   LevelSetOutputRealType& prod )
   {}
+
+
+  /* Performs the narrow-band update of the Heaviside function for each voxel. The
+  characteristic function of each region is recomputed. Using the
+  new H values, the previous c_i are updated. Used by only the sparse image
+  filter */
+  void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
+  {
+    // For each affected h val: h val = new hval (this will dirty some cvals)
+    InputPixelType input = this->m_Input->GetPixel( iP );
+
+    LevelSetOutputRealType oldH = this->m_Heaviside->Evaluate( -oldValue );
+    LevelSetOutputRealType newH = this->m_Heaviside->Evaluate( -newValue );
+    LevelSetOutputRealType change = newH - oldH;
+
+    // update the foreground constant for current level-set function
+    this->m_TotalH += change;
+    this->m_TotalValue += input * change;
+  }
+
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),

@@ -228,6 +228,9 @@ protected:
     DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
     DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
 
+    // Initialize parameters here
+    m_EquationContainer->InitializeParameters();
+
     while( map_it != map_end )
     {
       // std::cout << map_it->second.m_Region << std::endl;
@@ -291,8 +294,8 @@ protected:
   void UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
+    m_EquationContainer->Update();
     InitializeIteration();
-//     m_EquationContainer->Update();
     }
 
 private:

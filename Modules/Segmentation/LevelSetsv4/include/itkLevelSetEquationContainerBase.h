@@ -91,6 +91,19 @@ public:
       }
     }
 
+  void InitializeParameters()
+  {
+    typedef typename std::map< unsigned int, TermContainerPointer >::iterator
+    ContainerIterator;
+
+    for( ContainerIterator it = m_Container.begin();
+        it != m_Container.end();
+    ++it )
+        {
+          (it->second )->InitializeParameters();
+        }
+  }
+
   LevelSetOutputRealType GetCFLContribution()
     {
     typedef typename std::map< unsigned int, TermContainerPointer >::iterator

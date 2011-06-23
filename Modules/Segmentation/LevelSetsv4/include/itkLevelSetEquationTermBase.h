@@ -88,6 +88,8 @@ public:
 
   virtual void Initialize( const LevelSetInputIndexType& iP ) = 0;
 
+  virtual void InitializeParameters() = 0;
+
   itkGetMacro( CFLContribution, LevelSetOutputRealType );
 
   itkSetStringMacro( TermName );
