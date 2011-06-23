@@ -20,6 +20,7 @@
 #define __itkLevelSetImageBase_h
 
 #include "itkLevelSetBase.h"
+#include "itkObjectFactory.h"
 
 namespace itk
 {
