@@ -68,20 +68,10 @@ public:
   virtual void ComputeProduct( const LevelSetInputIndexType& iP,
                                LevelSetOutputRealType& prod )
   {
-    LevelSetIdentifierType id =
-        this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
-
-    IdListType lout = this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
-
-    LevelSetPointer levelSet;
-    LevelSetOutputRealType value;
-    prod = 1;
-    for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-      {
-      levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1 );
-      value = levelSet->Evaluate( iP );
-      prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
-      }
+    this->ComputeProductTerm( iP, prod );
+    LevelSetPointer levelSet = this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
+    LevelSetOutputRealType value = levelSet->Evaluate( iP );
+    prod *= -(1 - this->m_Heaviside->Evaluate( -value ) );
   }
 
 
@@ -90,9 +80,9 @@ public:
   {
     prod = -1.;
     LevelSetIdentifierType id =
-    this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
+      this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
     IdListType lout =
-    this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
+      this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
 
     LevelSetPointer levelSet;
     LevelSetOutputRealType value;
@@ -119,19 +109,8 @@ public:
     IdListType lout =
       this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
 
-    LevelSetOutputRealType prod = -1.;
-
-    LevelSetPointer levelSet;
-    LevelSetOutputRealType value;
-    for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-    {
-      if( *lIt-1 != this->m_CurrentLevelSet )
-      {
-        levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
-        value = levelSet->Evaluate( iP );
-        prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
-      }
-    }
+    LevelSetOutputRealType prod;
+    this->ComputeProductTerm( iP, prod );
 
     // For each affected h val: h val = new hval (this will dirty some cvals)
     InputPixelType input = this->m_Input->GetPixel( iP );
