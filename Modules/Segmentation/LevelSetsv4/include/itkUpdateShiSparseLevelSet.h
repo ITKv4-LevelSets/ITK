@@ -136,7 +136,7 @@ public:
 
           oldValue = 1;
           newValue = -1;
-//           m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+          m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
 
           list_in->push_back( p );
 
@@ -159,7 +159,7 @@ public:
 
               oldValue = 3;
               newValue = 1;
-//               m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
+              m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
               }
             }
           }
@@ -236,7 +236,7 @@ public:
 
           oldValue = -1;
           newValue = 1;
-//           m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+          m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
 
           list_out->push_back( p );
 
@@ -257,7 +257,7 @@ public:
 
               oldValue = -3;
               newValue = -1;
-//               m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
+              m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
               }
             }
           }
@@ -403,7 +403,7 @@ public:
 
         oldValue = -1;
         newValue = -3;
-//         m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+        m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
         }
       else
         {
@@ -448,7 +448,7 @@ public:
 
         oldValue = 1;
         newValue = 3;
-//         m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+        m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
 
         }
       else
