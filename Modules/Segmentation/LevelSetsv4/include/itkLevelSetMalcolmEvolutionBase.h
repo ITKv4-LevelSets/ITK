@@ -227,6 +227,9 @@ protected:
     DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
     DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
 
+    // Initialize parameters here
+    m_EquationContainer->InitializeParameters();
+
     while( map_it != map_end )
     {
       // std::cout << map_it->second.m_Region << std::endl;
@@ -287,33 +290,7 @@ protected:
 
 
   void ComputeDtForNextIteration()
-    {
-//     std::cout << "ComputeDtForNextIteration" << std::endl;
-//     if( !m_UserDefinedDt )
-//       {
-//       if( ( m_Alpha > NumericTraits< LevelSetOutputRealType >::Zero ) &&
-//           ( m_Alpha < NumericTraits< LevelSetOutputRealType >::One ) )
-//         {
-//         LevelSetOutputRealType contribution = m_EquationContainer->GetCFLContribution();
-//
-//         if( contribution > NumericTraits< LevelSetOutputRealType >::epsilon() )
-//           {
-//           m_Dt = m_Alpha / contribution;
-//           }
-//         else
-//           {
-//             itkGenericExceptionMacro( << "contribution " << contribution <<  "is too low" );
-//           }
-//         }
-//       else
-//         {
-//         itkGenericExceptionMacro( <<"m_Alpha " << m_Alpha << " should be in [0,1]" );
-//         }
-//       }
-//
-//       std::cout << "Dt = " << m_Dt << std::endl;
-//       m_Dt = 0.08;
-    }
+    {}
 
   virtual void UpdateLevelSets()
     {
@@ -323,7 +300,7 @@ protected:
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
       update_levelset->SetUpdate( m_UpdateBuffer );
-      update_levelset->SetDt( NumericTraits< LevelSetOutputRealType >::One );
+      update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->Update();
 
       typedef ImageFileWriter< OutputImageType > WriterType;

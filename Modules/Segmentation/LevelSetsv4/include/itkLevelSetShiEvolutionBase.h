@@ -274,9 +274,7 @@ protected:
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
-//       update_levelset->SetUpdate( m_UpdateBuffer );
       update_levelset->SetEquationContainer( m_EquationContainer );
-//       update_levelset->SetDt( NumericTraits< LevelSetOutputRealType >::One );
       update_levelset->Update();
 
       typedef ImageFileWriter< OutputImageType > WriterType;

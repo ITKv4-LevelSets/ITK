@@ -68,6 +68,9 @@ public:
   typedef ImageRegionIteratorWithIndex< SparseImageType > SparseIteratorType;
   typedef ShapedNeighborhoodIterator< SparseImageType >   SparseNeighborhoodIteratorType;
 
+  typedef TEquationContainer                      EquationContainerType;
+  typedef typename EquationContainerType::Pointer EquationContainerPointer;
+
   void UnPhasedPropagation()
     {
     LevelSetNodeListType new_list_0;
@@ -425,15 +428,14 @@ public:
       }
     }
 
-  itkSetMacro( Dt, LevelSetOutputRealType );
-  itkGetMacro( Dt, LevelSetOutputRealType );
-
-  itkSetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
+
+  // set the term container
+  itkSetObjectMacro( EquationContainer, EquationContainerType );
+  itkGetObjectMacro( EquationContainer, EquationContainerType );
 
 protected:
   UpdateMalcolmSparseLevelSet() :
-    m_Dt( NumericTraits< LevelSetOutputRealType >::Zero ),
     m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
     m_UnPhased( true )
     {
@@ -448,8 +450,8 @@ protected:
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
 
-  LevelSetOutputRealType m_Dt;
-  LevelSetOutputRealType m_RMSChangeAccumulator;
+  LevelSetOutputRealType   m_RMSChangeAccumulator;
+  EquationContainerPointer m_EquationContainer;
 
   bool m_UnPhased;
 

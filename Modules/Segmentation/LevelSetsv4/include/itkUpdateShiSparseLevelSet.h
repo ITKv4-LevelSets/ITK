@@ -468,9 +468,6 @@ public:
   itkSetObjectMacro( SparseLevelSet, LevelSetType );
   itkGetObjectMacro( SparseLevelSet, LevelSetType );
 
-//   itkSetMacro( Dt, LevelSetOutputRealType );
-//   itkGetMacro( Dt, LevelSetOutputRealType );
-
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
 
   // set the term container
@@ -485,7 +482,6 @@ protected:
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
 
-//   LevelSetOutputRealType   m_Dt;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
 
