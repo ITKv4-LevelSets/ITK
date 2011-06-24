@@ -23,6 +23,9 @@
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 #include "itkUpdateWhitakerSparseLevelSet.h"
 #include "itkImageRegionIterator.h"
+#include "itkLevelSetContainerBase.h"
+#include "itkLevelSetEquationTermContainerBase.h"
+#include "itkLevelSetEquationContainerBase.h"
 
 int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
 {
@@ -51,6 +54,14 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
   typedef itk::ImageRegionIterator< StatusImageType > StatusIteratorType;
+  typedef itk::IdentifierType                         IdentifierType;
+
+  typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
+    LevelSetContainerType;
+  typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
+    TermContainerType;
+  typedef itk::LevelSetEquationContainerBase< TermContainerType >
+    EquationContainerType;
 
   InputImageType::Pointer input = InputImageType::New();
   InputImageType::RegionType region;
@@ -89,7 +100,8 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
 
   SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
 
-  typedef itk::UpdateWhitakerSparseLevelSet< Dimension, OutputPixelType > UpdateLevelSetType;
+  typedef itk::UpdateWhitakerSparseLevelSet< Dimension, OutputPixelType, EquationContainerType >
+    UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
   update_levelset->SetSparseLevelSet( sparseLevelSet );
 

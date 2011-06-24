@@ -102,8 +102,8 @@ public:
   //   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
-  typedef UpdateWhitakerSparseLevelSet< ImageDimension, LevelSetOutputType > UpdateLevelSetFilterType;
-
+  typedef UpdateWhitakerSparseLevelSet< ImageDimension, LevelSetOutputType, EquationContainerType >
+                                                  UpdateLevelSetFilterType;
   typedef typename LevelSetType::StatusImageType  StatusImageType;
   typedef typename LevelSetType::OutputImageType  OutputImageType;
 
@@ -227,6 +227,9 @@ protected:
     DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
     DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
 
+    // Initialize parameters here
+    m_EquationContainer->InitializeParameters();
+
     while( map_it != map_end )
     {
       // std::cout << map_it->second.m_Region << std::endl;
@@ -320,26 +323,12 @@ protected:
       typedef ImageFileWriter< StatusImageType > WriterType;
       typedef typename WriterType::Pointer       WriterPointer;
 
-//       WriterPointer writer1 = WriterType::New();
-//       writer1->SetInput( levelSet->GetOutputImage() );
-//       writer1->SetFileName("/home/krm15/1.mha");
-//       writer1->Update();
-
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
       update_levelset->SetUpdate( m_UpdateBuffer );
+      update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->SetDt( m_Dt );
       update_levelset->Update();
-
-//             NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
-//             NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
-//             NodePairType p;
-//             while( list_it != list_end )
-//             {
-//               p = (*list_it);
-//               std::cout << p.first << std::endl;
-//               ++list_it;
-//             }
 
       WriterPointer writer2 = WriterType::New();
       writer2->SetInput( levelSet->GetStatusImage() );
@@ -353,9 +342,9 @@ protected:
 
   void UpdateEquations()
     {
-    std::cout << "Update equations" << std::endl;
+    std::cout << "Update equations" << std::endl << std::endl;
+    m_EquationContainer->Update();
     InitializeIteration();
-//     m_EquationContainer->Update();
     }
 
 private:

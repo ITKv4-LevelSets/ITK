@@ -31,7 +31,7 @@
 
 namespace itk
 {
-template< unsigned int VDimension, typename TLevelSetValueType >
+template< unsigned int VDimension, typename TLevelSetValueType, class TEquationContainer >
 class UpdateWhitakerSparseLevelSet : public Object
 {
 public:
@@ -77,17 +77,21 @@ public:
   typedef ImageRegionIteratorWithIndex< SparseImageType > SparseIteratorType;
   typedef ShapedNeighborhoodIterator< SparseImageType >   SparseNeighborhoodIteratorType;
 
+  typedef TEquationContainer                      EquationContainerType;
+  typedef typename EquationContainerType::Pointer EquationContainerPointer;
+
   // this is the same as Procedure 2
   // Input is a update image point m_UpdateImage
   // Input is also WhitakerSparseLevelSetBasePointer
   void UpdateZeroLevelSet()
   {
+    LevelSetOutputRealType oldValue, newValue;
     LevelSetNodeListType new_list_0;
     LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
     LevelSetNodePairType p;
     LevelSetOutputRealType update;
     LevelSetOutputType temp;
-    LevelSetNodeAttributeType q;
+    LevelSetNodeAttributeType q, r;
     ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
 
     typename SparseNeighborhoodIteratorType::RadiusType radius;
@@ -140,6 +144,8 @@ public:
       m_RMSChangeAccumulator += temp*temp;
 //       std::cout << temp << std::endl;
 
+      r = m_SparseImage->GetPixel( p.first );
+
       // if(phi(p)> .5), remove p from Lz, add p to Sp1
       if( temp_value > static_cast<LevelSetOutputType>( 0.5 ) )
         {
@@ -159,14 +165,21 @@ public:
 
         if( ok )
           {
+          oldValue = r.m_Value;
+          newValue = temp_value;
           p.second.m_Value = temp_value;
           m_StatusLists->GetListNode( 1 )->push_back( p );
           m_SparseImage->SetPixel( p.first, p.second );
+          // TODO: UpdatePixel
+          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           }
         else
           {
+          oldValue = r.m_Value;
+          newValue = p.second.m_Value;
           new_list_0.push_back( p );
           m_SparseImage->SetPixel( p.first, p.second );
+          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           }
         }
       else
@@ -190,22 +203,33 @@ public:
 
           if( ok )
             {
+            oldValue = r.m_Value;
+            newValue = temp_value;
             p.second.m_Value = temp_value;
             m_StatusLists->GetListNode( -1 )->push_back( p );
             m_SparseImage->SetPixel( p.first, p.second );
+            // TODO: UpdatePixel
+            m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
             }
           else
             {
+            oldValue = r.m_Value;
+            newValue = p.second.m_Value;
             new_list_0.push_back( p );
             m_SparseImage->SetPixel( p.first, p.second );
+            m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
             }
           }
         // else keep it in Lz
         else
           {
+          oldValue = r.m_Value;
+          newValue = temp_value;
           p.second.m_Value = temp_value;
           new_list_0.push_back( p );
           m_SparseImage->SetPixel( p.first, p.second );
+          // TODO: UpdatePixel
+          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           }
         }
       list_0->pop_front();
@@ -222,6 +246,7 @@ public:
 
   void UpdateMinusLevelSet( const LevelSetNodeStatusType& status )
   {
+    LevelSetOutputRealType oldValue, newValue;
     LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) + 0.5;
     LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) - 0.5;
 
@@ -297,12 +322,18 @@ public:
         else
           {
           p.second.m_Status = m_MinStatus;
+          oldValue = p.second.m_Value;
+          newValue = static_cast< LevelSetOutputType >( m_MinStatus );
           p.second.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
           m_SparseImage->SetPixel( idx, p.second );
+          // TODO: UpdatePixel
+          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           }
         }
       else
         {
+        oldValue = p.second.m_Value;
+        newValue = M-1;
         p.second.m_Value = M-1;
 
         if ( p.second.m_Value >= o1 )
@@ -321,6 +352,7 @@ public:
               {
               p.second.m_Status = m_MinStatus;
               p.second.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
+              newValue = static_cast< LevelSetOutputType >( m_MinStatus );
               }
             }
           else
@@ -329,6 +361,8 @@ public:
             }
           }
           m_SparseImage->SetPixel( idx, p.second );
+          m_EquationContainer->UpdatePixel( idx, oldValue, newValue );
+          // TODO: UpdatePixel
         }
        list->pop_front();
      }
@@ -343,6 +377,7 @@ public:
 
   void UpdatePlusLevelSet( const LevelSetNodeStatusType& status )
   {
+    LevelSetOutputRealType oldValue, newValue;
     LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) - 0.5;
     LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) + 0.5;
 
@@ -383,7 +418,7 @@ public:
       idx = p.first;
       sparseNeighborhoodIt.SetLocation( idx );
 
-    LevelSetOutputType M = NumericTraits<LevelSetOutputType>::max();
+      LevelSetOutputType M = NumericTraits<LevelSetOutputType>::max();
 
       bool IsThereNeighborEqualToStatusMinus1 = false;
       for( typename SparseNeighborhoodIteratorType::Iterator
@@ -413,12 +448,18 @@ public:
         else
           {
           p.second.m_Status = m_MaxStatus;
+          oldValue = p.second.m_Value;
+          newValue = static_cast< LevelSetOutputType >( m_MaxStatus );
           p.second.m_Value = static_cast< LevelSetOutputType >( m_MaxStatus );
           m_SparseImage->SetPixel( idx, p.second );
+          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+          // TODO: UpdatePixel
           }
         }
       else
         {
+        oldValue = p.second.m_Value;
+        newValue = M+1;
         p.second.m_Value = M+1;
 
         if ( p.second.m_Value <= o1 )
@@ -445,6 +486,8 @@ public:
             }
           }
           m_SparseImage->SetPixel( idx, p.second );
+          m_EquationContainer->UpdatePixel( idx, oldValue, newValue );
+          // TODO: UpdatePixel
         }
       list->pop_front();
       }
@@ -479,9 +522,12 @@ public:
 
   void UpdatePointsChangingStatus()
   {
+    LevelSetOutputRealType oldValue, newValue;
+
     // Move points into the zero levelset
     LevelSetNodeListType* list_0 = m_StatusLists->GetListNode( 0 );
     LevelSetNodePairType p;
+    LevelSetNodeAttributeType q;
 
     //for each point p in Sz
     while( !list_0->empty() )
@@ -493,7 +539,12 @@ public:
 
       // add p to Lz
       m_SparseLevelSet->GetListNode( 0 )->push_back( p );
+      q = m_SparseImage->GetPixel( p.first );
+      oldValue = q.m_Value;
+      newValue = p.second.m_Value;
       m_SparseImage->SetPixel( p.first, p.second );
+      m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+      // TODO: UpdatePixel
 
       // remove p from Sz
       list_0->pop_front();
@@ -519,12 +570,14 @@ public:
 
   void UpdatePointsChangingStatus( const LevelSetNodeStatusType& iStatus )
   {
+    LevelSetOutputRealType oldValue, newValue;
     int iSign = ( iStatus > 0 ) ? 1 : -1;
 
       // Move points into -1 and +1 level sets
     // and ensure -2, +2 neighbors
     LevelSetNodeListType* list_minus_1 = m_StatusLists->GetListNode( iStatus );
     LevelSetNodePairType p, q;
+    LevelSetNodeAttributeType r;
 
     SparseImageIndexType idx;
 
@@ -542,7 +595,12 @@ public:
 
       // add p to L_{iStatus}
       m_SparseLevelSet->GetListNode( iStatus )->push_back( p );
+      r = m_SparseImage->GetPixel( p.first );
+      oldValue = r.m_Value;
+      newValue = p.second.m_Value;
       m_SparseImage->SetPixel( p.first, p.second );
+      m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+      // TODO: UpdatePixel
 
       // remove p from S_{iStatus}
       list_minus_1->pop_front();
@@ -605,8 +663,10 @@ public:
   itkGetMacro( Dt, LevelSetOutputType );
 
   // Set/Get the RMS change for the update
-  itkSetMacro( RMSChangeAccumulator, LevelSetOutputType );
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputType );
+
+  itkSetObjectMacro( EquationContainer, EquationContainerType );
+  itkGetObjectMacro( EquationContainer, EquationContainerType );
 
   void SetUpdate( UpdateListType* iUpdate )
     {
@@ -624,6 +684,8 @@ protected:
 
   LevelSetOutputType m_Dt;
   LevelSetOutputType m_RMSChangeAccumulator;
+
+  EquationContainerPointer m_EquationContainer;
 
   UpdateListType*    m_Update;
   LevelSetPointer    m_SparseLevelSet;
