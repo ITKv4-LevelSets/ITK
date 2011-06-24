@@ -98,7 +98,7 @@ public:
   }
 
   /* Performs the narrow-band update of the Heaviside function for each voxel. The
-  c * haracteristic function of each region is recomputed. Using the                                                     *
+  characteristic function of each region is recomputed. Using the                                                     *
   new H values, the previous c_i are updated. Used by only the sparse image
   filter */
   virtual void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )

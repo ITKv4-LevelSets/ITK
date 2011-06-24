@@ -31,7 +31,7 @@
 
 namespace itk
 {
-template< unsigned int VDimension >
+template< unsigned int VDimension, class TEquationContainer >
 class UpdateMalcolmSparseLevelSet : public Object
 {
 public:

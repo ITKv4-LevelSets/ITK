@@ -23,6 +23,9 @@
 #include "itkBinaryImageToMalcolmSparseLevelSetAdaptor.h"
 #include "itkUpdateMalcolmSparseLevelSet.h"
 #include "itkImageRegionIterator.h"
+#include "itkLevelSetContainerBase.h"
+#include "itkLevelSetEquationTermContainerBase.h"
+#include "itkLevelSetEquationContainerBase.h"
 
 int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 {
@@ -41,6 +44,14 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
   typedef SparseLevelSetType::ImageType             SparseImageType;
 
   typedef itk::ImageFileWriter< SparseImageType >   OutputWriterType;
+  typedef itk::IdentifierType                       IdentifierType;
+
+  typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
+    LevelSetContainerType;
+  typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
+    TermContainerType;
+  typedef itk::LevelSetEquationContainerBase< TermContainerType >
+    EquationContainerType;
 
   InputImageType::Pointer input = InputImageType::New();
   InputImageType::RegionType region;
@@ -79,7 +90,7 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 
   std::cout << "Finished converting to sparse format" << std::endl;
 
-  typedef itk::UpdateMalcolmSparseLevelSet< Dimension > UpdateLevelSetType;
+  typedef itk::UpdateMalcolmSparseLevelSet< Dimension, EquationContainerType > UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
   update_levelset->SetSparseLevelSet( sparseLevelSet );
 

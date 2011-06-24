@@ -102,7 +102,7 @@ public:
   //   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
-  typedef UpdateMalcolmSparseLevelSet< ImageDimension > UpdateLevelSetFilterType;
+  typedef UpdateMalcolmSparseLevelSet< ImageDimension, EquationContainerType > UpdateLevelSetFilterType;
 
   typedef typename LevelSetType::ImageType  OutputImageType;
 
