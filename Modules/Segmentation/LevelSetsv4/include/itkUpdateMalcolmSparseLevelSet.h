@@ -73,6 +73,7 @@ public:
 
   void UnPhasedPropagation()
     {
+    LevelSetOutputRealType oldValue, newValue;
     LevelSetNodeListType new_list_0;
     LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode();
 
@@ -115,14 +116,19 @@ public:
         {
         if( update > NumericTraits< LevelSetOutputRealType >::Zero )
           {
+          oldValue = p.second;
           p.second = 1;
+          newValue = 1;
           }
         if( update < NumericTraits< LevelSetOutputRealType >::Zero )
           {
+          oldValue = p.second;
           p.second = -1;
+          newValue = -1;
           }
         m_SparseImage->SetPixel( p.first, p.second );
         sparseNeighborhoodIt.SetLocation( p.first );
+        m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
 
         for( typename SparseNeighborhoodIteratorType::Iterator
                 i = sparseNeighborhoodIt.Begin();
@@ -138,6 +144,9 @@ public:
             temp.second = 0;
             new_list_0.push_back( temp );
             m_SparseImage->SetPixel( temp.first, temp.second );
+            oldValue = q;
+            newValue = 0;
+            m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
             }
           }
         }
@@ -158,6 +167,8 @@ public:
                          UpdateListType& ioUpdate,
                          const bool& iContraction )
     {
+    LevelSetOutputRealType oldValue, newValue;
+
     if( ioList.size() != ioUpdate.size() )
       {
       itkGenericExceptionMacro( "ioList and ioUpdate have different size!" );
@@ -207,7 +218,9 @@ public:
           // only allow positive forces
           if( update > NumericTraits< LevelSetOutputRealType >::Zero )
             {
+            oldValue = p.second;
             p.second = 1;
+            newValue = 1;
             to_be_updated = true;
             }
           }
@@ -216,13 +229,17 @@ public:
           // only allow negative forces
           if( update < NumericTraits< LevelSetOutputRealType >::Zero )
             {
+            oldValue = p.second;
             p.second = -1;
+            newValue = -1;
             to_be_updated = true;
             }
           }
         if( to_be_updated )
           {
           m_SparseImage->SetPixel( p.first, p.second );
+          m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+
           sparseNeighborhoodIt.SetLocation( p.first );
 
           for( typename SparseNeighborhoodIteratorType::Iterator
@@ -239,6 +256,9 @@ public:
               temp.second = 0;
               m_StatusLists->GetListNode()->push_back( temp );
               m_SparseImage->SetPixel( temp.first, temp.second );
+              oldValue = q;
+              newValue = 0;
+              m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
               }
             }
           }
@@ -256,6 +276,7 @@ public:
 
   void MinimalInterface()
     {
+    LevelSetOutputRealType oldValue, newValue;
     LevelSetNodeListType new_list_0;
     LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode();
 
@@ -323,15 +344,21 @@ public:
         }
       if( negative && !positive )
         {
+        oldValue = p.second;
         p.second = -1;
+        newValue = -1;
         m_SparseImage->SetPixel( p.first, p.second );
+        m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
         }
       else
         {
         if( positive && !negative )
           {
+          oldValue = p.second;
           p.second = 1;
+          newValue = 1;
           m_SparseImage->SetPixel( p.first, p.second );
+          m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
           }
         else
           {

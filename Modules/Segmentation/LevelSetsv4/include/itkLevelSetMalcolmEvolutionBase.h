@@ -319,8 +319,7 @@ protected:
   void UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
-    InitializeIteration();
-//     m_EquationContainer->Update();
+    m_EquationContainer->Update();
     }
 
 private:
