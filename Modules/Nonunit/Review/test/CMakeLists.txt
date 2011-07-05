@@ -469,6 +469,16 @@ itk_add_test(NAME itkConvolutionImageFilterTestSobelY
     --compare ${ITK_DATA_ROOT}/Baseline/Review/itkConvolutionImageFilterTestSobelY.nii.gz
               ${ITK_TEST_OUTPUT_DIR}/itkConvolutionImageFilterTestSobelY.nii.gz
     itkConvolutionImageFilterTest ${ITK_DATA_ROOT}/Input/cthead1.png ${ITK_DATA_ROOT}/Input/sobel_y.nii.gz ${ITK_TEST_OUTPUT_DIR}/itkConvolutionImageFilterTestSobelY.nii.gz)
+itk_add_test(NAME itkConvolutionImageFilterTest4x4Mean
+      COMMAND ITK-ReviewTestDriver
+    --compare DATA{Baseline/itkConvolutionImageFilterTest4x4Mean.png}
+              ${ITK_TEST_OUTPUT_DIR}/itkConvolutionImageFilterTest4x4Mean.png
+    itkConvolutionImageFilterTestInt ${ITK_DATA_ROOT}/Input/cthead1.png DATA{Input/4x4-constant.png} ${ITK_TEST_OUTPUT_DIR}/itkConvolutionImageFilterTest4x4Mean.png 1)
+itk_add_test(NAME itkConvolutionImageFilterTest4x5Mean
+      COMMAND ITK-ReviewTestDriver
+    --compare DATA{Baseline/itkConvolutionImageFilterTest4x5Mean.png}
+              ${ITK_TEST_OUTPUT_DIR}/itkConvolutionImageFilterTest4x5Mean.png
+    itkConvolutionImageFilterTestInt ${ITK_DATA_ROOT}/Input/cthead1.png DATA{Input/4x5-constant.png} ${ITK_TEST_OUTPUT_DIR}/itkConvolutionImageFilterTest4x5Mean.png 1)
 itk_add_test(NAME itkConvolutionImageFilterTest5x5Mean
       COMMAND ITK-ReviewTestDriver
     --compare ${ITK_DATA_ROOT}/Baseline/Review/itkConvolutionImageFilterTest5x5Mean.png
@@ -843,8 +853,8 @@ itk_add_test(NAME itkLabelMapMaskImageFilterTestCrop-100-1-1-0
     itkLabelMapMaskImageFilterTest ${ITK_DATA_ROOT}/Input/2th_cthead1.png ${ITK_DATA_ROOT}/Input/cthead1.png ${ITK_TEST_OUTPUT_DIR}/itkLabelMapMaskImageFilterTestCrop-100-1-1-0.png 100 1 1 1 0)
 itk_add_test(NAME itkLabelMapMaskImageFilterTestCrop-100-1-1-10
       COMMAND ITK-ReviewTestDriver
-    --compare ${ITK_TEST_OUTPUT_DIR}/itkLabelMapMaskImageFilterTestCrop-100-1-1-10.png
-              ${ITK_DATA_ROOT}/Baseline/Review/itkLabelMapMaskImageFilterTestCrop-100-1-1-10.png
+    --compare  ${ITK_DATA_ROOT}/Baseline/Review/itkLabelMapMaskImageFilterTestCrop-100-1-1-10.png
+               ${ITK_TEST_OUTPUT_DIR}/itkLabelMapMaskImageFilterTestCrop-100-1-1-10.png
     itkLabelMapMaskImageFilterTest ${ITK_DATA_ROOT}/Input/2th_cthead1.png ${ITK_DATA_ROOT}/Input/cthead1.png ${ITK_TEST_OUTPUT_DIR}/itkLabelMapMaskImageFilterTestCrop-100-1-1-10.png 100 1 1 1 10)
 itk_add_test(NAME itkLabelMapOverlayImageFilterTest1
       COMMAND ITK-ReviewTestDriver
