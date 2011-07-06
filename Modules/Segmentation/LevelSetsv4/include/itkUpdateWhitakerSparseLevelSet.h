@@ -165,13 +165,13 @@ public:
 
         if( ok )
           {
-          oldValue = r.m_Value;
-          newValue = temp_value;
+//           oldValue = r.m_Value;
+//           newValue = temp_value;
           p.second.m_Value = temp_value;
           m_StatusLists->GetListNode( 1 )->push_back( p );
           m_SparseImage->SetPixel( p.first, p.second );
           // TODO: UpdatePixel
-          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//           m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           }
         else
           {
@@ -203,33 +203,33 @@ public:
 
           if( ok )
             {
-            oldValue = r.m_Value;
-            newValue = temp_value;
+//             oldValue = r.m_Value;
+//             newValue = temp_value;
             p.second.m_Value = temp_value;
             m_StatusLists->GetListNode( -1 )->push_back( p );
             m_SparseImage->SetPixel( p.first, p.second );
             // TODO: UpdatePixel
-            m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//             m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
             }
           else
             {
-            oldValue = r.m_Value;
-            newValue = p.second.m_Value;
+//             oldValue = r.m_Value;
+//             newValue = p.second.m_Value;
             new_list_0.push_back( p );
             m_SparseImage->SetPixel( p.first, p.second );
-            m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//             m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
             }
           }
         // else keep it in Lz
         else
           {
-          oldValue = r.m_Value;
-          newValue = temp_value;
+//           oldValue = r.m_Value;
+//           newValue = temp_value;
           p.second.m_Value = temp_value;
           new_list_0.push_back( p );
           m_SparseImage->SetPixel( p.first, p.second );
           // TODO: UpdatePixel
-          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//           m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           }
         }
       list_0->pop_front();
@@ -322,18 +322,18 @@ public:
         else
           {
           p.second.m_Status = m_MinStatus;
-          oldValue = p.second.m_Value;
-          newValue = static_cast< LevelSetOutputType >( m_MinStatus );
+//           oldValue = p.second.m_Value;
+//           newValue = static_cast< LevelSetOutputType >( m_MinStatus );
           p.second.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
           m_SparseImage->SetPixel( idx, p.second );
           // TODO: UpdatePixel
-          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//           m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           }
         }
       else
         {
-        oldValue = p.second.m_Value;
-        newValue = M-1;
+//         oldValue = p.second.m_Value;
+//         newValue = M-1;
         p.second.m_Value = M-1;
 
         if ( p.second.m_Value >= o1 )
@@ -352,7 +352,7 @@ public:
               {
               p.second.m_Status = m_MinStatus;
               p.second.m_Value = static_cast< LevelSetOutputType >( m_MinStatus );
-              newValue = static_cast< LevelSetOutputType >( m_MinStatus );
+//               newValue = static_cast< LevelSetOutputType >( m_MinStatus );
               }
             }
           else
@@ -361,7 +361,7 @@ public:
             }
           }
           m_SparseImage->SetPixel( idx, p.second );
-          m_EquationContainer->UpdatePixel( idx, oldValue, newValue );
+//           m_EquationContainer->UpdatePixel( idx, oldValue, newValue );
           // TODO: UpdatePixel
         }
        list->pop_front();
@@ -448,18 +448,18 @@ public:
         else
           {
           p.second.m_Status = m_MaxStatus;
-          oldValue = p.second.m_Value;
-          newValue = static_cast< LevelSetOutputType >( m_MaxStatus );
+//           oldValue = p.second.m_Value;
+//           newValue = static_cast< LevelSetOutputType >( m_MaxStatus );
           p.second.m_Value = static_cast< LevelSetOutputType >( m_MaxStatus );
           m_SparseImage->SetPixel( idx, p.second );
-          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//           m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           // TODO: UpdatePixel
           }
         }
       else
         {
-        oldValue = p.second.m_Value;
-        newValue = M+1;
+//         oldValue = p.second.m_Value;
+//         newValue = M+1;
         p.second.m_Value = M+1;
 
         if ( p.second.m_Value <= o1 )
@@ -486,7 +486,7 @@ public:
             }
           }
           m_SparseImage->SetPixel( idx, p.second );
-          m_EquationContainer->UpdatePixel( idx, oldValue, newValue );
+//           m_EquationContainer->UpdatePixel( idx, oldValue, newValue );
           // TODO: UpdatePixel
         }
       list->pop_front();
@@ -540,10 +540,10 @@ public:
       // add p to Lz
       m_SparseLevelSet->GetListNode( 0 )->push_back( p );
       q = m_SparseImage->GetPixel( p.first );
-      oldValue = q.m_Value;
-      newValue = p.second.m_Value;
+//       oldValue = q.m_Value;
+//       newValue = p.second.m_Value;
       m_SparseImage->SetPixel( p.first, p.second );
-      m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//       m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
       // TODO: UpdatePixel
 
       // remove p from Sz
@@ -596,10 +596,10 @@ public:
       // add p to L_{iStatus}
       m_SparseLevelSet->GetListNode( iStatus )->push_back( p );
       r = m_SparseImage->GetPixel( p.first );
-      oldValue = r.m_Value;
-      newValue = p.second.m_Value;
+//       oldValue = r.m_Value;
+//       newValue = p.second.m_Value;
       m_SparseImage->SetPixel( p.first, p.second );
-      m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//       m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
       // TODO: UpdatePixel
 
       // remove p from S_{iStatus}

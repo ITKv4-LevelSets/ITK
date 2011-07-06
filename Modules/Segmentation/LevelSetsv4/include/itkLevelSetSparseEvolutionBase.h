@@ -29,6 +29,12 @@
 #include "itkObject.h"
 #include "itkImageFileWriter.h"
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include "itkBinaryThresholdImageFilter.h"
+
 namespace itk
 {
 template< class TEquationContainer >
@@ -216,6 +222,29 @@ protected:
       UpdateLevelSets();
       UpdateEquations();
 
+//       std::ostringstream filename;
+//       filename << "/home/krm15/temp/" << iter << ".png";
+//
+//       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
+//
+//       typedef Image< unsigned char, ImageDimension > WriterImageType;
+//       typedef BinaryThresholdImageFilter< StatusImageType, WriterImageType >  FilterType;
+//       typename FilterType::Pointer filter = FilterType::New();
+//       filter->SetInput( levelSet->GetStatusImage() );
+//       filter->SetOutsideValue( 0 );
+//       filter->SetInsideValue(  255 );
+//       filter->SetLowerThreshold( -8 );
+//       filter->SetUpperThreshold( 0 );
+//       filter->Update();
+//
+//       typedef ImageFileWriter< WriterImageType > WriterType;
+//       typedef typename WriterType::Pointer       WriterPointer;
+//
+//       WriterPointer writer2 = WriterType::New();
+//       writer2->SetInput( filter->GetOutput() );
+//       writer2->SetFileName( filename.str().c_str() );
+//       writer2->Update();
+
       this->InvokeEvent( IterationEvent() );
       }
     }
@@ -320,20 +349,12 @@ protected:
       std::cout << "Update levelsets" << std::endl;
       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
 
-      typedef ImageFileWriter< StatusImageType > WriterType;
-      typedef typename WriterType::Pointer       WriterPointer;
-
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
       update_levelset->SetUpdate( m_UpdateBuffer );
       update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->SetDt( m_Dt );
       update_levelset->Update();
-
-      WriterPointer writer2 = WriterType::New();
-      writer2->SetInput( levelSet->GetStatusImage() );
-      writer2->SetFileName("/home/krm15/2.mha");
-      writer2->Update();
 
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 
@@ -343,7 +364,7 @@ protected:
   void UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
-    m_EquationContainer->Update();
+//     m_EquationContainer->Update();
     InitializeIteration();
     }
 
