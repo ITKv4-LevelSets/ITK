@@ -29,6 +29,12 @@
 #include "itkObject.h"
 #include "itkImageFileWriter.h"
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include "itkBinaryThresholdImageFilter.h"
+
 namespace itk
 {
 template< class TEquationContainer >
@@ -216,6 +222,29 @@ protected:
       UpdateLevelSets();
       UpdateEquations();
 
+//       std::ostringstream filename;
+//       filename << "/home/krm15/temp/" << iter << ".png";
+//
+//       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
+//
+//       typedef Image< unsigned char, ImageDimension > WriterImageType;
+//       typedef BinaryThresholdImageFilter< LevelSetImageType, WriterImageType >  FilterType;
+//       typename FilterType::Pointer filter = FilterType::New();
+//       filter->SetInput( levelSet->GetImage() );
+//       filter->SetOutsideValue( 0 );
+//       filter->SetInsideValue(  255 );
+//       filter->SetLowerThreshold( -8 );
+//       filter->SetUpperThreshold( 0 );
+//       filter->Update();
+//
+//       typedef ImageFileWriter< WriterImageType > WriterType;
+//       typedef typename WriterType::Pointer       WriterPointer;
+//
+//       WriterPointer writer2 = WriterType::New();
+//       writer2->SetInput( filter->GetOutput() );
+//       writer2->SetFileName( filename.str().c_str() );
+//       writer2->Update();
+
       this->InvokeEvent( IterationEvent() );
       }
     }
@@ -281,7 +310,6 @@ protected:
 
         // TODO: Need to index the correct levelset
         m_UpdateBuffer->push_back( temp_update );
-//         std::cout << temp_update << std::endl;
         ++list_it;
       }
     ++it;
@@ -302,14 +330,6 @@ protected:
       update_levelset->SetUpdate( m_UpdateBuffer );
       update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->Update();
-
-      typedef ImageFileWriter< OutputImageType > WriterType;
-      typedef typename WriterType::Pointer       WriterPointer;
-
-      WriterPointer writer2 = WriterType::New();
-      writer2->SetInput( levelSet->GetImage() );
-      writer2->SetFileName("/home/krm15/2.mha");
-      writer2->Update();
 
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 

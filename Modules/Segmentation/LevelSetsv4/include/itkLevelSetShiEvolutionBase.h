@@ -29,6 +29,12 @@
 #include "itkObject.h"
 #include "itkImageFileWriter.h"
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include "itkBinaryThresholdImageFilter.h"
+
 namespace itk
 {
 template< class TEquationContainer >
@@ -195,8 +201,6 @@ protected:
 
   void AllocateUpdateBuffer()
     {
-//     m_UpdateBuffer[-1]->clear();
-//     m_UpdateBuffer[1]->clear();
     }
 
 
@@ -218,6 +222,29 @@ protected:
 
       UpdateLevelSets();
       UpdateEquations();
+
+//       std::ostringstream filename;
+//       filename << "/home/krm15/temp/" << iter << ".png";
+//
+//       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
+//
+//       typedef Image< unsigned char, ImageDimension > WriterImageType;
+//       typedef BinaryThresholdImageFilter< LevelSetImageType, WriterImageType >  FilterType;
+//       typename FilterType::Pointer filter = FilterType::New();
+//       filter->SetInput( levelSet->GetImage() );
+//       filter->SetOutsideValue( 0 );
+//       filter->SetInsideValue(  255 );
+//       filter->SetLowerThreshold( -8 );
+//       filter->SetUpperThreshold( 0 );
+//       filter->Update();
+//
+//       typedef ImageFileWriter< WriterImageType > WriterType;
+//       typedef typename WriterType::Pointer       WriterPointer;
+//
+//       WriterPointer writer2 = WriterType::New();
+//       writer2->SetInput( filter->GetOutput() );
+//       writer2->SetFileName( filename.str().c_str() );
+//       writer2->Update();
 
       this->InvokeEvent( IterationEvent() );
       }
@@ -277,25 +304,13 @@ protected:
       update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->Update();
 
-      typedef ImageFileWriter< OutputImageType > WriterType;
-      typedef typename WriterType::Pointer       WriterPointer;
-
-      WriterPointer writer2 = WriterType::New();
-      writer2->SetInput( levelSet->GetImage() );
-      writer2->SetFileName("/home/krm15/2.mha");
-      writer2->Update();
-
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
-
-//       m_UpdateBuffer[-1]->clear();
-//       m_UpdateBuffer[1]->clear();
     }
 
   void UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
     m_EquationContainer->Update();
-//     InitializeIteration();
     }
 
 private:
