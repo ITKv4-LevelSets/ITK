@@ -137,15 +137,15 @@ add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test2
     )
 add_test(NAME itkSingleLevelSetsv4Sparse2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
-      /home/krm15/cells2D.png )
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
 add_test(NAME itkSingleLevelSetsv4Malcolm2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetMalcolm2DTest
-      /home/krm15/cells2D.png )
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
 add_test(NAME itkSingleLevelSetsv4Shi2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetShi2DTest
-      /home/krm15/cells2D.png )
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
 add_test(NAME itkTwoLevelSetsv4Sparse2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetSparse2DTest

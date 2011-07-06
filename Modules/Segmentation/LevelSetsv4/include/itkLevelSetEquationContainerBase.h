@@ -111,7 +111,7 @@ public:
 
     for( ContainerIterator it = m_Container.begin();
         it != m_Container.end();
-    ++it )
+        ++it )
         {
           (it->second )->InitializeParameters();
         }
