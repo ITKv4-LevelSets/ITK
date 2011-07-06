@@ -195,7 +195,7 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 100 );
+  evolution->SetNumberOfIterations( 50 );
   evolution->SetLevelSetContainer( lscontainer );
 
   try

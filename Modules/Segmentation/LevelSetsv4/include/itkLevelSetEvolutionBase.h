@@ -231,6 +231,9 @@ protected:
 
     std::cout << "Initialize iteration" << std::endl;
 
+    // Initialize parameters here
+    m_EquationContainer->InitializeParameters();
+
     while( map_it != map_end )
     {
 //       std::cout << map_it->second.m_Region << std::endl;
