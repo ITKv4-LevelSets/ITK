@@ -364,7 +364,7 @@ protected:
   void UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
-    m_EquationContainer->Update();
+//     m_EquationContainer->Update();
     InitializeIteration();
     }
 
