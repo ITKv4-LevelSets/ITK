@@ -195,7 +195,7 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 5 );
+  evolution->SetNumberOfIterations( 100 );
   evolution->SetLevelSetContainer( lscontainer );
 
   try
@@ -210,12 +210,16 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
   PixelType mean = cvInternalTerm0->GetMean();
   if ( ( mean < 24900 ) || ( mean > 24910 ) )
   {
+    std::cout << "( ( mean < 24900 ) || ( mean > 24910 ) )" <<std::endl;
+    std::cout << "mean = " <<mean <<std::endl;
     return EXIT_FAILURE;
   }
 
   mean = cvExternalTerm0->GetMean();
   if ( ( mean < 1350 ) || ( mean > 1360 ) )
   {
+    std::cout << "( ( mean < 1350 ) || ( mean > 1360 ) )" <<std::endl;
+    std::cout << "mean = " <<mean <<std::endl;
     return EXIT_FAILURE;
   }
 

@@ -23,6 +23,7 @@ itkUpdateMalcolmSparseLevelSetTest.cxx
 itkSingleLevelSetSparse2DTest.cxx
 itkSingleLevelSetMalcolm2DTest.cxx
 itkSingleLevelSetShi2DTest.cxx
+itkTwoLevelSetSparse2DTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -43,9 +44,9 @@ add_test(NAME itkMultiLevelSetsv4ChanAndVeseInternalTermTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetChanAndVeseInternalTermTest)
 add_test(NAME itkMultiLevelsv4SetEvolutionTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetEvolutionTest)
-add_test(NAME itkSingleLevelsv4SetDense2DTest
+add_test(NAME itkSingleLevelSetsv4Dense2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetDense2DTest
-      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 25)
 add_test(NAME itkTwoLevelSetsv4Dense2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetDense2DTest
       ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
@@ -145,3 +146,7 @@ add_test(NAME itkSingleLevelSetsv4Malcolm2DTest
 add_test(NAME itkSingleLevelSetsv4Shi2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetShi2DTest
       /home/krm15/cells2D.png )
+
+add_test(NAME itkTwoLevelSetsv4Sparse2DTest
+      COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetSparse2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)

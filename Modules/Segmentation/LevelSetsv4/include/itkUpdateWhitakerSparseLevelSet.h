@@ -85,7 +85,7 @@ public:
   // Input is also WhitakerSparseLevelSetBasePointer
   void UpdateZeroLevelSet()
   {
-    LevelSetOutputRealType oldValue, newValue;
+//     LevelSetOutputRealType oldValue, newValue;
     LevelSetNodeListType new_list_0;
     LevelSetNodeListType* list_0 = m_SparseLevelSet->GetListNode( 0 );
     LevelSetNodePairType p;
@@ -175,11 +175,11 @@ public:
           }
         else
           {
-          oldValue = r.m_Value;
-          newValue = p.second.m_Value;
+//           oldValue = r.m_Value;
+//           newValue = p.second.m_Value;
           new_list_0.push_back( p );
           m_SparseImage->SetPixel( p.first, p.second );
-          m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
+//           m_EquationContainer->UpdatePixel( p.first, oldValue, newValue );
           }
         }
       else
@@ -246,7 +246,7 @@ public:
 
   void UpdateMinusLevelSet( const LevelSetNodeStatusType& status )
   {
-    LevelSetOutputRealType oldValue, newValue;
+//     LevelSetOutputRealType oldValue, newValue;
     LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) + 0.5;
     LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) - 0.5;
 
@@ -377,7 +377,7 @@ public:
 
   void UpdatePlusLevelSet( const LevelSetNodeStatusType& status )
   {
-    LevelSetOutputRealType oldValue, newValue;
+//     LevelSetOutputRealType oldValue, newValue;
     LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) - 0.5;
     LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) + 0.5;
 
@@ -522,7 +522,7 @@ public:
 
   void UpdatePointsChangingStatus()
   {
-    LevelSetOutputRealType oldValue, newValue;
+//     LevelSetOutputRealType oldValue, newValue;
 
     // Move points into the zero levelset
     LevelSetNodeListType* list_0 = m_StatusLists->GetListNode( 0 );
@@ -570,7 +570,7 @@ public:
 
   void UpdatePointsChangingStatus( const LevelSetNodeStatusType& iStatus )
   {
-    LevelSetOutputRealType oldValue, newValue;
+//     LevelSetOutputRealType oldValue, newValue;
     int iSign = ( iStatus > 0 ) ? 1 : -1;
 
       // Move points into -1 and +1 level sets

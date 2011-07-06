@@ -235,8 +235,11 @@ int itkTwoLevelSetDense2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 5 );
+  evolution->SetNumberOfIterations( 10 );
   evolution->SetLevelSetContainer( lscontainer );
+
+//   TODO: Make API consistent
+//   evolution->SetDomainMapFilter( domainMapFilter );
 
   try
     {

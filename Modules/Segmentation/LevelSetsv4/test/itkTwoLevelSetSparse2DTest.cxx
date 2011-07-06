@@ -31,11 +31,11 @@
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 #include "itkNumericTraits.h"
 
-int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
+int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
-  typedef unsigned char                                     InputPixelType;
+  typedef unsigned short                                    InputPixelType;
   typedef itk::Image< InputPixelType, Dimension >           InputImageType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >
                                                             InputIteratorType;
@@ -79,41 +79,13 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
 
-//   InputImageType::RegionType region;
-//   InputImageType::IndexType index;
-//   InputImageType::SizeType size;
-//
-//   index.Fill( 0 );
-//   size.Fill( 50 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   // Input initialization
-//   InputImageType::Pointer input = InputImageType::New();
-//   input->SetRegions( region );
-//   input->Allocate();
-//   input->FillBuffer( itk::NumericTraits<InputPixelType>::Zero );
-//
-//   index.Fill( 20 );
-//   size.Fill( 10 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   InputIteratorType inputIt( input, region );
-//   inputIt.GoToBegin();
-//   while( !inputIt.IsAtEnd() )
-//   {
-//     inputIt.Set( itk::NumericTraits<InputPixelType>::One );
-//     ++inputIt;
-//   }
-
-  // load binary mask
+  // load binary input for segmentation
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
   reader->Update();
   InputImageType::Pointer input = reader->GetOutput();
 
-  // Binary initialization
+  // Create a binary initialization
   InputImageType::Pointer binary = InputImageType::New();
   binary->SetRegions( input->GetLargestPossibleRegion() );
   binary->CopyInformation( input );
@@ -139,16 +111,26 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   }
 
   // Convert binary mask to sparse level set
-  BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
-  adaptor->SetInputImage( binary );
-  adaptor->Initialize();
+  BinaryToSparseAdaptorType::Pointer adaptor0 = BinaryToSparseAdaptorType::New();
+  adaptor0->SetInputImage( binary );
+  adaptor0->Initialize();
   std::cout << "Finished converting to sparse format" << std::endl;
 
-  SparseLevelSetType::Pointer level_set = adaptor->GetSparseLevelSet();
-  SparseImageType::Pointer sparseImage = level_set->GetImage();
+  SparseLevelSetType::Pointer level_set0 = adaptor0->GetSparseLevelSet();
+  SparseImageType::Pointer sparseImage0 = level_set0->GetImage();
 
+  BinaryToSparseAdaptorType::Pointer adaptor1 = BinaryToSparseAdaptorType::New();
+  adaptor1->SetInputImage( binary );
+  adaptor1->Initialize();
+  std::cout << "Finished converting to sparse format" << std::endl;
+
+  SparseLevelSetType::Pointer level_set1 = adaptor1->GetSparseLevelSet();
+  SparseImageType::Pointer sparseImage1 = level_set1->GetImage();
+
+  // Create a list image specifying both level set ids
   IdListType list_ids;
   list_ids.push_back( 1 );
+//   list_ids.push_back( 2 );
 
   IdListImageType::Pointer id_image = IdListImageType::New();
   id_image->SetRegions( input->GetLargestPossibleRegion() );
@@ -169,11 +151,17 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   lscontainer->SetHeaviside( heaviside );
   lscontainer->SetDomainMapFilter( domainMapFilter );
 
-  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set, false );
+  bool LevelSetNotYetAdded = lscontainer->AddLevelSet( 0, level_set0, false );
   if ( !LevelSetNotYetAdded )
     {
     return EXIT_FAILURE;
     }
+
+//   LevelSetNotYetAdded = lscontainer->AddLevelSet( 1, level_set1, false );
+  if ( !LevelSetNotYetAdded )
+  {
+    return EXIT_FAILURE;
+  }
   std::cout << "Level set container created" << std::endl;
 
   // **************** CREATE ALL TERMS ****************
@@ -197,6 +185,23 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   cvExternalTerm0->SetLevelSetContainer( lscontainer );
   std::cout << "LevelSet 1: CV external term created" << std::endl;
 
+  // -----------------------------
+  // *** 2nd Level Set phi ***
+//   ChanAndVeseInternalTermType::Pointer cvInternalTerm1 = ChanAndVeseInternalTermType::New();
+//   cvInternalTerm1->SetInput( input );
+//   cvInternalTerm1->SetCoefficient( 1.0 );
+//   cvInternalTerm1->SetCurrentLevelSet( 1 );
+//   cvInternalTerm1->SetLevelSetContainer( lscontainer );
+//   std::cout << "LevelSet 2: CV internal term created" << std::endl;
+//
+//   // Create ChanAndVese external term for phi_{1}
+//   ChanAndVeseExternalTermType::Pointer cvExternalTerm1 = ChanAndVeseExternalTermType::New();
+//   cvExternalTerm1->SetInput( input );
+//   cvExternalTerm1->SetCoefficient( 1.0 );
+//   cvExternalTerm1->SetCurrentLevelSet( 1 );
+//   cvExternalTerm1->SetLevelSetContainer( lscontainer );
+//   std::cout << "LevelSet 2: CV external term created" << std::endl;
+
   // **************** CREATE ALL EQUATIONS ****************
 
   // Create Term Container
@@ -211,12 +216,25 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   termContainer0->AddTerm( 1, temp );
   std::cout << "Term container 0 created" << std::endl;
 
+//   // Create Term Container
+//   TermContainerType::Pointer termContainer1 = TermContainerType::New();
+//   termContainer1->SetInput( input );
+//
+//   temp = dynamic_cast< TermContainerType::TermType* >( cvInternalTerm1.GetPointer() );
+//   termContainer1->AddTerm( 0, temp );
+//
+//   temp = dynamic_cast< TermContainerType::TermType* >( cvExternalTerm1.GetPointer() );
+//   termContainer1->AddTerm( 1, temp );
+//   std::cout << "Term container 1 created" << std::endl;
+
+  // Create equation container
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
   equationContainer->AddEquation( 0, termContainer0 );
+//   equationContainer->AddEquation( 1, termContainer1 );
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 10 );
+  evolution->SetNumberOfIterations( 100 );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

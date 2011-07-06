@@ -27,6 +27,7 @@
 #include "itkLevelSetEquationTermContainerBase.h"
 #include "itkLevelSetEquationContainerBase.h"
 
+
 int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
@@ -90,6 +91,8 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 
   std::cout << "Finished converting to sparse format" << std::endl;
 
+  EquationContainerType::Pointer equationContainer = EquationContainerType::New();
+
   typedef itk::UpdateMalcolmSparseLevelSet< Dimension, EquationContainerType > UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
   update_levelset->SetSparseLevelSet( sparseLevelSet );
@@ -131,6 +134,7 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
     }
 
   update_levelset->SetUpdate( update_list );
+  update_levelset->SetEquationContainer( equationContainer );
   update_levelset->Update();
 
 //  delete update_list;
