@@ -18,7 +18,6 @@ itkBinaryImageToWhitakerSparseLevelSetAdaptorTest.cxx
 itkBinaryImageToMalcolmSparseLevelSetAdaptorTest.cxx
 itkBinaryImageToShiSparseLevelSetAdaptorTest.cxx
 itkUpdateWhitakerSparseLevelSetTest.cxx
-itkUpdateWhitakerSparseLevelSetTest2.cxx
 itkUpdateShiSparseLevelSetTest.cxx
 itkUpdateMalcolmSparseLevelSetTest.cxx
 itkSingleLevelSetSparse2DTest.cxx
@@ -97,14 +96,6 @@ add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
       output_update_whitaker_sparse2.mha
       status_update_whitaker_sparse2.mha
     )
-
-add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test3
-      COMMAND ITK-LevelSetsv4TestDriver
-      itkUpdateWhitakerSparseLevelSetTest2
-      /home/krm15/temp.txt
-      output_update_whitaker_sparse3.mha
-      status_update_whitaker_sparse3.mha
-      )
 
 add_test(NAME itkUpdateShiSparseLevelSetsv4Test0
       COMMAND ITK-LevelSetsv4TestDriver
