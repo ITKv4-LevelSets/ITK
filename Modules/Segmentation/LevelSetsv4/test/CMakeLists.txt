@@ -34,63 +34,63 @@ add_test(NAME itkLevelSetsv4DomainPartitionBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkLevelSetDomainPartitionBaseTest)
 add_test(NAME itkLevelSetsv4DomainMapImageFilterTest
       COMMAND ITK-LevelSetsv4TestDriver itkLevelSetDomainMapImageFilterTest)
-add_test(NAME itkLevelSetImageBaseTest
+add_test(NAME itkLevelSetsv4ImageBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkLevelSetImageBaseTest)
 add_test(NAME itkMultiLevelSetImageTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetImageTest)
-add_test(NAME itkLevelSetContainerBaseTest
+add_test(NAME itkLevelSetsv4ContainerBaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkLevelSetContainerBaseTest)
-add_test(NAME itkMultiLevelSetChanAndVeseInternalTermTest
+add_test(NAME itkMultiLevelSetsv4ChanAndVeseInternalTermTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetChanAndVeseInternalTermTest)
-add_test(NAME itkMultiLevelSetEvolutionTest
+add_test(NAME itkMultiLevelsv4SetEvolutionTest
       COMMAND ITK-LevelSetsv4TestDriver itkMultiLevelSetEvolutionTest)
-add_test(NAME itkSingleLevelSetDense2DTest
+add_test(NAME itkSingleLevelsv4SetDense2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetDense2DTest
       ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
-add_test(NAME itkTwoLevelSetDense2DTest
+add_test(NAME itkTwoLevelSetsv4Dense2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetDense2DTest
       ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
 
 # Sparse
-add_test(NAME itkWhitakerSparseLevelSetBaseTest
+add_test(NAME itkWhitakerSparseLevelSetsv4BaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkWhitakerSparseLevelSetBaseTest)
-add_test(NAME itkShiSparseLevelSetBaseTest
+add_test(NAME itkShiSparseLevelSetsv4BaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkShiSparseLevelSetBaseTest)
-add_test(NAME itkMalcolmSparseLevelSetBaseTest
+add_test(NAME itkMalcolmSparseLevelSetsv4BaseTest
       COMMAND ITK-LevelSetsv4TestDriver itkMalcolmSparseLevelSetBaseTest)
-add_test(NAME itkBinaryImageToWhitakerSparseLevelSetAdaptorTest
+add_test(NAME itkBinaryImageToWhitakerSparseLevelSetsv4AdaptorTest
       COMMAND ITK-LevelSetsv4TestDriver
       itkBinaryImageToWhitakerSparseLevelSetAdaptorTest
       ${ITK_DATA_ROOT}/Input/circle.png
       output_binary_whitaker_adaptor.mha
       )
-add_test(NAME itkBinaryImageToMalcolmSparseLevelSetAdaptorTest
+add_test(NAME itkBinaryImageToMalcolmSparseLevelSetsv4AdaptorTest
       COMMAND ITK-LevelSetsv4TestDriver
       itkBinaryImageToMalcolmSparseLevelSetAdaptorTest
       ${ITK_DATA_ROOT}/Input/circle.png
       output_binary_malcolm_adaptor.mha
       )
-add_test(NAME itkBinaryImageToShiSparseLevelSetAdaptorTest
+add_test(NAME itkBinaryImageToShiSparseLevelSetsv4AdaptorTest
       COMMAND ITK-LevelSetsv4TestDriver
       itkBinaryImageToShiSparseLevelSetAdaptorTest
       ${ITK_DATA_ROOT}/Input/circle.png
       output_binary_shi_adaptor.mha
       )
-add_test(NAME itkUpdateWhitakerSparseLevelSetTest0
+add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test0
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest
       0
       output_update_whitaker_sparse0.mha
       status_update_whitaker_sparse0.mha
       )
-add_test(NAME itkUpdateWhitakerSparseLevelSetTest1
+add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test1
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest
       1
       output_update_whitaker_sparse1.mha
       status_update_whitaker_sparse1.mha
      )
-add_test(NAME itkUpdateWhitakerSparseLevelSetTest2
+add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest
       2
@@ -98,7 +98,7 @@ add_test(NAME itkUpdateWhitakerSparseLevelSetTest2
       status_update_whitaker_sparse2.mha
     )
 
-add_test(NAME itkUpdateWhitakerSparseLevelSetTest3
+add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test3
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest2
       /home/krm15/temp.txt
@@ -106,51 +106,51 @@ add_test(NAME itkUpdateWhitakerSparseLevelSetTest3
       status_update_whitaker_sparse3.mha
       )
 
-add_test(NAME itkUpdateShiSparseLevelSetTest0
+add_test(NAME itkUpdateShiSparseLevelSetsv4Test0
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateShiSparseLevelSetTest
       0
       output_update_shi_sparse0.mha
       )
-add_test(NAME itkUpdateShiSparseLevelSetTest1
+add_test(NAME itkUpdateShiSparseLevelSetsv4Test1
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateShiSparseLevelSetTest
       1
       output_update_shi_sparse1.mha
      )
-add_test(NAME itkUpdateShiSparseLevelSetTest2
+add_test(NAME itkUpdateShiSparseLevelSetsv4Test2
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateShiSparseLevelSetTest
       2
       output_update_shi_sparse2.mha
     )
 
-add_test(NAME itkUpdateMalcolmSparseLevelSetTest0
+add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test0
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateMalcolmSparseLevelSetTest
       0
       output_update_malcolm_sparse0.mha
       )
-add_test(NAME itkUpdateMalcolmSparseLevelSetTest1
+add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test1
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateMalcolmSparseLevelSetTest
       1
       output_update_malcolm_sparse1.mha
      )
-add_test(NAME itkUpdateMalcolmSparseLevelSetTest2
+add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test2
       COMMAND ITK-LevelSetsv4TestDriver
       itkUpdateMalcolmSparseLevelSetTest
       2
       output_update_malcolm_sparse2.mha
     )
-add_test(NAME itkSingleLevelSetSparse2DTest
+add_test(NAME itkSingleLevelSetsv4Sparse2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
       /home/krm15/cells2D.png )
 
-add_test(NAME itkSingleLevelSetMalcolm2DTest
+add_test(NAME itkSingleLevelSetsv4Malcolm2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetMalcolm2DTest
       /home/krm15/cells2D.png )
 
-add_test(NAME itkSingleLevelSetShi2DTest
+add_test(NAME itkSingleLevelSetsv4Shi2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkSingleLevelSetShi2DTest
       /home/krm15/cells2D.png )
