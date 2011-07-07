@@ -330,14 +330,8 @@ protected:
       {
         p = (*list_it);
 
-        // TODO: Terms should update their values here dynamically
-        // no need to call Update() later on
-//         std::cout << p.first << std::endl;
         InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
-
-        // TODO: Need to index the correct levelset
         m_UpdateBuffer[it->first]->push_back( temp_update );
-//         std::cout << temp_update << std::endl;
         ++list_it;
       }
     ++it;

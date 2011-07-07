@@ -461,6 +461,9 @@ public:
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
+  itkSetMacro( CurrentLevelSetId, IdentifierType );
+  itkGetMacro( CurrentLevelSetId, IdentifierType );
+
 protected:
   UpdateMalcolmSparseLevelSet() :
     m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
