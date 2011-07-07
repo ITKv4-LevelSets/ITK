@@ -75,6 +75,7 @@ public:
   typedef TEquationContainer                      EquationContainerType;
   typedef typename EquationContainerType::Pointer EquationContainerPointer;
 
+
   // this is the same as Procedure 2
   // Input is a update image point m_UpdateImage
   // Input is also ShiSparseLevelSetBasePointer
@@ -222,8 +223,9 @@ public:
       p = list_in->front();
       list_in->pop_front();
 
-      // update the level set
-      update = m_EquationContainer->GetEquation( 0 )->Evaluate( p.first );
+      // TODO
+      // update for the current level set
+      update = m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( p.first );
 //       std::cout << p.first << ' ' << int(p.second) << ' ' << update << std::endl;
 
       if( update > NumericTraits< LevelSetOutputRealType >::Zero )
@@ -236,7 +238,8 @@ public:
 
           oldValue = -1;
           newValue = 1;
-          m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+                p.first, oldValue , newValue );
 
           list_out->push_back( p );
 
@@ -257,7 +260,8 @@ public:
 
               oldValue = -3;
               newValue = -1;
-              m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
+              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+                    temp.first, oldValue , newValue );
               }
             }
           }
@@ -322,7 +326,7 @@ public:
       if ( q == opposite_status )
         {
         idx = sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
-        neighborUpdate =  m_EquationContainer->GetEquation( 0 )->Evaluate( idx );
+        neighborUpdate =  m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( idx );
         if ( neighborUpdate * iCurrentUpdate > NumericTraits< LevelSetOutputType >::Zero )
           {
           return true;
@@ -403,7 +407,8 @@ public:
 
         oldValue = -1;
         newValue = -3;
-        m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              p.first, oldValue , newValue );
         }
       else
         {
@@ -448,7 +453,8 @@ public:
 
         oldValue = 1;
         newValue = 3;
-        m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              p.first, oldValue , newValue );
 
         }
       else
@@ -474,6 +480,9 @@ public:
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
+  itkSetMacro( CurrentLevelSetId, IdentifierType );
+  itkGetMacro( CurrentLevelSetId, IdentifierType );
+
 protected:
   UpdateShiSparseLevelSet() : m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero )
     {}
@@ -482,6 +491,7 @@ protected:
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
 
+  IdentifierType           m_CurrentLevelSetId;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
 
