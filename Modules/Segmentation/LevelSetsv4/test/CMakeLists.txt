@@ -151,3 +151,7 @@ add_test(NAME itkSingleLevelSetsv4Shi2DTest
 add_test(NAME itkTwoLevelSetsv4Sparse2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetSparse2DTest
       ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
+
+add_test(NAME itkTwoLevelSetsv4ShiSparse2DTest
+      COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetShiSparse2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
