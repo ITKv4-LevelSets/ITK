@@ -216,28 +216,35 @@ protected:
       UpdateLevelSets();
       UpdateEquations();
 
-//       std::ostringstream filename;
-//       filename << "/home/krm15/temp/" << iter << ".png";
-//
-//       LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
-//
-//       typedef Image< unsigned char, ImageDimension > WriterImageType;
-//       typedef BinaryThresholdImageFilter< LevelSetImageType, WriterImageType >  FilterType;
-//       typename FilterType::Pointer filter = FilterType::New();
-//       filter->SetInput( levelSet->GetImage() );
-//       filter->SetOutsideValue( 0 );
-//       filter->SetInsideValue(  255 );
-//       filter->SetLowerThreshold( -8 );
-//       filter->SetUpperThreshold( 0 );
-//       filter->Update();
-//
-//       typedef ImageFileWriter< WriterImageType > WriterType;
-//       typedef typename WriterType::Pointer       WriterPointer;
-//
-//       WriterPointer writer2 = WriterType::New();
-//       writer2->SetInput( filter->GetOutput() );
-//       writer2->SetFileName( filename.str().c_str() );
-//       writer2->Update();
+      // DEBUGGING
+      typedef Image< unsigned char, ImageDimension > WriterImageType;
+      typedef BinaryThresholdImageFilter< LevelSetImageType, WriterImageType >  FilterType;
+      typedef ImageFileWriter< WriterImageType > WriterType;
+      typedef typename WriterType::Pointer       WriterPointer;
+
+      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+      while( it != m_LevelSetContainer->End() )
+      {
+        std::ostringstream filename;
+        filename << "/home/ajg23/output/" << iter << "_" <<  it->first << ".png";
+
+        LevelSetPointer levelSet = it->second;
+
+        typename FilterType::Pointer filter = FilterType::New();
+        filter->SetInput( levelSet->GetImage() );
+        filter->SetOutsideValue( 0 );
+        filter->SetInsideValue(  255 );
+        filter->SetLowerThreshold( NumericTraits<typename LevelSetImageType::PixelType>::NonpositiveMin() );
+        filter->SetUpperThreshold( 0 );
+        filter->Update();
+
+
+        WriterPointer writer2 = WriterType::New();
+        writer2->SetInput( filter->GetOutput() );
+        writer2->SetFileName( filename.str().c_str() );
+        writer2->Update();
+        ++it;
+      }
 
       this->InvokeEvent( IterationEvent() );
       }
