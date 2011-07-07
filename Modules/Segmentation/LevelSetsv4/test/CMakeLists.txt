@@ -24,6 +24,7 @@ itkSingleLevelSetSparse2DTest.cxx
 itkSingleLevelSetMalcolm2DTest.cxx
 itkSingleLevelSetShi2DTest.cxx
 itkTwoLevelSetSparse2DTest.cxx
+itkTwoLevelSetMalcolm2DTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
@@ -150,3 +151,7 @@ add_test(NAME itkSingleLevelSetsv4Shi2DTest
 add_test(NAME itkTwoLevelSetsv4Sparse2DTest
       COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetSparse2DTest
       ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
+
+add_test(NAME itkTwoLevelSetsv4Malcolm2DTest
+      COMMAND ITK-LevelSetsv4TestDriver itkTwoLevelSetMalcolm2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
