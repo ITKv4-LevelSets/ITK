@@ -24,6 +24,7 @@ itkSingleLevelSetSparse2DTest.cxx
 itkSingleLevelSetMalcolm2DTest.cxx
 itkSingleLevelSetShi2DTest.cxx
 itkTwoLevelSetSparse2DTest.cxx
+itkTwoLevelSetShiSparse2DTest.cxx
 )
 
 CreateTestDriver(ITK-LevelSetsv4  "${ITK-LevelSetsv4-Test_LIBRARIES}" "${ITK-LevelSetsv4Tests}")
