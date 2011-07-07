@@ -47,7 +47,19 @@ public:
   typedef typename TermContainerType::LevelSetOutputRealType LevelSetOutputRealType;
   typedef typename TermContainerType::LevelSetInputIndexType LevelSetInputIndexType;
 
-  void AddEquation( const unsigned int& iId, TermContainerPointer iEquation )
+  typedef typename TermContainerType::LevelSetIdentifierType LevelSetIdentifierType;
+  typedef typename TermContainerType::LevelSetContainerType  LevelSetContainerType;
+
+  LevelSetContainerType* GetLevelSetContainer()
+    {
+    typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
+        it = m_Container.begin();
+
+    return it->second->GetLevelSetContainer();
+    }
+
+  void AddEquation( const LevelSetIdentifierType& iId,
+                    TermContainerPointer iEquation )
     {
     if ( iEquation.IsNotNull() )
       {
@@ -64,9 +76,9 @@ public:
       }
     }
 
-  TermContainerPointer GetEquation( const unsigned int& iId )
+  TermContainerPointer GetEquation( const LevelSetIdentifierType& iId )
     {
-    typename std::map< unsigned int, TermContainerPointer >::iterator
+    typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
         it = m_Container.find( iId );
     if( it != m_Container.end() )
       {
@@ -81,7 +93,7 @@ public:
 
   void Update()
     {
-    typedef typename std::map< unsigned int, TermContainerPointer >::iterator
+    typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
         ContainerIterator;
 
     for( ContainerIterator it = m_Container.begin();
@@ -94,7 +106,7 @@ public:
 
   void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
   {
-    typedef typename std::map< unsigned int, TermContainerPointer >::iterator
+    typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
     ContainerIterator;
 
     for( ContainerIterator it = m_Container.begin();
@@ -106,7 +118,7 @@ public:
 
   void InitializeParameters()
   {
-    typedef typename std::map< unsigned int, TermContainerPointer >::iterator
+    typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
     ContainerIterator;
 
     for( ContainerIterator it = m_Container.begin();
@@ -119,7 +131,7 @@ public:
 
   LevelSetOutputRealType GetCFLContribution()
     {
-    typedef typename std::map< unsigned int, TermContainerPointer >::iterator
+    typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
         ContainerIterator;
 
     LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::max();
@@ -142,8 +154,8 @@ protected:
   LevelSetEquationContainerBase() : m_Input( NULL ) {}
   ~LevelSetEquationContainerBase() {}
 
-  std::map< unsigned int, TermContainerPointer >  m_Container;
-  InputImagePointer                               m_Input;
+  std::map< LevelSetIdentifierType, TermContainerPointer >  m_Container;
+  InputImagePointer                                         m_Input;
 
 
 private:

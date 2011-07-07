@@ -46,6 +46,7 @@ public:
 
   typedef TLevelSetContainer                              LevelSetContainerType;
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
+  typedef typename LevelSetContainerType::IdentifierType  LevelSetIdentifierType;
 //   typedef typename LevelSetContainerType::OutputPixelType LevelSetOutputPixelType;
   typedef typename LevelSetContainerType::OutputType      LevelSetOutputPixelType;
   typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;

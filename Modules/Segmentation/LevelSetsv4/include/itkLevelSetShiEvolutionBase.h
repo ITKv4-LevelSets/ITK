@@ -174,14 +174,9 @@ protected:
     m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
   {
-    m_UpdateBuffer[-1] = new UpdateListType;
-    m_UpdateBuffer[1] = new UpdateListType;
   }
   ~LevelSetShiEvolutionBase()
-  {
-    delete m_UpdateBuffer[-1];
-    delete m_UpdateBuffer[1];
-  }
+  {}
 
   unsigned int                m_NumberOfIterations;
   /// \todo is it useful?
@@ -190,9 +185,7 @@ protected:
   EquationContainerPointer    m_EquationContainer;
   LevelSetContainerPointer    m_LevelSetContainer;
 
-  // For sparse case, the update buffer needs to be the size of the active layer
-  std::map< char, UpdateListType* >   m_UpdateBuffer;
-  DomainMapImageFilterPointer         m_DomainMapFilter;
+  DomainMapImageFilterPointer                   m_DomainMapFilter;
 
   LevelSetOutputRealType          m_Alpha;
   LevelSetOutputRealType          m_Dt;
@@ -296,15 +289,22 @@ protected:
 
   virtual void UpdateLevelSets()
     {
+    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    while( it != m_LevelSetContainer->End() )
+      {
       std::cout << "Update levelsets" << std::endl;
-      LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( 0 );
+      LevelSetPointer levelSet = it->second;
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
+      update_levelset->SetCurrentLevelSetId( it->first );
       update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->Update();
 
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
+
+      ++it;
+      }
     }
 
   void UpdateEquations()
