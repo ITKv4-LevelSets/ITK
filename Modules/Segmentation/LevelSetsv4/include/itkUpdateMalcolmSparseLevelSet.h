@@ -128,7 +128,7 @@ public:
           }
         m_SparseImage->SetPixel( p.first, p.second );
         sparseNeighborhoodIt.SetLocation( p.first );
-        m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( p.first, oldValue , newValue );
 
         for( typename SparseNeighborhoodIteratorType::Iterator
                 i = sparseNeighborhoodIt.Begin();
@@ -146,7 +146,7 @@ public:
             m_SparseImage->SetPixel( temp.first, temp.second );
             oldValue = q;
             newValue = 0;
-            m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( temp.first, oldValue , newValue );
             }
           }
         }
@@ -238,7 +238,7 @@ public:
         if( to_be_updated )
           {
           m_SparseImage->SetPixel( p.first, p.second );
-          m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( p.first, oldValue , newValue );
 
           sparseNeighborhoodIt.SetLocation( p.first );
 
@@ -258,7 +258,7 @@ public:
               m_SparseImage->SetPixel( temp.first, temp.second );
               oldValue = q;
               newValue = 0;
-              m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
+              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( temp.first, oldValue , newValue );
               }
             }
           }
@@ -348,7 +348,7 @@ public:
         p.second = -1;
         newValue = -1;
         m_SparseImage->SetPixel( p.first, p.second );
-        m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( p.first, oldValue , newValue );
         }
       else
         {
@@ -358,7 +358,7 @@ public:
           p.second = 1;
           newValue = 1;
           m_SparseImage->SetPixel( p.first, p.second );
-          m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( p.first, oldValue , newValue );
           }
         else
           {
@@ -461,6 +461,9 @@ public:
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
+  itkSetMacro( CurrentLevelSetId, IdentifierType );
+  itkGetMacro( CurrentLevelSetId, IdentifierType );
+
 protected:
   UpdateMalcolmSparseLevelSet() :
     m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
@@ -477,6 +480,7 @@ protected:
   LevelSetPointer    m_SparseLevelSet;
   SparseImagePointer m_SparseImage;
 
+  IdentifierType           m_CurrentLevelSetId;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
 

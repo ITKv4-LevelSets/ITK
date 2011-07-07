@@ -91,11 +91,14 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 
   std::cout << "Finished converting to sparse format" << std::endl;
 
+  TermContainerType::Pointer termContainer = TermContainerType::New();
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
+  equationContainer->AddEquation( 0, termContainer );
 
   typedef itk::UpdateMalcolmSparseLevelSet< Dimension, EquationContainerType > UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
   update_levelset->SetSparseLevelSet( sparseLevelSet );
+  update_levelset->SetCurrentLevelSetId( 0 );
 
   UpdateLevelSetType::UpdateListType*  update_list =
       new UpdateLevelSetType::UpdateListType;
