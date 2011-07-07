@@ -171,14 +171,18 @@ public:
 protected:
   LevelSetMalcolmEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
-    m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
+    m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
     {
-    m_UpdateBuffer = new UpdateListType;
     }
   ~LevelSetMalcolmEvolutionBase()
   {
-    delete m_UpdateBuffer;
+    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    while( it != m_LevelSetContainer->End() )
+    {
+      delete m_UpdateBuffer[it->first];
+      ++it;
+    }
   }
 
   unsigned int                m_NumberOfIterations;
@@ -243,7 +247,7 @@ protected:
 
       // DEBUGGING
       typedef Image< unsigned char, ImageDimension > WriterImageType;
-      typedef BinaryThresholdImageFilter< StatusImageType, WriterImageType >  FilterType;
+      typedef BinaryThresholdImageFilter< LevelSetImageType, WriterImageType >  FilterType;
       typedef ImageFileWriter< WriterImageType > WriterType;
       typedef typename WriterType::Pointer       WriterPointer;
 
@@ -256,10 +260,10 @@ protected:
         LevelSetPointer levelSet = it->second;
 
         typename FilterType::Pointer filter = FilterType::New();
-        filter->SetInput( levelSet->GetStatusImage() );
+        filter->SetInput( levelSet->GetImage() );
         filter->SetOutsideValue( 0 );
         filter->SetInsideValue(  255 );
-        filter->SetLowerThreshold( NumericTraits<typename StatusImageType::PixelType>::NonpositiveMin() );
+        filter->SetLowerThreshold( NumericTraits<typename LevelSetImageType::PixelType>::NonpositiveMin() );
         filter->SetUpperThreshold( 0 );
         filter->Update();
 
@@ -347,7 +351,7 @@ protected:
       {
       std::cout << "** " << it->first <<" **" << std::endl;
       std::cout << "m_UpdateBuffer[" <<it->first <<"].size()=" << m_UpdateBuffer[it->first]->size() << std::endl;
-      std::cout << "Zero level set.size() =" << it->second->GetListNode( 0 )->size() << std::endl;
+      std::cout << "Zero level set.size() =" << it->second->GetListNode()->size() << std::endl;
       LevelSetPointer levelSet = it->second;
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();

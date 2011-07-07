@@ -226,7 +226,7 @@ protected:
       while( it != m_LevelSetContainer->End() )
       {
         std::ostringstream filename;
-        filename << "/home/ajg23/output/" << iter << "_" <<  it->first << ".png";
+        filename << "/home/krm15/temp/" << iter << "_" <<  it->first << ".png";
 
         LevelSetPointer levelSet = it->second;
 
