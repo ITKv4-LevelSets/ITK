@@ -98,6 +98,11 @@ public:
     return m_Container.end();
     }
 
+  size_t Size() const
+    {
+    return m_Container.size();
+    }
+
   /** \brief Get the level set function given its id
     \param[in] iId
     \return the level set function if it is in the container, else NULL.

@@ -123,7 +123,7 @@ public:
       list_out->pop_front();
 
       // update the level set
-      update = m_EquationContainer->GetEquation( 0 )->Evaluate( p.first );
+      update = m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( p.first );
 
 //       std::cout << p.first << ' ' << int(p.second) << ' ' << update << std::endl;
 
@@ -326,6 +326,7 @@ public:
       if ( q == opposite_status )
         {
         idx = sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
+
         neighborUpdate =  m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( idx );
         if ( neighborUpdate * iCurrentUpdate > NumericTraits< LevelSetOutputType >::Zero )
           {
@@ -342,6 +343,11 @@ public:
     if( m_SparseLevelSet.IsNull() )
       {
       itkGenericExceptionMacro( <<"m_SparseLevelSet is NULL" );
+      }
+
+    if( this->m_SingleLevelSet != 1 )
+      {
+      itkWarningMacro( << "the current implementation does not allow to run multi object level sts");
       }
 
     m_SparseImage = m_SparseLevelSet->GetImage();
@@ -407,6 +413,7 @@ public:
 
         oldValue = -1;
         newValue = -3;
+
         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
               p.first, oldValue , newValue );
         }
@@ -453,9 +460,9 @@ public:
 
         oldValue = 1;
         newValue = 3;
+
         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
               p.first, oldValue , newValue );
-
         }
       else
         {
@@ -483,8 +490,13 @@ public:
   itkSetMacro( CurrentLevelSetId, IdentifierType );
   itkGetMacro( CurrentLevelSetId, IdentifierType );
 
+  itkSetMacro( SingleLevelSet, bool );
+  itkGetMacro( SingleLevelSet, bool );
+
 protected:
-  UpdateShiSparseLevelSet() : m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero )
+  UpdateShiSparseLevelSet() :
+    m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
+    m_SingleLevelSet( true )
     {}
   ~UpdateShiSparseLevelSet() {}
 
@@ -494,6 +506,7 @@ protected:
   IdentifierType           m_CurrentLevelSetId;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
+  bool                     m_SingleLevelSet;
 
 private:
   UpdateShiSparseLevelSet( const Self& );

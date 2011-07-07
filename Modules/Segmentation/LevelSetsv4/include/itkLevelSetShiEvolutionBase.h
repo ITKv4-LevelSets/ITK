@@ -298,6 +298,8 @@ protected:
   virtual void UpdateLevelSets()
     {
     LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    bool singleLevelSet = m_LevelSetContainer->Size() == 1;
+
     while( it != m_LevelSetContainer->End() )
       {
       std::cout << "Update levelsets " <<it->first << std::endl;
@@ -307,6 +309,7 @@ protected:
       update_levelset->SetSparseLevelSet( levelSet );
       update_levelset->SetCurrentLevelSetId( it->first );
       update_levelset->SetEquationContainer( m_EquationContainer );
+      update_levelset->SetSingleLevelSet( singleLevelSet );
       update_levelset->Update();
 
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
