@@ -190,7 +190,7 @@ protected:
 
   // For sparse case, the update buffer needs to be the size of the active layer
   std::map< IdentifierType, UpdateListType* > m_UpdateBuffer;
-  DomainMapImageFilterPointer m_DomainMapFilter;
+  DomainMapImageFilterPointer                 m_DomainMapFilter;
 
   LevelSetOutputRealType          m_Alpha;
   LevelSetOutputRealType          m_Dt;
