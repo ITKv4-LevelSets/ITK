@@ -27,11 +27,11 @@
 #include "itkLevelSetEquationTermContainerBase.h"
 #include "itkLevelSetEquationContainerBase.h"
 #include "itkSinRegularizedHeavisideStepFunction.h"
-#include "itkLevelSetSparseEvolutionBase.h"
-#include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
+#include "itkLevelSetShiEvolutionBase.h"
+#include "itkBinaryImageToShiSparseLevelSetAdaptor.h"
 #include "itkNumericTraits.h"
 
-int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
+int itkTwoLevelSetShiSparse2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
@@ -41,15 +41,12 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
                                                             InputIteratorType;
   typedef itk::ImageFileReader< InputImageType >            ReaderType;
 
-  typedef float                                             PixelType;
-
-  typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType, PixelType >
+  typedef itk::BinaryImageToShiSparseLevelSetAdaptor< InputImageType >
                                                             BinaryToSparseAdaptorType;
 
   typedef itk::IdentifierType                               IdentifierType;
   typedef BinaryToSparseAdaptorType::LevelSetType           SparseLevelSetType;
   typedef SparseLevelSetType::ImageType                     SparseImageType;
-  typedef SparseLevelSetType::NodeAttributeType             NodeAttributeType;
 
   typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
                                                             LevelSetContainerType;
@@ -70,7 +67,7 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
   typedef itk::LevelSetEquationContainerBase< TermContainerType >
                                                             EquationContainerType;
 
-  typedef itk::LevelSetSparseEvolutionBase< EquationContainerType >
+  typedef itk::LevelSetShiEvolutionBase< EquationContainerType >
                                                             LevelSetEvolutionType;
 
   typedef SparseLevelSetType::OutputRealType                      LevelSetOutputRealType;
@@ -247,20 +244,20 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
     std::cout << err << std::endl;
     }
 
-  PixelType internalmean1 = cvInternalTerm0->GetMean();
-  PixelType internalmean2 = cvInternalTerm1->GetMean();
-  if ( ( internalmean1 < 42100 ) || ( internalmean1 > 42150 ) )
+  LevelSetOutputRealType internalmean1 = cvInternalTerm0->GetMean();
+  LevelSetOutputRealType internalmean2 = cvInternalTerm1->GetMean();
+  if ( ( internalmean1 < 24900 ) || ( internalmean1 > 24910 ) )
   {
-    std::cout << "( ( mean1 < 42100 ) || ( mean1 > 42150 ) )" <<std::endl;
+    std::cout << "( ( mean1 < 24900 ) || ( mean1 > 24910 ) )" <<std::endl;
     std::cout << "internalmean1 = " << internalmean1 <<std::endl;
     return EXIT_FAILURE;
   }
 
-  PixelType externalmean1 = cvExternalTerm0->GetMean();
-  PixelType externalmean2 = cvExternalTerm1->GetMean();
-  if ( ( externalmean1 < 1500 ) || ( externalmean1 > 1550 ) )
+  LevelSetOutputRealType externalmean1 = cvExternalTerm0->GetMean();
+  LevelSetOutputRealType externalmean2 = cvExternalTerm1->GetMean();
+  if ( ( externalmean1 < 1350 ) || ( externalmean1 > 1360 ) )
   {
-    std::cout << "( ( externalmean1 < 1500 ) || ( externalmean1 > 1550 ) )" <<std::endl;
+    std::cout << "( ( externalmean1 < 1350 ) || ( externalmean1 > 1360 ) )" <<std::endl;
     std::cout << "externalmean1 = " << externalmean1 <<std::endl;
     return EXIT_FAILURE;
   }
