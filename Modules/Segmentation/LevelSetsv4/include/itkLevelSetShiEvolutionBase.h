@@ -205,6 +205,7 @@ protected:
 
     for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
       {
+      std::cout <<"Iteration " <<iter << std::endl;
       m_RMSChangeAccumulator = 0;
 
       // one iteration over all container
@@ -299,7 +300,7 @@ protected:
     LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
     while( it != m_LevelSetContainer->End() )
       {
-      std::cout << "Update levelsets" << std::endl;
+      std::cout << "Update levelsets " <<it->first << std::endl;
       LevelSetPointer levelSet = it->second;
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
@@ -318,6 +319,7 @@ protected:
     {
     std::cout << "Update equations" << std::endl << std::endl;
     m_EquationContainer->Update();
+    this->InitializeIteration();
     }
 
 private:

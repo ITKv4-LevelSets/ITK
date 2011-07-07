@@ -101,7 +101,9 @@ public:
   characteristic function of each region is recomputed. Using the                                                     *
   new H values, the previous c_i are updated. Used by only the sparse image
   filter */
-  virtual void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
+  virtual void UpdatePixel( LevelSetInputIndexType& iP,
+                           LevelSetOutputRealType & oldValue,
+                           LevelSetOutputRealType & newValue )
   {
     // Compute the product factor
     LevelSetIdentifierType id =
