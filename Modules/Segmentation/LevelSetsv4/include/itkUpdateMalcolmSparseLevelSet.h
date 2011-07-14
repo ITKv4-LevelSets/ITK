@@ -68,8 +68,10 @@ public:
   typedef ImageRegionIteratorWithIndex< SparseImageType > SparseIteratorType;
   typedef ShapedNeighborhoodIterator< SparseImageType >   SparseNeighborhoodIteratorType;
 
-  typedef TEquationContainer                      EquationContainerType;
-  typedef typename EquationContainerType::Pointer EquationContainerPointer;
+  typedef TEquationContainer                                EquationContainerType;
+  typedef typename EquationContainerType::Pointer           EquationContainerPointer;
+  typedef typename EquationContainerType::TermContainerType TermContainerType;
+  typedef typename TermContainerType::Pointer               TermContainerPointer;
 
   void UnPhasedPropagation()
     {
@@ -128,7 +130,7 @@ public:
           }
         m_SparseImage->SetPixel( p.first, p.second );
         sparseNeighborhoodIt.SetLocation( p.first );
-        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( p.first, oldValue , newValue );
+        m_TermContainerPointer->UpdatePixel( p.first, oldValue , newValue );
 
         for( typename SparseNeighborhoodIteratorType::Iterator
                 i = sparseNeighborhoodIt.Begin();
@@ -146,7 +148,7 @@ public:
             m_SparseImage->SetPixel( temp.first, temp.second );
             oldValue = q;
             newValue = 0;
-          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( temp.first, oldValue , newValue );
+            m_TermContainerPointer->UpdatePixel( p.first, oldValue , newValue );
             }
           }
         }
@@ -238,7 +240,7 @@ public:
         if( to_be_updated )
           {
           m_SparseImage->SetPixel( p.first, p.second );
-          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( p.first, oldValue , newValue );
+          m_TermContainerPointer->UpdatePixel( p.first, oldValue , newValue );
 
           sparseNeighborhoodIt.SetLocation( p.first );
 
@@ -258,7 +260,7 @@ public:
               m_SparseImage->SetPixel( temp.first, temp.second );
               oldValue = q;
               newValue = 0;
-              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( temp.first, oldValue , newValue );
+              m_TermContainerPointer->UpdatePixel( p.first, oldValue , newValue );
               }
             }
           }
@@ -348,7 +350,7 @@ public:
         p.second = -1;
         newValue = -1;
         m_SparseImage->SetPixel( p.first, p.second );
-        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( p.first, oldValue , newValue );
+        m_TermContainerPointer->UpdatePixel( p.first, oldValue , newValue );
         }
       else
         {
@@ -358,7 +360,7 @@ public:
           p.second = 1;
           newValue = 1;
           m_SparseImage->SetPixel( p.first, p.second );
-          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( p.first, oldValue , newValue );
+          m_TermContainerPointer->UpdatePixel( p.first, oldValue , newValue );
           }
         else
           {
@@ -386,6 +388,7 @@ public:
       }
     m_SparseImage = m_SparseLevelSet->GetImage();
 
+    m_TermContainerPointer = m_EquationContainer->GetEquation( m_CurrentLevelSetId );
     if( m_UnPhased )
       {
       UnPhasedPropagation();
@@ -483,6 +486,7 @@ protected:
   IdentifierType           m_CurrentLevelSetId;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
+  TermContainerPointer     m_TermContainerPointer;
 
   bool m_UnPhased;
 

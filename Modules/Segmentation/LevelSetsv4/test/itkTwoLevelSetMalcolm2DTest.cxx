@@ -170,7 +170,7 @@ int itkTwoLevelSetMalcolm2DTest( int argc, char* argv[] )
 
   // Define the Heaviside function
   HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
-  heaviside->SetEpsilon( 1.0 );
+  heaviside->SetEpsilon( 2.0 );
 
   // Insert the levelsets in a levelset container
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
@@ -260,7 +260,7 @@ int itkTwoLevelSetMalcolm2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 1 );
+  evolution->SetNumberOfIterations( 40 );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

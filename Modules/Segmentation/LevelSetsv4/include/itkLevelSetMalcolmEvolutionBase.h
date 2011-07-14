@@ -371,6 +371,8 @@ protected:
     {
     std::cout << "Update equations" << std::endl << std::endl;
     m_EquationContainer->Update();
+//     std::cout << "InitializeIteration" << std::endl << std::endl;
+//     this->InitializeIteration();
     }
 
 private:
