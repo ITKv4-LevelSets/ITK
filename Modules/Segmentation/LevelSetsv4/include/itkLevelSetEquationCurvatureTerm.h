@@ -65,6 +65,8 @@ public:
   typedef typename Superclass::HeavisideType    HeavisideType;
   typedef typename Superclass::HeavisidePointer HeavisidePointer;
 
+  itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
+
   /** Neighborhood radius type */
   typedef ZeroFluxNeumannBoundaryCondition< LevelSetType > DefaultBoundaryConditionType;
   typedef typename ConstNeighborhoodIterator< LevelSetType >::RadiusType RadiusType;
@@ -131,7 +133,7 @@ public:
       {
       if ( this->m_Radius[i] > 0 )
         {
-        neighborhoodScales[i] = this->m_ScaleCoefficients[i] / this->m_Radius[i];
+        m_NeighborhoodScales[i] = this->m_ScaleCoefficients[i] / this->m_Radius[i];
         }
       }
   }
@@ -198,10 +200,10 @@ protected:
         valueA = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionA ) );
         valueB = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionB ) );
 
-        m_dx[i] = 0.5 * ( valueA - valueB ) * neighborhoodScales[i];
-        m_dxy[i][i] = ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr(neighborhoodScales[i]);
-        m_dx_forward[i]  = ( valueA - center_value ) * neighborhoodScales[i];
-        m_dx_backward[i] = ( center_value - valueB ) * neighborhoodScales[i];
+        m_dx[i] = 0.5 * ( valueA - valueB ) * m_NeighborhoodScales[i];
+        m_dxy[i][i] = ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr(m_NeighborhoodScales[i]);
+        m_dx_forward[i]  = ( valueA - center_value ) * m_NeighborhoodScales[i];
+        m_dx_backward[i] = ( center_value - valueB ) * m_NeighborhoodScales[i];
         m_GradMagSqr += m_dx[i] * m_dx[i];
 
         for ( unsigned int j = i + 1; j < ImageDimension; j++ )
@@ -221,9 +223,10 @@ protected:
           valueDa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionDa ) );
 
           m_dxy[i][j] = m_dxy[j][i] = 0.25 * ( valueAa - valueBa - valueCa + valueDa )
-                                              * neighborhoodScales[i] * neighborhoodScales[j];
+                                              * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
           }
         }
+      LevelSetOutputRealType m_GradMag = vcl_sqrt( m_GradMagSqr );
 
       // Compute curvature
       for ( unsigned int i = 0; i < ImageDimension; i++ )
