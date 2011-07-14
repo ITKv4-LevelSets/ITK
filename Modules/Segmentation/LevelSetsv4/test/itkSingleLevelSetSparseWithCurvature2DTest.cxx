@@ -29,9 +29,10 @@
 #include "itkSinRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetSparseEvolutionBase.h"
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
+#include "itkLevelSetEquationCurvatureTerm.h"
 #include "itkNumericTraits.h"
 
-int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
+int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
@@ -64,6 +65,8 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
                                                             ChanAndVeseInternalTermType;
   typedef itk::LevelSetEquationChanAndVeseExternalTerm< InputImageType, LevelSetContainerType >
                                                             ChanAndVeseExternalTermType;
+  typedef itk::LevelSetEquationChanAndVeseExternalTerm< InputImageType, LevelSetContainerType >
+                                                            CurvatureTermType;
   typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
                                                             TermContainerType;
 
@@ -196,6 +199,14 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   cvExternalTerm0->SetCurrentLevelSet( 0 );
   cvExternalTerm0->SetLevelSetContainer( lscontainer );
   std::cout << "LevelSet 1: CV external term created" << std::endl;
+
+  // Create ChanAndVese external term for phi_{1}
+  CurvatureTermType::Pointer curvatureTerm0 = CurvatureTermType::New();
+  curvatureTerm0->SetInput( input );
+  curvatureTerm0->SetCoefficient( 1.0 );
+  curvatureTerm0->SetCurrentLevelSet( 0 );
+  curvatureTerm0->SetLevelSetContainer( lscontainer );
+  std::cout << "LevelSet 1: Curvature term created" << std::endl;
 
   // **************** CREATE ALL EQUATIONS ****************
 
