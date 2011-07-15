@@ -125,140 +125,64 @@ protected:
     this->m_TermName = "Propagation term";
     }
 
+  LevelSetOutputRealType PropagationSpeed( const LevelSetInputIndexType& iP ) const
+  {
+    return ( static_cast< LevelSetOutputRealType >( this->m_Input->GetPixel(iP) ) );
+  }
 
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
-    {
-    if( this->m_Heaviside.IsNotNull() )
+  {
+    // Construct upwind gradient values for use in the propagation speed term:
+    //  $\beta G(\mathbf{x})\mid\nabla\phi\mid$
+    // The following scheme for ``upwinding'' in the normal direction is taken
+    // from Sethian, Ch. 6 as referenced above.
+
+    LevelSetOutputRealType center_value =
+      static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
+    LevelSetInputIndexType pA, pB;
+    LevelSetOutputRealType valueA, valueB;
+
+    LevelSetOutputRealType ZERO = NumericTraits< LevelSetOutputRealType >::Zero;
+
+    /** Array of first derivatives */
+    LevelSetOutputRealType m_dx_forward[itkGetStaticConstMacro(ImageDimension)];
+    LevelSetOutputRealType m_dx_backward[itkGetStaticConstMacro(ImageDimension)];
+
+    for ( unsigned int i = 0; i < ImageDimension; i++ )
       {
-      LevelSetOutputRealType center_value =
-          static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
-      LevelSetInputIndexType pA, pB;
-      LevelSetInputIndexType pAa, pBa, pCa, pDa;
-      LevelSetOutputRealType valueA, valueB;
-      LevelSetOutputRealType valueAa, valueBa, valueCa, valueDa;
-      LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::Zero;
+      pA = pB = iP;
+      pA[i] += 1;
+      pB[i] -= 1;
 
-      vnl_matrix_fixed< LevelSetOutputRealType,
-                      itkGetStaticConstMacro(ImageDimension),
-                      itkGetStaticConstMacro(ImageDimension) > m_dxy;
+      valueA = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pA ) );
+      valueB = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pB ) );
 
-      /** Array of first derivatives */
-      LevelSetOutputRealType m_dx[itkGetStaticConstMacro(ImageDimension)];
-      LevelSetOutputRealType m_dx_forward[itkGetStaticConstMacro(ImageDimension)];
-      LevelSetOutputRealType m_dx_backward[itkGetStaticConstMacro(ImageDimension)];
-      LevelSetOutputRealType m_GradMagSqr = vnl_math::eps;
+      m_dx_forward[i]  = ( valueA - center_value ) * m_NeighborhoodScales[i];
+      m_dx_backward[i] = ( center_value - valueB ) * m_NeighborhoodScales[i];
+      }
 
+    LevelSetOutputRealType propagation_gradient = this->PropagationSpeed( iP );
+
+    if ( propagation_gradient > NumericTraits< LevelSetOutputRealType >::Zero )
+      {
       for ( unsigned int i = 0; i < ImageDimension; i++ )
         {
-        pA = pB = iP;
-        pA[i] += 1;
-        pB[i] -= 1;
-
-        valueA = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pA ) );
-        valueB = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pB ) );
-
-        m_dx[i] = 0.5 * ( valueA - valueB ) * m_NeighborhoodScales[i];
-        m_dxy[i][i] = ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr(m_NeighborhoodScales[i]);
-        m_dx_forward[i]  = ( valueA - center_value ) * m_NeighborhoodScales[i];
-        m_dx_backward[i] = ( center_value - valueB ) * m_NeighborhoodScales[i];
-        m_GradMagSqr += m_dx[i] * m_dx[i];
-
-        for ( unsigned int j = i + 1; j < ImageDimension; j++ )
-          {
-          pAa = pB;
-          pAa[j] -= 1;
-
-          pBa = pB;
-          pBa[j] += 1;
-
-          pCa = pA;
-          pCa[j] -= 1;
-
-          pDa = pA;
-          pDa[j] += 1;
-
-          valueAa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pAa ) );
-          valueBa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pBa ) );
-          valueCa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pCa ) );
-          valueDa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pDa ) );
-
-          m_dxy[i][j] = m_dxy[j][i] = 0.25 * ( valueAa - valueBa - valueCa + valueDa )
-                                              * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
-          }
+        propagation_gradient += vnl_math_sqr( vnl_math_max( m_dx_backward[i], ZERO ) )
+                                + vnl_math_sqr( vnl_math_min( m_dx_forward[i],  ZERO ) );
         }
-      LevelSetOutputRealType m_GradMag = vcl_sqrt( m_GradMagSqr );
-
-      // Compute curvature
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
-        {
-        for ( unsigned int j = 0; j < ImageDimension; j++ )
-          {
-          if ( j != i )
-            {
-            oValue -= m_dx[i] * m_dx[j] * m_dxy[i][j];
-            oValue += m_dxy[j][j] * m_dx[i] * m_dx[i];
-            }
-          }
-        }
-
-      if ( m_GradMag > vnl_math::eps )
-        {
-        oValue /= m_GradMag * m_GradMag * m_GradMag;
-        }
-      else
-        {
-        oValue /= 1 + m_GradMagSqr;
-        }
-
-      std::cout << iP << ' ' << oValue << std::endl;
-      return oValue;
       }
     else
       {
-      itkWarningMacro( << "m_Heaviside is NULL" );
+      for ( unsigned int i = 0; i < ImageDimension; i++ )
+        {
+        propagation_gradient += vnl_math_sqr( vnl_math_min( m_dx_backward[i], ZERO ) )
+                                + vnl_math_sqr( vnl_math_max( m_dx_forward[i],  ZERO) );
+        }
       }
-    std::cout << iP <<  std::endl;
-    return NumericTraits< LevelSetOutputPixelType >::Zero;
-    }
 
-//     // Get the propagation speed
-//     propagation_term = m_PropagationWeight * this->PropagationSpeed(it, offset, gd);
-//
-//     //
-//     // Construct upwind gradient values for use in the propagation speed term:
-//     //  $\beta G(\mathbf{x})\mid\nabla\phi\mid$
-//     //
-//     // The following scheme for ``upwinding'' in the normal direction is taken
-//     // from Sethian, Ch. 6 as referenced above.
-//     //
-//     propagation_gradient = ZERO;
-//
-//     if ( propagation_term > ZERO )
-//       {
-//       for ( i = 0; i < ImageDimension; i++ )
-//         {
-//         propagation_gradient += vnl_math_sqr( vnl_math_max(gd->m_dx_backward[i], ZERO) )
-//                                 + vnl_math_sqr( vnl_math_min(gd->m_dx_forward[i],  ZERO) );
-//         }
-//       }
-//     else
-//       {
-//       for ( i = 0; i < ImageDimension; i++ )
-//         {
-//         propagation_gradient += vnl_math_sqr( vnl_math_min(gd->m_dx_backward[i], ZERO) )
-//                                 + vnl_math_sqr( vnl_math_max(gd->m_dx_forward[i],  ZERO) );
-//         }
-//       }
-//
-//     // Collect energy change from propagation term.  This will be used in
-//     // calculating the maximum time step that can be taken for this iteration.
-//     gd->m_MaxPropagationChange =
-//       vnl_math_max( gd->m_MaxPropagationChange,
-//                     vnl_math_abs(propagation_term) );
-//
-//     propagation_term *= vcl_sqrt(propagation_gradient);
+//     std::cout << iP << ' ' << propagation_gradient << std::endl;
+    return propagation_gradient;
+  }
 
   LevelSetPointer         m_CurrentLevelSetPointer;
   LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];

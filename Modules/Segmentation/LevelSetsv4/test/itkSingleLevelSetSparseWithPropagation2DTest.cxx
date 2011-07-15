@@ -33,7 +33,7 @@
 #include "itkLevelSetEquationPropagationTerm.h"
 #include "itkNumericTraits.h"
 
-int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
+int itkSingleLevelSetSparseWithPropagation2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
@@ -216,7 +216,7 @@ int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 1 );
+  evolution->SetNumberOfIterations( 50 );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

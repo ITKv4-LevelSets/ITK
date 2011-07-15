@@ -212,14 +212,14 @@ protected:
         oValue /= 1 + m_GradMagSqr;
         }
 
-      std::cout << iP << ' ' << oValue << std::endl;
+//       std::cout << iP << ' ' << oValue << std::endl;
       return oValue;
       }
     else
       {
       itkWarningMacro( << "m_Heaviside is NULL" );
       }
-    std::cout << iP <<  std::endl;
+
     return NumericTraits< LevelSetOutputPixelType >::Zero;
     }
 
