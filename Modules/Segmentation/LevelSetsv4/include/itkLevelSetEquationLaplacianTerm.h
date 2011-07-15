@@ -16,8 +16,8 @@
  *
  *=========================================================================*/
 
-#ifndef __itkLevelSetEquationPropagationTerm_h
-#define __itkLevelSetEquationPropagationTerm_h
+#ifndef __itkLevelSetEquationLaplacianTerm_h
+#define __itkLevelSetEquationLaplacianTerm_h
 
 #include "itkLevelSetEquationTermBase.h"
 #include "itkZeroFluxNeumannBoundaryCondition.h"
@@ -29,11 +29,11 @@ namespace itk
 {
 template< class TInput, // Input image
           class TLevelSetContainer >
-class LevelSetEquationPropagationTerm :
+class LevelSetEquationLaplacianTerm :
     public LevelSetEquationTermBase< TInput, TLevelSetContainer >
 {
 public:
-  typedef LevelSetEquationPropagationTerm       Self;
+  typedef LevelSetEquationLaplacianTerm       Self;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
   typedef LevelSetEquationTermBase< TInput, TLevelSetContainer >
@@ -43,7 +43,7 @@ public:
   itkNewMacro( Self );
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetEquationPropagationTerm,
+  itkTypeMacro( LevelSetEquationLaplacianTerm,
                 LevelSetEquationTermBase );
 
   typedef typename Superclass::InputImageType     InputImageType;
@@ -109,7 +109,7 @@ public:
   {}
 
 protected:
-  LevelSetEquationPropagationTerm() : Superclass(),
+  LevelSetEquationLaplacianTerm() : Superclass(),
     m_CurrentLevelSetPointer( NULL )
   {
     for( unsigned int i = 0; i < ImageDimension; i++ )
@@ -118,35 +118,28 @@ protected:
       }
   }
 
-  virtual ~LevelSetEquationPropagationTerm() {}
+  virtual ~LevelSetEquationLaplacianTerm() {}
 
   virtual void SetDefaultTermName()
     {
-    this->m_TermName = "Propagation term";
+    this->m_TermName = "Laplacian term";
     }
 
-  LevelSetOutputRealType PropagationSpeed( const LevelSetInputIndexType& iP ) const
+  LevelSetOutputRealType LaplacianSpeed( const LevelSetInputIndexType& iP ) const
   {
     return ( static_cast< LevelSetOutputRealType >( this->m_Input->GetPixel(iP) ) );
   }
 
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
   {
-    // Construct upwind gradient values for use in the propagation speed term:
-    //  $\beta G(\mathbf{x})\mid\nabla\phi\mid$
-    // The following scheme for ``upwinding'' in the normal direction is taken
-    // from Sethian, Ch. 6 as referenced above.
-
-    LevelSetOutputRealType center_value =
-      static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
     LevelSetInputIndexType pA, pB;
-    LevelSetOutputRealType valueA, valueB;
-
+    LevelSetInputIndexType pAa, pBa, pCa, pDa;
+    LevelSetOutputRealType valueAa, valueBa, valueCa, valueDa;
     LevelSetOutputRealType ZERO = NumericTraits< LevelSetOutputRealType >::Zero;
 
-    /** Array of first derivatives */
-    LevelSetOutputRealType m_dx_forward[itkGetStaticConstMacro(ImageDimension)];
-    LevelSetOutputRealType m_dx_backward[itkGetStaticConstMacro(ImageDimension)];
+    vnl_matrix_fixed< LevelSetOutputRealType,
+                    itkGetStaticConstMacro(ImageDimension),
+                    itkGetStaticConstMacro(ImageDimension) > m_dxy;
 
     for ( unsigned int i = 0; i < ImageDimension; i++ )
       {
@@ -154,41 +147,50 @@ protected:
       pA[i] += 1;
       pB[i] -= 1;
 
-      valueA = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pA ) );
-      valueB = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pB ) );
-
-      m_dx_forward[i]  = ( valueA - center_value ) * m_NeighborhoodScales[i];
-      m_dx_backward[i] = ( center_value - valueB ) * m_NeighborhoodScales[i];
-      }
-
-    LevelSetOutputRealType propagation_gradient = ZERO;
-
-    if ( propagation_gradient > NumericTraits< LevelSetOutputRealType >::Zero )
-      {
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
+      for ( unsigned int j = i + 1; j < ImageDimension; j++ )
         {
-        propagation_gradient += vnl_math_sqr( vnl_math_max( m_dx_backward[i], ZERO ) )
-                                + vnl_math_sqr( vnl_math_min( m_dx_forward[i],  ZERO ) );
+        pAa = pB;
+        pAa[j] -= 1;
+
+        pBa = pB;
+        pBa[j] += 1;
+
+        pCa = pA;
+        pCa[j] -= 1;
+
+        pDa = pA;
+        pDa[j] += 1;
+
+        valueAa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pAa ) );
+        valueBa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pBa ) );
+        valueCa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pCa ) );
+        valueDa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pDa ) );
+
+        m_dxy[i][j] = m_dxy[j][i] = 0.25 * ( valueAa - valueBa - valueCa + valueDa )
+                                         * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
         }
       }
-    else
+
+    LevelSetOutputRealType laplacianSpeed = this->LaplacianSpeed( iP );
+    LevelSetOutputRealType laplacian = ZERO;
+
+    // Compute the laplacian using the existing second derivative values
+    for ( unsigned int i = 0; i < ImageDimension; i++ )
       {
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
-        {
-        propagation_gradient += vnl_math_sqr( vnl_math_min( m_dx_backward[i], ZERO ) )
-                                + vnl_math_sqr( vnl_math_max( m_dx_forward[i],  ZERO) );
-        }
+      laplacian += m_dxy[i][i];
       }
-    propagation_gradient *= this->PropagationSpeed( iP );
-//     std::cout << iP << ' ' << propagation_gradient << std::endl;
-    return propagation_gradient;
+
+    laplacian = laplacian * laplacianSpeed;
+//     std::cout << iP << ' ' << laplacian << std::endl;
+
+    return laplacian;
   }
 
   LevelSetPointer         m_CurrentLevelSetPointer;
   LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];
 
 private:
-  LevelSetEquationPropagationTerm( const Self& );
+  LevelSetEquationLaplacianTerm( const Self& );
   void operator = ( const Self& );
 };
 
