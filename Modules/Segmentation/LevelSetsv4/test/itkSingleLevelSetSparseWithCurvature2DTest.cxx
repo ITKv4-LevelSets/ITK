@@ -65,7 +65,7 @@ int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
                                                             ChanAndVeseInternalTermType;
   typedef itk::LevelSetEquationChanAndVeseExternalTerm< InputImageType, LevelSetContainerType >
                                                             ChanAndVeseExternalTermType;
-  typedef itk::LevelSetEquationChanAndVeseExternalTerm< InputImageType, LevelSetContainerType >
+  typedef itk::LevelSetEquationCurvatureTerm< InputImageType, LevelSetContainerType >
                                                             CurvatureTermType;
   typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
                                                             TermContainerType;
@@ -81,34 +81,6 @@ int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
                                                             HeavisideFunctionBaseType;
   typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
-
-//   InputImageType::RegionType region;
-//   InputImageType::IndexType index;
-//   InputImageType::SizeType size;
-//
-//   index.Fill( 0 );
-//   size.Fill( 50 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   // Input initialization
-//   InputImageType::Pointer input = InputImageType::New();
-//   input->SetRegions( region );
-//   input->Allocate();
-//   input->FillBuffer( itk::NumericTraits<InputPixelType>::Zero );
-//
-//   index.Fill( 20 );
-//   size.Fill( 10 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   InputIteratorType inputIt( input, region );
-//   inputIt.GoToBegin();
-//   while( !inputIt.IsAtEnd() )
-//   {
-//     inputIt.Set( itk::NumericTraits<InputPixelType>::One );
-//     ++inputIt;
-//   }
 
   // load binary mask
   ReaderType::Pointer reader = ReaderType::New();
@@ -200,7 +172,7 @@ int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
   cvExternalTerm0->SetLevelSetContainer( lscontainer );
   std::cout << "LevelSet 1: CV external term created" << std::endl;
 
-  // Create ChanAndVese external term for phi_{1}
+  // Create ChanAndVese curvature term for phi_{1}
   CurvatureTermType::Pointer curvatureTerm0 = CurvatureTermType::New();
   curvatureTerm0->SetInput( input );
   curvatureTerm0->SetCoefficient( 1.0 );
@@ -220,6 +192,9 @@ int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
 
   temp = dynamic_cast< TermContainerType::TermType* >( cvExternalTerm0.GetPointer() );
   termContainer0->AddTerm( 1, temp );
+
+  temp = dynamic_cast< TermContainerType::TermType* >( curvatureTerm0.GetPointer() );
+  termContainer0->AddTerm( 2, temp );
   std::cout << "Term container 0 created" << std::endl;
 
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
@@ -227,7 +202,7 @@ int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 10 );
+  evolution->SetNumberOfIterations( 1 );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

@@ -68,14 +68,11 @@ public:
   itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
 
   /** Neighborhood radius type */
-  typedef ZeroFluxNeumannBoundaryCondition< LevelSetType > DefaultBoundaryConditionType;
-  typedef typename ConstNeighborhoodIterator< LevelSetType >::RadiusType RadiusType;
-  typedef ConstNeighborhoodIterator< LevelSetType, DefaultBoundaryConditionType > NeighborhoodType;
+  typedef ZeroFluxNeumannBoundaryCondition< InputImageType > DefaultBoundaryConditionType;
+  typedef typename ConstNeighborhoodIterator< InputImageType >::RadiusType RadiusType;
+  typedef ConstNeighborhoodIterator< InputImageType, DefaultBoundaryConditionType > NeighborhoodType;
 
   typedef Vector< LevelSetOutputRealType, itkGetStaticConstMacro(ImageDimension) > NeighborhoodScalesType;
-
-  itkSetMacro( Mean, InputPixelRealType );
-  itkGetMacro( Mean, InputPixelRealType );
 
   virtual void Update()
   {}
@@ -111,53 +108,14 @@ public:
   virtual void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
   {}
 
-  virtual void SetRadius(const RadiusType & r)
-  {
-    m_Radius = r;
-
-    // Dummy neighborhood.
-    NeighborhoodType it;
-    it.SetRadius(r);
-
-    // Find the center index of the neighborhood.
-    m_Center =  it.Size() / 2;
-
-    // Get the stride length for each axis.
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
-      m_xStride[i] = it.GetStride(i);
-      }
-
-    m_NeighborhoodScales.Fill(0.0);
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
-      if ( this->m_Radius[i] > 0 )
-        {
-        m_NeighborhoodScales[i] = this->m_ScaleCoefficients[i] / this->m_Radius[i];
-        }
-      }
-  }
-
-  void SetScaleCoefficients(LevelSetOutputRealType vals[ImageDimension])
-  {
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
-      m_ScaleCoefficients[i] = vals[i];
-      }
-  }
-
 protected:
   LevelSetEquationCurvatureTerm() : Superclass(),
     m_CurrentLevelSetPointer( NULL )
   {
-    // initialize variables
-    m_Radius.Fill( 1 );
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
+    for( unsigned int i = 0; i < ImageDimension; i++ )
       {
-      m_ScaleCoefficients[i] = 1.0;
+      m_NeighborhoodScales[i] = 1.0;
       }
-
-    this->SetRadius( m_Radius );
   }
 
   virtual ~LevelSetEquationCurvatureTerm() {}
@@ -176,6 +134,8 @@ protected:
       {
       LevelSetOutputRealType center_value =
           static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
+      LevelSetInputIndexType pA, pB;
+      LevelSetInputIndexType pAa, pBa, pCa, pDa;
       LevelSetOutputRealType valueA, valueB;
       LevelSetOutputRealType valueAa, valueBa, valueCa, valueDa;
       LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::Zero;
@@ -192,13 +152,12 @@ protected:
 
       for ( unsigned int i = 0; i < ImageDimension; i++ )
         {
-        const unsigned int positionA =
-          static_cast< unsigned int >( m_Center + m_xStride[i] );
-        const unsigned int positionB =
-          static_cast< unsigned int >( m_Center - m_xStride[i] );
+        pA = pB = iP;
+        pA[i] += 1;
+        pB[i] -= 1;
 
-        valueA = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionA ) );
-        valueB = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionB ) );
+        valueA = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pA ) );
+        valueB = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pB ) );
 
         m_dx[i] = 0.5 * ( valueA - valueB ) * m_NeighborhoodScales[i];
         m_dxy[i][i] = ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr(m_NeighborhoodScales[i]);
@@ -208,19 +167,22 @@ protected:
 
         for ( unsigned int j = i + 1; j < ImageDimension; j++ )
           {
-          const unsigned int positionAa = static_cast< unsigned int >(
-            m_Center - m_xStride[i] - m_xStride[j] );
-          const unsigned int positionBa = static_cast< unsigned int >(
-            m_Center - m_xStride[i] + m_xStride[j] );
-          const unsigned int positionCa = static_cast< unsigned int >(
-            m_Center + m_xStride[i] - m_xStride[j] );
-          const unsigned int positionDa = static_cast< unsigned int >(
-            m_Center + m_xStride[i] + m_xStride[j] );
+          pAa = pB;
+          pAa[j] -= 1;
 
-          valueAa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionAa ) );
-          valueBa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionBa ) );
-          valueCa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionCa ) );
-          valueDa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( positionDa ) );
+          pBa = pB;
+          pBa[j] += 1;
+
+          pCa = pA;
+          pCa[j] -= 1;
+
+          pDa = pA;
+          pDa[j] += 1;
+
+          valueAa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pAa ) );
+          valueBa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pBa ) );
+          valueCa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pCa ) );
+          valueDa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pDa ) );
 
           m_dxy[i][j] = m_dxy[j][i] = 0.25 * ( valueAa - valueBa - valueCa + valueDa )
                                               * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
@@ -250,23 +212,20 @@ protected:
         oValue /= 1 + m_GradMagSqr;
         }
 
-//       std::cout << value << ' ' << int(pixel) << ' ' << d_val << ' ' << prod << ' ' << oValue << std::endl;
+      std::cout << iP << ' ' << oValue << std::endl;
       return oValue;
       }
     else
       {
       itkWarningMacro( << "m_Heaviside is NULL" );
       }
+    std::cout << iP <<  std::endl;
     return NumericTraits< LevelSetOutputPixelType >::Zero;
     }
 
 
   LevelSetPointer         m_CurrentLevelSetPointer;
-  OffsetValueType         m_Center;
-  OffsetValueType         m_xStride[itkGetStaticConstMacro(ImageDimension)];
-  RadiusType              m_Radius;
-  NeighborhoodScalesType  m_NeighborhoodScales;
-  LevelSetOutputRealType  m_ScaleCoefficients[ImageDimension];
+  LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];
 
 private:
   LevelSetEquationCurvatureTerm( const Self& );
