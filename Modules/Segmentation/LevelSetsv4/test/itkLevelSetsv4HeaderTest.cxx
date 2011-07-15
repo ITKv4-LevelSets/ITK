@@ -48,6 +48,7 @@
 #include "itkLevelSetMalcolmEvolutionBase.h"
 #include "itkLevelSetShiEvolutionBase.h"
 #include "itkLevelSetEquationCurvatureTerm.h"
+#include "itkLevelSetEquationPropagationTerm.h"
 
 int itkLevelSetsv4HeaderTest ( int , char * [] )
 {
