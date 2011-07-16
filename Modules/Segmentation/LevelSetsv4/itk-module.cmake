@@ -1,10 +1,10 @@
-itk_module(ITK-LevelSetsv4
-DEPENDS
-ITK-Common
-ITK-Statistics
-ITK-Thresholding # itkBinaryThresholdImageFilter.h
-ITK-DistanceMap
-TEST_DEPENDS
-ITK-TestKernel
-ITK-FastMarching
+itk_module(ITKLevelSetsv4
+  DEPENDS
+    ITKCommon
+    ITKStatistics
+    ITKThresholding # itkBinaryThresholdImageFilter.h
+    ITKDistanceMap
+  TEST_DEPENDS
+    ITKTestKernel
+    ITKFastMarching
 )

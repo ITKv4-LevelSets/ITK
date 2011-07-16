@@ -1,2 +1,2 @@
-project(ITK-LevelSetsv4)
+project(ITKLevelSetsv4)
 itk_module_impl()
