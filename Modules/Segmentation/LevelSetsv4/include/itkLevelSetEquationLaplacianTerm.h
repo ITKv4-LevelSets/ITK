@@ -33,7 +33,7 @@ class LevelSetEquationLaplacianTerm :
     public LevelSetEquationTermBase< TInput, TLevelSetContainer >
 {
 public:
-  typedef LevelSetEquationLaplacianTerm       Self;
+  typedef LevelSetEquationLaplacianTerm         Self;
   typedef SmartPointer< Self >                  Pointer;
   typedef SmartPointer< const Self >            ConstPointer;
   typedef LevelSetEquationTermBase< TInput, TLevelSetContainer >
@@ -127,7 +127,7 @@ protected:
 
   LevelSetOutputRealType LaplacianSpeed( const LevelSetInputIndexType& iP ) const
   {
-    return ( static_cast< LevelSetOutputRealType >( this->m_Input->GetPixel(iP) ) );
+    return NumericTraits< LevelSetOutputRealType >::One;
   }
 
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
