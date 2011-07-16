@@ -41,8 +41,8 @@ class DataObject;
 /*--------------------Data Object Exceptions---------------------------*/
 
 /** \class DataObjectError
- * \brief Exception object for DataObject exceptions
- * \ingroup ITK-Common
+ * \brief Exception object for DataObject exceptions.
+ * \ingroup ITKCommon
  */
 class ITKCommon_EXPORT DataObjectError:public ExceptionObject
 {
@@ -88,8 +88,10 @@ private:
 };
 
 /** \class InvalidRequestRegionError
- * Exception object for invalid requested region
- * \ingroup ITK-Common
+ *  \brief Exception object for invalid requested region.
+ *
+ * Exception object for invalid requested region.
+ * \ingroup ITKCommon
  */
 class ITKCommon_EXPORT InvalidRequestedRegionError:public DataObjectError
 {
@@ -267,7 +269,7 @@ protected:
  * \sa Mesh
  * \ingroup DataRepresentation
  * \ingroup ITKSystemObjects
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 class ITKCommon_EXPORT DataObject:public Object
 {

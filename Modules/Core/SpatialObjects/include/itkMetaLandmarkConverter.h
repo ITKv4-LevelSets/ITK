@@ -25,9 +25,10 @@
 namespace itk
 {
 /** \class MetaLandmarkConverter
- *  \brief converts between MetaObject<->SpatialObject
+ *  \brief converts between MetaObject<->SpatialObject.
+ *
  *  \sa MetaConverterBase
- *  \ingroup ITK-SpatialObjects
+ *  \ingroup ITKSpatialObjects
  */
 template< unsigned int NDimensions = 3 >
 class ITK_EXPORT MetaLandmarkConverter :
@@ -78,7 +79,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-  #include "itkMetaLandmarkConverter.txx"
+  #include "itkMetaLandmarkConverter.hxx"
 #endif
 
 #endif

@@ -73,8 +73,8 @@ namespace itk
  * \warning This filter assumes that the input type, output type
  * and deformation field type all have the same number of dimensions.
  *
- * \ingroup GeometricTransforms MultiThreaded Streamed
- * \ingroup ITK-ImageGrid
+ * \ingroup GeometricTransform MultiThreaded Streamed
+ * \ingroup ITKImageGrid
  */
 template<
   class TInputImage,
@@ -229,7 +229,8 @@ public:
 #endif
 protected:
   WarpImageFilter();
-  ~WarpImageFilter() {}
+  // ~WarpImageFilter() {} default implementation is ok
+
   void PrintSelf(std::ostream & os, Indent indent) const;
 
   /** WarpImageFilter is implemented as a multi-threaded filter.
@@ -237,6 +238,9 @@ protected:
    * ThreadedGenerateData(). */
   void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
                             ThreadIdType threadId);
+
+  virtual void VerifyInputInformation();
+
 
 private:
   WarpImageFilter(const Self &); //purposely not implemented
@@ -262,7 +266,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkWarpImageFilter.txx"
+#include "itkWarpImageFilter.hxx"
 #endif
 
 #endif

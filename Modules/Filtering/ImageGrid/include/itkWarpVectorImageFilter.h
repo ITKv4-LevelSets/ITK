@@ -81,8 +81,8 @@ namespace itk
  *
  * \author  Corinne Mattmann
  *
- * \ingroup GeometricTransforms MultiThreaded
- * \ingroup ITK-ImageGrid
+ * \ingroup GeometricTransform MultiThreaded
+ * \ingroup ITKImageGrid
  */
 template<
   class TInputImage,
@@ -240,7 +240,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkWarpVectorImageFilter.txx"
+#include "itkWarpVectorImageFilter.hxx"
 #endif
 
 #endif

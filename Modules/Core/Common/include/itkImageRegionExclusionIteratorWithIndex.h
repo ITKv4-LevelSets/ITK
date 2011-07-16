@@ -24,8 +24,9 @@
 namespace itk
 {
 /** \class ImageRegionExclusionIteratorWithIndex
- *  \brief Multi-dimensional image iterator that walks an image region,
- *  excluding a second region contained within the first.
+ *  \brief A multi-dimensional image iterator that walks an image region,
+ *         excluding a second region contained within the first, with write
+ *         access to pixels.
  *
  * Most of the functionality of this iterator is inherited from the
  * ImageRegionExclusionConstIteratorWithIndex, which should be consulted for
@@ -60,7 +61,7 @@ namespace itk
  * \sa NeighborhoodIterator \sa PathConstIterator  \sa PathIterator
  * \sa ShapedNeighborhoodIterator  \sa SliceIterator
  * \sa ImageConstIteratorWithIndex
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 template< typename TImage >
 class ITK_EXPORT ImageRegionExclusionIteratorWithIndex:public ImageRegionExclusionConstIteratorWithIndex< TImage >
@@ -115,7 +116,7 @@ protected:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageRegionExclusionIteratorWithIndex.txx"
+#include "itkImageRegionExclusionIteratorWithIndex.hxx"
 #endif
 
 #endif

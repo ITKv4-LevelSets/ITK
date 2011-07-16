@@ -24,7 +24,7 @@ namespace itk
 
 /** \class MultiplyByConstantImageFilter
  *
- * \brief Add a constant to all input pixels.
+ * \brief Multiply all input pixels by a constant.
  *
  * This filter is templated over the input image type
  * and the output image type.
@@ -34,7 +34,7 @@ namespace itk
  * Based on filters from the Insight Journal paper:
  * http://hdl.handle.net/1926/510
  *
- * \ingroup ITK-Deprecated
+ * \ingroup ITKDeprecated
  * \sa MultiplyImageFilter
  */
 template <class TInputImage, class TConstant, class TOutputImage>

@@ -204,7 +204,7 @@ private:
 
 }
 
-int itkNewMetaObjectTypeTest(int ac, char* av[])
+int itkNewMetaObjectTypeTest(int, char* [])
 {
   const float Pi(3.1415926);
 
@@ -275,6 +275,7 @@ int itkNewMetaObjectTypeTest(int ac, char* av[])
       return EXIT_FAILURE;
       }
     }
+  delete mySceneChildren;
   delete metaScene;
   return EXIT_SUCCESS;
 }

@@ -18,9 +18,7 @@
 #ifndef __itkMetaImageConverter_h
 #define __itkMetaImageConverter_h
 
-//
 // to avoid an Internal Compiler Error in Visual Studio 6.0
-//
 #include "metaImage.h"
 #include "itkMetaConverterBase.h"
 #include "itkImageSpatialObject.h"
@@ -30,9 +28,10 @@ namespace itk
 {
 
 /** \class MetaImageConverter
- *  \brief converts between MetaObject<->SpatialObject
+ *  \brief converts between MetaObject<->SpatialObject.
+ *
  *  \sa MetaConverterBase
- *  \ingroup ITK-SpatialObjects
+ *  \ingroup ITKSpatialObjects
  */
 template< unsigned int NDimensions = 3,
           typename TPixel = unsigned char,
@@ -86,7 +85,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-  #include "itkMetaImageConverter.txx"
+  #include "itkMetaImageConverter.hxx"
 #endif
 
 #endif

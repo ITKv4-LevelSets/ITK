@@ -25,9 +25,10 @@
 namespace itk
 {
 /** \class MetaBlobConverter
- *  \brief converts between MetaObject<->SpatialObject
+ *  \brief converts between MetaObject<->SpatialObject.
+ *
  *  \sa MetaConverterBase
- *  \ingroup ITK-SpatialObjects
+ *  \ingroup ITKSpatialObjects
  */
 template< unsigned int NDimensions = 3 >
 class ITK_EXPORT MetaBlobConverter :
@@ -78,7 +79,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-  #include "itkMetaBlobConverter.txx"
+  #include "itkMetaBlobConverter.hxx"
 #endif
 
 #endif

@@ -50,9 +50,8 @@ struct GetVectorDimension {
  * assigned to one another, and size information is known for function
  * returns.
  *
- * Template parameters for class FixedArray:
- * - TValueType = Element type stored at each location in the array.
- * - VLength    = Length of the array.
+ * \tparam TValueType Element type stored at each location in the array.
+ * \tparam VLength    = Length of the array.
  *
  * The length of the array is fixed at compile time. If you wish to
  * specify the length of the array at run-time, use the class itk::Array.
@@ -60,7 +59,7 @@ struct GetVectorDimension {
  * you're best off using std::vector<>.
  *
  * \ingroup DataRepresentation
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  *
  * \wiki
  * \wikiexample{Utilities/FixedArray,C-style array}
@@ -91,8 +90,8 @@ public:
   class ConstReverseIterator;
 
   /** \class ReverseIterator
-   * \brief A reverse iterator through the array.
-   * \ingroup ITK-Common
+   * \brief A reverse iterator through an array.
+   * \ingroup ITKCommon
    */
   class ReverseIterator
   {
@@ -112,8 +111,8 @@ private:
   };
 
   /** \class ConstReverseIterator
-   * \brief A const reverse iterator through the array.
-   * \ingroup ITK-Common
+   * \brief A const reverse iterator through an array.
+   * \ingroup ITKCommon
    */
   class ConstReverseIterator
   {
@@ -291,7 +290,7 @@ std::ostream & operator<<(std::ostream & os, const FixedArray< TValueType, VLeng
 #endif
 
 #if ITK_TEMPLATE_TXX
-#include "itkFixedArray.txx"
+#include "itkFixedArray.hxx"
 #endif
 
 #include "itkNumericTraitsFixedArrayPixel.h"

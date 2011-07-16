@@ -73,8 +73,8 @@ namespace itk
  * ThreadedGenerateData() method for its implementation.
  *
  * \sa CropImageFilter
- * \ingroup GeometricTransforms
- * \ingroup ITK-Common
+ * \ingroup GeometricTransform
+ * \ingroup ITKCommon
  */
 
 template< class TInputImage, class TOutputImage >
@@ -269,7 +269,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkExtractImageFilter.txx"
+#include "itkExtractImageFilter.hxx"
 #endif
 
 #endif

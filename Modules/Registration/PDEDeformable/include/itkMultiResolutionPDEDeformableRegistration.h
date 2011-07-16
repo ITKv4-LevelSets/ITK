@@ -75,7 +75,7 @@ namespace itk
  * The current implementation of this class does not support streaming.
  *
  * \ingroup DeformableImageRegistration
- * \ingroup ITK-PDEDeformableRegistration
+ * \ingroup ITKPDEDeformableRegistration
  */
 template< class TFixedImage, class TMovingImage, class TDeformationField, class TRealType = float >
 class ITK_EXPORT MultiResolutionPDEDeformableRegistration:
@@ -221,7 +221,8 @@ public:
 
 protected:
   MultiResolutionPDEDeformableRegistration();
-  ~MultiResolutionPDEDeformableRegistration() {}
+  // ~MultiResolutionPDEDeformableRegistration() {} default implementation ok
+
   void PrintSelf(std::ostream & os, Indent indent) const;
 
   /** Generate output data by performing the registration
@@ -250,6 +251,8 @@ protected:
    * terminate at the current resolution level. */
   virtual bool Halt();
 
+  virtual void VerifyInputInformation();
+
 private:
   MultiResolutionPDEDeformableRegistration(const Self &); //purposely not
                                                           // implemented
@@ -273,7 +276,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMultiResolutionPDEDeformableRegistration.txx"
+#include "itkMultiResolutionPDEDeformableRegistration.hxx"
 #endif
 
 #endif

@@ -37,11 +37,14 @@ namespace itk
  * INRA de Jouy-en-Josas, France.
  *      http://hdl.handle.net/1926/153
  *
- *
- * \sa ValuedRegionalMinimaImageFilter, HConcaveImageFilter,
- * RegionalMaximaImageFilter \ingroup ImageEnhancement
+ * RegionalMaximaImageFilter
  * MathematicalMorphologyImageFilters
- * \ingroup ITK-Review
+ *
+ * \ingroup ImageEnhancement
+ * \ingroup ITKReview
+ *
+ * \sa ValuedRegionalMinimaImageFilter
+ * \sa HConcaveImageFilter
  */
 template< class TInputImage, class TOutputImage >
 class ITK_EXPORT RegionalMinimaImageFilter:
@@ -148,7 +151,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRegionalMinimaImageFilter.txx"
+#include "itkRegionalMinimaImageFilter.hxx"
 #endif
 
 #endif

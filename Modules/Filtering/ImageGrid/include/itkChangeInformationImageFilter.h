@@ -41,9 +41,9 @@ namespace itk
  * origin (using the selected output spacing) the align the center of the
  * image with the coordinate 0.
  *
- * \ingroup GeometricTransforms
+ * \ingroup GeometricTransform
  *
- * \ingroup ITK-ImageGrid
+ * \ingroup ITKImageGrid
  */
 template< class TInputImage >
 class ITK_EXPORT ChangeInformationImageFilter:
@@ -218,8 +218,11 @@ public:
 
 protected:
   ChangeInformationImageFilter();
-  ~ChangeInformationImageFilter() {}
+  //~ChangeInformationImageFilter() {} default implementation ok
+
   void PrintSelf(std::ostream & os, Indent indent) const;
+
+  virtual void VerifyInputInformation();
 
 private:
   ChangeInformationImageFilter(const Self &); //purposely not implemented
@@ -244,7 +247,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkChangeInformationImageFilter.txx"
+#include "itkChangeInformationImageFilter.hxx"
 #endif
 
 #endif

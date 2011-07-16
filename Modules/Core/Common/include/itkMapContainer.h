@@ -26,22 +26,20 @@
 namespace itk
 {
 /** \class MapContainer
- * \brief This class defines a front-end to the STL "map" container
- * that conforms to the IndexedContainerInterface.  This is a
- * full-fleged Object, so there is: event, modification time,
- * debug, and reference count information.
+ * \brief A wrapper of the STL "map" container.
  *
- * Template parameters for MapContainer:
+ * Define a front-end to the STL "map" container that conforms to the
+ * IndexedContainerInterface.  This is a full-fleged Object, so
+ * there are events, modification time, debug, and reference count
+ * information.
  *
- * TElementIdentifier =
- *    A type that shall be used to index the container.
- *    It must have a < operator defined for ordering.
+ * \tparam TElementIdentifier A type that shall be used to index the
+ * container. It must have a < operator defined for ordering.
  *
- * TElement =
- *    The element type stored in the container.
+ * \tparam TElement The element type stored in the container.
  *
  * \ingroup DataRepresentation
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 template< typename TElementIdentifier, typename TElement >
 class MapContainer:
@@ -107,7 +105,7 @@ public:
 
   /** \class Iterator
    * \brief The non-const iterator type for the map.
-   * \ingroup ITK-Common
+   * \ingroup ITKCommon
    */
   class Iterator
   {
@@ -139,7 +137,7 @@ private:
 
   /** \class ConstIterator
    * \brief The const iterator type for the map.
-   * \ingroup ITK-Common
+   * \ingroup ITKCommon
    */
   class ConstIterator
   {
@@ -305,7 +303,7 @@ private:
 #endif
 
 #if ITK_TEMPLATE_TXX
-#include "itkMapContainer.txx"
+#include "itkMapContainer.hxx"
 #endif
 
 #endif

@@ -32,8 +32,8 @@ namespace itk
  *
  * This filter uses ExtractImageFilter to perform the cropping.
  *
- * \ingroup GeometricTransforms
- * \ingroup ITK-ImageGrid
+ * \ingroup GeometricTransform
+ * \ingroup ITKImageGrid
  *
  * \wiki
  * \wikiexample{ImageProcessing/CropImageFilter,Crop an image}
@@ -120,7 +120,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCropImageFilter.txx"
+#include "itkCropImageFilter.hxx"
 #endif
 
 #endif

@@ -1,9 +1,10 @@
-itk_module(ITK-FEMRegistration
+itk_module(ITKFEMRegistration
   DEPENDS
-    ITK-FEM
-    ITK-ImageStatistics
-    ITK-PDEDeformableRegistration
-    ITK-ImageFeature
+    ITKFEM
+    ITKImageStatistics
+    ITKPDEDeformableRegistration
+    ITKImageFeature
+    ITKSpatialObjects
   TEST_DEPENDS
-    ITK-TestKernel
+    ITKTestKernel
 )

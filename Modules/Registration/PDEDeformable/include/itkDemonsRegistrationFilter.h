@@ -57,7 +57,7 @@ namespace itk
  *
  * \sa DemonsRegistrationFunction
  * \ingroup DeformableImageRegistration MultiThreaded
- * \ingroup ITK-PDEDeformableRegistration
+ * \ingroup ITKPDEDeformableRegistration
  */
 template< class TFixedImage, class TMovingImage, class TDeformationField >
 class ITK_EXPORT DemonsRegistrationFilter:
@@ -126,7 +126,7 @@ public:
 
 protected:
   DemonsRegistrationFilter();
-  ~DemonsRegistrationFilter() {}
+  // ~DemonsRegistrationFilter() {} default implementation ok
   void PrintSelf(std::ostream & os, Indent indent) const;
 
   /** Initialize the state of filter and equation before each iteration. */
@@ -134,6 +134,8 @@ protected:
 
   /** Apply update. */
   virtual void ApplyUpdate(const TimeStepType& dt);
+
+  virtual void VerifyInputInformation();
 
 private:
   DemonsRegistrationFilter(const Self &); //purposely not implemented
@@ -144,7 +146,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDemonsRegistrationFilter.txx"
+#include "itkDemonsRegistrationFilter.hxx"
 #endif
 
 #endif

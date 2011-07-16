@@ -40,7 +40,7 @@ namespace itk
  * \ingroup ImageIterators
  *
  * \sa Neighborhood \sa ImageIterator \sa NeighborhoodIterator
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  *
  * \wiki
  * \wikiexample{Iterators/ConstNeighborhoodIterator,Iterate over a region of an image with a neighborhood (without write access)}
@@ -403,8 +403,8 @@ public:
   { m_InternalBoundaryCondition = c; }
 
   /** */
-  const BoundaryConditionType * GetBoundaryCondition() const
-  { return dynamic_cast< BoundaryConditionType * >( m_BoundaryCondition ); }
+  ImageBoundaryConditionPointerType GetBoundaryCondition() const
+  { return m_BoundaryCondition; }
 
   /** */
   void NeedToUseBoundaryConditionOn()
@@ -570,12 +570,12 @@ operator-(const ConstNeighborhoodIterator< TImage > & it,
 #endif
 
 #if ITK_TEMPLATE_TXX
-#include "itkConstNeighborhoodIterator.txx"
+#include "itkConstNeighborhoodIterator.hxx"
 #endif
 
 /*
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConstNeighborhoodIterator.txx"
+#include "itkConstNeighborhoodIterator.hxx"
 #endif
 */
 #endif

@@ -23,26 +23,29 @@
 namespace itk
 {
 /** \class VariableLengthVector
- * \brief VariableLengthVector is intended to represent an array whose
- * length can be defined at run-time.
+ * \brief Represents an array whose length can be defined at run-time.
  *
  * This class is templated over the data type. This data-type is meant
  * to be a scalar, such as float, double etc...
  *
  * \note
  * ITK itself provides several classes that can serve as \c Arrays.
- * 1. FixedArray - Compile time fixed length arrays that's intended to
+ * \li FixedArray - Compile time fixed length arrays that's intended to
  * represent an enumerated collection of \c n entities.
- * 2. Array - Run time resizeable array that is intended to hold a collection
- * of \c n entities
- * 3. Vector - Compile time fixed length array that is intended to hold
+ *
+ * \li Array - Run time resizeable array that is intended to hold a
+ * collection of \c n entities
+ *
+ * \li Vector - Compile time fixed length array that is intended to hold
  * a collection of \c n data types. A vector usually has a mathematical meaning.
  * It should only be used when mathematical operations such as addition,
  * multiplication by a scalar, product etc make sense.
- * 4. VariableLengthVector - Run time array that is intended to hold a collection
+ *
+ * \li VariableLengthVector - Run time array that is intended to hold a collection
  * of scalar data types. Again, it should be used only when mathematical
  * operations on it are relevant. If not, use an Array.
- * 5. Point - Represents the spatial coordinates of a spatial location. Operators
+ *
+ * \li Point - Represents the spatial coordinates of a spatial location. Operators
  * on Point reflect geometrical concepts.
  *
  * \par For the reasons listed above, you cannot instantiate
@@ -63,7 +66,7 @@ namespace itk
  * \sa RGBPixel
  * \sa DiffusionTensor3D
  * \ingroup DataRepresentation
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  *
  * \wiki
  * \wikiexample{SimpleOperations/VariableLengthVector,Variable length vector}
@@ -482,7 +485,7 @@ std::ostream & operator<<(std::ostream & os, const VariableLengthVector< TValueT
 #endif
 
 #if ITK_TEMPLATE_TXX
-#include "itkVariableLengthVector.txx"
+#include "itkVariableLengthVector.hxx"
 #endif
 
 #endif

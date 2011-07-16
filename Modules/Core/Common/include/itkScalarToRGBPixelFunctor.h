@@ -26,7 +26,7 @@ namespace Functor
 {
 /**
  * \class ScalarToRGBPixelFunctor
- * \brief Function object which maps a scalar value into an RGB pixel value.
+ * \brief A Function object which maps a scalar value into an RGB pixel value.
  *
  *  This class is useful for visualizing labeled images which cannot be mapped
  *  succefully into grayscale images.  Images of unsigned long integers, for
@@ -38,7 +38,7 @@ namespace Functor
  *  typically use sequential values, it is desirable that those values result
  *  in easily discernable colors.
  *
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 template< class TScalar >
 class ITK_EXPORT ScalarToRGBPixelFunctor
@@ -71,7 +71,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkScalarToRGBPixelFunctor.txx"
+#include "itkScalarToRGBPixelFunctor.hxx"
 #endif
 
 #endif

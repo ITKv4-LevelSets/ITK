@@ -24,7 +24,8 @@ namespace itk
 {
 /**
  * \class LineIterator
- * \brief Iterator that walks a Bresenham line through an ND image.
+ * \brief An iterator that walks a Bresenham line through an ND image
+ *        with write access to pixels.
  *
  * LineIterator is an iterator that walks a Bresenham line
  * through an image.  The iterator is constructed similar to other
@@ -41,11 +42,11 @@ namespace itk
  * }
  * \endcode
  *
- * This class was contributed by Benjamin King, Experimentelle
- * Radiologie, Medizinische Hochschule Hannover.
+ * \author Benjamin King, Experimentelle Radiologie, Medizinische
+ * Hochschule Hannover.
  *
  * \sa LineConstIterator
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  *
  * \wiki
  * \wikiexample{Iterators/LineIterator,Iterate over a line through an image}
@@ -132,7 +133,7 @@ public:
 #endif
 
 #if ITK_TEMPLATE_TXX
-#include "itkLineIterator.txx"
+#include "itkLineIterator.hxx"
 #endif
 
 #endif

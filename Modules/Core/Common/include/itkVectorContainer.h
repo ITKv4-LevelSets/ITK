@@ -27,21 +27,18 @@
 namespace itk
 {
 /** \class VectorContainer
- * \brief This class defines a front-end to the STL "vector" container
- * that conforms to the IndexedContainerInterface.  This is a
- * full-fleged Object, so there is modification time, debug,
- * and reference count information.
+ *  \brief Define a front-end to the STL "vector" container that conforms to the
+ *         IndexedContainerInterface.
  *
- * Template parameters for VectorContainer:
+ * This is a full-fleged Object, so
+ * there is modification time, debug, and reference count information.
  *
- * TElementIdentifier =
- *     An INTEGRAL type for use in indexing the vector.
+ * \tparam TElementIdentifier An INTEGRAL type for use in indexing the vector.
  *
- * TElement =
- *    The element type stored in the container.
+ * \tparam TElement The element type stored in the container.
  *
  * \ingroup DataRepresentation
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  *
  * \wiki
  * \wikiexample{Utilities/VectorContainer,Vector container}
@@ -120,7 +117,7 @@ public:
   /** \class Iterator
    * Simulate STL-map style iteration where dereferencing the iterator
    * gives access to both the index and the value.
-   * \ingroup ITK-Common
+   * \ingroup ITKCommon
    */
   class Iterator
   {
@@ -153,7 +150,7 @@ private:
   /** \class ConstIterator
    * Simulate STL-map style const iteration where dereferencing the iterator
    * gives read access to both the index and the value.
-   * \ingroup ITK-Common
+   * \ingroup ITKCommon
    */
   class ConstIterator
   {
@@ -328,7 +325,7 @@ private:
 #endif
 
 #if ITK_TEMPLATE_TXX
-#include "itkVectorContainer.txx"
+#include "itkVectorContainer.hxx"
 #endif
 
 #endif

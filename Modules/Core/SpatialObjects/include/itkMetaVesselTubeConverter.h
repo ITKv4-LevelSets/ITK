@@ -25,10 +25,15 @@
 /** \class MetaVesselTubeConverter
  *  \brief converts between MetaObject<->SpatialObject
  *  \sa MetaConverterBase
- *  \ingroup ITK-SpatialObjects
+ *  \ingroup ITKSpatialObjects
  */
 namespace itk
 {
+/** \class MetaVesselTubeConverter
+ * \brief This is the MetaVesselTubeConverter class.
+ *
+ * \ingroup ITKSpatialObjects
+ */
 template< unsigned int NDimensions = 3 >
 class ITK_EXPORT MetaVesselTubeConverter :
     public MetaConverterBase< NDimensions >
@@ -78,7 +83,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-  #include "itkMetaVesselTubeConverter.txx"
+  #include "itkMetaVesselTubeConverter.hxx"
 #endif
 
 #endif

@@ -26,14 +26,14 @@
 namespace itk
 {
 /** \class RealTimeClock
- * \brief The RealTimeClock provides a timestamp from a real-time clock.
+ * \brief Provides a timestamp from a real-time clock.
  *
  * This class represents a real-time clock object
  * and provides a timestamp in platform-independent format.
  *
  * \author Hee-Su Kim, Compute Science Dept. Kyungpook National University,
  *                     ISIS Center, Georgetown University.
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 
 class ITKCommon_EXPORT RealTimeClock:public Object

@@ -25,7 +25,7 @@
 namespace itk
 {
 /** \class HistogramMatchingImageFilter
- * \brief Normalize the grayscale values between two image by histogram
+ * \brief Normalize the grayscale values between two images by histogram
  * matching.
  *
  * HistogramMatchingImageFilter normalizes the grayscale values of a source
@@ -53,9 +53,9 @@ namespace itk
  * type and that the input and output image type have the same number of
  * dimension and have scalar pixel types.
  *
- * \ingroup IntensityImageFilters Multithreaded
+ * \ingroup IntensityImageFilters MultiThreaded
  *
- * \ingroup ITK-ImageIntensity
+ * \ingroup ITKImageIntensity
  */
 /* THistogramMeasurement -- The precision level for which to do
   HistogramMeasurmenets */
@@ -216,7 +216,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHistogramMatchingImageFilter.txx"
+#include "itkHistogramMatchingImageFilter.hxx"
 #endif
 
 #endif

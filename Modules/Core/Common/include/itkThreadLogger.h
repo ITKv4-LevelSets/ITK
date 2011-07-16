@@ -28,14 +28,13 @@
 namespace itk
 {
 /** \class ThreadLogger
- *  \brief Class ThreadLogger is meant for providing logging service
- *  as a separate thread.
+ *  \brief Providing logging service as a separate thread.
  *
  * \author Hee-Su Kim, Compute Science Dept. Kyungpook National University,
  *                     ISIS Center, Georgetown University.
  *
  *  \ingroup OSSystemObjects LoggingObjects
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 
 class ITKCommon_EXPORT ThreadLogger:public Logger

@@ -74,8 +74,8 @@ namespace Testing
  * ThreadedGenerateData() method for its implementation.
  *
  * \sa CropImageFilter
- * \ingroup GeometricTransforms
- * \ingroup ITK-TestKernel
+ * \ingroup GeometricTransform
+ * \ingroup ITKTestKernel
  */
 
 template< class TInputImage, class TOutputImage >
@@ -273,7 +273,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTestingExtractSliceImageFilter.txx"
+#include "itkTestingExtractSliceImageFilter.hxx"
 #endif
 
 #endif

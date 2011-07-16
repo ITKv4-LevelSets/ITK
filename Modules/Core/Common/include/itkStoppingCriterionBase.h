@@ -27,13 +27,13 @@ namespace itk
 {
 /**
   * \class StoppingCriterionBase
-  * \brief Abstract base class to represent a stopping criterion for an iterative
-  * algorithm.
+  * \brief An abstract base class to represent a stopping criterion for an iterative
+  *        algorithm.
   *
   * The main method is StoppingCriterionBase::IsSatisfied that must be
   * reimplemented in inheriting classes.
   *
-  * \ingroup ITK-Common
+  * \ingroup ITKCommon
 */
 class ITKCommon_EXPORT StoppingCriterionBase : public Object
 {

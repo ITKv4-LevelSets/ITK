@@ -50,9 +50,8 @@ namespace itk
  * This class was taken from the Insight Journal paper:
  * http://hdl.handle.net/1926/1387
  *
- *
- * \ingroup GeometricTransforms
- * \ingroup ITK-Review
+ * \ingroup GeometricTransform
+ * \ingroup ITKReview
  */
 template< class TOutputImage,
           class TTransformPrecisionType = double >
@@ -213,7 +212,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTransformToDeformationFieldSource.txx"
+#include "itkTransformToDeformationFieldSource.hxx"
 #endif
 
 #endif // end #ifndef __itkTransformToDeformationFieldSource_h

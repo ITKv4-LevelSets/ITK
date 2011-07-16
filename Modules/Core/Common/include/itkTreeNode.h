@@ -28,14 +28,16 @@
 namespace itk
 {
 /** \class TreeNode
- *  \brief This class derives from the Object class, and is
- * templated over the type of the elements.
+ *  \brief Represents a node in a tree.
  *
- * Template parameters for class TreeNode:
- * - TValueType = Element type stored in the node
+ * This class derives from the Object class.
+ *
+ * The class is templated over the type of the elements.
+ *
+ * \tparam TValueType = Element type stored in the node
  *
  * \ingroup DataRepresentation
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 template< class TValueType >
 class TreeNode:public Object
@@ -146,7 +148,7 @@ private:
 #endif
 
 #if ITK_TEMPLATE_TXX
-#include "itkTreeNode.txx"
+#include "itkTreeNode.hxx"
 #endif
 
 #endif

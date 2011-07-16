@@ -40,8 +40,8 @@ namespace itk
  * this class with ShrinkImageFilter. If you need to limit the number
  * of threads, instantiate the afilter and apply the
  * SetNumberOfThreads(1) methods.
- * \ingroup GeometricTransforms
- * \ingroup ITK-Deprecated
+ * \ingroup GeometricTransform
+ * \ingroup ITKDeprecated
  */
 template< class TInputImage, class TOutputImage >
 class ITK_EXPORT NonThreadedShrinkImageFilter:

@@ -70,7 +70,7 @@ namespace itk
  * \ingroup MultiThreaded
  * \ingroup CanBeStreamed
  *
- * \ingroup ITK-ImageGrid
+ * \ingroup ITKImageGrid
  */
 
 template< class TInputImage,
@@ -154,6 +154,11 @@ public:
   /** End concept checking */
 #endif
 protected:
+  InterpolateImagePointsFilter();
+  // ~InterpolateImagePointsFilter(){} default implemnetation ok
+
+  void PrintSelf(std::ostream & os, Indent indent) const;
+
   /** Main function for calculating interpolated values at each coordinate
     * set.  Access is through the update() call. */
 
@@ -164,9 +169,7 @@ protected:
 
   void BeforeThreadedGenerateData();
 
-  InterpolateImagePointsFilter();
-  ~InterpolateImagePointsFilter(){}
-  void PrintSelf(std::ostream & os, Indent indent) const;
+  virtual void VerifyInputInformation();
 
 private:
 
@@ -185,7 +188,7 @@ private:
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkInterpolateImagePointsFilter.txx"
+#include "itkInterpolateImagePointsFilter.hxx"
 #endif
 
 #endif

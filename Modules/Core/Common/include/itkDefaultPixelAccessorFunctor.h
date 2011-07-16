@@ -21,8 +21,10 @@
 namespace itk
 {
 /** \class DefaultPixelAccessorFunctor
- * \brief This class provides a common API for pixel accessors for Image and
- * VectorImage. (between the DefaultVectorPixelAccessor and DefaultPixelAccessor).
+ * \brief Provides a common API for pixel accessors for Image and VectorImage.
+ *
+ * This class makes the interface to DefaultVectorPixelAccessor and
+ * DefaultPixelAccessor appear the same.
  *
  * The pixel accessor is set with the SetPixelAccessor method. This accessor is
  * meant to be used for Image and not for VectorImage.
@@ -37,7 +39,7 @@ namespace itk
  * \sa DefaultVectorPixelAccessor
  * \sa DefaultPixelAccessor
  * \sa DefaultVectorPixelAccessorFunctor
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 template< class TImageType >
 class ITK_EXPORT DefaultPixelAccessorFunctor

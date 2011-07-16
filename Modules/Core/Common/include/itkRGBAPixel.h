@@ -30,23 +30,25 @@
 namespace itk
 {
 /** \class RGBAPixel
- * \brief Represent Red, Green, Blue and Alpha component for color images.
+ * \brief Represent Red, Green, Blue and Alpha components for color images.
  *
  * This class is templated over the representation used for each
  * component.
  *
  * The following syntax for assigning an index is allowed/suggested:
  *
+ * \code
  *    RGBAPixel<float> pixel; pixel = 1.0f, 0.0f, .5f, .8;
  *    RGBAPixel<char> pixelArray[2];
  *    pixelArray[0] = 255, 255, 255, 230;
  *    pixelArray[1] = 255, 255, 244, 255;
+ * \endcode
  *
  * Since RGBAPixel is a subclass of Array, you can access its components as:
  * pixel[0], pixel[1], pixel[2], pixel[3]
  * \ingroup ImageObjects
  *
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  *
  * \wiki
  * \wikiexample{SimpleOperations/Transparency,Make part of an image transparent}
@@ -187,13 +189,13 @@ ITK_EXPORT std::istream & operator>>(std::istream & is,
 // instantiations control of this class, in case the implicit instantiation
 // needs to be disabled.
 //
-// NumericTraits must be included before (optionally) including the .txx file,
-// in case the .txx requires to use NumericTraits.
+// NumericTraits must be included before (optionally) including the .hxx file,
+// in case the .hxx requires to use NumericTraits.
 //
 #include "itkNumericTraitsRGBAPixel.h"
 
 #if ITK_TEMPLATE_TXX
-#include "itkRGBAPixel.txx"
+#include "itkRGBAPixel.hxx"
 #endif
 
 #endif

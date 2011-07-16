@@ -29,12 +29,13 @@
 namespace itk
 {
 /** \class Matrix
- * \brief A templated class holding a M x N size Matrix
+ * \brief A templated class holding a M x N size Matrix.
+ *
  * This class contains a vnl_matrix_fixed in order
  * to make all the vnl mathematical methods available.
  *
  * \ingroup DataRepresentation
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  *
  * \wiki
  * \wikiexample{Math/Matrix,Matrix}
@@ -276,7 +277,7 @@ ITK_EXPORT std::ostream & operator<<(std::ostream & os, const Matrix< T, NRows, 
 #endif
 
 #if ITK_TEMPLATE_TXX
-#include "itkMatrix.txx"
+#include "itkMatrix.hxx"
 #endif
 
 #endif

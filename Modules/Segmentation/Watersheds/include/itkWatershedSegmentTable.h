@@ -44,7 +44,7 @@ namespace watershed
  *
  * \ingroup WatershedSegmentation
  * \sa itk::WatershedImageFilter
- * \ingroup ITK-Watersheds
+ * \ingroup ITKWatersheds
  */
 template< class TScalarType >
 class ITK_EXPORT SegmentTable:public DataObject
@@ -92,8 +92,8 @@ public:
   };
 
   /** Define the container type for the table */
-  typedef itk::hash_map< IdentifierType, segment_t, itk::hash< IdentifierType > >
-  HashMapType;
+  typedef itksys::hash_map< IdentifierType, segment_t,
+    itksys::hash< IdentifierType > >           HashMapType;
   typedef typename HashMapType::iterator       Iterator;
   typedef typename HashMapType::const_iterator ConstIterator;
   typedef typename HashMapType::value_type     ValueType;
@@ -218,7 +218,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkWatershedSegmentTable.txx"
+#include "itkWatershedSegmentTable.hxx"
 #endif
 
 #endif

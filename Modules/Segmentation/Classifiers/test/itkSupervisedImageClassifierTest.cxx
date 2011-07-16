@@ -31,6 +31,12 @@
 #include "itkImageClassifierBase.h"
 
 
+// This tests the supervised image classifier methods. The test,
+// however, only exercises a pathalogical case, where the covariances
+// of all the classes are singular.  In this case, the methods degrade
+// to classifying based on euclidean distance to the mean.
+
+
 //Data definitons
 
 namespace SupervisedImageClassifierTest
@@ -285,12 +291,6 @@ int itkSupervisedImageClassifierTest(int, char* [] )
 
   MembershipFunctionPointerVector membershipFunctions =
     applyEstimateModel->GetMembershipFunctions();
-
-  for(unsigned int idx=0; idx < membershipFunctions.size(); idx++ )
-    {
-    std::cout << "Number of samples for class " << idx << " is " <<
-      membershipFunctions[ idx ]->GetNumberOfSamples() << std::endl;
-    }
 
   //----------------------------------------------------------------------
   //Set the decision rule

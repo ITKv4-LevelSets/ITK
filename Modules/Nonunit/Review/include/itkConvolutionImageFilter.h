@@ -21,6 +21,7 @@
 #include "itkImageToImageFilter.h"
 
 #include "itkProgressAccumulator.h"
+#include "itkZeroFluxNeumannBoundaryCondition.h"
 
 namespace itk
 {
@@ -54,7 +55,7 @@ namespace itk
  *
  * \author Nicholas J. Tustison
  * \author James C. Gee
- * \ingroup ITK-Review
+ * \ingroup ITKReview
  *
  * \wiki
  * \wikiexample{ImageProcessing/ConvolutionImageFilter,Convolve an image with a kernel}
@@ -89,6 +90,16 @@ public:
   typedef typename InputImageType::RegionType  InputRegionType;
   typedef typename OutputImageType::RegionType OutputRegionType;
 
+  /** Typedef to describe the boundary condition. */
+  typedef ImageBoundaryCondition< TInputImage >           BoundaryConditionType;
+  typedef BoundaryConditionType *                         BoundaryConditionPointerType;
+  typedef ZeroFluxNeumannBoundaryCondition< TInputImage > DefaultBoundaryConditionType;
+
+  /** Set/get the boundary condition. */
+  itkSetMacro(BoundaryCondition, BoundaryConditionPointerType);
+  itkGetConstMacro(BoundaryCondition, BoundaryConditionPointerType);
+
+  /** Set/get the image kernel. */
   itkSetInputMacro(ImageKernel, InputImageType, 1);
   itkGetInputMacro(ImageKernel, InputImageType, 1);
 
@@ -107,7 +118,7 @@ public:
 
 protected:
   ConvolutionImageFilter();
-  ~ConvolutionImageFilter();
+  // ~ConvolutionImageFilter(); {} default implementation ok
 
   void PrintSelf(std::ostream & os, Indent indent) const;
 
@@ -120,6 +131,8 @@ protected:
   /** Calculates the padding width needed to make each dimension odd. */
   InputSizeType GetKernelPadSize() const;
 
+  virtual void VerifyInputInformation();
+
 private:
   ConvolutionImageFilter(const Self &); //purposely not implemented
   void operator=(const Self &);         //purposely not implemented
@@ -129,11 +142,14 @@ private:
                            ProgressAccumulator *progress );
 
   bool m_Normalize;
+
+  DefaultBoundaryConditionType m_DefaultBoundaryCondition;
+  BoundaryConditionPointerType m_BoundaryCondition;
 };
 }
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConvolutionImageFilter.txx"
+#include "itkConvolutionImageFilter.hxx"
 #endif
 
 #endif

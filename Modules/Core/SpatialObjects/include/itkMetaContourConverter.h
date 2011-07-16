@@ -25,9 +25,10 @@
 namespace itk
 {
 /** \class MetaContourConverter
- *  \brief converts between MetaObject<->SpatialObject
+ *  \brief converts between MetaObject<->SpatialObject.
+ *
  *  \sa MetaConverterBase
- *  \ingroup ITK-SpatialObjects
+ *  \ingroup ITKSpatialObjects
  */
 template< unsigned int NDimensions = 3 >
 class ITK_EXPORT MetaContourConverter :
@@ -77,7 +78,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMetaContourConverter.txx"
+#include "itkMetaContourConverter.hxx"
 #endif
 
 #endif

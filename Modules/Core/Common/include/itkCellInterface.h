@@ -90,17 +90,16 @@
 namespace itk
 {
 /** \class CellInterface
+ *  \brief An abstract interface for cells.
+ *
  * Define an abstract interface for cells.  Actual cell types derive from
  * this class.
  *
- * Template parameters for Cell:
- *
- * TPixelType = The type stored with an entity (cell, point, or boundary).
- *
- * TCellTraits = Type information for cell.
+ * \tparam TPixelType The type stored with an entity (cell, point, or boundary).
+ * \tparam TCellTraits Type information for cell.
  *
  * \ingroup MeshObjects
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 template<
   typename TPixelType,
@@ -168,7 +167,7 @@ public:
    * type of cell that needs to be visited.
    *
    * \ingroup MeshAccess
-   * \ingroup ITK-Common
+   * \ingroup ITKCommon
    */
   class MultiVisitor:public LightObject
   {
@@ -464,7 +463,7 @@ private:
  * type structure definition.
  *
  * \ingroup MeshObjects
- * \ingroup ITK-Common
+ * \ingroup ITKCommon
  */
 template< int VPointDimension, typename TCoordRep,
           typename TInterpolationWeight, typename TPointIdentifier,
@@ -497,7 +496,7 @@ public:
 
 #if !defined( CABLE_CONFIGURATION )
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCellInterface.txx"
+#include "itkCellInterface.hxx"
 #endif
 #endif
 

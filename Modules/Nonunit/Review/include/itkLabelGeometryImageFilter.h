@@ -22,7 +22,7 @@
 #include "itkNumericTraits.h"
 #include "itkArray.h"
 #include "itkSimpleDataObjectDecorator.h"
-#include "itk_hash_map.h"
+#include "itksys/hash_map.hxx"
 #include "itkFastMutexLock.h"
 #include <vector>
 #include "vnl/algo/vnl_symmetric_eigensystem.h"
@@ -69,7 +69,7 @@ namespace itk
  *  http://www.insight-journal.org/browse/publication/301
  *  http://hdl.handle.net/1926/1493
  *
- * \ingroup ITK-Review
+ * \ingroup ITKReview
  */
 template< class TLabelImage, class TIntensityImage = TLabelImage >
 class ITK_EXPORT LabelGeometryImageFilter:
@@ -150,7 +150,7 @@ public:
 
   /** \class LabelGeometry
    * \brief Geometry stored per label
-   * \ingroup ITK-Review
+   * \ingroup ITKReview
    */
   class LabelGeometry
   {
@@ -243,9 +243,9 @@ public:
 
   /** Type of the map used to store data per label */
   // Map from the label to the class storing all of the geometry information.
-  typedef itk::hash_map< LabelPixelType, LabelGeometry >                          MapType;
-  typedef typename itk::hash_map< LabelPixelType, LabelGeometry >::iterator       MapIterator;
-  typedef typename itk::hash_map< LabelPixelType, LabelGeometry >::const_iterator MapConstIterator;
+  typedef itksys::hash_map< LabelPixelType, LabelGeometry >                          MapType;
+  typedef typename itksys::hash_map< LabelPixelType, LabelGeometry >::iterator       MapIterator;
+  typedef typename itksys::hash_map< LabelPixelType, LabelGeometry >::const_iterator MapConstIterator;
 
   // Macros for enabling the calculation of additional features.
   itkGetMacro(CalculatePixelIndices, bool);
@@ -498,7 +498,7 @@ bool CalculateOrientedImage(
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelGeometryImageFilter.txx"
+#include "itkLabelGeometryImageFilter.hxx"
 #endif
 
 #endif
