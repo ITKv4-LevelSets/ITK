@@ -124,5 +124,5 @@ class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<
 
 } /* namespace itk */
 
-#include "itkLevelSetDomainMapImageFilter.txx"
+#include "itkLevelSetDomainMapImageFilter.hxx"
 #endif
