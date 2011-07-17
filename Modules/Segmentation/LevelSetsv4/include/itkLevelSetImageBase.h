@@ -29,7 +29,8 @@ class LevelSetImageBase :
   public LevelSetBase<
       typename TImage::IndexType,
       TImage::ImageDimension,
-      typename TImage::PixelType >
+      typename TImage::PixelType,
+      TImage >
   {
 public:
   typedef TImage                        ImageType;
@@ -41,7 +42,7 @@ public:
   typedef SmartPointer< Self >       Pointer;
   typedef SmartPointer< const Self > ConstPointer;
   typedef LevelSetBase< IndexType,
-    ImageType::ImageDimension, PixelType >
+    ImageType::ImageDimension, PixelType, ImageType >
                                      Superclass;
 
   /** Method for creation through object factory */
