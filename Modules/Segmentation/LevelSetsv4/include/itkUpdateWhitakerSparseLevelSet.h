@@ -80,7 +80,7 @@ public:
   // Input is also WhitakerSparseLevelSetBasePointer
   void UpdateZeroLevelSet()
   {
-    LevelSetLayerType& layer0 = m_TempLevelSet->GetLayer( 0 );
+    LevelSetLayerType& layer0 = m_SparseLevelSet->GetLayer( 0 );
 
     m_TempLevelSet->GetLayer( 1 ).clear();
     m_TempLevelSet->GetLayer( -1 ).clear();
@@ -94,7 +94,8 @@ public:
       LevelSetInputType   currentIndex = zeroSetIt->first;
       LevelSetOutputType  currentValue = zeroSetIt->second;
 
-      assert( upIt->first == currentIndex );
+      LevelSetInputType updateIndex = upIt->first;
+      assert( updateIndex == currentIndex );
 
       // update the level set
       LevelSetOutputType tempUpdate =

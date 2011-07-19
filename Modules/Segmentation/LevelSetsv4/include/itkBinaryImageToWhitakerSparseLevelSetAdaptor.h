@@ -128,6 +128,8 @@ public:
     LevelSetLayerConstIterator nodeIt = layerMinus1.begin();
     LevelSetLayerConstIterator nodeEnd = layerMinus1.end();
 
+    typename InputImageType::SizeType imageSize = m_InputImage->GetRequestedRegion().GetSize();
+
     LevelSetInputType idx, tempIdx;
 
     while( nodeIt != nodeEnd )
@@ -139,15 +141,18 @@ public:
       {
         for( int kk = -1; kk < 2; kk += 2 )
         {
-          tempIdx[dim] += kk;
-          if( layerMinus1.find( tempIdx ) == layerMinus1.end() )
+          if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
           {
-            if( layer0.find( tempIdx ) == layer0.end() )
+            tempIdx[dim] += kk;
+            if( layerMinus1.find( tempIdx ) == layerMinus1.end() )
             {
-              if( labelObject->HasIndex( tempIdx ) )
+              if( layer0.find( tempIdx ) == layer0.end() )
               {
-                layerMinus2.insert(
-                      std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, minus2 ) );
+                if( labelObject->HasIndex( tempIdx ) )
+                {
+                  layerMinus2.insert(
+                        std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, minus2 ) );
+                }
               }
             }
           }
@@ -172,6 +177,8 @@ public:
     LevelSetLayerConstIterator nodeIt = layerPlus1.begin();
     LevelSetLayerConstIterator nodeEnd = layerPlus1.end();
 
+    typename InputImageType::SizeType imageSize = m_InputImage->GetRequestedRegion().GetSize();
+
     LevelSetInputType idx, tempIdx;
 
     while( nodeIt != nodeEnd )
@@ -183,15 +190,18 @@ public:
       {
         for( int kk = -1; kk < 2; kk+=2 )
         {
-          tempIdx[dim] += kk;
-          if( layerPlus1.find( tempIdx ) == layerPlus1.end() )
+          if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
           {
-            if( layer0.find( tempIdx ) == layer0.end() )
+            tempIdx[dim] += kk;
+            if( layerPlus1.find( tempIdx ) == layerPlus1.end() )
             {
-              if( !labelObject->HasIndex( tempIdx ) )
+              if( layer0.find( tempIdx ) == layer0.end() )
               {
-                layerPlus2.insert(
-                      std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, plus2 ) );
+                if( !labelObject->HasIndex( tempIdx ) )
+                {
+                  layerPlus2.insert(
+                        std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, plus2 ) );
+                }
               }
             }
           }
@@ -216,6 +226,8 @@ public:
 
     const LevelSetOutputType zero = NumericTraits< LevelSetOutputType >::Zero;
 
+    typename InputImageType::SizeType imageSize = m_InputImage->GetRequestedRegion().GetSize();
+
     while( lineIt != lineContainer.end() )
       {
       LevelSetLabelObjectLineType line = *lineIt;
@@ -232,7 +244,7 @@ public:
         bool isOnBorder = false;
         typename LevelSetLabelObjectLineType::IndexType tempIdx = index;
 
-        if( counter == 0 )
+        if( ( counter == 0 ) && ( tempIdx[0] != 0 ) )
           {
           --tempIdx[0];
           if( !labelObject->HasIndex( tempIdx ) )
@@ -242,7 +254,7 @@ public:
           tempIdx[0] = index[0];
           }
 
-        if( counter == length-1 )
+        if( ( counter == length-1 ) && ( tempIdx[0] != imageSize[0] ) )
           {
           ++tempIdx[0];
           if( !labelObject->HasIndex( tempIdx ) )
@@ -256,12 +268,15 @@ public:
         {
           for( int kk = -1; kk < 2; kk += 2)
           {
-            tempIdx[dim] += kk;
-            if( !labelObject->HasIndex( tempIdx ) )
-              {
-              isOnBorder = true;
-              }
-            tempIdx[dim] = index[dim];
+            if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
+            {
+              tempIdx[dim] += kk;
+              if( !labelObject->HasIndex( tempIdx ) )
+                {
+                isOnBorder = true;
+                }
+              tempIdx[dim] = index[dim];
+            }
           }
           if( isOnBorder )
           {
@@ -290,6 +305,8 @@ public:
     LevelSetLayerConstIterator nodeIt = layer0.begin();
     LevelSetLayerConstIterator nodeEnd = layer0.end();
 
+    typename InputImageType::SizeType imageSize = m_InputImage->GetRequestedRegion().GetSize();
+
     LevelSetInputType idx, tempIdx;
 
     while( nodeIt != nodeEnd )
@@ -301,18 +318,21 @@ public:
       {
         for( int kk = -1; kk < 2; kk+=2 )
         {
-          tempIdx[dim] += kk;
-          if( layer0.find( tempIdx ) == layer0.end() )
+          if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
           {
-            if( labelObject->HasIndex( tempIdx ) )
+            tempIdx[dim] += kk;
+            if( layer0.find( tempIdx ) == layer0.end() )
             {
-              layerMinus1.insert(
-                    std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, minus1 ) );
-            }
-            else
-            {
-              layerPlus1.insert(
-                    std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, plus1 ) );
+              if( labelObject->HasIndex( tempIdx ) )
+              {
+                layerMinus1.insert(
+                      std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, minus1 ) );
+              }
+              else
+              {
+                layerPlus1.insert(
+                      std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, plus1 ) );
+              }
             }
           }
           tempIdx[dim] = idx[dim];

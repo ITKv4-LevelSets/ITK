@@ -80,6 +80,21 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef BinaryToSparseAdaptorType::LevelSetType     SparseLevelSetType;
   SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
 
+  for( char lyr = -2; lyr < 3; lyr++ )
+  {
+    SparseLevelSetType::LayerType layer = sparseLevelSet->GetLayer( lyr );
+    SparseLevelSetType::LayerIterator lIt = layer.begin();
+
+    std::cout << "*** " << static_cast< int >( lyr ) << " ***" <<std::endl;
+
+    while( lIt != layer.end() )
+    {
+      std::cout << lIt->first << std::endl;
+      ++lIt;
+    }
+    std::cout << std::endl;
+  }
+
   typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
     LevelSetContainerType;
   typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
@@ -103,6 +118,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
 
   while( list_it != list_end )
   {
+    LevelSetInputType tempIdx = list_it->first;
     if( atoi( argv[1]) == 2 )
     {
       update_list.insert(
