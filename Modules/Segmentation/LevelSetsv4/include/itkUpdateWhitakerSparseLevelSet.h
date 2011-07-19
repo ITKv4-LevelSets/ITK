@@ -80,7 +80,7 @@ public:
   // Input is also WhitakerSparseLevelSetBasePointer
   void UpdateZeroLevelSet()
   {
-    LevelSetLayerType& layer0 = m_SparseLevelSet->GetLayer( 0 );
+    LevelSetLayerType& layer0 = m_OutputLevelSet->GetLayer( 0 );
 
     m_TempLevelSet->GetLayer( 1 ).clear();
     m_TempLevelSet->GetLayer( -1 ).clear();
@@ -113,9 +113,6 @@ public:
       LevelSetOutputType tempValue = currentValue + tempUpdate;
       m_RMSChangeAccumulator += tempUpdate*tempUpdate;
 
-      layer0.erase( zeroSetIt );
-      m_Update.erase( upIt );
-
       // if(phi(p)> .5), remove p from Lz, add p to Sp1
       if( tempValue > static_cast<LevelSetOutputType>( 0.5 ) )
         {
@@ -126,14 +123,17 @@ public:
         {
           for( int kk = -1; kk < 2; kk +=2 )
           {
-            tempIndex[dim] = currentIndex[dim] + kk;
-            LevelSetLayerIterator tempIt = layer0.find( tempIndex );
-
-            if( tempIt != layer0.end() )
+//            if( ( tempIndex[dim] > 0 ) && ( tempIndex[dim] < imageSize[dim] - 1 ) )
             {
-              if( tempIt->second < -0.5 )
+              tempIndex[dim] = currentIndex[dim] + kk;
+              LevelSetLayerIterator tempIt = layer0.find( tempIndex );
+
+              if( tempIt != layer0.end() )
               {
-                ok = false;
+                if( tempIt->second < -0.5 )
+                {
+                  ok = false;
+                }
               }
             }
           }
@@ -164,36 +164,41 @@ public:
           {
             for( int kk = -1; kk < 2; kk += 2 )
             {
-              tempIndex[dim] = currentIndex[dim] + kk;
-              LevelSetLayerIterator tempIt = layer0.find( tempIndex );
-
-              if( tempIt != layer0.end() )
+//              if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
               {
-                if( tempIt->second > 0.5 )
+                tempIndex[dim] = currentIndex[dim] + kk;
+                LevelSetLayerIterator tempIt = layer0.find( tempIndex );
+
+                if( tempIt != layer0.end() )
                 {
-                  ok = false;
+                  if( tempIt->second > 0.5 )
+                  {
+                    ok = false;
+                  }
                 }
               }
             }
           }
           if( ok )
             {
+            layer0.erase( zeroSetIt );
+
             currentValue = tempValue;
             m_TempLevelSet->GetLayer( -1 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue ) );
             }
-          else
-            {
-              m_TempLevelSet->GetLayer( 0 ).insert(
-                    std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue) );
-            }
+//          else
+//            {
+//            m_TempLevelSet->GetLayer( 0 ).insert(
+//                    std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue) );
+//            }
           }
         // else keep it in Lz
-        else
-          {
-            m_TempLevelSet->GetLayer( 0 ).insert(
-                  std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue) );
-          }
+//        else
+//          {
+//          m_TempLevelSet->GetLayer( 0 ).insert(
+//                  std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue) );
+//          }
         }
       ++zeroSetIt;
       ++upIt;
@@ -209,7 +214,7 @@ public:
     const char status_minus_1 = status - 1;
 
     // for each point p in Ln1 -- status = -1
-    LevelSetLayerType& list = m_TempLevelSet->GetLayer( status );
+    LevelSetLayerType& list = m_OutputLevelSet->GetLayer( status );
     LevelSetLayerIterator layerIt = list.begin();
 
     while( layerIt != list.end() )
@@ -229,19 +234,22 @@ public:
       {
         for( int kk = -1; kk < 2; kk += 2 )
         {
-          char tempStatus = 0;
-          LevelSetOutputType tempValue = 0.;
-
-          tempIndex[dim] = currentIndex[dim] + kk;
-          m_TempLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
-
-          if( tempStatus == status_plus_1 )
+//          if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
           {
-            IsThereNeighborEqualToStatusPlus1 = true;
-          }
-          if( ( tempValue > M ) && ( tempStatus >= status_plus_1 ) )
-          {
-            M = tempValue;
+            char tempStatus = 0;
+            LevelSetOutputType tempValue = 0.;
+
+            tempIndex[dim] = currentIndex[dim] + kk;
+            m_TempLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
+
+            if( tempStatus == status_plus_1 )
+            {
+              IsThereNeighborEqualToStatusPlus1 = true;
+            }
+            if( ( tempValue > M ) && ( tempStatus >= status_plus_1 ) )
+            {
+              M = tempValue;
+            }
           }
         }
         tempIndex[dim] = currentIndex[dim];
@@ -313,7 +321,7 @@ public:
     const char status_minus_1 = status - 1;
     const char status_plus_1 = status + 1;
 
-    LevelSetLayerType& list = m_TempLevelSet->GetLayer( status );
+    LevelSetLayerType& list = m_OutputLevelSet->GetLayer( status );
     LevelSetLayerIterator layerIt = list.begin();
 
     while( layerIt != list.end() )
@@ -331,20 +339,23 @@ public:
       {
         for( int kk = -1; kk < 2; kk += 2 )
         {
-          char tempStatus = 0;
-          LevelSetOutputType tempValue = 0.;
-
-          tempIndex[dim] = currentIndex[dim] + kk;
-          m_TempLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
-
-          if( tempStatus == status_minus_1 )
+//          if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
           {
-            IsThereNeighborEqualToStatusMinus1 = true;
-          }
-          if ( ( tempValue < M ) &&
-              ( tempStatus <= status_minus_1 ) )
-          {
-            M = tempValue;
+            char tempStatus = 0;
+            LevelSetOutputType tempValue = 0.;
+
+            tempIndex[dim] = currentIndex[dim] + kk;
+            m_TempLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
+
+            if( tempStatus == status_minus_1 )
+            {
+              IsThereNeighborEqualToStatusMinus1 = true;
+            }
+            if ( ( tempValue < M ) &&
+                ( tempStatus <= status_minus_1 ) )
+            {
+              M = tempValue;
+            }
           }
         }
       }
@@ -409,6 +420,14 @@ public:
       itkGenericExceptionMacro( <<"m_Update is empty" );
       }
 
+    m_OutputLevelSet->SetLayer( -2, m_SparseLevelSet->GetLayer( -2 ) );
+    m_OutputLevelSet->SetLayer( -1, m_SparseLevelSet->GetLayer( -1 ) );
+    m_OutputLevelSet->SetLayer(  0, m_SparseLevelSet->GetLayer(  0 ) );
+    m_OutputLevelSet->SetLayer(  1, m_SparseLevelSet->GetLayer(  1 ) );
+    m_OutputLevelSet->SetLayer(  2, m_SparseLevelSet->GetLayer(  2 ) );
+
+    m_OutputLevelSet->SetLabelObject( m_SparseLevelSet->GetLabelObject() );
+
     UpdateZeroLevelSet();
     UpdateMinusLevelSet( -1 );
     UpdatePlusLevelSet( 1 );
@@ -421,9 +440,16 @@ public:
   void UpdatePointsChangingStatus()
   {
     // Move points into the zero levelset
-    LevelSetLayerType& list0 = m_TempLevelSet->GetLayer( 0 );
+    LevelSetLayerType list0 = m_TempLevelSet->GetLayer( 0 );
 
-    m_SparseLevelSet->SetLayer( 0, list0 );
+    LevelSetLayerIterator it = list0.begin();
+
+    while( it != list0.end() )
+    {
+      m_OutputLevelSet->GetLayer(0).insert(
+            std::pair< LevelSetInputType, LevelSetOutputType >( it->first, it->second ) );
+      ++it;
+    }
 
     UpdatePointsChangingStatus( -1 );
 
@@ -459,7 +485,7 @@ public:
       LevelSetOutputType  currentValue = layerIt->second;
 
       // add p to L_{iStatus}
-      m_SparseLevelSet->GetLayer( iStatus ).insert(
+      m_OutputLevelSet->GetLayer( iStatus ).insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                 currentValue ) );
 
@@ -474,19 +500,22 @@ public:
         {
           for( int kk = -1; kk < 2; kk += 2 )
           {
-            char tempStatus = 0;
-            LevelSetOutputType tempValue = 0.;
-
-            tempIndex[dim] = currentIndex[dim] + kk;
-
-            m_TempLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
-
-            if( tempValue == static_cast< LevelSetOutputType >( iStatus + 2 * iSign ) )
+//            if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
             {
-              tempStatus += iSign;
-              tempValue += static_cast< LevelSetOutputType >( iSign );
-              m_TempLevelSet->GetLayer( tempStatus ).insert(
-                    std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, tempValue ) );
+              char tempStatus = 0;
+              LevelSetOutputType tempValue = 0.;
+
+              tempIndex[dim] = currentIndex[dim] + kk;
+
+              m_OutputLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
+
+              if( tempValue == static_cast< LevelSetOutputType >( iStatus + 2 * iSign ) )
+              {
+                tempStatus += iSign;
+                tempValue += static_cast< LevelSetOutputType >( iSign );
+                m_TempLevelSet->GetLayer( tempStatus ).insert(
+                      std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, tempValue ) );
+              }
             }
           }
           tempIndex[dim] = currentIndex[dim];
@@ -520,6 +549,7 @@ protected:
     m_MinStatus( -3 ),  m_MaxStatus( 3 )
     {
     m_TempLevelSet = LevelSetType::New();
+    m_OutputLevelSet = LevelSetType::New();
     }
   ~UpdateWhitakerSparseLevelSet() {}
 
@@ -530,6 +560,7 @@ protected:
 
   LevelSetLayerType  m_Update;
   LevelSetPointer    m_SparseLevelSet;
+  LevelSetPointer    m_OutputLevelSet;
 
   LevelSetPointer   m_TempLevelSet;
   char              m_MinStatus;

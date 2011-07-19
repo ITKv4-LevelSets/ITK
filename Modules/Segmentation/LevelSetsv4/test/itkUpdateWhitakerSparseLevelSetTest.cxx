@@ -122,26 +122,26 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
     if( atoi( argv[1]) == 2 )
     {
       update_list.insert(
-            std::pair< LevelSetInputType, OutputPixelType >( list_it->first, -1.0  ) );
+            std::pair< LevelSetInputType, OutputPixelType >( tempIdx, -1.0  ) );
     }
     else
     {
       if( atoi( argv[1] ) == 0 )
       {
         update_list.insert(
-              std::pair< LevelSetInputType, OutputPixelType >( list_it->first, 1.0  ) );
+              std::pair< LevelSetInputType, OutputPixelType >( tempIdx, 1.0  ) );
       }
       else
       {
         if( ( ( list_it->first )[1] % 20 ) < 10 )
         {
           update_list.insert(
-                std::pair< LevelSetInputType, OutputPixelType >( list_it->first, -1.0  ) );
+                std::pair< LevelSetInputType, OutputPixelType >( tempIdx, -1.0  ) );
         }
         else
         {
           update_list.insert(
-                std::pair< LevelSetInputType, OutputPixelType >( list_it->first, 1.0  ) );
+                std::pair< LevelSetInputType, OutputPixelType >( tempIdx, 1.0  ) );
         }
       }
     }
