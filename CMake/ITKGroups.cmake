@@ -69,6 +69,7 @@ ITKQuadEdgeMeshFiltering
 ITKSmoothing
 ITKSpatialFunction
 ITKThresholding
+ITKLabelMap
 )
 
 set(Registration_module_list
@@ -105,6 +106,7 @@ ITKStatistics
 
 
 set(Bridge_module_list
+ITKVtkGlue
 ITKVTK)
 
 set(Utilities_module_list
