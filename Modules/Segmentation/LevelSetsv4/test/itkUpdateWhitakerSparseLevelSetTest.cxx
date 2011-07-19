@@ -35,16 +35,9 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef double        OutputPixelType;
 
   typedef itk::Image< InputPixelType, Dimension >   InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension >  OutputImageType;
 
   typedef itk::ImageFileReader< InputImageType >  InputReaderType;
-  typedef itk::ImageFileWriter< OutputImageType > OutputWriterType;
 
-  typedef itk::Image< char, Dimension >             StatusImageType;
-  typedef itk::ImageFileWriter< StatusImageType >   StatusWriterType;
-
-  typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
-  typedef itk::ImageRegionIterator< StatusImageType > StatusIteratorType;
   typedef itk::IdentifierType                         IdentifierType;
 
   InputImageType::Pointer input = InputImageType::New();
@@ -143,31 +136,66 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   update_levelset->SetUpdate( update_list );
   update_levelset->Update();
 
-//  OutputWriterType::Pointer writer = OutputWriterType::New();
-//  writer->SetFileName( argv[2] );
-//  writer->SetInput( sparseLevelSet->GetOutputImage() );
+  typedef itk::Image< OutputPixelType, Dimension >    OutputImageType;
+  OutputImageType::Pointer output = OutputImageType::New();
+  output->SetRegions( input->GetLargestPossibleRegion() );
+  output->CopyInformation( input );
+  output->Allocate();
+  output->FillBuffer( 0.0 );
 
-//  try
-//    {
-//    writer->Update();
-//    }
-//  catch ( itk::ExceptionObject& err )
-//    {
-//    std::cout << err << std::endl;
-//    }
+  typedef itk::Image< char, Dimension >               StatusImageType;
+  StatusImageType::Pointer status = StatusImageType::New();
+  status->SetRegions( input->GetLargestPossibleRegion() );
+  status->CopyInformation( input );
+  status->Allocate();
+  status->FillBuffer( 0 );
 
-//  StatusWriterType::Pointer status_writer = StatusWriterType::New();
-//  status_writer->SetFileName( argv[3] );
-//  status_writer->SetInput( sparseLevelSet->GetStatusImage() );
+  typedef itk::ImageRegionIteratorWithIndex< OutputImageType > OutputIteratorType;
+  OutputIteratorType oIt( output, output->GetLargestPossibleRegion() );
+  oIt.GoToBegin();
 
-//  try
-//    {
-//    status_writer->Update();
-//    }
-//  catch ( itk::ExceptionObject& err )
-//    {
-//    std::cout << err << std::endl;
-//    }
+  typedef itk::ImageRegionIteratorWithIndex< StatusImageType > StatusIteratorType;
+  StatusIteratorType sIt( status, status->GetLargestPossibleRegion() );
+  sIt.GoToBegin();
+
+  StatusImageType::IndexType idx;
+
+  while( !oIt.IsAtEnd() )
+    {
+    idx = oIt.GetIndex();
+    oIt.Set( sparseLevelSet->Evaluate( idx ) );
+    sIt.Set( sparseLevelSet->Status( idx ) );
+    ++oIt;
+    ++sIt;
+    }
+
+  typedef itk::ImageFileWriter< OutputImageType >     OutputWriterType;
+  OutputWriterType::Pointer outputWriter = OutputWriterType::New();
+  outputWriter->SetFileName( argv[2] );
+  outputWriter->SetInput( output );
+
+  try
+    {
+    outputWriter->Update();
+    }
+  catch ( itk::ExceptionObject& err )
+    {
+    std::cout << err << std::endl;
+    }
+
+  typedef itk::ImageFileWriter< StatusImageType >     StatusWriterType;
+  StatusWriterType::Pointer statusWriter = StatusWriterType::New();
+  statusWriter->SetFileName( argv[3] );
+  statusWriter->SetInput( status );
+
+  try
+    {
+    statusWriter->Update();
+    }
+  catch ( itk::ExceptionObject& err )
+    {
+    std::cout << err << std::endl;
+    }
 
   return EXIT_SUCCESS;
 }

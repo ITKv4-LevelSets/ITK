@@ -82,27 +82,27 @@ add_test(NAME itkBinaryImageToWhitakerSparseLevelSetsv4AdaptorTest
 #      ${ITK_DATA_ROOT}/Input/circle.png
 #      output_binary_shi_adaptor.mha
 #      )
-#add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test0
-#      COMMAND ITK-LevelSetsv4TestDriver
-#      itkUpdateWhitakerSparseLevelSetTest
-#      0
-#      output_update_whitaker_sparse0.mha
-#      status_update_whitaker_sparse0.mha
-#      )
-#add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test1
-#      COMMAND ITK-LevelSetsv4TestDriver
-#      itkUpdateWhitakerSparseLevelSetTest
-#      1
-#      output_update_whitaker_sparse1.mha
-#      status_update_whitaker_sparse1.mha
-#     )
-#add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
-#      COMMAND ITK-LevelSetsv4TestDriver
-#      itkUpdateWhitakerSparseLevelSetTest
-#      2
-#      output_update_whitaker_sparse2.mha
-#      status_update_whitaker_sparse2.mha
-#    )
+add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test0
+      COMMAND ITK-LevelSetsv4TestDriver
+      itkUpdateWhitakerSparseLevelSetTest
+      0
+      output_update_whitaker_sparse0.mha
+      status_update_whitaker_sparse0.mha
+      )
+add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test1
+      COMMAND ITK-LevelSetsv4TestDriver
+      itkUpdateWhitakerSparseLevelSetTest
+      1
+      output_update_whitaker_sparse1.mha
+      status_update_whitaker_sparse1.mha
+     )
+add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
+      COMMAND ITK-LevelSetsv4TestDriver
+      itkUpdateWhitakerSparseLevelSetTest
+      2
+      output_update_whitaker_sparse2.mha
+      status_update_whitaker_sparse2.mha
+    )
 
 #add_test(NAME itkUpdateShiSparseLevelSetsv4Test0
 #      COMMAND ITK-LevelSetsv4TestDriver
