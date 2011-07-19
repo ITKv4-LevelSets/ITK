@@ -17,7 +17,7 @@ itkWhitakerSparseLevelSetBaseTest.cxx
 itkBinaryImageToWhitakerSparseLevelSetAdaptorTest.cxx
 #itkBinaryImageToMalcolmSparseLevelSetAdaptorTest.cxx
 #itkBinaryImageToShiSparseLevelSetAdaptorTest.cxx
-#itkUpdateWhitakerSparseLevelSetTest.cxx
+itkUpdateWhitakerSparseLevelSetTest.cxx
 #itkUpdateShiSparseLevelSetTest.cxx
 #itkUpdateMalcolmSparseLevelSetTest.cxx
 #itkSingleLevelSetSparse2DTest.cxx

@@ -45,7 +45,6 @@ public:
   /** typedefs related to the type of level set*/
   typedef TLevelSet                             LevelSetType;
   typedef typename LevelSetType::Pointer        LevelSetPointer;
-  typedef typename LevelSetType::ImageType      LevelSetImageType;
   typedef typename LevelSetType::InputType      InputIndexType;
   typedef typename LevelSetType::OutputType     OutputType;
   typedef typename LevelSetType::OutputRealType OutputRealType;
@@ -63,15 +62,15 @@ public:
                                             HeavisideType;
   typedef typename HeavisideType::Pointer   HeavisidePointer;
 
-  itkStaticConstMacro ( ImageDimension, unsigned int,
-                       LevelSetImageType::ImageDimension );
+  itkStaticConstMacro ( Dimension, unsigned int,
+                        LevelSetType::Dimension );
 
-  typedef std::list< IdentifierType >                    IdListType;
-  typedef typename IdListType::iterator                  IdListIterator;
-  typedef Image< IdListType, ImageDimension >            IdListImageType;
-  typedef Image< short, ImageDimension >                 CacheImageType;
+  typedef std::list< IdentifierType >                   IdListType;
+  typedef typename IdListType::iterator                 IdListIterator;
+  typedef Image< IdListType, Dimension >                IdListImageType;
+  typedef Image< short, Dimension >                     CacheImageType;
   typedef LevelSetDomainMapImageFilter< IdListImageType, CacheImageType >
-                                                         DomainMapImageFilterType;
+                                                        DomainMapImageFilterType;
 
   typedef typename DomainMapImageFilterType::Pointer         DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;

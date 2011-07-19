@@ -45,7 +45,6 @@ public:
 
   typedef typename Superclass::LevelSetType       LevelSetType;
   typedef typename Superclass::LevelSetPointer    LevelSetPointer;
-  typedef typename Superclass::LevelSetImageType  LevelSetImageType;
   typedef typename Superclass::InputIndexType     InputIndexType;
 //   typedef typename Superclass::OutputPixelType    OutputPixelType;
   typedef typename Superclass::OutputType         OutputPixelType;
@@ -62,7 +61,7 @@ public:
   typedef typename Superclass::HeavisideType    HeavisideType;
   typedef typename Superclass::HeavisidePointer HeavisidePointer;
 
-  itkStaticConstMacro ( ImageDimension, unsigned int, LevelSetImageType::ImageDimension );
+  itkStaticConstMacro ( Dimension, unsigned int, LevelSetType::Dimension );
 
   typedef typename Superclass::IdListType               IdListType;
   typedef typename Superclass::IdListIterator           IdListIterator;

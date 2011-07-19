@@ -40,28 +40,12 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef itk::ImageFileReader< InputImageType >  InputReaderType;
   typedef itk::ImageFileWriter< OutputImageType > OutputWriterType;
 
-  typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType,
-      OutputPixelType > BinaryToSparseAdaptorType;
-
-  typedef BinaryToSparseAdaptorType::LevelSetType            SparseLevelSetType;
-  typedef SparseLevelSetType::ImageType                      SparseImageType;
-  typedef SparseLevelSetType::NodeAttributeType              NodeAttributeType;
-  typedef BinaryToSparseAdaptorType::LevelSetNodeStatusType  StatusPixelType;
-
-  typedef itk::Image< StatusPixelType, Dimension >  StatusImageType;
+  typedef itk::Image< char, Dimension >             StatusImageType;
   typedef itk::ImageFileWriter< StatusImageType >   StatusWriterType;
 
-  typedef itk::ImageRegionIterator< SparseImageType > SparseIteratorType;
   typedef itk::ImageRegionIterator< OutputImageType > OutputIteratorType;
   typedef itk::ImageRegionIterator< StatusImageType > StatusIteratorType;
   typedef itk::IdentifierType                         IdentifierType;
-
-  typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
-    LevelSetContainerType;
-  typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
-    TermContainerType;
-  typedef itk::LevelSetEquationContainerBase< TermContainerType >
-    EquationContainerType;
 
   InputImageType::Pointer input = InputImageType::New();
   InputImageType::RegionType region;
@@ -93,84 +77,97 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
 
   std::cout << "Input image computed" << std::endl;
 
+  typedef itk::BinaryImageToWhitakerSparseLevelSetAdaptor< InputImageType,
+      OutputPixelType > BinaryToSparseAdaptorType;
+
   BinaryToSparseAdaptorType::Pointer adaptor = BinaryToSparseAdaptorType::New();
   adaptor->SetInputImage( input );
   adaptor->Initialize();
-  std::cout << "Finished converting to sparse format" << std::endl;
 
+  typedef BinaryToSparseAdaptorType::LevelSetType     SparseLevelSetType;
   SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
+
+  typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
+    LevelSetContainerType;
+  typedef itk::LevelSetEquationTermContainerBase< InputImageType, LevelSetContainerType >
+    TermContainerType;
+  typedef itk::LevelSetEquationContainerBase< TermContainerType >
+    EquationContainerType;
 
   typedef itk::UpdateWhitakerSparseLevelSet< Dimension, OutputPixelType, EquationContainerType >
     UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
   update_levelset->SetSparseLevelSet( sparseLevelSet );
 
-  UpdateLevelSetType::UpdateListType* update_list =
-      new UpdateLevelSetType::UpdateListType;
+  UpdateLevelSetType::LevelSetLayerType update_list;
 
-  SparseLevelSetType::NodeListIterator list_it = sparseLevelSet->GetListNode( 0 )->begin();
-  SparseLevelSetType::NodeListIterator list_end = sparseLevelSet->GetListNode( 0 )->end();
+  SparseLevelSetType::LayerIterator list_it = sparseLevelSet->GetLayer( 0 ).begin();
+  SparseLevelSetType::LayerIterator list_end = sparseLevelSet->GetLayer( 0 ).end();
+
+  typedef SparseLevelSetType::InputType LevelSetInputType;
 
   size_t k = 0;
 
   while( list_it != list_end )
-    {
+  {
     if( atoi( argv[1]) == 2 )
-      {
-      update_list->push_back( -1.0 );
-      }
-    else
-      {
-      if( atoi( argv[1] ) == 0 )
-        {
-        update_list->push_back( 1.0 );
-        }
-      else
-        {
-        if( ( ( list_it->first )[1] % 20 ) < 10 )
-          {
-          update_list->push_back( -1.0 );
-          }
-        else
-          {
-          update_list->push_back( 1.0 );
-          }
-        }
-      }
-    ++k;
-    ++list_it;
+    {
+      update_list.insert(
+            std::pair< LevelSetInputType, OutputPixelType >( list_it->first, -1.0  ) );
     }
+    else
+    {
+      if( atoi( argv[1] ) == 0 )
+      {
+        update_list.insert(
+              std::pair< LevelSetInputType, OutputPixelType >( list_it->first, 1.0  ) );
+      }
+      else
+      {
+        if( ( ( list_it->first )[1] % 20 ) < 10 )
+        {
+          update_list.insert(
+                std::pair< LevelSetInputType, OutputPixelType >( list_it->first, -1.0  ) );
+        }
+        else
+        {
+          update_list.insert(
+                std::pair< LevelSetInputType, OutputPixelType >( list_it->first, 1.0  ) );
+        }
+      }
+    }
+  ++k;
+  ++list_it;
+  }
 
   update_levelset->SetUpdate( update_list );
   update_levelset->Update();
 
-  delete update_list;
+//  OutputWriterType::Pointer writer = OutputWriterType::New();
+//  writer->SetFileName( argv[2] );
+//  writer->SetInput( sparseLevelSet->GetOutputImage() );
 
-  OutputWriterType::Pointer writer = OutputWriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( sparseLevelSet->GetOutputImage() );
+//  try
+//    {
+//    writer->Update();
+//    }
+//  catch ( itk::ExceptionObject& err )
+//    {
+//    std::cout << err << std::endl;
+//    }
 
-  try
-    {
-    writer->Update();
-    }
-  catch ( itk::ExceptionObject& err )
-    {
-    std::cout << err << std::endl;
-    }
+//  StatusWriterType::Pointer status_writer = StatusWriterType::New();
+//  status_writer->SetFileName( argv[3] );
+//  status_writer->SetInput( sparseLevelSet->GetStatusImage() );
 
-  StatusWriterType::Pointer status_writer = StatusWriterType::New();
-  status_writer->SetFileName( argv[3] );
-  status_writer->SetInput( sparseLevelSet->GetStatusImage() );
-
-  try
-    {
-    status_writer->Update();
-    }
-  catch ( itk::ExceptionObject& err )
-    {
-    std::cout << err << std::endl;
-    }
+//  try
+//    {
+//    status_writer->Update();
+//    }
+//  catch ( itk::ExceptionObject& err )
+//    {
+//    std::cout << err << std::endl;
+//    }
 
   return EXIT_SUCCESS;
 }

@@ -54,6 +54,9 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(WhitakerSparseLevelSetBase, LevelSetBase);
 
+  itkStaticConstMacro ( Dimension, unsigned int,
+                        VDimension );
+
   typedef typename Superclass::InputType      InputType;
   typedef typename Superclass::OutputRealType OutputRealType;
   typedef typename Superclass::GradientType   GradientType;
@@ -77,7 +80,7 @@ public:
   typedef typename LayerMapType::iterator         LayerMapIterator;
   typedef typename LayerMapType::const_iterator   LayerMapConstIterator;
 
-  char Status( const InputType& iP ) const
+  virtual char Status( const InputType& iP ) const
   {
     LayerMapConstIterator layerIt =  m_Layers.begin();
 
@@ -122,6 +125,36 @@ public:
     else
     {
       return static_cast< OutputType >( 3. );
+    }
+  }
+
+  virtual void StatusAndValue( const InputType& iP, char& oStatus, OutputType& oValue )
+  {
+    LayerMapConstIterator layerIt =  m_Layers.begin();
+
+    while( layerIt != m_Layers.end() )
+    {
+      LayerConstIterator it = ( layerIt->second ).find( iP );
+      if( it != ( layerIt->second ).end() )
+      {
+        oStatus = layerIt->first;
+        oValue = it->second;
+        return;
+      }
+      ++layerIt;
+    }
+
+    if( m_LabelObject->HasIndex( iP ) )
+    {
+      oStatus = -3;
+      oValue = -3.;
+      return;
+    }
+    else
+    {
+      oStatus = 3;
+      oValue = 3.;
+      return;
     }
   }
 
@@ -222,6 +255,19 @@ public:
     {
     return m_Layers[iVal];
     }
+
+  void SetLayer( char iVal, const LayerType& iLayer )
+  {
+    LayerMapIterator it = m_Layers.find( iVal );
+    if( it != m_Layers.end() )
+    {
+      it->second = iLayer;
+    }
+    else
+    {
+      itkGenericExceptionMacro( <<iVal << "is out of bounds" );
+    }
+  }
 
 protected:
 

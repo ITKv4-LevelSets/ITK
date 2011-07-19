@@ -41,6 +41,8 @@ public:
   /** Run-time type information */
   itkTypeMacro ( LevelSetBase, DataObject );
 
+  itkStaticConstMacro ( Dimension, unsigned int, VDimension );
+
   typedef TInput                                           InputType;
   typedef TOutput                                          OutputType;
   typedef typename NumericTraits< OutputType >::RealType   OutputRealType;
