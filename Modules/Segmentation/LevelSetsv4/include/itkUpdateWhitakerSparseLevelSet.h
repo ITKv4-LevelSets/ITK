@@ -426,7 +426,7 @@ public:
     m_OutputLevelSet->SetLayer(  1, m_SparseLevelSet->GetLayer(  1 ) );
     m_OutputLevelSet->SetLayer(  2, m_SparseLevelSet->GetLayer(  2 ) );
 
-    m_OutputLevelSet->SetLabelObject( m_SparseLevelSet->GetLabelObject() );
+    m_OutputLevelSet->SetLabelMap( m_SparseLevelSet->GetLabelMap() );
 
     UpdateZeroLevelSet();
     UpdateMinusLevelSet( -1 );

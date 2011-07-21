@@ -25,12 +25,12 @@
 #include "itkImageRegionIteratorWithIndex.h"
 
 #include "itkLabelObject.h"
+#include "itkLabelMap.h"
 
 namespace itk
 {
 template< typename TOutput,
-          unsigned int VDimension,
-          typename TLabel = unsigned char >
+          unsigned int VDimension >
 class WhitakerSparseLevelSetBase :
     public LevelSetBase< Index< VDimension >,
                          VDimension,
@@ -62,13 +62,14 @@ public:
   typedef typename Superclass::GradientType   GradientType;
   typedef typename Superclass::HessianType    HessianType;
 
-  typedef TLabel LabelType;
-
-  typedef LabelObject< LabelType, VDimension >  LabelObjectType;
-  typedef typename LabelObjectType::Pointer     LabelObjectPointer;
-  typedef typename LabelObjectType::LineType    LabelObjectLineType;
+  typedef LabelObject< char, VDimension >     LabelObjectType;
+  typedef typename LabelObjectType::Pointer   LabelObjectPointer;
+  typedef typename LabelObjectType::LineType  LabelObjectLineType;
   typedef typename LabelObjectType::LineContainerType
-                                                LabelObjectLineContainerType;
+                                              LabelObjectLineContainerType;
+
+  typedef LabelMap< LabelObjectType >         LabelMapType;
+  typedef typename LabelMapType::Pointer      LabelMapPointer;
 
   typedef std::map< IndexType, OutputType,
                     Functor::IndexLexicographicCompare< VDimension > >
@@ -82,79 +83,81 @@ public:
 
   virtual char Status( const InputType& iP ) const
   {
-    LayerMapConstIterator layerIt =  m_Layers.begin();
-
-    while( layerIt != m_Layers.end() )
-    {
-      LayerConstIterator it = ( layerIt->second ).find( iP );
-      if( it != ( layerIt->second ).end() )
-      {
-        return layerIt->first;
-      }
-      ++layerIt;
-    }
-
-    if( m_LabelObject->HasIndex( iP ) )
-    {
-      return -3;
-    }
-    else
-    {
-      return 3;
-    }
+    return m_LabelMap->GetPixel( iP );
   }
 
   virtual OutputType Evaluate( const InputType& iP ) const
   {
-    LayerMapConstIterator layerIt =  m_Layers.begin();
+    char status = m_LabelMap->GetPixel( iP );
 
-    while( layerIt != m_Layers.end() )
-    {
-      LayerConstIterator it = ( layerIt->second ).find( iP );
-      if( it != ( layerIt->second ).end() )
+    if( status == -3 )
       {
-        return it->second;
+      return -3.;
       }
-      ++layerIt;
-    }
-
-    if( m_LabelObject->HasIndex( iP ) )
-    {
-      return static_cast< OutputType >( -3. );
-    }
     else
     {
-      return static_cast< OutputType >( 3. );
+      if( status == 3 )
+        {
+        return 3.;
+        }
+      else
+      {
+        LayerMapConstIterator layerIt =  m_Layers.find( status );
+
+        if( layerIt != m_Layers.end() )
+        {
+          LayerConstIterator it = ( layerIt->second ).find( iP );
+          if( it != ( layerIt->second ).end() )
+          {
+            return it->second;
+          }
+          else
+          {
+            itkGenericExceptionMacro(
+                  <<"This index is not present in this layer. Layer: "
+                  << static_cast< int >( status )
+                  << " Index: " << iP );
+            return -3.;
+          }
+        }
+        else
+        {
+          itkGenericExceptionMacro(
+                <<"This layer does not exist: " << static_cast< int >( status ) );
+          return -3.;
+        }
+      }
     }
   }
 
   virtual void StatusAndValue( const InputType& iP, char& oStatus, OutputType& oValue )
   {
-    LayerMapConstIterator layerIt =  m_Layers.begin();
+    oStatus = m_LabelMap->GetPixel( iP );
 
-    while( layerIt != m_Layers.end() )
-    {
-      LayerConstIterator it = ( layerIt->second ).find( iP );
-      if( it != ( layerIt->second ).end() )
+    if( oStatus == -3 )
       {
-        oStatus = layerIt->first;
-        oValue = it->second;
-        return;
-      }
-      ++layerIt;
-    }
-
-    if( m_LabelObject->HasIndex( iP ) )
-    {
-      oStatus = -3;
       oValue = -3.;
-      return;
-    }
+      }
     else
     {
-      oStatus = 3;
-      oValue = 3.;
-      return;
+      if( oStatus == 3 )
+        {
+        oValue = 3.;
+        }
+      else
+      {
+        LayerMapConstIterator layerIt =  m_Layers.find( oStatus );
+
+        if( layerIt != m_Layers.end() )
+        {
+          LayerConstIterator it = ( layerIt->second ).find( iP );
+          if( it != ( layerIt->second ).end() )
+          {
+            oStatus = layerIt->first;
+            oValue = it->second;
+          }
+        }
+      }
     }
   }
 
@@ -169,8 +172,8 @@ public:
     }
 
 
-  itkSetObjectMacro( LabelObject, LabelObjectType );
-  itkGetObjectMacro( LabelObject, LabelObjectType );
+  itkSetObjectMacro( LabelMap, LabelMapType );
+  itkGetObjectMacro( LabelMap, LabelMapType );
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
@@ -186,7 +189,7 @@ public:
     {
     Superclass::Initialize();
 
-    m_LabelObject = 0;
+    m_LabelMap = 0;
     m_Layers.clear();
     }
 
@@ -242,7 +245,7 @@ public:
                          << typeid( Self * ).name() );
       }
 
-    this->m_LabelObject = LevelSet->m_LabelObject;
+    this->m_LabelMap = LevelSet->m_LabelMap;
     this->m_Layers = LevelSet->m_Layers;
     }
 
@@ -271,15 +274,14 @@ public:
 
 protected:
 
-  WhitakerSparseLevelSetBase() : Superclass()
+  WhitakerSparseLevelSetBase() : Superclass(), m_LabelMap( 0 )
   {
     InitializeLayers();
-    m_LabelObject = 0;
   }
   virtual ~WhitakerSparseLevelSetBase() {}
 
-  LayerMapType        m_Layers;
-  LabelObjectPointer  m_LabelObject;
+  LayerMapType     m_Layers;
+  LabelMapPointer  m_LabelMap;
 
 
   void InitializeLayers()
