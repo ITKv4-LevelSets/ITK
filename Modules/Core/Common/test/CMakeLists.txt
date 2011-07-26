@@ -32,7 +32,6 @@ itkLightObjectTest.cxx
 itkBoundingBoxTest.cxx
 itkBoundaryConditionTest.cxx
 itkByteSwapTest.cxx
-itkScalarToRGBPixelFunctorTest.cxx
 itkSparseImageTest.cxx
 itkSimpleFilterWatcherTest.cxx
 itkSymmetricEllipsoidInteriorExteriorSpatialFunctionTest.cxx
@@ -86,6 +85,10 @@ itkVectorTest.cxx
 itkImageTest.cxx
 itkConditionVariableTest.cxx
 itkCommonHeaderTest.cxx
+itkCommonHeaderTest2.cxx
+itkCommonHeaderTest3.cxx
+itkCommonHeaderTest4.cxx
+itkCommonHeaderTest5.cxx
 itkPointSetTest.cxx
 itkBresenhamLineTest.cxx
 itkSparseFieldLayerTest.cxx
@@ -98,8 +101,6 @@ itkPixelAccessTest.cxx
 itkPointGeometryTest.cxx
 itkMersenneTwisterRandomVariateGeneratorTest.cxx
 )
-
-
 
 set(ITKCommon2Tests
 itkMetaDataDictionaryTest.cxx
@@ -168,15 +169,6 @@ itk_module_target_label(itkSystemInformation)
 target_link_libraries(itkSystemInformation ${ITKCommon_LIBRARIES})
 itk_add_test(NAME SystemInformation COMMAND itkSystemInformation)
 
-
-if(ITK_OBJCXX_COMPILER_WORKS)
-  add_executable(itkCommonHeaderObjCxxTest itkCommonHeaderObjCxxTest.mm)
-  itk_module_target_label(itkCommonHeaderObjCxxTest)
-  target_link_libraries(itkCommonHeaderObjCxxTest ${ITKCommon_LIBRARIES})
-  itk_add_test(NAME itkCommonHeaderObjCxxTest COMMAND itkCommonHeaderObjCxxTest)
-endif(ITK_OBJCXX_COMPILER_WORKS)
-
-
 if(ITK_BUILD_SHARED_LIBS)
   ## Create a library to test ITK loadable factories
   set(FactoryTest_Source itkFactoryTestLib.cxx)
@@ -188,6 +180,11 @@ if(ITK_BUILD_SHARED_LIBS)
 endif(ITK_BUILD_SHARED_LIBS)
 
 itk_add_test(NAME itkCommonHeaderTest COMMAND ITKCommon1TestDriver itkCommonHeaderTest)
+itk_add_test(NAME itkCommonHeaderTest2 COMMAND ITKCommon1TestDriver itkCommonHeaderTest2)
+itk_add_test(NAME itkCommonHeaderTest3 COMMAND ITKCommon1TestDriver itkCommonHeaderTest3)
+itk_add_test(NAME itkCommonHeaderTest4 COMMAND ITKCommon1TestDriver itkCommonHeaderTest4)
+itk_add_test(NAME itkCommonHeaderTest5 COMMAND ITKCommon1TestDriver itkCommonHeaderTest5)
+
 itk_add_test(NAME itkAdaptorComparisonTest COMMAND ITKCommon1TestDriver itkAdaptorComparisonTest)
 itk_add_test(NAME itkImageAdaptorPipeLineTest COMMAND ITKCommon1TestDriver itkImageAdaptorPipeLineTest)
 itk_add_test(NAME itkImportContainerTest COMMAND ITKCommon1TestDriver itkImportContainerTest)
@@ -325,7 +322,6 @@ itk_add_test(NAME itkRealTimeStampTest COMMAND ITKCommon1TestDriver itkRealTimeS
 itk_add_test(NAME itkRealTimeIntervalTest COMMAND ITKCommon1TestDriver itkRealTimeIntervalTest)
 itk_add_test(NAME itkTriangleCellTest COMMAND ITKCommon1TestDriver itkTriangleCellTest)
 itk_add_test(NAME itkRGBPixelTest COMMAND ITKCommon1TestDriver itkRGBPixelTest)
-itk_add_test(NAME itkScalarToRGBPixelFunctorTest COMMAND ITKCommon1TestDriver itkScalarToRGBPixelFunctorTest)
 itk_add_test(NAME itkSparseImageTest COMMAND ITKCommon1TestDriver itkSparseImageTest)
 itk_add_test(NAME itkSimpleFilterWatcherTest COMMAND ITKCommon1TestDriver itkSimpleFilterWatcherTest)
 itk_add_test(NAME itkSizeTest COMMAND ITKCommon2TestDriver itkSizeTest)

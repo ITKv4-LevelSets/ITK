@@ -125,7 +125,15 @@
 \ingroup Group-Filtering
 */
 
+/** \defgroup ITKLabelMap Module ITKLabelMap
+\ingroup Group-Filtering
+*/
+
 /** \defgroup ITKMathematicalMorphology Module ITKMathematicalMorphology
+\ingroup Group-Filtering
+*/
+
+/** \defgroup ITKBinaryMathematicalMorphology Module ITKBinaryMathematicalMorphology
 \ingroup Group-Filtering
 */
 
@@ -146,6 +154,10 @@
 */
 
 /** \defgroup ITKThresholding Module ITKThresholding
+\ingroup Group-Filtering
+*/
+
+/** \defgroup ITKImageFusion Module ITKImageFusion
 \ingroup Group-Filtering
 */
 
@@ -219,7 +231,7 @@
 \ingroup Group-IO
 */
 
-/** \defgroup ITKIOSiemens Module ITKIOSiemense
+/** \defgroup ITKIOSiemens Module ITKIOSiemens
 \ingroup Group-IO
 */
 

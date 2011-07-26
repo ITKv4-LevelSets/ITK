@@ -24,10 +24,6 @@
 #include "itkChangeLabelImageFilter.hxx"
 #include "itkLabelContourImageFilter.hxx"
 #include "itkBinaryContourImageFilter.hxx"
-#include "itkLabelOverlayFunctor.h"
-#include "itkLabelOverlayImageFilter.hxx"
-#include "itkLabelToRGBFunctor.h"
-#include "itkLabelToRGBImageFilter.hxx"
 
 int itkImageLabelHeaderTest ( int , char * [] )
 {
