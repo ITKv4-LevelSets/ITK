@@ -88,6 +88,19 @@ public:
 
   virtual OutputType Evaluate( const InputType& iP ) const
   {
+    LayerMapConstIterator layerIt = m_Layers.begin();
+
+    while( layerIt != m_Layers.end() )
+    {
+      LayerConstIterator it = ( layerIt->second ).find( iP );
+      if( it != ( layerIt->second ).end() )
+        {
+        return it->second;
+        }
+
+      ++layerIt;
+    }
+
     char status = m_LabelMap->GetPixel( iP );
 
     if( status == -3 )
@@ -101,65 +114,43 @@ public:
         return 3.;
         }
       else
-      {
-        LayerMapConstIterator layerIt =  m_Layers.find( status );
-
-        if( layerIt != m_Layers.end() )
         {
-          LayerConstIterator it = ( layerIt->second ).find( iP );
-          if( it != ( layerIt->second ).end() )
-          {
-            return it->second;
-          }
-          else
-          {
-            itkGenericExceptionMacro(
-                  <<"This index is not present in this layer. Layer: "
-                  << static_cast< int >( status )
-                  << " Index: " << iP );
-            return -3.;
-          }
+        std::cout << "outch" <<std::endl;
+        return 3.;
         }
-        else
-        {
-          itkGenericExceptionMacro(
-                <<"This layer does not exist: " << static_cast< int >( status ) );
-          return -3.;
-        }
-      }
     }
   }
 
-  virtual void StatusAndValue( const InputType& iP, char& oStatus, OutputType& oValue )
-  {
-    oStatus = m_LabelMap->GetPixel( iP );
+//  virtual void StatusAndValue( const InputType& iP, char& oStatus, OutputType& oValue )
+//  {
+//    oStatus = m_LabelMap->GetPixel( iP );
 
-    if( oStatus == -3 )
-      {
-      oValue = -3.;
-      }
-    else
-    {
-      if( oStatus == 3 )
-        {
-        oValue = 3.;
-        }
-      else
-      {
-        LayerMapConstIterator layerIt =  m_Layers.find( oStatus );
+//    if( oStatus == -3 )
+//      {
+//      oValue = -3.;
+//      }
+//    else
+//    {
+//      if( oStatus == 3 )
+//        {
+//        oValue = 3.;
+//        }
+//      else
+//      {
+//        LayerMapConstIterator layerIt =  m_Layers.find( oStatus );
 
-        if( layerIt != m_Layers.end() )
-        {
-          LayerConstIterator it = ( layerIt->second ).find( iP );
-          if( it != ( layerIt->second ).end() )
-          {
-            oStatus = layerIt->first;
-            oValue = it->second;
-          }
-        }
-      }
-    }
-  }
+//        if( layerIt != m_Layers.end() )
+//        {
+//          LayerConstIterator it = ( layerIt->second ).find( iP );
+//          if( it != ( layerIt->second ).end() )
+//          {
+//            oStatus = layerIt->first;
+//            oValue = it->second;
+//          }
+//        }
+//      }
+//    }
+//  }
 
   virtual GradientType EvaluateGradient( const InputType& iP ) const
     {

@@ -113,10 +113,12 @@ public:
       LevelSetOutputType tempValue = currentValue + tempUpdate;
       m_RMSChangeAccumulator += tempUpdate*tempUpdate;
 
-      // if(phi(p)> .5), remove p from Lz, add p to Sp1
+      // if(phi(p)> 0.5)
       if( tempValue > static_cast<LevelSetOutputType>( 0.5 ) )
         {
+        // is there any point around moving in the opposite direction?
         bool ok = true;
+
         LevelSetInputType tempIndex = currentIndex;
 
         for( unsigned int dim = 0; dim < ImageDimension; dim++ )
@@ -140,23 +142,34 @@ public:
           tempIndex[dim] = currentIndex[dim];
         }
 
+        // no point move in the opposite direction
         if( ok )
           {
+          LevelSetLayerIterator tempIt = zeroSetIt;
+          ++zeroSetIt;
+          // remove p from Lz
+          layer0.erase( tempIt );
+
+          // update m_TempPhi
           currentValue = tempValue;
+          m_TempPhi[ currentIndex ] = currentValue;
+
+          // add p to Sp1
           m_TempLevelSet->GetLayer( 1 ).insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue ) );
           }
-        else
+        else // at least one point is moving in the opposite direction
           {
-          m_TempLevelSet->GetLayer( 0 ).insert(
-                std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue) );
+          // keep it in Lz
+          ++zeroSetIt;
           }
         }
       else
         {
-        // if(phi(p)<-.5), remove p from Lz, add p to Sn1
+        // if(phi(p)<-0.5)
         if( tempValue < static_cast<LevelSetOutputType>( -0.5 ) )
           {
+          // is there any point around moving in the opposite direction?
           bool ok = true;
           LevelSetInputType tempIndex = currentIndex;
 
@@ -181,26 +194,33 @@ public:
           }
           if( ok )
             {
-            layer0.erase( zeroSetIt );
+            LevelSetLayerIterator tempIt = zeroSetIt;
+            ++zeroSetIt;
+            // remove p from Lz
+            layer0.erase( tempIt );
 
             currentValue = tempValue;
+
+            // update m_TempPhi
+            m_TempPhi[ currentIndex ] = currentValue;
+
+            // add p to Sn1
             m_TempLevelSet->GetLayer( -1 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue ) );
             }
-//          else
-//            {
-//            m_TempLevelSet->GetLayer( 0 ).insert(
-//                    std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue) );
-//            }
+          else // at least one point is moving in the opposite direction
+            {
+            // keep it in Lz
+            ++zeroSetIt;
+            }
           }
-        // else keep it in Lz
-//        else
-//          {
-//          m_TempLevelSet->GetLayer( 0 ).insert(
-//                  std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue) );
-//          }
+        else // else keep it in Lz but update m_TempPhi
+          {
+          zeroSetIt->second = tempValue;
+          m_TempPhi[ currentIndex ] = tempValue;
+          ++zeroSetIt;
+          }
         }
-      ++zeroSetIt;
       ++upIt;
       }
     }
@@ -213,7 +233,7 @@ public:
     const char status_plus_1 = status + 1;
     const char status_minus_1 = status - 1;
 
-    // for each point p in Ln1 -- status = -1
+    // for each point p in L_{status}
     LevelSetLayerType& list = m_OutputLevelSet->GetLayer( status );
     LevelSetLayerIterator layerIt = list.begin();
 
@@ -225,7 +245,7 @@ public:
       LevelSetOutputType M =
         NumericTraits<LevelSetOutputType>::NonpositiveMin();
 
-      // flag = is there at least one neighbor q s.t. ( q.m_Status == status + 1 )
+      // flag = is there at least one neighbor q s.t. ( q.m_Status == status + 1 ) ?
       bool IsThereNeighborEqualToStatusPlus1 = false;
 
       LevelSetInputType tempIndex = currentIndex;
@@ -236,19 +256,23 @@ public:
         {
 //          if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
           {
-            char tempStatus = 0;
-            LevelSetOutputType tempValue = 0.;
-
             tempIndex[dim] = currentIndex[dim] + kk;
-            m_TempLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
+
+            const char tempStatus = m_OutputLevelSet->Status( tempIndex );
 
             if( tempStatus == status_plus_1 )
             {
               IsThereNeighborEqualToStatusPlus1 = true;
             }
-            if( ( tempValue > M ) && ( tempStatus >= status_plus_1 ) )
+            if( tempStatus >= status_plus_1 )
             {
-              M = tempValue;
+              LevelSetOutputType tempValue = m_TempPhi[ tempIndex ];
+
+              if ( tempValue > M )
+              {
+                // M = \max_{q \in N(p)} m_TempPhi[ q ]
+                M = tempValue;
+              }
             }
           }
         }
@@ -262,24 +286,45 @@ public:
           // before pushing back the current node
           if ( status_minus_1 > m_MinStatus )
           {
-            list.erase( layerIt );
+            LevelSetLayerIterator tempIt = layerIt;
+            ++layerIt;
+
+            // remove p from the current layer L_{status}
+            list.erase( tempIt );
+
+            // add it to S_{status - 1}
             m_TempLevelSet->GetLayer( status_minus_1 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue ) );
           }
-          // else it is out of the layers (inside)
-          else
+          else // it is out of the layers (inside)
           {
             // we only need to remove it from the layers.
-            list.erase( layerIt );
+            LevelSetLayerIterator tempIt = layerIt;
+            ++layerIt;
+
+            m_TempPhi.erase( currentIndex );
+            list.erase( tempIt );
+
+            // set label( p ) = m_MinStatus
+            m_OutputLevelSet->GetLabelMap()->SetPixel( currentIndex, m_MinStatus );
           }
         }
       else
         {
-        currentValue = M-1;
+        currentValue = M-1.;
 
         if ( currentValue >= o1 )
           {
-          list.erase( layerIt );
+          LevelSetLayerIterator tempIt = layerIt;
+          ++layerIt;
+
+          // remove from the current layer L_{status}
+          list.erase( tempIt );
+
+          // update m_TempPhi
+          m_TempPhi[ currentIndex ] = currentValue;
+
+          // add it to S_{status + 1}
           m_TempLevelSet->GetLayer( status_plus_1 ).insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue ) );
           }
@@ -289,38 +334,53 @@ public:
             {
             if ( status_minus_1 > m_MinStatus )
               {
-              list.erase( layerIt );
-              m_TempLevelSet->GetLayer( status_minus_1 ).insert(
+                LevelSetLayerIterator tempIt = layerIt;
+                ++layerIt;
+
+                // remove from the current layer L_{status}
+                list.erase( tempIt );
+
+                // update m_TempPhi
+                m_TempPhi[ currentIndex ] = currentValue;
+
+                // add it to S_{status - 1}
+                m_TempLevelSet->GetLayer( status_minus_1 ).insert(
                     std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue ) );
               }
-            // else it is out of the layers (inside)
-            else
+            else // it is out of the layers (inside)
             {
-              // we only need to remove it from the layers
-              list.erase( layerIt );
+              // remove it from the layers
+              LevelSetLayerIterator tempIt = layerIt;
+              ++layerIt;
+
+              m_TempPhi.erase( currentIndex );
+              list.erase( tempIt );
+
+              // update the corresponding label to m_MinStatus
+              m_OutputLevelSet->GetLabelMap()->SetPixel( currentIndex, m_MinStatus );
             }
             }
-          else
+          else // we keep in the layer
             {
-            // we keep in the layer
+            // update m_TempPhi
+            m_TempPhi[currentIndex] = currentValue;
+            ++layerIt;
             }
           }
         }
-     ++layerIt;
      }
-
   }
 
 
   void UpdatePlusLevelSet( const char& status )
   {
-//     LevelSetOutputRealType oldValue, newValue;
     const LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) - 0.5;
     const LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) + 0.5;
 
     const char status_minus_1 = status - 1;
     const char status_plus_1 = status + 1;
 
+    // for each point p in L_{status}
     LevelSetLayerType& list = m_OutputLevelSet->GetLayer( status );
     LevelSetLayerIterator layerIt = list.begin();
 
@@ -331,6 +391,7 @@ public:
 
       LevelSetOutputType M = NumericTraits<LevelSetOutputType>::max();
 
+      // flag = is there at least one neighbor q s.t. ( q.m_Status == status - 1 ) ?
       bool IsThereNeighborEqualToStatusMinus1 = false;
 
       LevelSetInputType tempIndex = currentIndex;
@@ -341,23 +402,27 @@ public:
         {
 //          if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
           {
-            char tempStatus = 0;
-            LevelSetOutputType tempValue = 0.;
-
             tempIndex[dim] = currentIndex[dim] + kk;
-            m_TempLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
+
+            const char tempStatus = m_OutputLevelSet->Status( tempIndex );
 
             if( tempStatus == status_minus_1 )
             {
               IsThereNeighborEqualToStatusMinus1 = true;
             }
-            if ( ( tempValue < M ) &&
-                ( tempStatus <= status_minus_1 ) )
+            if ( tempStatus <= status_minus_1 )
             {
-              M = tempValue;
+              LevelSetOutputType tempValue = m_TempPhi[ tempIndex ];
+
+              if( tempValue < M )
+              {
+                // M = M = \min_{q \in N(p)} m_TempPhi[ q ]
+                M = tempValue;
+              }
             }
           }
         }
+        tempIndex[dim] = currentIndex[dim];
       }
 
       if ( !IsThereNeighborEqualToStatusMinus1 )
@@ -366,23 +431,45 @@ public:
         // before pushing back the current node
         if ( status_plus_1 < m_MaxStatus )
         {
-          list.erase( layerIt );
+          LevelSetLayerIterator tempIt = layerIt;
+          ++layerIt;
+
+          // remove p from the current layer L_{status}
+          list.erase( tempIt );
+
+          // add it to S_{status + 1}
           m_TempLevelSet->GetLayer( status_plus_1 ).insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, currentValue ) );
         }
-        else
+        else // it is out of the layers (outside)
           {
-          // then it is outside
+            // we only need to remove it from the layers.
+            LevelSetLayerIterator tempIt = layerIt;
+            ++layerIt;
+
+            m_TempPhi.erase( currentIndex );
+            list.erase( tempIt );
+
+            // set label( p ) = m_MaxStatus
+            m_OutputLevelSet->GetLabelMap()->SetPixel( currentIndex, m_MaxStatus );
           }
         }
       else
         {
         currentValue = M+1;
-//        p.second.m_Value = M+1;
 
         if ( currentValue <= o1 )
         {
-          list.erase( layerIt );
+          LevelSetLayerIterator tempIt = layerIt;
+          ++layerIt;
+
+          // remove from the current layer L_{status}
+          list.erase( tempIt );
+
+          // update m_TempPhi
+          m_TempPhi[ currentIndex ] = currentValue;
+
+          // add it to S_{status - 1}
           m_TempLevelSet->GetLayer( status_minus_1 ).insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                     currentValue ) );
@@ -393,19 +480,41 @@ public:
             {
             if ( status_plus_1 < m_MaxStatus )
             {
-              list.erase( layerIt );
+              LevelSetLayerIterator tempIt = layerIt;
+              ++layerIt;
+
+              // remove from the current layer L_{status}
+              list.erase( tempIt );
+
+              // update m_TempPhi
+              m_TempPhi[ currentIndex ] = currentValue;
+
+              // add it to S_{status + 1}
               m_TempLevelSet->GetLayer( status_plus_1 ).insert(
                     std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                         currentValue ) );
             }
-            else
+            else // it is out of the layers (outside)
               {
-              // then it is outside
+                // remove it from the layers
+                LevelSetLayerIterator tempIt = layerIt;
+                ++layerIt;
+
+                m_TempPhi.erase( currentIndex );
+                list.erase( tempIt );
+
+                // update the corresponding label to m_MaxStatus
+                m_OutputLevelSet->GetLabelMap()->SetPixel( currentIndex, m_MaxStatus );
               }
             }
+          else // we keep in the layer
+          {
+            // update m_TempPhi
+            m_TempPhi[currentIndex] = currentValue;
+            ++layerIt;
+          }
           }
         }
-      ++layerIt;
       }
   }
 
@@ -428,6 +537,20 @@ public:
 
     m_OutputLevelSet->SetLabelMap( m_SparseLevelSet->GetLabelMap() );
 
+    m_TempPhi.clear();
+
+    for( char status = -2; status < 3; status++ )
+      {
+      LevelSetLayerType layer = m_SparseLevelSet->GetLayer( status );
+
+      LevelSetLayerConstIterator it = layer.begin();
+      while( it != layer.end() )
+        {
+        m_TempPhi[ it->first ] = it->second;
+        ++it;
+        }
+      }
+
     UpdateZeroLevelSet();
     UpdateMinusLevelSet( -1 );
     UpdatePlusLevelSet( 1 );
@@ -435,6 +558,8 @@ public:
     UpdatePlusLevelSet( 2 );
 
     UpdatePointsChangingStatus();
+
+    m_TempPhi.clear();
   }
 
   void UpdatePointsChangingStatus()
@@ -446,8 +571,11 @@ public:
 
     while( it != list0.end() )
     {
-      m_OutputLevelSet->GetLayer(0).insert(
+      if( m_OutputLevelSet->Status( it->first ) == 0 )
+      {
+        m_OutputLevelSet->GetLayer(0).insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( it->first, it->second ) );
+      }
       ++it;
     }
 
@@ -484,13 +612,19 @@ public:
       LevelSetInputType   currentIndex = layerIt->first;
       LevelSetOutputType  currentValue = layerIt->second;
 
+      // label(p) = iStatus
+      m_OutputLevelSet->GetLabelMap()->SetPixel( currentIndex, iStatus );
+
       // add p to L_{iStatus}
       m_OutputLevelSet->GetLayer( iStatus ).insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                 currentValue ) );
 
+      LevelSetLayerIterator tempIt = layerIt;
+      ++layerIt;
+
       // remove p from S_{iStatus}
-      listMinus1.erase( layerIt );
+      listMinus1.erase( tempIt );
 
       if( m_MaxStatus - static_cast< char >( vnl_math_abs( iStatus ) ) > 1 )
       {
@@ -502,12 +636,10 @@ public:
           {
 //            if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
             {
-              char tempStatus = 0;
-              LevelSetOutputType tempValue = 0.;
-
               tempIndex[dim] = currentIndex[dim] + kk;
 
-              m_OutputLevelSet->StatusAndValue( tempIndex, tempStatus, tempValue );
+              char tempStatus = m_OutputLevelSet->Status( tempIndex );
+              LevelSetOutputType tempValue = m_TempPhi[ tempIndex ];
 
               if( tempValue == static_cast< LevelSetOutputType >( iStatus + 2 * iSign ) )
               {
@@ -561,6 +693,8 @@ protected:
   LevelSetLayerType  m_Update;
   LevelSetPointer    m_SparseLevelSet;
   LevelSetPointer    m_OutputLevelSet;
+
+  LevelSetLayerType m_TempPhi;
 
   LevelSetPointer   m_TempLevelSet;
   char              m_MinStatus;

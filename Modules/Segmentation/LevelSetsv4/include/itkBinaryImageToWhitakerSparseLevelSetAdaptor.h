@@ -112,10 +112,66 @@ public:
 
     FindActiveLayer();
 
+    const LevelSetLayerType layer0 = m_SparseLevelSet->GetLayer( 0 );
+
+    LevelSetLayerConstIterator nodeIt = layer0.begin();
+    LevelSetLayerConstIterator nodeEnd = layer0.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      labelMap->SetPixel( nodeIt->first, 0 );
+      ++nodeIt;
+      }
+
     FindPlusOneMinusOneLayer();
 
+    const LevelSetLayerType layerMinus1 = m_SparseLevelSet->GetLayer( -1 );
+
+    nodeIt = layerMinus1.begin();
+    nodeEnd = layerMinus1.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      labelMap->SetPixel( nodeIt->first, -1 );
+      ++nodeIt;
+      }
+
+    const LevelSetLayerType layerPlus1 = m_SparseLevelSet->GetLayer( 1 );
+
+    nodeIt = layerPlus1.begin();
+    nodeEnd = layerPlus1.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      labelMap->SetPixel( nodeIt->first, 1 );
+      ++nodeIt;
+      }
+
     FindMinusTwoLayer();
+
+    const LevelSetLayerType layerMinus2 = m_SparseLevelSet->GetLayer( -2 );
+
+    nodeIt = layerMinus2.begin();
+    nodeEnd = layerMinus2.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      labelMap->SetPixel( nodeIt->first, -2 );
+      ++nodeIt;
+      }
+
     FindPlusTwoLayer();
+
+    const LevelSetLayerType layerPlus2 = m_SparseLevelSet->GetLayer( 2 );
+
+    nodeIt = layerPlus2.begin();
+    nodeEnd = layerPlus2.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      labelMap->SetPixel( nodeIt->first, 2 );
+      ++nodeIt;
+      }
   }
 
   void FindMinusTwoLayer()
@@ -154,7 +210,6 @@ public:
               {
 //                if( labelObject->HasIndex( tempIdx ) )
                 {
-                  labelMap->SetPixel( tempIdx, -2 );
                   layerMinus2.insert(
                         std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, minus2 ) );
                 }
@@ -204,7 +259,6 @@ public:
               {
 //                if( !labelObject->HasIndex( tempIdx ) )
                 {
-                  labelMap->SetPixel( tempIdx, 2 );
                   layerPlus2.insert(
                         std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, plus2 ) );
                 }
@@ -222,6 +276,8 @@ public:
   {
     LevelSetLabelMapPointer labelMap = m_SparseLevelSet->GetLabelMap();
     LevelSetLabelObjectPointer labelObject = labelMap->GetLabelObject( -3 );
+    LevelSetLabelObjectPointer labelObject0 = LevelSetLabelObjectType::New();
+    labelObject0->SetLabel( 0 );
 
     LevelSetLayerType& layer0 = m_SparseLevelSet->GetLayer( 0 );
 
@@ -260,6 +316,14 @@ public:
             }
           tempIdx[0] = index[0];
           }
+        if( isOnBorder )
+        {
+          layer0.insert(
+              std::pair< LevelSetInputType, LevelSetOutputType >( index, zero ) );
+          ++index[0];
+          ++counter;
+          continue;
+        }
 
         if( ( counter == length-1 ) && ( tempIdx[0] != imageSize[0] ) )
           {
@@ -270,10 +334,18 @@ public:
             }
           tempIdx[0] = index[0];
           }
-
-        for( unsigned int dim = 1; dim < ImageDimension; dim++ )
+        if( isOnBorder )
         {
-          for( int kk = -1; kk < 2; kk += 2)
+          layer0.insert(
+              std::pair< LevelSetInputType, LevelSetOutputType >( index, zero ) );
+          ++index[0];
+          ++counter;
+          continue;
+        }
+
+        for( unsigned int dim = 1; ( dim < ImageDimension ) && !isOnBorder; dim++ )
+        {
+          for( int kk = -1; ( kk < 2 ) && !isOnBorder; kk += 2)
           {
             if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
             {
@@ -285,13 +357,13 @@ public:
               tempIdx[dim] = index[dim];
             }
           }
-          if( isOnBorder )
+        }
+        if( isOnBorder )
           {
-            labelMap->SetPixel( index, 0 );
-            layer0.insert(
+          layer0.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( index, zero ) );
           }
-        }
+
         ++index[0];
         ++counter;
         }
@@ -334,13 +406,11 @@ public:
             {
               if( labelObjectMinus3->HasIndex( tempIdx ) )
               {
-                labelMap->SetPixel( tempIdx, -1 );
                 layerMinus1.insert(
                       std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, minus1 ) );
               }
               else
               {
-                labelMap->SetPixel( tempIdx, 1 );
                 layerPlus1.insert(
                       std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, plus1 ) );
               }
