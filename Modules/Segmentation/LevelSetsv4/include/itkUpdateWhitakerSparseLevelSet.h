@@ -57,6 +57,9 @@ public:
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
 
+  typedef typename LevelSetType::LabelMapType          LevelSetLabelMapType;
+  typedef typename LevelSetType::LabelMapPointer       LevelSetLabelMapPointer;
+
   typedef typename LevelSetType::LabelObjectType       LevelSetLabelObjectType;
   typedef typename LevelSetType::LabelObjectPointer    LevelSetLabelObjectPointer;
   typedef typename LevelSetType::LabelObjectLineType   LevelSetLabelObjectLineType;
@@ -80,6 +83,9 @@ public:
   // Input is also WhitakerSparseLevelSetBasePointer
   void UpdateZeroLevelSet()
   {
+    typename LevelSetLabelMapType::SizeType imageSize =
+        m_OutputLevelSet->GetLabelMap()->GetRequestedRegion().GetSize();
+
     LevelSetLayerType& layer0 = m_OutputLevelSet->GetLayer( 0 );
 
     m_TempLevelSet->GetLayer( 1 ).clear();
@@ -128,14 +134,18 @@ public:
 //            if( ( tempIndex[dim] > 0 ) && ( tempIndex[dim] < imageSize[dim] - 1 ) )
             {
               tempIndex[dim] = currentIndex[dim] + kk;
-              char tempStatus = m_OutputLevelSet->Status( tempIndex);
+              bool isLabelNull =
+                  m_OutputLevelSet->GetLabelMap()->GetLabelObject( 0 )->HasIndex( tempIndex );
 
-              if( tempStatus == 0 )
+              if( isLabelNull )
               {
-                if( m_TempPhi[ tempIndex ] < -0.5 )
-                {
+                LevelSetLayerIterator it = m_TempPhi.find( tempIndex );
+                assert( it != m_TempPhi.end() );
+
+                if( it->second < -0.5 )
+                  {
                   ok = false;
-                }
+                  }
               }
             }
             tempIndex[dim] = currentIndex[dim];
@@ -181,11 +191,22 @@ public:
 //              if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
               {
                 tempIndex[dim] = currentIndex[dim] + kk;
-                char tempStatus = m_OutputLevelSet->Status( tempIndex );
 
-                if( tempStatus == 0 )
+                if( ( tempIndex[dim] < 0 ) || ( tempIndex[dim] >= imageSize[dim] ) )
                 {
-                  if( m_TempPhi[ tempIndex ] > 0.5 )
+                  tempIndex[dim] = currentIndex[dim];
+                  continue;
+                }
+
+                bool isLabelNull =
+                    m_OutputLevelSet->GetLabelMap()->GetLabelObject( 0 )->HasIndex( tempIndex );
+
+                if( isLabelNull )
+                {
+                  LevelSetLayerIterator it = m_TempPhi.find( tempIndex );
+                  assert( it != m_TempPhi.end() );
+
+                  if( it->second > 0.5 )
                   {
                     ok = false;
                   }
@@ -229,6 +250,9 @@ public:
 
   void UpdateMinusLevelSet( const char& status )
   {
+    typename LevelSetLabelMapType::SizeType imageSize =
+        m_OutputLevelSet->GetLabelMap()->GetRequestedRegion().GetSize();
+
     const LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) + 0.5;
     const LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) - 0.5;
 
@@ -260,6 +284,12 @@ public:
           {
             tempIndex[dim] = currentIndex[dim] + kk;
 
+            if( ( tempIndex[dim] < 0 ) || ( tempIndex[dim] >= imageSize[dim] ) )
+            {
+              tempIndex[dim] = currentIndex[dim];
+              continue;
+            }
+
             const char tempStatus = m_OutputLevelSet->Status( tempIndex );
 
             if( tempStatus == status_plus_1 )
@@ -268,7 +298,13 @@ public:
             }
             if( tempStatus >= status_plus_1 )
             {
-              LevelSetOutputType tempValue = m_TempPhi[ tempIndex ];
+              LevelSetLayerIterator it = m_TempPhi.find( tempIndex );
+              LevelSetOutputType tempValue = static_cast< LevelSetOutputType >( tempStatus );
+
+              if( it != m_TempPhi.end() );
+              {
+                tempValue = it->second;
+              }
 
               if ( tempValue > M )
               {
@@ -377,6 +413,9 @@ public:
 
   void UpdatePlusLevelSet( const char& status )
   {
+    typename LevelSetLabelMapType::SizeType imageSize =
+        m_OutputLevelSet->GetLabelMap()->GetRequestedRegion().GetSize();
+
     const LevelSetOutputType o1 = static_cast<LevelSetOutputType>(status) - 0.5;
     const LevelSetOutputType o2 = static_cast<LevelSetOutputType>(status) + 0.5;
 
@@ -407,6 +446,12 @@ public:
           {
             tempIndex[dim] = currentIndex[dim] + kk;
 
+            if( ( tempIndex[dim] < 0 ) || ( tempIndex[dim] >= imageSize[dim] ) )
+            {
+              tempIndex[dim] = currentIndex[dim];
+              continue;
+            }
+
             const char tempStatus = m_OutputLevelSet->Status( tempIndex );
 
             if( tempStatus == status_minus_1 )
@@ -415,7 +460,13 @@ public:
             }
             if ( tempStatus <= status_minus_1 )
             {
-              LevelSetOutputType tempValue = m_TempPhi[ tempIndex ];
+              LevelSetOutputType tempValue = static_cast< LevelSetOutputType >( tempStatus );
+
+              LevelSetLayerIterator it = m_TempPhi.find( tempIndex );
+              if( it != m_TempPhi.end() )
+              {
+                tempValue = it->second;
+              }
 
               if( tempValue < M )
               {
@@ -601,13 +652,16 @@ public:
 
   void UpdatePointsChangingStatus( char iStatus )
   {
-    int iSign = ( iStatus > 0 ) ? 1 : -1;
+    char iSign = ( iStatus > 0 ) ? 1 : -1;
 
     // Move points into -1 and +1 level sets
     // and ensure -2, +2 neighbors
     LevelSetLayerType& listMinus1 = m_TempLevelSet->GetLayer( iStatus );
 
     LevelSetLayerIterator layerIt = listMinus1.begin();
+
+    typename LevelSetLabelMapType::SizeType imageSize =
+        m_OutputLevelSet->GetLabelMap()->GetRequestedRegion().GetSize();
 
     while( layerIt != listMinus1.end() )
       {
@@ -628,7 +682,9 @@ public:
       // remove p from S_{iStatus}
       listMinus1.erase( tempIt );
 
-      if( m_MaxStatus - static_cast< char >( vnl_math_abs( iStatus ) ) > 1 )
+      char absStatus = ( iStatus > 0 ) ? iStatus : - iStatus;
+
+      if( m_MaxStatus - absStatus > 1 )
       {
         LevelSetInputType tempIndex = currentIndex;
 
@@ -640,8 +696,25 @@ public:
             {
               tempIndex[dim] = currentIndex[dim] + kk;
 
+              if( ( tempIndex[dim] < 0 ) || ( tempIndex[dim] >= imageSize[dim] ) )
+              {
+                tempIndex[dim] = currentIndex[dim];
+                continue;
+              }
+
               char tempStatus = m_OutputLevelSet->Status( tempIndex );
-              LevelSetOutputType tempValue = m_TempPhi[ tempIndex ];
+              LevelSetOutputType tempValue = -3;
+
+              LevelSetLayerConstIterator phiIt = m_TempPhi.find( tempIndex );
+              if( phiIt != m_TempPhi.end() )
+              {
+                tempValue = phiIt->second;
+              }
+              else
+              {
+                tempValue = static_cast< LevelSetOutputType >( tempStatus );
+//                assert( tempValue == -3 || tempValue == 3 );
+              }
 
               if( iStatus == -1 )
               {
@@ -654,8 +727,8 @@ public:
 
               if( tempValue == static_cast< LevelSetOutputType >( iStatus + 2 * iSign ) )
               {
-                tempStatus += iSign;
-                tempValue += static_cast< LevelSetOutputType >( iSign );
+                tempStatus -= iSign;
+                tempValue -= static_cast< LevelSetOutputType >( iSign );
                 m_TempLevelSet->GetLayer( tempStatus ).insert(
                       std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, tempValue ) );
               }

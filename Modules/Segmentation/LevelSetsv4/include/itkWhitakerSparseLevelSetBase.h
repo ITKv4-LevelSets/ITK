@@ -115,7 +115,7 @@ public:
         }
       else
         {
-        std::cout << "outch" <<std::endl;
+          itkGenericExceptionMacro( <<"status " << static_cast< int >( status )<< " should be 3 or -3");
         return 3.;
         }
     }
@@ -242,12 +242,22 @@ public:
 
   const LayerType& GetLayer( char iVal ) const
     {
-    return m_Layers[iVal];
+    LayerMapConstIterator it = m_Layers.find( iVal );
+    if( it == m_Layers.end() )
+    {
+      itkGenericExceptionMacro( <<"This layer does not exist" );
+    }
+    return it->second;
     }
 
   LayerType& GetLayer( char iVal )
     {
-    return m_Layers[iVal];
+    LayerMapIterator it = m_Layers.find( iVal );
+    if( it == m_Layers.end() )
+    {
+      itkGenericExceptionMacro( <<"This layer does not exist" );
+    }
+    return it->second;
     }
 
   void SetLayer( char iVal, const LayerType& iLayer )
