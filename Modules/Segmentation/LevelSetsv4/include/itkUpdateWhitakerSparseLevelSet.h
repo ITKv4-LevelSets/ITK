@@ -101,13 +101,13 @@ public:
       LevelSetOutputType tempUpdate =
           m_Dt * static_cast< LevelSetOutputType >( upIt->second );
 
-      if ( tempUpdate > 0.5 )
+      if ( tempUpdate > 1 )//0.5 )
       {
-        tempUpdate = 0.5;
+        tempUpdate = 1.;//0.5;
       }
-      if ( tempUpdate < -0.5 )
+      if ( tempUpdate < -1 )//0.5 )
       {
-        tempUpdate = -0.5;
+        tempUpdate = -1; //0.5;
       }
 
       LevelSetOutputType tempValue = currentValue + tempUpdate;
@@ -128,16 +128,17 @@ public:
 //            if( ( tempIndex[dim] > 0 ) && ( tempIndex[dim] < imageSize[dim] - 1 ) )
             {
               tempIndex[dim] = currentIndex[dim] + kk;
-              LevelSetLayerIterator tempIt = layer0.find( tempIndex );
+              char tempStatus = m_OutputLevelSet->Status( tempIndex);
 
-              if( tempIt != layer0.end() )
+              if( tempStatus == 0 )
               {
-                if( tempIt->second < -0.5 )
+                if( m_TempPhi[ tempIndex ] < -0.5 )
                 {
                   ok = false;
                 }
               }
             }
+            tempIndex[dim] = currentIndex[dim];
           }
           tempIndex[dim] = currentIndex[dim];
         }
@@ -180,16 +181,17 @@ public:
 //              if( ( tempIdx[dim] > 0 ) && ( tempIdx[dim] < imageSize[dim] - 1 ) )
               {
                 tempIndex[dim] = currentIndex[dim] + kk;
-                LevelSetLayerIterator tempIt = layer0.find( tempIndex );
+                char tempStatus = m_OutputLevelSet->Status( tempIndex );
 
-                if( tempIt != layer0.end() )
+                if( tempStatus == 0 )
                 {
-                  if( tempIt->second > 0.5 )
+                  if( m_TempPhi[ tempIndex ] > 0.5 )
                   {
                     ok = false;
                   }
                 }
               }
+              tempIndex[dim] = currentIndex[dim];
             }
           }
           if( ok )
@@ -274,6 +276,7 @@ public:
                 M = tempValue;
               }
             }
+            tempIndex[dim] = currentIndex[dim];
           }
         }
         tempIndex[dim] = currentIndex[dim];
@@ -420,6 +423,7 @@ public:
                 M = tempValue;
               }
             }
+            tempIndex[dim] = currentIndex[dim];
           }
         }
         tempIndex[dim] = currentIndex[dim];
@@ -571,11 +575,9 @@ public:
 
     while( it != list0.end() )
     {
-      if( m_OutputLevelSet->Status( it->first ) == 0 )
-      {
-        m_OutputLevelSet->GetLayer(0).insert(
+      m_OutputLevelSet->GetLabelMap()->SetPixel( it->first, 0 );
+      m_OutputLevelSet->GetLayer(0).insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( it->first, it->second ) );
-      }
       ++it;
     }
 
@@ -641,6 +643,15 @@ public:
               char tempStatus = m_OutputLevelSet->Status( tempIndex );
               LevelSetOutputType tempValue = m_TempPhi[ tempIndex ];
 
+              if( iStatus == -1 )
+              {
+                assert( iStatus + 2 * iSign == -3 );
+              }
+              if( iStatus == 1 )
+              {
+                assert( iStatus + 2 * iSign == 3 );
+              }
+
               if( tempValue == static_cast< LevelSetOutputType >( iStatus + 2 * iSign ) )
               {
                 tempStatus += iSign;
@@ -649,6 +660,7 @@ public:
                       std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, tempValue ) );
               }
             }
+            tempIndex[dim] = currentIndex[dim];
           }
           tempIndex[dim] = currentIndex[dim];
         }

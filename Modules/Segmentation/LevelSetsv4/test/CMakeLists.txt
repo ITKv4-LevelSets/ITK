@@ -86,22 +86,22 @@ add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test0
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest
       0
-      output_update_whitaker_sparse0.mha
-      status_update_whitaker_sparse0.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_whitaker_sparse0.mha
+      ${ITK_TEST_OUTPUT_DIR}/status_update_whitaker_sparse0.mha
       )
 add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test1
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest
       1
-      output_update_whitaker_sparse1.mha
-      status_update_whitaker_sparse1.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_whitaker_sparse1.mha
+      ${ITK_TEST_OUTPUT_DIR}/status_update_whitaker_sparse1.mha
      )
 add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest
       2
-      output_update_whitaker_sparse2.mha
-      status_update_whitaker_sparse2.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_whitaker_sparse2.mha
+      ${ITK_TEST_OUTPUT_DIR}/status_update_whitaker_sparse2.mha
     )
 
 #add_test(NAME itkUpdateShiSparseLevelSetsv4Test0
