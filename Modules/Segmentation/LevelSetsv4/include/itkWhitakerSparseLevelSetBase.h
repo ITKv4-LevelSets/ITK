@@ -62,11 +62,12 @@ public:
   typedef typename Superclass::GradientType   GradientType;
   typedef typename Superclass::HessianType    HessianType;
 
-  typedef LabelObject< char, VDimension >     LabelObjectType;
-  typedef typename LabelObjectType::Pointer   LabelObjectPointer;
-  typedef typename LabelObjectType::LineType  LabelObjectLineType;
+  typedef LabelObject< char, VDimension >       LabelObjectType;
+  typedef typename LabelObjectType::Pointer     LabelObjectPointer;
+  typedef typename LabelObjectType::LengthType  LabelObjectLengthType;
+  typedef typename LabelObjectType::LineType    LabelObjectLineType;
   typedef typename LabelObjectType::LineContainerType
-                                              LabelObjectLineContainerType;
+                                                LabelObjectLineContainerType;
 
   typedef LabelMap< LabelObjectType >         LabelMapType;
   typedef typename LabelMapType::Pointer      LabelMapPointer;
@@ -91,7 +92,7 @@ public:
     LayerMapConstIterator layerIt = m_Layers.begin();
 
     while( layerIt != m_Layers.end() )
-    {
+      {
       LayerConstIterator it = ( layerIt->second ).find( iP );
       if( it != ( layerIt->second ).end() )
         {
@@ -99,7 +100,7 @@ public:
         }
 
       ++layerIt;
-    }
+      }
 
     char status = m_LabelMap->GetPixel( iP );
 
@@ -115,7 +116,7 @@ public:
         }
       else
         {
-          itkGenericExceptionMacro( <<"status " << static_cast< int >( status )<< " should be 3 or -3");
+        itkGenericExceptionMacro( <<"status " << static_cast< int >( status )<< " should be 3 or -3");
         return 3.;
         }
     }
