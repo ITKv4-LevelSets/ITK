@@ -122,13 +122,13 @@ public:
 
     FindPlusOneMinusOneLayer();
 
-    FindMinusTwoLayer();
+    //FindMinusTwoLayer();
 
-    FindPlusTwoLayer();
-
-    m_InternalImage = 0;
+    PropagateToOutterLayers(-1, -2, -3 );
+    PropagateToOutterLayers( 1,  2,  3 );
 
     m_SparseLevelSet->SetLabelMap( m_LabelMap );
+    m_InternalImage = 0;
   }
 
   // Set/Get the sparse levet set image
@@ -160,7 +160,7 @@ protected:
 
   typedef ShapedNeighborhoodIterator< InternalImageType > NeighborhoodIteratorType;
 
-  void FindMinusTwoLayer()
+/*  void FindMinusTwoLayer()
   {
     const LevelSetLayerType layerMinus1 = m_SparseLevelSet->GetLayer( static_cast< char >( -1 ) );
 
@@ -232,13 +232,15 @@ protected:
     ObjectMinus2->Optimize();
     m_LabelMap->AddLabelObject( ObjectMinus2 );
   }
+*/
 
-  void FindPlusTwoLayer()
+  //void FindPlusTwoLayer( char LayerToBeScanned, char OutputLayer, char TestValue )
+  void PropagateToOutterLayers( char LayerToBeScanned, char OutputLayer, char TestValue )
   {
-    const LevelSetLayerType layerPlus1 = m_SparseLevelSet->GetLayer( static_cast< char >( 1 ) );
+    const LevelSetLayerType layerPlus1 = m_SparseLevelSet->GetLayer( LayerToBeScanned );
 
-    LevelSetLayerType& layerPlus2 = m_SparseLevelSet->GetLayer( static_cast< char >( 2 ) );
-    const LevelSetOutputType plus2 = static_cast< LevelSetOutputType >( 2 );
+    LevelSetLayerType& layerPlus2 = m_SparseLevelSet->GetLayer( OutputLayer );
+    const LevelSetOutputType plus2 = static_cast< LevelSetOutputType >( OutputLayer );
 
     typename NeighborhoodIteratorType::RadiusType radius;
     radius.Fill( 1 );
@@ -276,12 +278,12 @@ protected:
            !it.IsAtEnd();
            ++it )
         {
-        if( it.Get() == static_cast< char >( 3 ) )
+        if( it.Get() == TestValue )
           {
           LevelSetInputType tempIndex =
               neighIt.GetIndex( it.GetNeighborhoodOffset() );
 
-          m_InternalImage->SetPixel( nodeIt->first, static_cast< char >( 2 ) );
+          m_InternalImage->SetPixel( nodeIt->first, OutputLayer );
 
           layerPlus2.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, plus2 ) );
@@ -291,7 +293,7 @@ protected:
     }
 
     LevelSetLabelObjectPointer ObjectPlus2 = LevelSetLabelObjectType::New();
-    ObjectPlus2->SetLabel( static_cast< char >( 2 ) );
+    ObjectPlus2->SetLabel( OutputLayer );
 
     nodeIt = layerPlus2.begin();
     nodeEnd = layerPlus2.end();
@@ -299,7 +301,7 @@ protected:
     while( nodeIt != nodeEnd )
       {
       ObjectPlus2->AddIndex( nodeIt->first );
-      m_InternalImage->SetPixel( nodeIt->first, static_cast< char >( 2 ) );
+      m_InternalImage->SetPixel( nodeIt->first, OutputLayer );
       ++nodeIt;
       }
 
