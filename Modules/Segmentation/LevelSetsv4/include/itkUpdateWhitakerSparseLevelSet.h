@@ -84,6 +84,7 @@ public:
   typedef TEquationContainer                      EquationContainerType;
   typedef typename EquationContainerType::Pointer EquationContainerPointer;
 
+  itkGetObjectMacro( OutputLevelSet, LevelSetType );
 
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
@@ -1026,17 +1027,6 @@ protected:
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue - 1 ) );
             }
           }
-        else
-          {
-          char status = m_InternalImage->GetPixel( tempIndex );
-          if( status == -3 )
-            {
-            m_TempPhi.insert(
-                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue - 1 ) );
-            m_TempLevelSet->GetLayer( -2 ).insert(
-                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue - 1 ) );
-            }
-          }
         }
       }
     }
@@ -1105,17 +1095,17 @@ protected:
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
             }
           }
-        else
-          {
-          char status = m_InternalImage->GetPixel( tempIndex );
-          if( status == 3 )
-            {
-            m_TempPhi.insert(
-                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
-            m_TempLevelSet->GetLayer( 2 ).insert(
-                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
-            }
-          }
+//        else
+//          {
+//          char status = m_InternalImage->GetPixel( tempIndex );
+//          if( status == 3 )
+//            {
+//            m_TempPhi.insert(
+//                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
+//            m_TempLevelSet->GetLayer( 2 ).insert(
+//                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
+//            }
+//          }
         }
       }
     }

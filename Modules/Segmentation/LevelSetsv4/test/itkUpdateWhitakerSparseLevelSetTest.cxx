@@ -179,8 +179,8 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   while( !oIt.IsAtEnd() )
     {
     idx = oIt.GetIndex();
-//    oIt.Set( sparseLevelSet->Evaluate( idx ) );
-    sIt.Set( sparseLevelSet->Status( idx ) );
+    oIt.Set( update_levelset->GetOutputLevelSet()->Evaluate( idx ) );
+    sIt.Set( update_levelset->GetOutputLevelSet()->Status( idx ) );
     ++oIt;
     ++sIt;
     }
