@@ -27,8 +27,12 @@
 #include "itkShapedNeighborhoodIterator.h"
 #include "itkNeighborhoodAlgorithm.h"
 #include "itkLabelMapToLabelImageFilter.h"
+#include "itkLabelImageToLabelMapFilter.h"
 #include <list>
 #include "itkObject.h"
+
+
+#include "itkImageFileWriter.h"
 
 namespace itk
 {
@@ -113,7 +117,7 @@ public:
 
     m_TempPhi.clear();
 
-    for( char status = -2; status < 3; status++ )
+    for( char status = -1; status < 2; status++ )
       {
       LevelSetLayerType layer = m_SparseLevelSet->GetLayer( status );
 
@@ -123,6 +127,79 @@ public:
         m_TempPhi[ it->first ] = it->second;
         ++it;
         }
+      }
+
+    ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
+
+    typename NeighborhoodIteratorType::RadiusType radius;
+    radius.Fill( 1 );
+
+    NeighborhoodIteratorType neighIt( radius,
+                                      m_InternalImage,
+                                      m_InternalImage->GetLargestPossibleRegion() );
+
+    neighIt.OverrideBoundaryCondition( &sp_nbc );
+
+    typename NeighborhoodIteratorType::OffsetType neighOffset;
+    neighOffset.Fill( 0 );
+
+    for( unsigned int dim = 0; dim < ImageDimension; dim++ )
+      {
+      neighOffset[dim] = -1;
+      neighIt.ActivateOffset( neighOffset );
+      neighOffset[dim] = 1;
+      neighIt.ActivateOffset( neighOffset );
+      neighOffset[dim] = 0;
+      }
+
+    LevelSetLayerType layerMinus2 = m_SparseLevelSet->GetLayer( -2 );
+
+    LevelSetLayerConstIterator it = layerMinus2.begin();
+    while( it != layerMinus2.end() )
+      {
+      LevelSetInputType currentIndex = it->first;
+      m_TempPhi[ currentIndex ] = -2;
+      neighIt.SetLocation( currentIndex );
+
+      for( typename NeighborhoodIteratorType::Iterator nIt = neighIt.Begin();
+           !nIt.IsAtEnd();
+           ++nIt )
+        {
+        if( nIt.Get() == -3 )
+          {
+          LevelSetInputType tempIndex =
+              neighIt.GetIndex( nIt.GetNeighborhoodOffset() );
+
+          m_TempPhi[ tempIndex ] = -3;
+          }
+        }
+
+      ++it;
+      }
+
+    LevelSetLayerType layerPlus2 = m_SparseLevelSet->GetLayer( 2 );
+
+    it = layerPlus2.begin();
+    while( it != layerPlus2.end() )
+      {
+      LevelSetInputType currentIndex = it->first;
+      m_TempPhi[ currentIndex ] = 2;
+      neighIt.SetLocation( currentIndex );
+
+      for( typename NeighborhoodIteratorType::Iterator nIt = neighIt.Begin();
+           !nIt.IsAtEnd();
+           ++nIt )
+        {
+        if( nIt.Get() == 3 )
+          {
+          LevelSetInputType tempIndex =
+              neighIt.GetIndex( nIt.GetNeighborhoodOffset() );
+
+          m_TempPhi[ tempIndex ] = 3;
+          }
+        }
+
+      ++it;
       }
 
     this->UpdateZeroLevelSet();
@@ -145,6 +222,19 @@ public:
 
     this->MovePointFromPlus2();
 
+    typedef ImageFileWriter< LabelImageType > WriterType;
+    typename WriterType::Pointer writer = WriterType::New();
+    writer->SetInput( m_InternalImage );
+    writer->SetFileName( "internal_image.mha" );
+    writer->Update();
+
+    typedef LabelImageToLabelMapFilter< LabelImageType, LevelSetLabelMapType> LabelImageToLabelMapFilterType;
+    typename LabelImageToLabelMapFilterType::Pointer labelImageToLabelMapFilter = LabelImageToLabelMapFilterType::New();
+    labelImageToLabelMapFilter->SetInput( m_InternalImage );
+    labelImageToLabelMapFilter->SetBackgroundValue( 3 );
+    labelImageToLabelMapFilter->Update();
+
+    m_OutputLevelSet->GetLabelMap( )->Graft( labelImageToLabelMapFilter->GetOutput() );
     m_TempPhi.clear();
   }
 
@@ -191,8 +281,6 @@ protected:
   LevelSetPointer   m_TempLevelSet;
   char              m_MinStatus;
   char              m_MaxStatus;
-
-
 
   typedef Image< char, ImageDimension >     LabelImageType;
   typedef typename LabelImageType::Pointer  LabelImagePointer;
@@ -243,8 +331,6 @@ protected:
       LevelSetOutputType  currentValue = nodeIt->second;
       LevelSetOutputType  tempUpdate =
           m_Dt * static_cast< LevelSetOutputType >( upIt->second );
-
-      std::cout <<m_InternalImage->GetPixel( currentIndex ) <<std::endl;
 
 //      if( tempUpdate > 0.5 )
 //        {
@@ -554,7 +640,7 @@ protected:
         {
         char label = it.Get();
 
-        if( label >= 0 )
+        if( label <= 0 )
           {
           if( label == 0 )
             {
@@ -570,7 +656,7 @@ protected:
             }
           else
             {
-            std::cout << phiIt->first << "is not in m_TempPhi"<< std::endl;
+            std::cout << tempIndex << "is not in m_TempPhi"<< std::endl;
             }
           }
         } // end for
@@ -599,7 +685,7 @@ protected:
           m_TempLevelSet->GetLayer( 0 ).insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M) );
           }
-        else if( M > -1.5 )
+        else if( M > 1.5 )
           {
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
@@ -717,6 +803,7 @@ protected:
           {
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
+          LayerMinus2.erase( tempIt );
           m_InternalImage->SetPixel( currentIndex, -3 );
           m_TempPhi.erase( currentIndex );
           }
@@ -785,7 +872,7 @@ protected:
         {
         char label = it.Get();
 
-        if( label >= 1 )
+        if( label <= 1 )
           {
           if( label == 1 )
             {
@@ -834,6 +921,7 @@ protected:
           {
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
+          LayerPlus2.erase( tempIt );
           m_InternalImage->SetPixel( currentIndex, 3 );
           m_TempPhi.erase( currentIndex );
           }
@@ -933,7 +1021,7 @@ protected:
           {
           if( phiIt->second == -3. )
             {
-            m_InternalImage->SetPixel( tempIndex, currentValue - 1);
+            phiIt->second = currentValue - 1;
             m_TempLevelSet->GetLayer( -2 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue - 1 ) );
             }
@@ -943,7 +1031,8 @@ protected:
           char status = m_InternalImage->GetPixel( tempIndex );
           if( status == -3 )
             {
-            m_InternalImage->SetPixel( tempIndex, currentValue - 1);
+            m_TempPhi.insert(
+                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue - 1 ) );
             m_TempLevelSet->GetLayer( -2 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue - 1 ) );
             }
@@ -1011,7 +1100,7 @@ protected:
           {
           if( phiIt->second == 3. )
             {
-            m_InternalImage->SetPixel( tempIndex, currentValue + 1);
+            phiIt->second = currentValue + 1;
             m_TempLevelSet->GetLayer( 2 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
             }
@@ -1021,7 +1110,8 @@ protected:
           char status = m_InternalImage->GetPixel( tempIndex );
           if( status == 3 )
             {
-            m_InternalImage->SetPixel( tempIndex, currentValue + 1);
+            m_TempPhi.insert(
+                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
             m_TempLevelSet->GetLayer( 2 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
             }
