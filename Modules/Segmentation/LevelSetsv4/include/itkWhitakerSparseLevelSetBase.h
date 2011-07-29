@@ -163,7 +163,6 @@ public:
     return HessianType();
     }
 
-
   itkSetObjectMacro( LabelMap, LabelMapType );
   itkGetObjectMacro( LabelMap, LabelMapType );
 
