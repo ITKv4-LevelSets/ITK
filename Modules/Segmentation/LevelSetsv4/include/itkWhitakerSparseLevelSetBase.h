@@ -260,7 +260,7 @@ public:
 
       while( it != lineContainer.end() )
         {
-        object->AddLine( *it );
+        object->AddLine( it->GetIndex(), it->GetLength() );
         ++it;
         }
       }

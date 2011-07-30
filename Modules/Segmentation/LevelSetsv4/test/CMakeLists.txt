@@ -20,15 +20,15 @@ itkBinaryImageToWhitakerSparseLevelSetAdaptorTest.cxx
 itkUpdateWhitakerSparseLevelSetTest.cxx
 #itkUpdateShiSparseLevelSetTest.cxx
 #itkUpdateMalcolmSparseLevelSetTest.cxx
-#itkSingleLevelSetSparse2DTest.cxx
+itkSingleLevelSetSparse2DTest.cxx
 #itkSingleLevelSetMalcolm2DTest.cxx
 #itkSingleLevelSetShi2DTest.cxx
-#itkTwoLevelSetSparse2DTest.cxx
+itkTwoLevelSetSparse2DTest.cxx
 #itkTwoLevelSetMalcolm2DTest.cxx
 #itkTwoLevelSetShiSparse2DTest.cxx
-#itkSingleLevelSetSparseWithCurvature2DTest.cxx
-#itkSingleLevelSetSparseWithPropagation2DTest.cxx
-#itkSingleLevelSetSparseWithLaplacian2DTest.cxx
+itkSingleLevelSetSparseWithCurvature2DTest.cxx
+itkSingleLevelSetSparseWithPropagation2DTest.cxx
+itkSingleLevelSetSparseWithLaplacian2DTest.cxx
 )
 
 CreateTestDriver(ITKLevelSetsv4  "${ITKLevelSetsv4-Test_LIBRARIES}" "${ITKLevelSetsv4Tests}")
@@ -141,9 +141,9 @@ add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
 #      2
 #      output_update_malcolm_sparse2.mha
 #    )
-#add_test(NAME itkSingleLevelSetsv4Sparse2DTest
-#      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
-#      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
+add_test(NAME itkSingleLevelSetsv4Sparse2DTest
+      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
 #add_test(NAME itkSingleLevelSetsv4Malcolm2DTest
 #      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetMalcolm2DTest
@@ -153,9 +153,9 @@ add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
 #      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetShi2DTest
 #      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
-#add_test(NAME itkTwoLevelSetsv4Sparse2DTest
-#      COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetSparse2DTest
-#      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
+add_test(NAME itkTwoLevelSetsv4Sparse2DTest
+      COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetSparse2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
 
 #add_test(NAME itkTwoLevelSetsv4Malcolm2DTest
 #      COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetMalcolm2DTest
@@ -165,14 +165,14 @@ add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
 #      COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetShiSparse2DTest
 #      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
 
-#add_test(NAME itkSingleLevelSetsv4SparseWithCurvature2DTest
-#      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparseWithCurvature2DTest
-#      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
+add_test(NAME itkSingleLevelSetsv4SparseWithCurvature2DTest
+      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparseWithCurvature2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
-#add_test(NAME itkSingleLevelSetsv4SparseWithPropagation2DTest
-#      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparseWithPropagation2DTest
-#      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
+add_test(NAME itkSingleLevelSetsv4SparseWithPropagation2DTest
+      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparseWithPropagation2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
-#add_test(NAME itkSingleLevelSetsv4SparseWithLaplacian2DTest
-#      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparseWithLaplacian2DTest
-#      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
+add_test(NAME itkSingleLevelSetsv4SparseWithLaplacian2DTest
+      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparseWithLaplacian2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
