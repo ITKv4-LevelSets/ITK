@@ -137,5 +137,11 @@ int itkBinaryImageToWhitakerSparseLevelSetAdaptorTest( int argc, char* argv[] )
     std::cout << std::endl;
   }
 
+//  typedef itk::LabelObject< unsigned long, 2 > LabelObjectType;
+//  LabelObjectType::Pointer labelObject = sparseLevelSet->GetAsLabelObject<unsigned long>();
+//  labelObject->SetLabel( 1 );
+
+//  std::cout << labelObject->Size() << std::endl;
+
   return EXIT_SUCCESS;
 }

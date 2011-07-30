@@ -223,12 +223,6 @@ public:
 
     this->MovePointFromPlus2();
 
-    typedef ImageFileWriter< LabelImageType > WriterType;
-    typename WriterType::Pointer writer = WriterType::New();
-    writer->SetInput( m_InternalImage );
-    writer->SetFileName( "internal_image.mha" );
-    writer->Update();
-
     typedef LabelImageToLabelMapFilter< LabelImageType, LevelSetLabelMapType> LabelImageToLabelMapFilterType;
     typename LabelImageToLabelMapFilterType::Pointer labelImageToLabelMapFilter = LabelImageToLabelMapFilterType::New();
     labelImageToLabelMapFilter->SetInput( m_InternalImage );
@@ -395,12 +389,9 @@ protected:
           m_TempLevelSet->GetLayer( 1 ).insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                     tempValue ) );
-
-//          m_InternalImage->SetPixel( currentIndex, static_cast< char >( 1 ) );
           }
         else // samedirection == false
           {
-//          m_InternalImage->SetPixel( currentIndex, static_cast< char >( 0 ) );
           ++nodeIt;
           ++upIt;
           }
@@ -458,19 +449,15 @@ protected:
             m_TempLevelSet->GetLayer( -1 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                       tempValue ) );
-
-//            m_InternalImage->SetPixel( currentIndex, static_cast< char >( -1 ) );
             }
           else // samedirection == false
             {
-//            m_InternalImage->SetPixel( currentIndex, static_cast< char >( 0 ) );
             ++nodeIt;
             ++upIt;
             }
           }
         else // -0.5 <= temp <= 0.5
           {
-//          m_InternalImage->SetPixel( currentIndex, static_cast< char >( 0 ) );
           ++nodeIt;
           ++upIt;
           }
@@ -1095,17 +1082,6 @@ protected:
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
             }
           }
-//        else
-//          {
-//          char status = m_InternalImage->GetPixel( tempIndex );
-//          if( status == 3 )
-//            {
-//            m_TempPhi.insert(
-//                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
-//            m_TempLevelSet->GetLayer( 2 ).insert(
-//                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
-//            }
-//          }
         }
       }
     }
@@ -1146,7 +1122,6 @@ protected:
     while( nodeIt != nodeEnd )
       {
       LevelSetInputType   currentIndex = nodeIt->first;
-      LevelSetOutputType  currentValue = nodeIt->second;
 
       m_OutputLevelSet->GetLayer( 2 ).insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( nodeIt->first, nodeIt->second ) );

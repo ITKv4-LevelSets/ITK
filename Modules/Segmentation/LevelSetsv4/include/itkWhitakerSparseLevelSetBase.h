@@ -243,6 +243,32 @@ public:
     }
   }
 
+  template< class TLabel >
+  LabelObject< TLabel, Dimension >* GetAsLabelObject()
+    {
+    typedef LabelObject< TLabel, Dimension > OutputLabelObjectType;
+    typename OutputLabelObjectType::Pointer object =
+        OutputLabelObjectType::New();
+
+    for( char status = -3; status < 1; status++ )
+      {
+      LabelObjectPointer labelObject = m_LabelMap->GetLabelObject( status );
+      LabelObjectLineContainerType lineContainer = labelObject->GetLineContainer();
+
+      typename LabelObjectLineContainerType::const_iterator it =
+        lineContainer.begin();
+
+      while( it != lineContainer.end() )
+        {
+        object->AddLine( *it );
+        ++it;
+        }
+      }
+    object->Optimize();
+
+    return object.GetPointer();
+    }
+
 protected:
 
   WhitakerSparseLevelSetBase() : Superclass(), m_LabelMap( 0 )
