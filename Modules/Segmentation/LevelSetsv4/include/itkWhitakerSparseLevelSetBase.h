@@ -102,56 +102,26 @@ public:
       ++layerIt;
       }
 
-    char status = m_LabelMap->GetPixel( iP );
-
-    if( status == -3 )
+    if( m_LabelMap->GetLabelObject( -3 )->HasIndex( iP ) )
       {
-      return -3.;
+      return -3;
       }
     else
-    {
+      {
+      char status = m_LabelMap->GetPixel( iP );
       if( status == 3 )
         {
         return 3.;
         }
       else
         {
-        itkGenericExceptionMacro( <<"status " << static_cast< int >( status )<< " should be 3 or -3");
+        itkGenericExceptionMacro( <<"status "
+                                  << static_cast< int >( status )
+                                  << " should be 3 or -3" );
         return 3.;
         }
-    }
+      }
   }
-
-//  virtual void StatusAndValue( const InputType& iP, char& oStatus, OutputType& oValue )
-//  {
-//    oStatus = m_LabelMap->GetPixel( iP );
-
-//    if( oStatus == -3 )
-//      {
-//      oValue = -3.;
-//      }
-//    else
-//    {
-//      if( oStatus == 3 )
-//        {
-//        oValue = 3.;
-//        }
-//      else
-//      {
-//        LayerMapConstIterator layerIt =  m_Layers.find( oStatus );
-
-//        if( layerIt != m_Layers.end() )
-//        {
-//          LayerConstIterator it = ( layerIt->second ).find( iP );
-//          if( it != ( layerIt->second ).end() )
-//          {
-//            oStatus = layerIt->first;
-//            oValue = it->second;
-//          }
-//        }
-//      }
-//    }
-//  }
 
   virtual GradientType EvaluateGradient( const InputType& iP ) const
     {
@@ -236,7 +206,7 @@ public:
                          << typeid( Self * ).name() );
       }
 
-    this->m_LabelMap = LevelSet->m_LabelMap;
+    this->m_LabelMap->Graft( LevelSet->m_LabelMap );
     this->m_Layers = LevelSet->m_Layers;
     }
 
