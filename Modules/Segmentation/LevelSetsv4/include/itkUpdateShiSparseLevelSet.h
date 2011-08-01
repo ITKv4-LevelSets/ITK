@@ -26,6 +26,8 @@
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkShapedNeighborhoodIterator.h"
 #include "itkNeighborhoodAlgorithm.h"
+#include "itkLabelMapToLabelImageFilter.h"
+#include "itkLabelImageToLabelMapFilter.h"
 #include <list>
 #include "itkObject.h"
 
@@ -54,27 +56,26 @@ public:
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
   typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
 
-  typedef std::list< LevelSetOutputRealType >          UpdateListType;
+  typedef typename LevelSetType::LabelMapType          LevelSetLabelMapType;
+  typedef typename LevelSetType::LabelMapPointer       LevelSetLabelMapPointer;
 
-  typedef typename LevelSetType::ImageType             SparseImageType;
-  typedef typename SparseImageType::Pointer            SparseImagePointer;
-  typedef typename SparseImageType::IndexType          SparseImageIndexType;
+  typedef typename LevelSetType::LabelObjectType       LevelSetLabelObjectType;
+  typedef typename LevelSetType::LabelObjectPointer    LevelSetLabelObjectPointer;
+  typedef typename LevelSetType::LabelObjectLengthType LevelSetLabelObjectLengthType;
+  typedef typename LevelSetType::LabelObjectLineType   LevelSetLabelObjectLineType;
 
-  typedef typename LevelSetType::NodePairType          LevelSetNodePairType;
-  typedef typename LevelSetType::NodeListType          LevelSetNodeListType;
-  typedef typename LevelSetType::NodeListIterator      LevelSetNodeListIterator;
-  typedef typename LevelSetType::NodeListConstIterator LevelSetNodeListConstIterator;
+  typedef typename LevelSetType::LayerType             LevelSetLayerType;
+  typedef typename LevelSetType::LayerIterator         LevelSetLayerIterator;
+  typedef typename LevelSetType::LayerConstIterator    LevelSetLayerConstIterator;
 
-  typedef typename LevelSetType::SparseLayerMapType           SparseLayerMapType;
-  typedef typename LevelSetType::SparseLayerMapIterator       SparseLayerMapIterator;
-  typedef typename LevelSetType::SparseLayerMapConstIterator  SparseLayerMapConstIterator;
-
-  typedef ImageRegionIteratorWithIndex< SparseImageType > SparseIteratorType;
-  typedef ShapedNeighborhoodIterator< SparseImageType >   SparseNeighborhoodIteratorType;
+  typedef typename LevelSetType::LayerMapType           LevelSetLayerMapType;
+  typedef typename LevelSetType::LayerMapIterator       LevelSetLayerMapIterator;
+  typedef typename LevelSetType::LayerMapConstIterator  LevelSetLayerMapConstIterator;
 
   typedef TEquationContainer                      EquationContainerType;
   typedef typename EquationContainerType::Pointer EquationContainerPointer;
 
+  itkGetObjectMacro( OutputLevelSet, LevelSetType );
 
   // this is the same as Procedure 2
   // Input is a update image point m_UpdateImage
@@ -82,32 +83,29 @@ public:
   void UpdateL_out()
   {
     std::cout << "UpdateL_out" << std::endl;
-    LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
-    LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
-    LevelSetNodeListType temp_list;
-    LevelSetNodePairType p;
-    LevelSetOutputRealType update;
-    LevelSetOutputRealType oldValue, newValue;
-    ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
+    LevelSetLayerType & list_out  = m_SparseLevelSet->GetLayer(  1 );
+    LevelSetLayerType & list_in   = m_SparseLevelSet->GetLayer( -1 );
 
-    typename SparseNeighborhoodIteratorType::RadiusType radius;
+    ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
+
+    typename NeighborhoodIteratorType::RadiusType radius;
     radius.Fill( 1 );
 
-    SparseNeighborhoodIteratorType
-      sparseNeighborhoodIt( radius, m_SparseImage,
-                            m_SparseImage->GetLargestPossibleRegion() );
+    NeighborhoodIteratorType neighIt( radius,
+                                      m_InternalImage,
+                                      m_InternalImage->GetLargestPossibleRegion() );
 
-    sparseNeighborhoodIt.OverrideBoundaryCondition( &sp_nbc );
+    neighIt.OverrideBoundaryCondition( &sp_nbc );
 
-    typename SparseNeighborhoodIteratorType::OffsetType sparse_offset;
+    typename NeighborhoodIteratorType::OffsetType sparse_offset;
     sparse_offset.Fill( 0 );
 
     for( unsigned int dim = 0; dim < ImageDimension; dim++ )
       {
       sparse_offset[dim] = -1;
-      sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+      neighIt.ActivateOffset( sparse_offset );
       sparse_offset[dim] = 1;
-      sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+      neighIt.ActivateOffset( sparse_offset );
       sparse_offset[dim] = 0;
       }
 
@@ -116,218 +114,220 @@ public:
 //       itkGenericExceptionMacro( "m_Update[1]->size() != list_out->size()" );
 //       }
 
+    LevelSetLayerIterator nodeIt   = list_out.begin();
+    LevelSetLayerIterator nodeEnd  = list_out.end();
+
     // for each point in Lz
-    while( !list_out->empty() )
+    while( nodeIt != nodeEnd )
       {
-      p = list_out->front();
-      list_out->pop_front();
+      bool erased = false;
+      LevelSetInputType   currentIndex = nodeIt->first;
+      LevelSetOutputType  currentValue = nodeIt->second;
 
       // update the level set
-      update = m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( p.first );
+      LevelSetOutputRealType update =
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( currentIndex );
 
 //       std::cout << p.first << ' ' << int(p.second) << ' ' << update << std::endl;
 
       if( update < NumericTraits< LevelSetOutputRealType >::Zero )
         {
-        if( Con( p.first, p.second , update ) )
+        if( Con( currentIndex, currentValue , update ) )
           {
           // CheckIn
-          p.second = -1;
-          this->m_SparseImage->SetPixel( p.first, p.second );
+          LevelSetOutputType oldValue = currentValue;
+          LevelSetOutputType newValue = -1;
 
-          oldValue = 1;
-          newValue = -1;
-          m_EquationContainer->UpdatePixel( p.first, oldValue , newValue );
+          this->m_InternalImage->SetPixel( currentIndex, newValue );
 
-          list_in->push_back( p );
+          m_EquationContainer->UpdatePixel( currentIndex, oldValue , newValue );
 
-          sparseNeighborhoodIt.SetLocation( p.first );
+          list_in.insert(
+                std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, newValue ) );
 
-          for( typename SparseNeighborhoodIteratorType::Iterator
-              i = sparseNeighborhoodIt.Begin();
+          LevelSetLayerIterator tempIt = nodeIt;
+          ++nodeIt;
+          list_out.erase( tempIt );
+          erased = true;
+
+          neighIt.SetLocation( currentIndex );
+
+          for( typename NeighborhoodIteratorType::Iterator
+              i = neighIt.Begin();
               !i.IsAtEnd(); ++i )
             {
-            LevelSetOutputType q = i.Get();
-            if ( q == 3 )
+            if ( i.Get() == 3 )
               {
-              LevelSetNodePairType temp;
-              temp.first =
-                sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
-              temp.second = 1;
-              temp_list.push_back( temp );
-
-              this->m_SparseImage->SetPixel( temp.first, temp.second );
+              LevelSetInputType tempIndex =
+                  neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
               oldValue = 3;
               newValue = 1;
-              m_EquationContainer->UpdatePixel( temp.first, oldValue , newValue );
+
+              list_out.insert(
+                    std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, newValue ) );
+
+              this->m_InternalImage->SetPixel( tempIndex, newValue );
+
+              m_EquationContainer->UpdatePixel( tempIndex, oldValue , newValue );
               }
             }
           }
-        else
-          {
-          temp_list.push_back( p );
-          }
         }
-      else
+      if( !erased )
         {
-        temp_list.push_back( p );
+        ++nodeIt;
         }
-      }
-
-    while( !temp_list.empty() )
-      {
-      list_out->push_back( temp_list.front() );
-      temp_list.pop_front();
       }
     }
 
   void UpdateL_in()
   {
     std::cout << "UpdateL_in" << std::endl;
-    LevelSetNodeListType* list_in = m_SparseLevelSet->GetListNode( -1 );
-    LevelSetNodeListType* list_out = m_SparseLevelSet->GetListNode( 1 );
-    LevelSetNodeListType temp_list;
-    LevelSetNodePairType p;
-    LevelSetOutputRealType update;
-    LevelSetOutputRealType oldValue, newValue;
-    LevelSetOutputType q;
-    ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
+    LevelSetLayerType & list_out  = m_SparseLevelSet->GetLayer(  1 );
+    LevelSetLayerType & list_in   = m_SparseLevelSet->GetLayer( -1 );
 
-    typename SparseNeighborhoodIteratorType::RadiusType radius;
+    ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
+
+    typename NeighborhoodIteratorType::RadiusType radius;
     radius.Fill( 1 );
 
-    SparseNeighborhoodIteratorType
-      sparseNeighborhoodIt( radius, m_SparseImage,
-                            m_SparseImage->GetLargestPossibleRegion() );
+    NeighborhoodIteratorType neighIt( radius,
+                                      m_InternalImage,
+                                      m_InternalImage->GetLargestPossibleRegion() );
 
-    sparseNeighborhoodIt.OverrideBoundaryCondition( &sp_nbc );
+    neighIt.OverrideBoundaryCondition( &sp_nbc );
 
-    typename SparseNeighborhoodIteratorType::OffsetType sparse_offset;
+    typename NeighborhoodIteratorType::OffsetType sparse_offset;
     sparse_offset.Fill( 0 );
 
     for( unsigned int dim = 0; dim < ImageDimension; dim++ )
       {
       sparse_offset[dim] = -1;
-      sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+      neighIt.ActivateOffset( sparse_offset );
       sparse_offset[dim] = 1;
-      sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+      neighIt.ActivateOffset( sparse_offset );
       sparse_offset[dim] = 0;
       }
 
-    LevelSetNodePairType temp;
+    LevelSetLayerIterator nodeIt   = list_in.begin();
+    LevelSetLayerIterator nodeEnd  = list_in.end();
 
     // for each point in Lz
-    while( !list_in->empty() )
+    while( nodeIt != nodeEnd )
       {
-      p = list_in->front();
-      list_in->pop_front();
+      bool erased = false;
+      LevelSetInputType   currentIndex = nodeIt->first;
+      LevelSetOutputType  currentValue = nodeIt->second;
 
       // TODO
       // update for the current level set
-      update = m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( p.first );
+      LevelSetOutputRealType update =
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( currentIndex );
 //       std::cout << p.first << ' ' << int(p.second) << ' ' << update << std::endl;
 
       if( update > NumericTraits< LevelSetOutputRealType >::Zero )
         {
-        if( Con( p.first, p.second , update ) )
+        if( Con( currentIndex, currentValue , update ) )
           {
           // CheckOut
-          p.second = 1;
-          this->m_SparseImage->SetPixel( p.first, p.second );
+          LevelSetOutputType oldValue = currentValue;
+          LevelSetOutputType newValue = 1;
 
-          oldValue = -1;
-          newValue = 1;
+          this->m_InternalImage->SetPixel( currentIndex, newValue );
+
           m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-                p.first, oldValue , newValue );
+                currentIndex,
+                static_cast< LevelSetOutputRealType >( oldValue ),
+                static_cast< LevelSetOutputRealType >( newValue )
+                );
 
-          list_out->push_back( p );
+          list_out.insert(
+                std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, newValue ) );
 
-          sparseNeighborhoodIt.SetLocation( p.first );
+          LevelSetLayerIterator tempIt = nodeIt;
+          ++nodeIt;
+          list_out.erase( tempIt );
 
-          for( typename SparseNeighborhoodIteratorType::Iterator
-              i = sparseNeighborhoodIt.Begin();
+          erased = true;
+
+          neighIt.SetLocation( currentIndex );
+
+          for( typename NeighborhoodIteratorType::Iterator
+              i = neighIt.Begin();
               !i.IsAtEnd(); ++i )
             {
-            q = i.Get();
-            if ( q == -3 )
+            if ( i.Get() == -3 )
               {
-              temp.first =
-                sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
-              temp.second = -1;
-              temp_list.push_back( temp);
-              this->m_SparseImage->SetPixel( temp.first, temp.second );
+              LevelSetInputType tempIndex =
+                  neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
               oldValue = -3;
               newValue = -1;
+
+              list_in.insert(
+                    std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, newValue ) );
+              this->m_InternalImage->SetPixel( tempIndex, newValue );
+
               m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-                    temp.first, oldValue , newValue );
+                    tempIndex,
+                    static_cast< LevelSetOutputRealType >( oldValue ),
+                    static_cast< LevelSetOutputRealType >( newValue )
+                    );
               }
             }
           }
-        else
-          {
-          temp_list.push_back( p );
-          }
         }
-      else
+      if( !erased )
         {
-        temp_list.push_back( p );
+        ++nodeIt;
         }
       }
+  }
 
-    while( !temp_list.empty() )
-      {
-      list_in->push_back( temp_list.front() );
-      temp_list.pop_front();
-      }
-    }
-
-  bool Con( const SparseImageIndexType& iIdx,
+  bool Con( const LevelSetInputType& iIdx,
             const LevelSetOutputType& iCurrentStatus,
             const LevelSetOutputRealType& iCurrentUpdate ) const
   {
-    ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
+    ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
 
-    typename SparseNeighborhoodIteratorType::RadiusType radius;
+    typename NeighborhoodIteratorType::RadiusType radius;
     radius.Fill( 1 );
 
-    SparseNeighborhoodIteratorType
-      sparseNeighborhoodIt( radius, m_SparseImage,
-                            m_SparseImage->GetLargestPossibleRegion() );
+    NeighborhoodIteratorType neighIt( radius,
+                                      m_InternalImage,
+                                      m_InternalImage->GetLargestPossibleRegion() );
 
-    sparseNeighborhoodIt.OverrideBoundaryCondition( &sp_nbc );
+    neighIt.OverrideBoundaryCondition( &sp_nbc );
 
-    typename SparseNeighborhoodIteratorType::OffsetType sparse_offset;
+    typename NeighborhoodIteratorType::OffsetType sparse_offset;
     sparse_offset.Fill( 0 );
 
     for( unsigned int dim = 0; dim < ImageDimension; dim++ )
       {
       sparse_offset[dim] = -1;
-      sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+      neighIt.ActivateOffset( sparse_offset );
       sparse_offset[dim] = 1;
-      sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+      neighIt.ActivateOffset( sparse_offset );
       sparse_offset[dim] = 0;
       }
 
-    sparseNeighborhoodIt.SetLocation( iIdx );
+    neighIt.SetLocation( iIdx );
 
     LevelSetOutputType opposite_status = ( iCurrentStatus == 1 ) ? -1 : 1;
 
-    LevelSetOutputType q;
-    SparseImageIndexType idx;
-    LevelSetOutputRealType neighborUpdate;
-
-    for( typename SparseNeighborhoodIteratorType::Iterator
-              i = sparseNeighborhoodIt.Begin();
+    for( typename NeighborhoodIteratorType::Iterator
+              i = neighIt.Begin();
           !i.IsAtEnd(); ++i )
       {
-      q = i.Get();
-      if ( q == opposite_status )
+      if ( i.Get() == opposite_status )
         {
-        idx = sparseNeighborhoodIt.GetIndex( i.GetNeighborhoodOffset() );
+        LevelSetInputType tempIdx =
+            neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
-        neighborUpdate =  m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( idx );
+        LevelSetOutputRealType neighborUpdate =
+            m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( tempIdx );
+
         if ( neighborUpdate * iCurrentUpdate > NumericTraits< LevelSetOutputType >::Zero )
           {
           return true;
@@ -345,61 +345,71 @@ public:
       itkGenericExceptionMacro( <<"m_SparseLevelSet is NULL" );
       }
 
-    if( this->m_SingleLevelSet != 1 )
+    if( this->m_SingleLevelSet != true )
       {
       itkWarningMacro( << "the current implementation does not allow to run multi object level sts");
       }
 
-    m_SparseImage = m_SparseLevelSet->GetImage();
+    m_OutputLevelSet->SetLayer( -1, m_SparseLevelSet->GetLayer( -1 ) );
+    m_OutputLevelSet->SetLayer(  1, m_SparseLevelSet->GetLayer(  1 ) );
+
+    m_OutputLevelSet->SetLabelMap( m_SparseLevelSet->GetLabelMap() );
+
+    typedef LabelMapToLabelImageFilter<LevelSetLabelMapType, LabelImageType> LabelMapToLabelImageFilterType;
+    typename LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
+    labelMapToLabelImageFilter->SetInput( m_SparseLevelSet->GetLabelMap() );
+    labelMapToLabelImageFilter->Update();
+
+    m_InternalImage = labelMapToLabelImageFilter->GetOutput();
+    m_InternalImage->DisconnectPipeline();
+
 
     // neighborhood iterator
-    ZeroFluxNeumannBoundaryCondition< SparseImageType > sp_nbc;
+    ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
 
-    typename SparseNeighborhoodIteratorType::RadiusType radius;
+    typename NeighborhoodIteratorType::RadiusType radius;
     radius.Fill( 1 );
 
-    SparseNeighborhoodIteratorType
-      sparseNeighborhoodIt( radius, m_SparseImage,
-                            m_SparseImage->GetLargestPossibleRegion() );
+    NeighborhoodIteratorType neighIt( radius,
+                                      m_InternalImage,
+                                      m_InternalImage->GetLargestPossibleRegion() );
 
-    sparseNeighborhoodIt.OverrideBoundaryCondition( &sp_nbc );
+    neighIt.OverrideBoundaryCondition( &sp_nbc );
 
-    typename SparseNeighborhoodIteratorType::OffsetType sparse_offset;
+    typename NeighborhoodIteratorType::OffsetType sparse_offset;
     sparse_offset.Fill( 0 );
 
     for( unsigned int dim = 0; dim < ImageDimension; dim++ )
       {
       sparse_offset[dim] = -1;
-      sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+      neighIt.ActivateOffset( sparse_offset );
       sparse_offset[dim] = 1;
-      sparseNeighborhoodIt.ActivateOffset( sparse_offset );
+      neighIt.ActivateOffset( sparse_offset );
       sparse_offset[dim] = 0;
       }
-
-    LevelSetNodePairType p;
-    LevelSetOutputType q;
-    LevelSetOutputRealType oldValue, newValue;
-    LevelSetNodeListType temp_list;
 
     // Step 2.1.1
     UpdateL_out();
 
     // Step 2.1.2 - for each point x in L_in
-    while( !m_SparseLevelSet->GetListNode( -1 )->empty() )
-      {
-      p = m_SparseLevelSet->GetListNode( -1 )->front();
-      m_SparseLevelSet->GetListNode( -1 )->pop_front();
+    LevelSetLayerType & list_in = m_OutputLevelSet->GetLayer( -1 );
 
-      sparseNeighborhoodIt.SetLocation( p.first );
+    LevelSetLayerIterator nodeIt = list_in.begin();
+    LevelSetLayerIterator nodeEnd = list_in.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      LevelSetInputType currentIndex = nodeIt->first;
+
+      neighIt.SetLocation( currentIndex );
 
       bool to_be_deleted = true;
 
-      for( typename SparseNeighborhoodIteratorType::Iterator
-              i = sparseNeighborhoodIt.Begin();
-          !i.IsAtEnd(); ++i )
+      for( typename NeighborhoodIteratorType::Iterator
+           i = neighIt.Begin();
+           !i.IsAtEnd(); ++i )
         {
-        q = i.Get();
-        if ( q > NumericTraits< LevelSetOutputType >::Zero )
+        if ( i.Get() > NumericTraits< LevelSetOutputType >::Zero )
           {
           to_be_deleted = false;
           break;
@@ -408,46 +418,47 @@ public:
       if( to_be_deleted )
         {
 //         std::cout << p.first << std::endl;
-        p.second = -3;
-        this->m_SparseImage->SetPixel( p.first, p.second );
+        LevelSetOutputType oldValue = -1;
+        LevelSetOutputType newValue = -3;
+        this->m_InternalImage->SetPixel( currentIndex, newValue );
 
-        oldValue = -1;
-        newValue = -3;
+        LevelSetLayerIterator tempIt = nodeIt;
+        ++nodeIt;
+        list_in.erase( tempIt );
 
         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-              p.first, oldValue , newValue );
+              currentIndex,
+              static_cast< LevelSetOutputRealType >( oldValue ),
+              static_cast< LevelSetOutputRealType >( newValue ) );
         }
       else
         {
-        temp_list.push_back( p );
+        ++nodeIt;
         }
-      }
-
-    while( !temp_list.empty() )
-      {
-      m_SparseLevelSet->GetListNode( -1 )->push_back( temp_list.front() );
-      temp_list.pop_front();
       }
 
     // Step 2.1.3 - for each point x in L_in
     UpdateL_in();
 
     // Step 2.1.4
-    while( !m_SparseLevelSet->GetListNode( 1 )->empty() )
-      {
-      p = m_SparseLevelSet->GetListNode( 1 )->front();
-      m_SparseLevelSet->GetListNode( 1 )->pop_front();
+    LevelSetLayerType & list_out = m_OutputLevelSet->GetLayer( 1 );
 
-      sparseNeighborhoodIt.SetLocation( p.first );
+    nodeIt = list_out.begin();
+    nodeEnd = list_out.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      LevelSetInputType currentIndex = nodeIt->first;
+
+      neighIt.SetLocation( currentIndex );
 
       bool to_be_deleted = true;
 
-      for( typename SparseNeighborhoodIteratorType::Iterator
-              i = sparseNeighborhoodIt.Begin();
+      for( typename NeighborhoodIteratorType::Iterator
+              i = neighIt.Begin();
           !i.IsAtEnd(); ++i )
         {
-        q = i.Get();
-        if ( q < NumericTraits< LevelSetOutputType >::Zero )
+        if ( i.Get() < NumericTraits< LevelSetOutputType >::Zero )
           {
           to_be_deleted = false;
           break;
@@ -455,26 +466,33 @@ public:
         }
       if( to_be_deleted )
         {
-        p.second = 3;
-        this->m_SparseImage->SetPixel( p.first, p.second );
+        LevelSetOutputType oldValue = 1;
+        LevelSetOutputType newValue = 3;
+        this->m_InternalImage->SetPixel( currentIndex, newValue );
 
-        oldValue = 1;
-        newValue = 3;
+        LevelSetLayerIterator tempIt = nodeIt;
+        ++nodeIt;
+        list_out.erase( tempIt );
 
         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-              p.first, oldValue , newValue );
+              currentIndex,
+              static_cast< LevelSetOutputRealType >( oldValue ),
+              static_cast< LevelSetOutputRealType >( newValue )
+              );
         }
       else
         {
-        temp_list.push_back( p );
+        ++nodeIt;
         }
       }
 
-    while( !temp_list.empty() )
-      {
-      m_SparseLevelSet->GetListNode( 1 )->push_back( temp_list.front() );
-      temp_list.pop_front();
-      }
+    typedef LabelImageToLabelMapFilter< LabelImageType, LevelSetLabelMapType> LabelImageToLabelMapFilterType;
+    typename LabelImageToLabelMapFilterType::Pointer labelImageToLabelMapFilter = LabelImageToLabelMapFilterType::New();
+    labelImageToLabelMapFilter->SetInput( m_InternalImage );
+    labelImageToLabelMapFilter->SetBackgroundValue( 3 );
+    labelImageToLabelMapFilter->Update();
+
+    m_OutputLevelSet->GetLabelMap( )->Graft( labelImageToLabelMapFilter->GetOutput() );
   }
 
   // Set/Get the sparse levet set image
@@ -500,13 +518,23 @@ protected:
     {}
   ~UpdateShiSparseLevelSet() {}
 
-  LevelSetPointer    m_SparseLevelSet;
-  SparseImagePointer m_SparseImage;
+  // input
+  LevelSetPointer   m_SparseLevelSet;
+
+  // output
+  LevelSetPointer   m_OutputLevelSet;
 
   IdentifierType           m_CurrentLevelSetId;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
   bool                     m_SingleLevelSet;
+
+  typedef Image< char, ImageDimension >     LabelImageType;
+  typedef typename LabelImageType::Pointer  LabelImagePointer;
+
+  LabelImagePointer m_InternalImage;
+
+  typedef ShapedNeighborhoodIterator< LabelImageType > NeighborhoodIteratorType;
 
 private:
   UpdateShiSparseLevelSet( const Self& );

@@ -136,9 +136,9 @@ public:
   characteristic function of each region is recomputed. Using the
   new H values, the previous c_i are updated. Used by only the sparse image
   filter */
-  virtual void UpdatePixel( LevelSetInputIndexType& iP,
-                           LevelSetOutputRealType & oldValue,
-                           LevelSetOutputRealType & newValue )
+  virtual void UpdatePixel( const LevelSetInputIndexType& iP,
+                           const LevelSetOutputRealType & oldValue,
+                           const LevelSetOutputRealType & newValue )
   {
     // For each affected h val: h val = new hval (this will dirty some cvals)
     InputPixelType input = this->m_Input->GetPixel( iP );

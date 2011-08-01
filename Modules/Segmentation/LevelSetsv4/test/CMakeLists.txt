@@ -18,7 +18,7 @@ itkBinaryImageToWhitakerSparseLevelSetAdaptorTest.cxx
 #itkBinaryImageToMalcolmSparseLevelSetAdaptorTest.cxx
 itkBinaryImageToShiSparseLevelSetAdaptorTest.cxx
 itkUpdateWhitakerSparseLevelSetTest.cxx
-#itkUpdateShiSparseLevelSetTest.cxx
+itkUpdateShiSparseLevelSetTest.cxx
 #itkUpdateMalcolmSparseLevelSetTest.cxx
 itkSingleLevelSetSparse2DTest.cxx
 #itkSingleLevelSetMalcolm2DTest.cxx
@@ -104,24 +104,24 @@ add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
       ${ITK_TEST_OUTPUT_DIR}/status_update_whitaker_sparse2.mha
     )
 
-#add_test(NAME itkUpdateShiSparseLevelSetsv4Test0
-#      COMMAND ITKLevelSetsv4TestDriver
-#      itkUpdateShiSparseLevelSetTest
-#      0
-#      output_update_shi_sparse0.mha
-#      )
-#add_test(NAME itkUpdateShiSparseLevelSetsv4Test1
-#      COMMAND ITKLevelSetsv4TestDriver
-#      itkUpdateShiSparseLevelSetTest
-#      1
-#      output_update_shi_sparse1.mha
-#     )
-#add_test(NAME itkUpdateShiSparseLevelSetsv4Test2
-#      COMMAND ITKLevelSetsv4TestDriver
-#      itkUpdateShiSparseLevelSetTest
-#      2
-#      output_update_shi_sparse2.mha
-#    )
+add_test(NAME itkUpdateShiSparseLevelSetsv4Test0
+      COMMAND ITKLevelSetsv4TestDriver
+      itkUpdateShiSparseLevelSetTest
+      0
+      output_update_shi_sparse0.mha
+      )
+add_test(NAME itkUpdateShiSparseLevelSetsv4Test1
+      COMMAND ITKLevelSetsv4TestDriver
+      itkUpdateShiSparseLevelSetTest
+      1
+      output_update_shi_sparse1.mha
+     )
+add_test(NAME itkUpdateShiSparseLevelSetsv4Test2
+      COMMAND ITKLevelSetsv4TestDriver
+      itkUpdateShiSparseLevelSetTest
+      2
+      output_update_shi_sparse2.mha
+    )
 
 #add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test0
 #      COMMAND ITKLevelSetsv4TestDriver

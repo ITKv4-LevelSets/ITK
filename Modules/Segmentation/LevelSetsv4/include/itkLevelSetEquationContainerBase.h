@@ -104,7 +104,9 @@ public:
       }
     }
 
-  void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
+  void UpdatePixel( const LevelSetInputIndexType& iP,
+                    const LevelSetOutputRealType & oldValue,
+                    const LevelSetOutputRealType & newValue )
   {
     typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
     ContainerIterator;
