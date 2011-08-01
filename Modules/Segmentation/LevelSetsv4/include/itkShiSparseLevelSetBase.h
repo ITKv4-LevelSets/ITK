@@ -230,6 +230,31 @@ public:
     this->m_Layers = LevelSet->m_Layers;
     }
 
+  template< class TLabel >
+  LabelObject< TLabel, Dimension >* GetAsLabelObject()
+    {
+    typedef LabelObject< TLabel, Dimension > OutputLabelObjectType;
+    typename OutputLabelObjectType::Pointer object =
+        OutputLabelObjectType::New();
+
+    LabelObjectPointer labelObject = m_LabelMap->GetLabelObject( -3 );
+
+    for( SizeValueType i = 0; i < labelObject->GetNumberOfLines(); i++ )
+      {
+      object->AddLine( labelObject->GetLine( i ) );
+      }
+
+    labelObject = m_LabelMap->GetLabelObject( -1 );
+
+    for( SizeValueType i = 0; i < labelObject->GetNumberOfLines(); i++ )
+      {
+      object->AddLine( labelObject->GetLine( i ) );
+      }
+    object->Optimize();
+
+    return object.GetPointer();
+    }
+
   itkSetObjectMacro( LabelMap, LabelMapType );
   itkGetObjectMacro( LabelMap, LabelMapType );
 

@@ -56,12 +56,32 @@ int itkBinaryImageToShiSparseLevelSetAdaptorTest( int argc, char* argv[] )
   typedef BinaryToSparseAdaptorType::LevelSetType     SparseLevelSetType;
   SparseLevelSetType::Pointer sparseLevelSet = adaptor->GetSparseLevelSet();
 
-  typedef BinaryToSparseAdaptorType::SparseImageType  SparseImageType;
-  typedef itk::ImageFileWriter< SparseImageType >     OutputWriterType;
+  typedef BinaryToSparseAdaptorType::LevelSetOutputType LevelSetOutputType;
 
-  OutputWriterType::Pointer writer = OutputWriterType::New();
+  typedef itk::Image< LevelSetOutputType, Dimension >   StatusImageType;
+  StatusImageType::Pointer status = StatusImageType::New();
+  status->SetRegions( input->GetLargestPossibleRegion() );
+  status->CopyInformation( input );
+  status->Allocate();
+  status->FillBuffer( 0 );
+
+  typedef itk::ImageRegionIteratorWithIndex< StatusImageType > StatusIteratorType;
+  StatusIteratorType sIt( status, status->GetLargestPossibleRegion() );
+  sIt.GoToBegin();
+
+  StatusImageType::IndexType idx;
+
+  while( !sIt.IsAtEnd() )
+    {
+    idx = sIt.GetIndex();
+    sIt.Set( sparseLevelSet->Evaluate( idx ) );
+    ++sIt;
+    }
+
+  typedef itk::ImageFileWriter< StatusImageType >     StatusWriterType;
+  StatusWriterType::Pointer writer = StatusWriterType::New();
   writer->SetFileName( argv[2] );
-  writer->SetInput( sparseLevelSet->GetImage() );
+  writer->SetInput( status );
 
   try
     {
@@ -71,6 +91,29 @@ int itkBinaryImageToShiSparseLevelSetAdaptorTest( int argc, char* argv[] )
     {
     std::cout << err << std::endl;
     }
+
+  for( char lyr = -1; lyr < 2; lyr += 2 )
+  {
+    SparseLevelSetType::LayerType layer = sparseLevelSet->GetLayer( lyr );
+    SparseLevelSetType::LayerIterator lIt = layer.begin();
+
+    std::cout << "*** " << static_cast< int >( lyr ) << " ***" <<std::endl;
+
+    while( lIt != layer.end() )
+    {
+      std::cout << lIt->first << std::endl;
+      ++lIt;
+    }
+    std::cout << std::endl;
+  }
+
+  typedef itk::LabelObject< unsigned long, 2 > LabelObjectType;
+  LabelObjectType::Pointer labelObject = LabelObjectType::New();
+  labelObject->CopyAllFrom( sparseLevelSet->GetAsLabelObject<unsigned long>() );
+  labelObject->SetLabel( 1 );
+
+  labelObject->Optimize();
+  std::cout << labelObject->Size() << std::endl;
 
   return EXIT_SUCCESS;
 }

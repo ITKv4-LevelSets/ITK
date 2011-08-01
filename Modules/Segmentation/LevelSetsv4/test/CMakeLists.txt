@@ -16,7 +16,7 @@ itkShiSparseLevelSetBaseTest.cxx
 #itkMalcolmSparseLevelSetBaseTest.cxx
 itkBinaryImageToWhitakerSparseLevelSetAdaptorTest.cxx
 #itkBinaryImageToMalcolmSparseLevelSetAdaptorTest.cxx
-#itkBinaryImageToShiSparseLevelSetAdaptorTest.cxx
+itkBinaryImageToShiSparseLevelSetAdaptorTest.cxx
 itkUpdateWhitakerSparseLevelSetTest.cxx
 #itkUpdateShiSparseLevelSetTest.cxx
 #itkUpdateMalcolmSparseLevelSetTest.cxx
@@ -68,20 +68,20 @@ add_test(NAME itkBinaryImageToWhitakerSparseLevelSetsv4AdaptorTest
       itkBinaryImageToWhitakerSparseLevelSetAdaptorTest
       ${ITK_DATA_ROOT}/Input/circle.png
       ${ITK_TEST_OUTPUT_DIR}/output_binary_whitaker_adaptor.mha
-      ${ITK_TEST_OUTPUT_DIR}/status_binary_whitaker_adaptor.mha
       )
+
 #add_test(NAME itkBinaryImageToMalcolmSparseLevelSetsv4AdaptorTest
 #      COMMAND ITKLevelSetsv4TestDriver
 #      itkBinaryImageToMalcolmSparseLevelSetAdaptorTest
 #      ${ITK_DATA_ROOT}/Input/circle.png
 #      output_binary_malcolm_adaptor.mha
 #      )
-#add_test(NAME itkBinaryImageToShiSparseLevelSetsv4AdaptorTest
-#      COMMAND ITKLevelSetsv4TestDriver
-#      itkBinaryImageToShiSparseLevelSetAdaptorTest
-#      ${ITK_DATA_ROOT}/Input/circle.png
-#      output_binary_shi_adaptor.mha
-#      )
+add_test(NAME itkBinaryImageToShiSparseLevelSetsv4AdaptorTest
+      COMMAND ITKLevelSetsv4TestDriver
+      itkBinaryImageToShiSparseLevelSetAdaptorTest
+      ${ITK_DATA_ROOT}/Input/circle.png
+      ${ITK_TEST_OUTPUT_DIR}/output_binary_shi_adaptor.mha
+      )
 add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test0
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateWhitakerSparseLevelSetTest
