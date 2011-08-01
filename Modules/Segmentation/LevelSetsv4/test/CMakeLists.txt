@@ -22,7 +22,7 @@ itkUpdateShiSparseLevelSetTest.cxx
 #itkUpdateMalcolmSparseLevelSetTest.cxx
 itkSingleLevelSetSparse2DTest.cxx
 #itkSingleLevelSetMalcolm2DTest.cxx
-#itkSingleLevelSetShi2DTest.cxx
+itkSingleLevelSetShi2DTest.cxx
 itkTwoLevelSetSparse2DTest.cxx
 #itkTwoLevelSetMalcolm2DTest.cxx
 #itkTwoLevelSetShiSparse2DTest.cxx
@@ -59,8 +59,8 @@ add_test(NAME itkTwoLevelSetsv4Dense2DTest
 # Sparse
 add_test(NAME itkWhitakerSparseLevelSetsv4BaseTest
       COMMAND ITKLevelSetsv4TestDriver itkWhitakerSparseLevelSetBaseTest)
-#add_test(NAME itkShiSparseLevelSetsv4BaseTest
-#      COMMAND ITKLevelSetsv4TestDriver itkShiSparseLevelSetBaseTest)
+add_test(NAME itkShiSparseLevelSetsv4BaseTest
+      COMMAND ITKLevelSetsv4TestDriver itkShiSparseLevelSetBaseTest)
 #add_test(NAME itkMalcolmSparseLevelSetsv4BaseTest
 #      COMMAND ITKLevelSetsv4TestDriver itkMalcolmSparseLevelSetBaseTest)
 add_test(NAME itkBinaryImageToWhitakerSparseLevelSetsv4AdaptorTest
@@ -149,9 +149,9 @@ add_test(NAME itkSingleLevelSetsv4Sparse2DTest
 #      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetMalcolm2DTest
 #      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
-#add_test(NAME itkSingleLevelSetsv4Shi2DTest
-#      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetShi2DTest
-#      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
+add_test(NAME itkSingleLevelSetsv4Shi2DTest
+      COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetShi2DTest
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
 add_test(NAME itkTwoLevelSetsv4Sparse2DTest
       COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetSparse2DTest

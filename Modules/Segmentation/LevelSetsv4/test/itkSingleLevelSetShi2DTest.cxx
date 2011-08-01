@@ -47,7 +47,6 @@ int itkSingleLevelSetShi2DTest( int argc, char* argv[] )
 
   typedef itk::IdentifierType                               IdentifierType;
   typedef BinaryToSparseAdaptorType::LevelSetType           SparseLevelSetType;
-  typedef SparseLevelSetType::ImageType                     SparseImageType;
 
   typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
                                                             LevelSetContainerType;
@@ -74,7 +73,6 @@ int itkSingleLevelSetShi2DTest( int argc, char* argv[] )
   typedef SparseLevelSetType::OutputRealType                LevelSetOutputRealType;
   typedef itk::SinRegularizedHeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
                                                             HeavisideFunctionBaseType;
-  typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
 
 //   InputImageType::RegionType region;
@@ -143,7 +141,6 @@ int itkSingleLevelSetShi2DTest( int argc, char* argv[] )
   std::cout << "Finished converting to sparse format" << std::endl;
 
   SparseLevelSetType::Pointer level_set = adaptor->GetSparseLevelSet();
-  SparseImageType::Pointer sparseImage = level_set->GetImage();
 
   IdListType list_ids;
   list_ids.push_back( 1 );
