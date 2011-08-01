@@ -25,28 +25,35 @@ int itkShiSparseLevelSetBaseTest( int , char* [] )
 
   SparseLevelSetType::Pointer phi = SparseLevelSetType::New();
 
-  typedef SparseLevelSetType::ImageType SparseImageType;
+  typedef SparseLevelSetType::LabelMapType LabelMapType;
+  typedef LabelMapType::Pointer            LabelMapPointer;
+  typedef LabelMapType::IndexType          IndexType;
 
-  SparseImageType::IndexType index;
-  index[0] = 0;
-  index[1] = 0;
+  IndexType index;
+  index.Fill( 3 );
 
-  SparseImageType::SizeType size;
-  size[0] = 10;
-  size[1] = 10;
+  LabelMapType::Pointer labelMap = LabelMapType::New();
+  labelMap->SetBackgroundValue( 3 );
 
-  SparseImageType::RegionType region;
-  region.SetIndex( index );
-  region.SetSize( size );
+  for( int i = 0; i < 4; i++ )
+    {
+    ++index[1];
+    labelMap->SetPixel( index, -3 );
+    }
 
-  SparseLevelSetType::OutputType value = -3;
+  index[1] = 2;
+  labelMap->SetPixel( index, -1 );
 
-  SparseImageType::Pointer image = SparseImageType::New();
-  image->SetRegions( region );
-  image->Allocate();
-  image->FillBuffer( value );
+  index[1] = 1;
+  labelMap->SetPixel( index, 1 );
 
-  phi->SetImage( image );
+  index[1] = 7;
+  labelMap->SetPixel( index, -1 );
+
+  index[1] = 8;
+  labelMap->SetPixel( index, 1 );
+
+  phi->SetLabelMap( labelMap );
 
   return EXIT_SUCCESS;
 }

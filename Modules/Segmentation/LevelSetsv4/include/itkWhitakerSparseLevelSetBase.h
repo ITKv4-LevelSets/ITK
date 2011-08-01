@@ -66,8 +66,6 @@ public:
   typedef typename LabelObjectType::Pointer     LabelObjectPointer;
   typedef typename LabelObjectType::LengthType  LabelObjectLengthType;
   typedef typename LabelObjectType::LineType    LabelObjectLineType;
-  typedef typename LabelObjectType::LineContainerType
-                                                LabelObjectLineContainerType;
 
   typedef LabelMap< LabelObjectType >         LabelMapType;
   typedef typename LabelMapType::Pointer      LabelMapPointer;
@@ -125,11 +123,13 @@ public:
 
   virtual GradientType EvaluateGradient( const InputType& iP ) const
     {
+    itkWarningMacro( <<"to be implemented" );
     return GradientType();
     }
 
   virtual HessianType EvaluateHessian( const InputType& iP ) const
     {
+    itkWarningMacro( <<"to be implemented" );
     return HessianType();
     }
 
@@ -152,6 +152,7 @@ public:
 
     m_LabelMap = 0;
     m_Layers.clear();
+    this->InitializeLayers();
     }
 
   virtual void CopyInformation( const DataObject* data )
@@ -253,15 +254,10 @@ public:
     for( char status = -3; status < 1; status++ )
       {
       LabelObjectPointer labelObject = m_LabelMap->GetLabelObject( status );
-      LabelObjectLineContainerType lineContainer = labelObject->GetLineContainer();
 
-      typename LabelObjectLineContainerType::const_iterator it =
-        lineContainer.begin();
-
-      while( it != lineContainer.end() )
+      for( SizeValueType i = 0; i < labelObject->GetNumberOfLines(); i++ )
         {
-        object->AddLine( it->GetIndex(), it->GetLength() );
-        ++it;
+        object->AddLine( labelObject->GetLine( i ) );
         }
       }
     object->Optimize();

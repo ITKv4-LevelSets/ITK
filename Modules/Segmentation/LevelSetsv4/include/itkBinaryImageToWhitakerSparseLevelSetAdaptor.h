@@ -68,8 +68,8 @@ public:
   typedef typename LevelSetType::LabelObjectPointer    LevelSetLabelObjectPointer;
   typedef typename LevelSetType::LabelObjectLengthType LevelSetLabelObjectLengthType;
   typedef typename LevelSetType::LabelObjectLineType   LevelSetLabelObjectLineType;
-  typedef typename LevelSetType::LabelObjectLineContainerType
-                                                       LevelSetLabelObjectLineContainerType;
+//  typedef typename LevelSetType::LabelObjectLineContainerType
+//                                                       LevelSetLabelObjectLineContainerType;
 
   typedef typename LevelSetType::LabelMapType          LevelSetLabelMapType;
   typedef typename LevelSetType::LabelMapPointer       LevelSetLabelMapPointer;
@@ -343,36 +343,25 @@ protected:
       neighOffset[dim] = 0;
       }
 
-    LevelSetLabelObjectLineContainerType
-            lineContainer = labelObject->GetLineContainer();
+    typename LevelSetLabelObjectType::ConstIndexIterator
+        lineIt( labelObject );
+    lineIt.GoToBegin();
 
-    typename LevelSetLabelObjectLineContainerType::const_iterator
-      lineIt = lineContainer.begin();
-    typename LevelSetLabelObjectLineContainerType::const_iterator
-      lineEnd = lineContainer.end();
-
-    while( lineIt != lineEnd )
+    while( !lineIt.IsAtEnd() )
       {
-      const LevelSetInputType &     firstIdx = lineIt->GetIndex();
-      LevelSetLabelObjectLengthType length = lineIt->GetLength();
+      const LevelSetInputType & idx = lineIt.GetIndex();
 
-      typedef typename LevelSetInputType::IndexValueType IndexValueType;
-      IndexValueType endIdx0 = firstIdx[0] + static_cast< IndexValueType >( length );
+      neighIt.SetLocation( idx );
 
-      for( LevelSetInputType idx = firstIdx; idx[0] < endIdx0; ++idx[0] )
+      for( typename NeighborhoodIteratorType::Iterator it = neighIt.Begin();
+           !it.IsAtEnd();
+           ++it )
         {
-        neighIt.SetLocation( idx );
-
-        for( typename NeighborhoodIteratorType::Iterator it = neighIt.Begin();
-             !it.IsAtEnd();
-             ++it )
+        if( it.Get() == static_cast< char >( 3 ) )
           {
-          if( it.Get() == static_cast< char >( 3 ) )
-            {
-            layer0.insert(
+          layer0.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( idx, zero ) );
-            break;
-            }
+          break;
           }
         }
 

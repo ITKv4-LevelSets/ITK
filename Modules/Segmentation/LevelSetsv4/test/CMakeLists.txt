@@ -12,7 +12,7 @@ itkSingleLevelSetDense2DTest.cxx
 itkTwoLevelSetDense2DTest.cxx
 # Sparse
 itkWhitakerSparseLevelSetBaseTest.cxx
-#itkShiSparseLevelSetBaseTest.cxx
+itkShiSparseLevelSetBaseTest.cxx
 #itkMalcolmSparseLevelSetBaseTest.cxx
 itkBinaryImageToWhitakerSparseLevelSetAdaptorTest.cxx
 #itkBinaryImageToMalcolmSparseLevelSetAdaptorTest.cxx
