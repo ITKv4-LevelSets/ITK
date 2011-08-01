@@ -153,9 +153,6 @@ protected:
   {
     LevelSetLabelObjectPointer labelObject = m_LabelMap->GetLabelObject( -3 );
 
-    LevelSetLabelObjectPointer labelObject0 = LevelSetLabelObjectType::New();
-    labelObject0->SetLabel( static_cast< char >( 0 ) );
-
     LevelSetLayerType& layerMinus1 =
         m_SparseLevelSet->GetLayer( static_cast< char >( -1 ) );
     LevelSetLayerType& layerPlus1 =
