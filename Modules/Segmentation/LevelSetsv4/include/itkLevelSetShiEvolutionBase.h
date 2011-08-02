@@ -114,14 +114,43 @@ public:
 
   void Update()
     {
-    m_DomainMapFilter = m_LevelSetContainer->GetDomainMapFilter();
+    if( m_EquationContainer.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_EquationContainer is NULL" );
+      }
 
     // Get the image to be segmented
     m_InputImage = m_EquationContainer->GetInput();
 
+    if( m_InputImage.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_InputImage is NULL" );
+      }
+
+    m_DomainMapFilter = m_LevelSetContainer->GetDomainMapFilter();
+
+    if( !m_EquationContainer->GetEquation( 0 ) )
+      {
+      itkGenericExceptionMacro( << "m_EquationContainer->GetEquation( 0 ) is NULL" );
+      }
+
+    TermContainerPointer Equation0 = m_EquationContainer->GetEquation( 0 );
+
+
+    TermPointer term0 = Equation0->GetTerm( 0 );
+
+    if( term0.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_EquationContainer->GetEquation( 0 ) is NULL" );
+      }
+
+    if( !term0->GetLevelSetContainer() )
+      {
+      itkGenericExceptionMacro( << "m_LevelSetContainer is NULL" );
+      }
+
     // Get the LevelSetContainer from the EquationContainer
-    m_LevelSetContainer =
-        m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
+    m_LevelSetContainer = term0->GetLevelSetContainer();
 
     //Run iteration
     this->GenerateData();
@@ -291,6 +320,8 @@ protected:
       update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->SetSingleLevelSet( singleLevelSet );
       update_levelset->Update();
+
+      levelSet->Graft( update_levelset->GetOutputLevelSet() );
 
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 

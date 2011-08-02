@@ -210,7 +210,7 @@ protected:
 
       if( boundary )
         {
-        layerPlus1.insert(
+        layerMinus1.insert(
               std::pair< LevelSetInputType, LevelSetOutputType >( idx, -1 ) );
         }
 

@@ -31,6 +31,8 @@
 #include <list>
 #include "itkObject.h"
 
+#include "itkImageFileWriter.h"
+
 namespace itk
 {
 template< unsigned int VDimension, class TEquationContainer >
@@ -225,6 +227,12 @@ public:
         }
       }
 
+    typedef ImageFileWriter< LabelImageType > WriterType;
+    typename WriterType::Pointer writer = WriterType::New();
+    writer->SetInput( m_InternalImage );
+    writer->SetFileName( "internal.mha" );
+    writer->Update();
+
     typedef LabelImageToLabelMapFilter< LabelImageType, LevelSetLabelMapType> LabelImageToLabelMapFilterType;
     typename LabelImageToLabelMapFilterType::Pointer labelImageToLabelMapFilter = LabelImageToLabelMapFilterType::New();
     labelImageToLabelMapFilter->SetInput( m_InternalImage );
@@ -324,6 +332,8 @@ protected:
       LevelSetInputType   currentIndex = nodeIt->first;
       LevelSetOutputType  currentValue = nodeIt->second;
 
+      assert( currentValue == 1 );
+
       // update the level set
       LevelSetOutputRealType update =
           m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( currentIndex );
@@ -356,7 +366,9 @@ protected:
               i = neighIt.Begin();
               !i.IsAtEnd(); ++i )
             {
-            if ( i.Get() == 3 )
+            char tempValue = i.Get();
+
+            if ( tempValue == 3 )
               {
               LevelSetInputType tempIndex =
                   neighIt.GetIndex( i.GetNeighborhoodOffset() );
@@ -420,6 +432,8 @@ protected:
       LevelSetInputType   currentIndex = nodeIt->first;
       LevelSetOutputType  currentValue = nodeIt->second;
 
+      assert( currentValue == -1 );
+
       // TODO
       // update for the current level set
       LevelSetOutputRealType update =
@@ -457,7 +471,9 @@ protected:
               i = neighIt.Begin();
               !i.IsAtEnd(); ++i )
             {
-            if ( i.Get() == -3 )
+            char tempValue = i.Get();
+
+            if ( tempValue == -3 )
               {
               LevelSetInputType tempIndex =
                   neighIt.GetIndex( i.GetNeighborhoodOffset() );
@@ -520,7 +536,9 @@ protected:
               i = neighIt.Begin();
           !i.IsAtEnd(); ++i )
       {
-      if ( i.Get() == opposite_status )
+      char tempValue = i.Get();
+
+      if ( tempValue == opposite_status )
         {
         LevelSetInputType tempIdx =
             neighIt.GetIndex( i.GetNeighborhoodOffset() );

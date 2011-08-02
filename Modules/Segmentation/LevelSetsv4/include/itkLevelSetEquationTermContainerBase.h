@@ -99,7 +99,7 @@ public:
     else
       {
       itkGenericExceptionMacro( <<"this term does not exist" );
-      return TermPointer();
+      return TermPointer( NULL );
       }
     }
 

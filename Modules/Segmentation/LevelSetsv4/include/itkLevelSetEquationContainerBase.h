@@ -44,18 +44,26 @@ public:
   typedef typename TermContainerType::InputImageType    InputImageType;
   typedef typename TermContainerType::InputImagePointer InputImagePointer;
 
-  typedef typename TermContainerType::LevelSetOutputRealType LevelSetOutputRealType;
-  typedef typename TermContainerType::LevelSetInputIndexType LevelSetInputIndexType;
+  typedef typename TermContainerType::LevelSetOutputRealType  LevelSetOutputRealType;
+  typedef typename TermContainerType::LevelSetInputIndexType  LevelSetInputIndexType;
 
-  typedef typename TermContainerType::LevelSetIdentifierType LevelSetIdentifierType;
-  typedef typename TermContainerType::LevelSetContainerType  LevelSetContainerType;
+  typedef typename TermContainerType::LevelSetIdentifierType    LevelSetIdentifierType;
+  typedef typename TermContainerType::LevelSetContainerType     LevelSetContainerType;
+  typedef typename TermContainerType::LevelSetContainerPointer  LevelSetContainerPointer;
 
-  LevelSetContainerType* GetLevelSetContainer()
+  LevelSetContainerPointer GetLevelSetContainer()
     {
     typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
         it = m_Container.begin();
 
-    return it->second->GetLevelSetContainer();
+    if( it != m_Container.end() )
+      {
+      return it->second->GetLevelSetContainer();
+      }
+    else
+      {
+      return LevelSetContainerPointer( NULL );
+      }
     }
 
   void AddEquation( const LevelSetIdentifierType& iId,
@@ -87,7 +95,7 @@ public:
     else
       {
       itkGenericExceptionMacro( <<"this equation does not exist" );
-      return TermContainerPointer();
+      return TermContainerPointer( NULL );
       }
     }
 
