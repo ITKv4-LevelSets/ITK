@@ -31,8 +31,6 @@
 #include <list>
 #include "itkObject.h"
 
-#include "itkImageFileWriter.h"
-
 namespace itk
 {
 template< unsigned int VDimension, class TEquationContainer >
@@ -101,12 +99,6 @@ public:
     m_InternalImage = labelMapToLabelImageFilter->GetOutput();
     m_InternalImage->DisconnectPipeline();
 
-    typedef ImageFileWriter < LabelImageType > WriterType;
-    typename WriterType::Pointer writer = WriterType::New();
-    writer->SetInput( m_InternalImage );
-    writer->SetFileName( "before.mha" );
-    writer->Update();
-
     FillUpdateContainer();
 
     if( m_UnPhased )
@@ -162,11 +154,6 @@ public:
       PhasedPropagation( list_neg, update_neg, false );
       MinimalInterface();
       }
-
-    typename WriterType::Pointer writer1 = WriterType::New();
-    writer1->SetInput( m_InternalImage );
-    writer1->SetFileName( "after.mha" );
-    writer1->Update();
 
     typedef LabelImageToLabelMapFilter< LabelImageType, LevelSetLabelMapType> LabelImageToLabelMapFilterType;
     typename LabelImageToLabelMapFilterType::Pointer labelImageToLabelMapFilter = LabelImageToLabelMapFilterType::New();
