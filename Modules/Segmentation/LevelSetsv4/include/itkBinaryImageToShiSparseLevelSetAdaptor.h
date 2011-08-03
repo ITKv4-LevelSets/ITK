@@ -236,9 +236,12 @@ protected:
     LevelSetLabelObjectPointer ObjectPlus1 = LevelSetLabelObjectType::New();
     ObjectPlus1->SetLabel( static_cast< char >( 1 ) );
 
+    nodeIt = layerPlus1.begin();
+    nodeEnd = layerPlus1.end();
+
     while( nodeIt != nodeEnd )
       {
-      m_LabelMap->GetLabelObject( static_cast< char >( 3 ) )->RemoveIndex( nodeIt->first );
+//      m_LabelMap->GetLabelObject( static_cast< char >( 3 ) )->RemoveIndex( nodeIt->first );
       ObjectPlus1->AddIndex( nodeIt->first );
       ++nodeIt;
       }

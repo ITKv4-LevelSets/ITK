@@ -104,7 +104,6 @@ public:
     m_InternalImage = labelMapToLabelImageFilter->GetOutput();
     m_InternalImage->DisconnectPipeline();
 
-
     // neighborhood iterator
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
 
@@ -133,107 +132,101 @@ public:
     UpdateL_out();
 
 //    // Step 2.1.2 - for each point x in L_in
-//    LevelSetLayerType & list_in = m_OutputLevelSet->GetLayer( -1 );
+    LevelSetLayerType & list_in = m_OutputLevelSet->GetLayer( -1 );
 
-//    LevelSetLayerIterator nodeIt = list_in.begin();
-//    LevelSetLayerIterator nodeEnd = list_in.end();
+    LevelSetLayerIterator nodeIt = list_in.begin();
+    LevelSetLayerIterator nodeEnd = list_in.end();
 
-//    while( nodeIt != nodeEnd )
-//      {
-//      LevelSetInputType currentIndex = nodeIt->first;
+    while( nodeIt != nodeEnd )
+      {
+      LevelSetInputType currentIndex = nodeIt->first;
 
-//      neighIt.SetLocation( currentIndex );
+      neighIt.SetLocation( currentIndex );
 
-//      bool to_be_deleted = true;
+      bool to_be_deleted = true;
 
-//      for( typename NeighborhoodIteratorType::Iterator
-//           i = neighIt.Begin();
-//           !i.IsAtEnd(); ++i )
-//        {
-//        char tempValue = i.Get();
-//        if ( tempValue > NumericTraits< LevelSetOutputType >::Zero )
-//          {
-//          to_be_deleted = false;
-//          break;
-//          }
-//        }
-//      if( to_be_deleted )
-//        {
-////         std::cout << p.first << std::endl;
-//        LevelSetOutputType oldValue = -1;
-//        LevelSetOutputType newValue = -3;
-//        this->m_InternalImage->SetPixel( currentIndex, newValue );
+      for( typename NeighborhoodIteratorType::Iterator
+           i = neighIt.Begin();
+           !i.IsAtEnd(); ++i )
+        {
+        char tempValue = i.Get();
+        if ( tempValue > NumericTraits< LevelSetOutputType >::Zero )
+          {
+          to_be_deleted = false;
+          break;
+          }
+        }
+      if( to_be_deleted )
+        {
+//         std::cout << p.first << std::endl;
+        LevelSetOutputType oldValue = -1;
+        LevelSetOutputType newValue = -3;
+        this->m_InternalImage->SetPixel( currentIndex, newValue );
 
-//        LevelSetLayerIterator tempIt = nodeIt;
-//        ++nodeIt;
-//        list_in.erase( tempIt );
+        LevelSetLayerIterator tempIt = nodeIt;
+        ++nodeIt;
+        list_in.erase( tempIt );
 
-//        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//              currentIndex,
-//              static_cast< LevelSetOutputRealType >( oldValue ),
-//              static_cast< LevelSetOutputRealType >( newValue ) );
-//        }
-//      else
-//        {
-//        ++nodeIt;
-//        }
-//      }
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              currentIndex,
+              static_cast< LevelSetOutputRealType >( oldValue ),
+              static_cast< LevelSetOutputRealType >( newValue ) );
+        }
+      else
+        {
+        ++nodeIt;
+        }
+      }
 
 //    // Step 2.1.3 - for each point x in L_in
-//    UpdateL_in();
+    UpdateL_in();
 
-//    // Step 2.1.4
-//    LevelSetLayerType & list_out = m_OutputLevelSet->GetLayer( 1 );
+    // Step 2.1.4
+    LevelSetLayerType & list_out = m_OutputLevelSet->GetLayer( 1 );
 
-//    nodeIt = list_out.begin();
-//    nodeEnd = list_out.end();
+    nodeIt = list_out.begin();
+    nodeEnd = list_out.end();
 
-//    while( nodeIt != nodeEnd )
-//      {
-//      LevelSetInputType currentIndex = nodeIt->first;
+    while( nodeIt != nodeEnd )
+      {
+      LevelSetInputType currentIndex = nodeIt->first;
 
-//      neighIt.SetLocation( currentIndex );
+      neighIt.SetLocation( currentIndex );
 
-//      bool to_be_deleted = true;
+      bool to_be_deleted = true;
 
-//      for( typename NeighborhoodIteratorType::Iterator
-//              i = neighIt.Begin();
-//          !i.IsAtEnd(); ++i )
-//        {
-//        char tempValue = i.Get();
-//        if ( tempValue < NumericTraits< LevelSetOutputType >::Zero )
-//          {
-//          to_be_deleted = false;
-//          break;
-//          }
-//        }
-//      if( to_be_deleted )
-//        {
-//        LevelSetOutputType oldValue = 1;
-//        LevelSetOutputType newValue = 3;
-//        this->m_InternalImage->SetPixel( currentIndex, newValue );
+      for( typename NeighborhoodIteratorType::Iterator
+              i = neighIt.Begin();
+          !i.IsAtEnd(); ++i )
+        {
+        char tempValue = i.Get();
+        if ( tempValue < NumericTraits< LevelSetOutputType >::Zero )
+          {
+          to_be_deleted = false;
+          break;
+          }
+        }
+      if( to_be_deleted )
+        {
+        LevelSetOutputType oldValue = 1;
+        LevelSetOutputType newValue = 3;
+        this->m_InternalImage->SetPixel( currentIndex, newValue );
 
-//        LevelSetLayerIterator tempIt = nodeIt;
-//        ++nodeIt;
-//        list_out.erase( tempIt );
+        LevelSetLayerIterator tempIt = nodeIt;
+        ++nodeIt;
+        list_out.erase( tempIt );
 
-//        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//              currentIndex,
-//              static_cast< LevelSetOutputRealType >( oldValue ),
-//              static_cast< LevelSetOutputRealType >( newValue )
-//              );
-//        }
-//      else
-//        {
-//        ++nodeIt;
-//        }
-//      }
-
-    typedef ImageFileWriter< LabelImageType > WriterType;
-    typename WriterType::Pointer writer = WriterType::New();
-    writer->SetInput( m_InternalImage );
-    writer->SetFileName( "internal.mha" );
-    writer->Update();
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              currentIndex,
+              static_cast< LevelSetOutputRealType >( oldValue ),
+              static_cast< LevelSetOutputRealType >( newValue )
+              );
+        }
+      else
+        {
+        ++nodeIt;
+        }
+      }
 
     typedef LabelImageToLabelMapFilter< LabelImageType, LevelSetLabelMapType> LabelImageToLabelMapFilterType;
     typename LabelImageToLabelMapFilterType::Pointer labelImageToLabelMapFilter = LabelImageToLabelMapFilterType::New();
@@ -293,8 +286,8 @@ protected:
   void UpdateL_out()
   {
     std::cout << "UpdateL_out" << std::endl;
-    LevelSetLayerType & list_out  = m_SparseLevelSet->GetLayer(  1 );
-    LevelSetLayerType & list_in   = m_SparseLevelSet->GetLayer( -1 );
+    LevelSetLayerType & list_out  = m_OutputLevelSet->GetLayer(  1 );
+    LevelSetLayerType & list_in   = m_OutputLevelSet->GetLayer( -1 );
 
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
 
@@ -332,7 +325,11 @@ protected:
       LevelSetInputType   currentIndex = nodeIt->first;
       LevelSetOutputType  currentValue = nodeIt->second;
 
+      // --- debugging test (to be removed) ---
       assert( currentValue == 1 );
+      char tempStatus = this->m_InternalImage->GetPixel( currentIndex );
+      assert( tempStatus == 1 );
+      // --------------------------------------
 
       // update the level set
       LevelSetOutputRealType update =
@@ -343,15 +340,7 @@ protected:
         if( Con( currentIndex, currentValue , update ) )
           {
           // CheckIn
-//          LevelSetOutputType oldValue = 1;
-//          LevelSetOutputType newValue = -1;
-
-//          this->m_InternalImage->SetPixel( currentIndex, -1 );
-
-//          m_EquationContainer->UpdatePixel( currentIndex, 1 , -1 );
-
           InsertListIn.insert(
-//          list_in.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, -1 ) );
 
           LevelSetLayerIterator tempIt = nodeIt;
@@ -372,16 +361,8 @@ protected:
               LevelSetInputType tempIndex =
                   neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
-//              oldValue = 3;
-//              newValue = 1;
-
-//              list_out.insert(
               InsertListOut.insert(
                     std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, 1 ) );
-
-//              this->m_InternalImage->SetPixel( tempIndex, 1 );
-
-//              m_EquationContainer->UpdatePixel( tempIndex, 3, 1 );
               }
             }
           }
@@ -422,8 +403,8 @@ protected:
   void UpdateL_in()
   {
     std::cout << "UpdateL_in" << std::endl;
-    LevelSetLayerType & list_out  = m_SparseLevelSet->GetLayer(  1 );
-    LevelSetLayerType & list_in   = m_SparseLevelSet->GetLayer( -1 );
+    LevelSetLayerType & list_out  = m_OutputLevelSet->GetLayer(  1 );
+    LevelSetLayerType & list_in   = m_OutputLevelSet->GetLayer( -1 );
 
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
 
@@ -461,7 +442,11 @@ protected:
       LevelSetInputType   currentIndex = nodeIt->first;
       LevelSetOutputType  currentValue = nodeIt->second;
 
+      // --- debugging test (to be removed) ---
       assert( currentValue == -1 );
+      char tempStatus = this->m_InternalImage->GetPixel( currentIndex );
+      assert( tempStatus == -1 );
+      // --------------------------------------
 
       // TODO
       // update for the current level set
@@ -474,14 +459,6 @@ protected:
         if( Con( currentIndex, currentValue , update ) )
           {
           // CheckOut
-//          LevelSetOutputType oldValue = -1;
-//          LevelSetOutputType newValue = 1;
-
-//          this->m_InternalImage->SetPixel( currentIndex, 1 );
-
-//          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//                currentIndex, -1, 1 );
-
           InsertListOut.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, 1 ) );
 
@@ -504,17 +481,8 @@ protected:
               LevelSetInputType tempIndex =
                   neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
-//              oldValue = -3;
-//              newValue = -1;
-
-//              list_in.insert(
               InsertListIn.insert(
                     std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, -1 ) );
-
-//              this->m_InternalImage->SetPixel( tempIndex, -1 );
-
-//              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//                    tempIndex, -3, -1 );
               }
             }
           }
