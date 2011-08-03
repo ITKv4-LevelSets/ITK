@@ -99,6 +99,8 @@ public:
     m_InternalImage = labelMapToLabelImageFilter->GetOutput();
     m_InternalImage->DisconnectPipeline();
 
+    FillUpdateContainer();
+
     if( m_UnPhased )
       {
       UnPhasedPropagation();
@@ -106,7 +108,7 @@ public:
       }
     else
       {
-      LevelSetLayerType& list_0 = m_SparseLevelSet->GetLayer( 0 );
+      LevelSetLayerType& list_0 = m_OutputLevelSet->GetLayer( 0 );
 
       LevelSetLayerType list_pos;
       LevelSetLayerType update_pos;
@@ -205,10 +207,42 @@ protected:
 
   bool m_UnPhased;
 
+  void FillUpdateContainer()
+    {
+    LevelSetLayerType Level0 = m_OutputLevelSet->GetLayer( 0 );
+
+    LevelSetLayerIterator nodeIt = Level0.begin();
+    LevelSetLayerIterator nodeEnd = Level0.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      LevelSetInputType currentIndex = nodeIt->first;
+
+      LevelSetOutputRealType update =
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( currentIndex );
+
+      LevelSetOutputType value = NumericTraits< LevelSetOutputType >::Zero;
+
+      if( update > NumericTraits< LevelSetOutputRealType >::Zero )
+        {
+        value = NumericTraits< LevelSetOutputType >::One;
+        }
+      if( update < NumericTraits< LevelSetOutputRealType >::Zero )
+        {
+        value = - NumericTraits< LevelSetOutputType >::One;
+        }
+
+      m_Update.insert(
+            std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, value ) );
+
+      ++nodeIt;
+      }
+    }
+
   void UnPhasedPropagation()
     {
     LevelSetOutputRealType oldValue, newValue;
-    LevelSetLayerType & Level0 = m_SparseLevelSet->GetLayer( 0 );
+    LevelSetLayerType & Level0 = m_OutputLevelSet->GetLayer( 0 );
 
     // neighborhood iterator
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
@@ -234,6 +268,8 @@ protected:
       sparse_offset[dim] = 0;
       }
 
+    LevelSetLayerType InsertList;
+
     LevelSetLayerIterator nodeIt = Level0.begin();
     LevelSetLayerIterator nodeEnd = Level0.end();
 
@@ -241,8 +277,10 @@ protected:
 
     while( nodeIt != nodeEnd )
       {
-      assert( nodeIt->first == upIt->first );
       LevelSetInputType currentIdx = nodeIt->first;
+      LevelSetInputType upIdx = upIt->first;
+
+      assert( currentIdx == upIdx );
 
       LevelSetOutputType update = upIt->second;
 
@@ -260,6 +298,7 @@ protected:
           }
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
+        ++upIt;
         Level0.erase( tempIt );
 
         m_InternalImage->SetPixel( currentIdx, newValue );
@@ -278,18 +317,32 @@ protected:
             LevelSetInputType tempIndex =
                 neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
-            m_EquationContainer->UpdatePixel( tempIndex, tempValue, 0 );
+            InsertList.insert(
+                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, tempValue ) );
 
-            Level0.insert(
-                  std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, 0 ) );
-            m_InternalImage->SetPixel( tempIndex, 0 );
             }
           }
         }
       else
         {
         ++nodeIt;
+        ++upIt;
         }
+      }
+
+    nodeIt = InsertList.begin();
+    nodeEnd = InsertList.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      Level0.insert(
+            std::pair< LevelSetInputType, LevelSetOutputType >( nodeIt->first, 0 ) );
+
+      m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
+
+      m_InternalImage->SetPixel( nodeIt->first, 0 );
+
+      ++nodeIt;
       }
     }
 
@@ -408,7 +461,7 @@ protected:
   void MinimalInterface()
     {
     LevelSetOutputRealType oldValue, newValue;
-    LevelSetLayerType & list_0 = m_SparseLevelSet->GetLayer( 0 );
+    LevelSetLayerType & list_0 = m_OutputLevelSet->GetLayer( 0 );
 
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
 

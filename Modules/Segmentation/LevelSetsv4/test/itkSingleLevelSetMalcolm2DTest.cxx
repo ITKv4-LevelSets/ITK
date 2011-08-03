@@ -211,13 +211,47 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 50 );
+  evolution->SetNumberOfIterations( atoi( argv[2] ) );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 
   try
     {
     evolution->Update();
+    }
+  catch ( itk::ExceptionObject& err )
+    {
+    std::cout << err << std::endl;
+    }
+
+  typedef itk::Image< char, Dimension > OutputImageType;
+  OutputImageType::Pointer outputImage = OutputImageType::New();
+  outputImage->SetRegions( input->GetLargestPossibleRegion() );
+  outputImage->CopyInformation( input );
+  outputImage->Allocate();
+  outputImage->FillBuffer( 0 );
+
+  typedef itk::ImageRegionIteratorWithIndex< OutputImageType > OutputIteratorType;
+  OutputIteratorType oIt( outputImage, outputImage->GetLargestPossibleRegion() );
+  oIt.GoToBegin();
+
+  OutputImageType::IndexType idx;
+
+  while( !oIt.IsAtEnd() )
+    {
+    idx = oIt.GetIndex();
+    oIt.Set( level_set->Evaluate( idx ) );
+    ++oIt;
+    }
+
+  typedef itk::ImageFileWriter< OutputImageType >     OutputWriterType;
+  OutputWriterType::Pointer writer = OutputWriterType::New();
+  writer->SetFileName( argv[3] );
+  writer->SetInput( outputImage );
+
+  try
+    {
+    writer->Update();
     }
   catch ( itk::ExceptionObject& err )
     {

@@ -108,38 +108,38 @@ add_test(NAME itkUpdateShiSparseLevelSetsv4Test0
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateShiSparseLevelSetTest
       0
-      output_update_shi_sparse0.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_shi_sparse0.mha
       )
 add_test(NAME itkUpdateShiSparseLevelSetsv4Test1
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateShiSparseLevelSetTest
       1
-      output_update_shi_sparse1.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_shi_sparse1.mha
      )
 add_test(NAME itkUpdateShiSparseLevelSetsv4Test2
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateShiSparseLevelSetTest
       2
-      output_update_shi_sparse2.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_shi_sparse2.mha
     )
 
 add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test0
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateMalcolmSparseLevelSetTest
       0
-      output_update_malcolm_sparse0.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_malcolm_sparse0.mha
       )
 add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test1
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateMalcolmSparseLevelSetTest
       1
-      output_update_malcolm_sparse1.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_malcolm_sparse1.mha
      )
 add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test2
       COMMAND ITKLevelSetsv4TestDriver
       itkUpdateMalcolmSparseLevelSetTest
       2
-      output_update_malcolm_sparse2.mha
+      ${ITK_TEST_OUTPUT_DIR}/output_update_malcolm_sparse2.mha
     )
 add_test(NAME itkSingleLevelSetsv4Sparse2DTest
       COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
@@ -147,7 +147,10 @@ add_test(NAME itkSingleLevelSetsv4Sparse2DTest
 
 add_test(NAME itkSingleLevelSetsv4Malcolm2DTest
       COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetMalcolm2DTest
-      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png
+      1
+      ${ITK_TEST_OUTPUT_DIR}/whiteSpot_output_malcolm_single.mha
+ )
 
 add_test(NAME itkSingleLevelSetsv4Shi2DTest
       COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetShi2DTest
