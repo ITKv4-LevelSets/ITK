@@ -38,7 +38,6 @@
 #include "itkConicShellInteriorExteriorSpatialFunction.h"
 #include "itkCosImageAdaptor.h"
 #include "itkCreateObjectFunction.h"
-#include "itkDifferenceImageFilter.h"
 #include "itkDynamicLoader.h"
 #include "itkElasticBodyReciprocalSplineKernelTransform.h"
 #include "itkElasticBodySplineKernelTransform.h"
@@ -83,9 +82,6 @@
 #include "itkQuaternionRigidTransform.h"
 #include "itkRGBToVectorImageAdaptor.h"
 #include "itkRigid3DPerspectiveTransform.h"
-#ifdef ITKV3_COMPATIBILITY
-#include "itkRigid3DTransform.h"
-#endif
 #include "itkv3Rigid3DTransform.h"
 #include "itkScaleSkewVersor3DTransform.h"
 #include "itkScaleTransform.h"
@@ -110,8 +106,12 @@
 #include "itkVersorTransform.h"
 #include "itkVolumeSplineKernelTransform.h"
 #include "itkXMLFileOutputWindow.h"
-
 #include "itkRedPixelAccessor.h"
+
+#ifdef ITKV3_COMPATIBILITY
+#include "itkDifferenceImageFilter.h"
+#include "itkRigid3DTransform.h"
+#endif
 
 struct TestObject
 {
@@ -218,9 +218,11 @@ int itkCommonPrintTest(int , char* [])
     itk::CosImageAdaptor<InputType,InputType>::New();
   std::cout << "------------CosImageAdaptor" << CosImageAdaptorObj;
 
+#ifdef ITKV3_COMPATIBILITY
   itk::DifferenceImageFilter<InputType,OutputType>::Pointer DifferenceImageFilterObj =
     itk::DifferenceImageFilter<InputType,OutputType>::New();
   std::cout << "------------DifferenceImageFilter" << DifferenceImageFilterObj;
+#endif
 
   itk::DynamicLoader::Pointer DynamicLoaderObj =
     itk::DynamicLoader::New();
@@ -266,8 +268,8 @@ int itkCommonPrintTest(int , char* [])
     itk::FileOutputWindow::New();
   std::cout << "------------FileOutputWindow" << FileOutputWindowObj;
 
-  itk::FiniteCylinderSpatialFunction<2,PointType>::Pointer FiniteCylinderSpatialFunctionObj =
-    itk::FiniteCylinderSpatialFunction<2,PointType>::New();
+  itk::FiniteCylinderSpatialFunction<3,PointType>::Pointer FiniteCylinderSpatialFunctionObj =
+    itk::FiniteCylinderSpatialFunction<3,PointType>::New();
   std::cout << "------------FiniteCylinderSpatialFunction" << FiniteCylinderSpatialFunctionObj;
 
   itk::FrustumSpatialFunction<2,PointType>::Pointer FrustumSpatialFunctionObj =
