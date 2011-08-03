@@ -349,6 +349,8 @@ protected:
       update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->Update();
 
+      levelSet->Graft( update_levelset->GetOutputLevelSet() );
+
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 //      m_UpdateBuffer[it->first]->clear();
       ++it;
