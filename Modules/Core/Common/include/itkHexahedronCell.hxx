@@ -389,7 +389,7 @@ HexahedronCell< TCellInterface >
     for ( unsigned int i = 0; i < 8; i++ )
       {
       pt = points->GetElement(m_PointIds[i]);
-      for ( unsigned int j = 0; j < 3; j++ )
+      for ( unsigned int j = 0; j < PointDimension; j++ )
         {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
@@ -608,15 +608,13 @@ HexahedronCell< TCellInterface >
 ::EvaluateLocation(int & itkNotUsed(subId), PointsContainer *points, CoordRepType pcoords[3],
                    CoordRepType x[3], InterpolationWeightType *weights)
 {
-  PointType pt;
-
   this->InterpolationFunctions(pcoords, weights);
   x[0] = x[1] = x[2] = 0.0;
   for ( unsigned int i = 0; i < 8; i++ )
     {
-    pt = points->GetElement(m_PointIds[i]);
+    PointType pt = points->GetElement(m_PointIds[i]);
 
-    for ( unsigned int j = 0; j < 3; j++ )
+    for ( unsigned int j = 0; j < PointDimension; j++ )
       {
       x[j] += pt[j] * weights[i];
       }

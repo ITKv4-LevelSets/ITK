@@ -20,11 +20,12 @@
 #define __itkWhitakerSparseLevelSetBase_h
 
 #include "itkLevelSetBase.h"
+#include "itkIndex.h"
 
 #include "itkImageRegionIteratorWithIndex.h"
 
-#include "itkImage.h"
-#include "itkIndex.h"
+#include "itkLabelObject.h"
+#include "itkLabelMap.h"
 
 namespace itk
 {
@@ -33,16 +34,18 @@ template< typename TOutput,
 class WhitakerSparseLevelSetBase :
     public LevelSetBase< Index< VDimension >,
                          VDimension,
-                         TOutput >
+                         TOutput,
+                         ImageBase< VDimension > >
 {
 public:
   typedef Index< VDimension >                       IndexType;
   typedef TOutput                                   OutputType;
+  typedef ImageBase< VDimension >                   ImageBaseType;
 
   typedef WhitakerSparseLevelSetBase                Self;
   typedef SmartPointer< Self >                      Pointer;
   typedef SmartPointer< const Self >                ConstPointer;
-  typedef LevelSetBase< IndexType, VDimension, OutputType >
+  typedef LevelSetBase< IndexType, VDimension, OutputType, ImageBaseType >
                                                     Superclass;
 
   /** Method for creation through the object factory. */
@@ -51,82 +54,87 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(WhitakerSparseLevelSetBase, LevelSetBase);
 
+  itkStaticConstMacro ( Dimension, unsigned int,
+                        VDimension );
+
   typedef typename Superclass::InputType      InputType;
   typedef typename Superclass::OutputRealType OutputRealType;
   typedef typename Superclass::GradientType   GradientType;
   typedef typename Superclass::HessianType    HessianType;
 
-  typedef char NodeStatusType;
+  typedef LabelObject< char, VDimension >       LabelObjectType;
+  typedef typename LabelObjectType::Pointer     LabelObjectPointer;
+  typedef typename LabelObjectType::LengthType  LabelObjectLengthType;
+  typedef typename LabelObjectType::LineType    LabelObjectLineType;
 
-  struct NodeAttributeType
-    {
-    /** status of a given node (its value also define in which layer it is)*/
-    NodeStatusType  m_Status;
+  typedef LabelMap< LabelObjectType >         LabelMapType;
+  typedef typename LabelMapType::Pointer      LabelMapPointer;
 
-    /** level set value for a given node */
-    OutputType      m_Value;
-    };
+  typedef std::map< IndexType, OutputType,
+                    Functor::IndexLexicographicCompare< VDimension > >
+                                                  LayerType;
+  typedef typename LayerType::iterator            LayerIterator;
+  typedef typename LayerType::const_iterator      LayerConstIterator;
 
-  typedef std::pair< IndexType, NodeAttributeType >   NodePairType;
-  typedef std::list< NodePairType >                   NodeListType;
-  typedef typename NodeListType::iterator             NodeListIterator;
-  typedef typename NodeListType::const_iterator       NodeListConstIterator;
+  typedef std::map< char, LayerType >             LayerMapType;
+  typedef typename LayerMapType::iterator         LayerMapIterator;
+  typedef typename LayerMapType::const_iterator   LayerMapConstIterator;
 
-  typedef std::map< NodeStatusType, NodeListType >    SparseLayerMapType;
-  typedef typename SparseLayerMapType::iterator       SparseLayerMapIterator;
-  typedef typename SparseLayerMapType::const_iterator SparseLayerMapConstIterator;
-
-  typedef Image< NodeAttributeType, VDimension >      ImageType;
-  typedef typename ImageType::Pointer                 ImagePointer;
-
-  typedef Image< NodeStatusType, VDimension>          StatusImageType;
-  typedef typename StatusImageType::Pointer           StatusImagePointer;
-
-  typedef Image< OutputType, VDimension>              OutputImageType;
-  typedef typename OutputImageType::Pointer           OutputImagePointer;
-
-  typedef ImageRegionIteratorWithIndex< ImageType >       SparseIteratorType;
-  typedef ImageRegionIteratorWithIndex< StatusImageType > StatusIteratorType;
-  typedef ImageRegionIteratorWithIndex< OutputImageType > OutputIteratorType;
-
-  char GetStatus( const InputType& iP ) const
-    {
-    NodeAttributeType temp = m_Image->GetPixel( iP );
-    return temp.m_Status;
-    }
+  virtual char Status( const InputType& iP ) const
+  {
+    return m_LabelMap->GetPixel( iP );
+  }
 
   virtual OutputType Evaluate( const InputType& iP ) const
-    {
-    NodeAttributeType temp = m_Image->GetPixel( iP );
-    return temp.m_Value;
-    }
+  {
+    LayerMapConstIterator layerIt = m_Layers.begin();
+
+    while( layerIt != m_Layers.end() )
+      {
+      LayerConstIterator it = ( layerIt->second ).find( iP );
+      if( it != ( layerIt->second ).end() )
+        {
+        return it->second;
+        }
+
+      ++layerIt;
+      }
+
+    if( m_LabelMap->GetLabelObject( -3 )->HasIndex( iP ) )
+      {
+      return -3;
+      }
+    else
+      {
+      char status = m_LabelMap->GetPixel( iP );
+      if( status == 3 )
+        {
+        return 3.;
+        }
+      else
+        {
+        itkGenericExceptionMacro( <<"status "
+                                  << static_cast< int >( status )
+                                  << " should be 3 or -3" );
+        return 3.;
+        }
+      }
+  }
 
   virtual GradientType EvaluateGradient( const InputType& iP ) const
     {
+    itkWarningMacro( <<"to be implemented" );
     return GradientType();
     }
 
   virtual HessianType EvaluateHessian( const InputType& iP ) const
     {
+    itkWarningMacro( <<"to be implemented" );
     return HessianType();
     }
 
-  NodeListType* GetListNode( const int& iId )
-    {
-    SparseLayerMapIterator it = m_LayerList.find( iId );
-    if( it != m_LayerList.end() )
-      {
-      return & (it->second);
-      }
-    else
-      {
-      itkGenericExceptionMacro( << "this layer " << iId << " does not exist" );
-      return NULL;
-      }
-    }
-
-  itkSetObjectMacro( Image, ImageType );
-  itkGetObjectMacro( Image, ImageType );
+  itkSetObjectMacro( LabelMap, LabelMapType );
+  itkGetObjectMacro( LabelMap, LabelMapType );
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
@@ -142,8 +150,9 @@ public:
     {
     Superclass::Initialize();
 
-    m_Image = 0;
-    m_LayerList.clear();
+    m_LabelMap = 0;
+    m_Layers.clear();
+    this->InitializeLayers();
     }
 
   virtual void CopyInformation( const DataObject* data )
@@ -198,85 +207,84 @@ public:
                          << typeid( Self * ).name() );
       }
 
-    this->m_Image = LevelSet->m_Image;
-    this->m_LayerList = LevelSet->m_LayerList;
+    this->m_LabelMap->Graft( LevelSet->m_LabelMap );
+    this->m_Layers = LevelSet->m_Layers;
     }
 
-  StatusImagePointer GetStatusImage()
-  {
-    m_StatusImage = StatusImageType::New();
-    m_StatusImage->SetRegions( m_Image->GetLargestPossibleRegion() );
-    m_StatusImage->CopyInformation( m_Image );
-    m_StatusImage->Allocate();
-    m_StatusImage->FillBuffer( NumericTraits< NodeStatusType >::Zero );
-
-    SparseIteratorType spIt ( m_Image, m_Image->GetLargestPossibleRegion() );
-    StatusIteratorType sIt( m_StatusImage, m_StatusImage->GetLargestPossibleRegion() );
-    spIt.GoToBegin();
-    sIt.GoToBegin();
-
-    NodeAttributeType p;
-    while( !spIt.IsAtEnd() )
+  const LayerType& GetLayer( char iVal ) const
     {
-      p = spIt.Get();
-      sIt.Set( p.m_Status );
-      ++sIt;
-      ++spIt;
+    LayerMapConstIterator it = m_Layers.find( iVal );
+    if( it == m_Layers.end() )
+    {
+      itkGenericExceptionMacro( <<"This layer does not exist" );
+    }
+    return it->second;
     }
 
-    return m_StatusImage;
+  LayerType& GetLayer( char iVal )
+    {
+    LayerMapIterator it = m_Layers.find( iVal );
+    if( it == m_Layers.end() )
+    {
+      itkGenericExceptionMacro( <<"This layer does not exist" );
+    }
+    return it->second;
+    }
+
+  void SetLayer( char iVal, const LayerType& iLayer )
+  {
+    LayerMapIterator it = m_Layers.find( iVal );
+    if( it != m_Layers.end() )
+    {
+      it->second = iLayer;
+    }
+    else
+    {
+      itkGenericExceptionMacro( <<iVal << "is out of bounds" );
+    }
   }
 
-  OutputImagePointer GetOutputImage()
-  {
-    m_OutputImage = OutputImageType::New();
-    m_OutputImage->SetRegions( m_Image->GetLargestPossibleRegion() );
-    m_OutputImage->CopyInformation( m_Image );
-    m_OutputImage->Allocate();
-    m_OutputImage->FillBuffer( NumericTraits< NodeStatusType >::Zero );
-
-    SparseIteratorType spIt ( m_Image, m_Image->GetLargestPossibleRegion() );
-    OutputIteratorType oIt( m_OutputImage, m_OutputImage->GetLargestPossibleRegion() );
-    spIt.GoToBegin();
-    oIt.GoToBegin();
-
-    NodeAttributeType p;
-    while( !spIt.IsAtEnd() )
+  template< class TLabel >
+  LabelObject< TLabel, Dimension >* GetAsLabelObject()
     {
-      p = spIt.Get();
-      oIt.Set( p.m_Value );
-      ++spIt;
-      ++oIt;
+    typedef LabelObject< TLabel, Dimension > OutputLabelObjectType;
+    typename OutputLabelObjectType::Pointer object =
+        OutputLabelObjectType::New();
+
+    for( char status = -3; status < 1; status++ )
+      {
+      LabelObjectPointer labelObject = m_LabelMap->GetLabelObject( status );
+
+      for( SizeValueType i = 0; i < labelObject->GetNumberOfLines(); i++ )
+        {
+        object->AddLine( labelObject->GetLine( i ) );
+        }
+      }
+    object->Optimize();
+
+    return object.GetPointer();
     }
-
-    return m_OutputImage;
-  }
-
 
 protected:
 
-  WhitakerSparseLevelSetBase() : Superclass()
+  WhitakerSparseLevelSetBase() : Superclass(), m_LabelMap( 0 )
   {
     InitializeLayers();
-    m_StatusImage = 0;
-    m_OutputImage = 0;
   }
   virtual ~WhitakerSparseLevelSetBase() {}
 
-  ImagePointer        m_Image;
-  SparseLayerMapType  m_LayerList;
+  LayerMapType     m_Layers;
+  LabelMapPointer  m_LabelMap;
 
-  StatusImagePointer m_StatusImage;
-  OutputImagePointer m_OutputImage;
 
   void InitializeLayers()
     {
-    this->m_LayerList.clear();
-    this->m_LayerList[ -2 ] = NodeListType();
-    this->m_LayerList[ -1 ] = NodeListType();
-    this->m_LayerList[  0 ] = NodeListType();
-    this->m_LayerList[  1 ] = NodeListType();
-    this->m_LayerList[  2 ] = NodeListType();
+    this->m_Layers.clear();
+    this->m_Layers[ -2 ] = LayerType();
+    this->m_Layers[ -1 ] = LayerType();
+    this->m_Layers[  0 ] = LayerType();
+    this->m_Layers[  1 ] = LayerType();
+    this->m_Layers[  2 ] = LayerType();
     }
 
 private:

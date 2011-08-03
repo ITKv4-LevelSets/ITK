@@ -28,7 +28,8 @@ class LevelSetQuadEdgeMeshBase :
     public LevelSetBase<
       typename TMesh::PointIdentifier,
       TMesh::PointDimension,
-      typename TMesh::PixelType >
+      typename TMesh::PixelType,
+      TMesh >
 {
 public:
   typedef TMesh                   MeshType;
@@ -39,7 +40,8 @@ public:
   typedef SmartPointer< const Self >      ConstPointer;
   typedef LevelSetBase< typename MeshType::PointIdentifier,
     MeshType::PointDimension,
-    typename MeshType::PixelType >        Superclass;
+    typename MeshType::PixelType,
+    MeshType                    >         Superclass;
 
   /** Method for creation through object factory */
   itkNewMacro ( Self );

@@ -27,6 +27,11 @@
 
 int itkFEMLoadEdgeTest(int argc, char *argv[])
 {
+  if(argc < 1)
+    {
+    std::cerr << "Missing Spatial Object Filename" << std::endl;
+    return EXIT_FAILURE;
+    }
   //Need to register default FEM object types,
   //and setup SpatialReader to recognize FEM types
   //which is all currently done as a HACK in
@@ -67,6 +72,8 @@ int itkFEMLoadEdgeTest(int argc, char *argv[])
 
   FEMObjectSpatialObjectType::Pointer femSO =
     dynamic_cast<FEMObjectSpatialObjectType *>( (*(children->begin() ) ).GetPointer() );
+
+  delete children;
 
   femSO->GetFEMObject()->FinalizeMesh();
 

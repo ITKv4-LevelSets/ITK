@@ -448,13 +448,13 @@ macro(END_WRAP_MODULE_PYTHON group_name)
 
   set(base_name ${group_name})
 
-  if("${group_name}" STREQUAL "itkVectorContainer")
+ if("${group_name}" STREQUAL "itkVectorContainer")
     # add a template definition for the superclass which is not in ITK
     set(text )
     foreach(d ${WRAP_ITK_DIMS})
       foreach(t ${WRAP_ITK_SCALAR})
-        set(text "${text}%template(vectoritkLevelSetNode${t}${d}) std::vector< itkLevelSetNode${t}${d} >;\n")
-        ADD_PYTHON_CONFIG_TEMPLATE("vector" "std::vector" "vectoritkLevelSetNode${t}${d}" "${ITKT_LSN${t}${d}}")
+        #set(text "${text}%template(vectoritkLevelSetNode${t}${d}) std::vector< itkLevelSetNode${t}${d} >;\n")
+        #ADD_PYTHON_CONFIG_TEMPLATE("vector" "std::vector" "vectoritkLevelSetNode${t}${d}" "${ITKT_LSN${t}${d}}")
       endforeach(t)
 
       set(text "${text}%template(vectoritkVectorD${d}) std::vector< itkVectorD${d} >;\n")
@@ -490,10 +490,15 @@ macro(END_WRAP_MODULE_PYTHON group_name)
     set(WRAP_ITK_PYTHON_SWIG_EXT "${WRAP_ITK_PYTHON_SWIG_EXT}${text}")
   endif("${group_name}" STREQUAL "itkMapContainer")
 
-  if("${group_name}" STREQUAL "itkQuadEdgeMeshBase")
+  if("${group_name}" STREQUAL "ITKQuadEdgeMeshBase")
     # add a template definition for the superclass which is not in ITK
     set(text )
     foreach(d ${WRAP_ITK_DIMS})
+#      foreach(t ${WRAP_ITK_SCALAR})
+#        set(text "${text}%template(vectoritkLevelSetNode${t}${d}) std::vector< itkLevelSetNode${t}${d} >;\n")
+#        ADD_PYTHON_CONFIG_TEMPLATE("vector" "std::vector" "vectoritkLevelSetNode${t}${d}" "${ITKT_LSN${t}${d}}")
+#      endforeach(t)
+
       set(text "${text}%template(mapULitkQuadEdgeMeshPointF${d}) std::map< unsigned long, itkQuadEdgeMeshPointF${d}, std::less< unsigned long > >;\n")
       ADD_PYTHON_CONFIG_TEMPLATE("map" "std::map" "mapULitkQuadEdgeMeshPointF${d}" "unsigned long, itk::QuadEdgeMeshPoint< float, ${d} >")
 
@@ -507,7 +512,20 @@ macro(END_WRAP_MODULE_PYTHON group_name)
     endforeach(d)
 
     set(WRAP_ITK_PYTHON_SWIG_EXT "${WRAP_ITK_PYTHON_SWIG_EXT}${text}")
-  endif("${group_name}" STREQUAL "itkQuadEdgeMeshBase")
+  endif("${group_name}" STREQUAL "ITKQuadEdgeMeshBase")
+
+  if("${group_name}" STREQUAL "ITKFastMarchingBase")
+    # add a template definition for the superclass which is not in ITK
+    set(text )
+    foreach(d ${WRAP_ITK_DIMS})
+      foreach(t ${WRAP_ITK_SCALAR})
+        set(text "${text}%template(vectoritkLevelSetNode${t}${d}) std::vector< itkLevelSetNode${t}${d} >;\n")
+        ADD_PYTHON_CONFIG_TEMPLATE("vector" "std::vector" "vectoritkLevelSetNode${t}${d}" "${ITKT_LSN${t}${d}}")
+      endforeach(t)
+    endforeach(d)
+
+    set(WRAP_ITK_PYTHON_SWIG_EXT "${WRAP_ITK_PYTHON_SWIG_EXT}${text}")
+  endif("${group_name}" STREQUAL "ITKFastMarchingBase")
 
   # is there a docstring file?
   if(WRAP_ITK_DOC AND NOT WRAP_ITK_PYTHON_PROCCESS_SWIG_INPUTS)
@@ -756,6 +774,9 @@ macro(ADD_SIMPLE_TYPEDEF_PYTHON wrap_class swig_name)
     # add the templated method non seen by gccxml, in a more python-friendly way
     # than the c++ version
     set(WRAP_ITK_PYTHON_SWIG_EXT "${WRAP_ITK_PYTHON_SWIG_EXT}DECL_PYTHON_IMAGEBASE_CLASS(${swig_name}, ${template_params})\n")
+    set(WRAP_ITK_PYTHON_SWIG_EXT "${WRAP_ITK_PYTHON_SWIG_EXT}%inline %{\n")
+    set(WRAP_ITK_PYTHON_SWIG_EXT "${WRAP_ITK_PYTHON_SWIG_EXT}#include \"itkContinuousIndexSwigInterface.h\"\n")
+    set(WRAP_ITK_PYTHON_SWIG_EXT "${WRAP_ITK_PYTHON_SWIG_EXT}%}\n")
   endif("${cpp_name}" STREQUAL "itk::ImageBase" AND NOT "${swig_name}" MATCHES "Pointer$")
 
   if("${cpp_name}" STREQUAL "itk::StatisticsLabelObject" AND NOT "${swig_name}" MATCHES "Pointer$")

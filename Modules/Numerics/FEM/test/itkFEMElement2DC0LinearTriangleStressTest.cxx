@@ -31,6 +31,11 @@ int itkFEMElement2DC0LinearTriangleStressTest(int argc, char *argv[])
   //and setup SpatialReader to recognize FEM types
   //which is all currently done as a HACK in
   //the initializaiton of the itk::FEMFactoryBase::GetFactory()
+  if(argc < 1)
+    {
+    std::cerr << "Missing Spatial Object Filename" << std::endl;
+    return EXIT_FAILURE;
+    }
   itk::FEMFactoryBase::GetFactory()->RegisterDefaultTypes();
 
   typedef itk::fem::Solver<2> Solver2DType;
@@ -68,6 +73,8 @@ int itkFEMElement2DC0LinearTriangleStressTest(int argc, char *argv[])
 
   FEMObjectSpatialObjectType::Pointer femSO =
     dynamic_cast<FEMObjectSpatialObjectType *>( (*(children->begin() ) ).GetPointer() );
+
+  delete children;
 
   femSO->GetFEMObject()->FinalizeMesh();
 

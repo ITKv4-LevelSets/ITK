@@ -27,30 +27,24 @@ int itkWhitakerSparseLevelSetBaseTest( int , char* [] )
 
   SparseLevelSetType::Pointer phi = SparseLevelSetType::New();
 
-  typedef SparseLevelSetType::ImageType SparseImageType;
+  typedef SparseLevelSetType::LabelMapType LabelMapType;
+  typedef LabelMapType::Pointer            LabelMapPointer;
+  typedef LabelMapType::IndexType          IndexType;
 
-  SparseImageType::IndexType index;
-  index[0] = 0;
-  index[1] = 0;
 
-  SparseImageType::SizeType size;
-  size[0] = 10;
-  size[1] = 10;
+  IndexType index;
+  index.Fill( 3 );
 
-  SparseImageType::RegionType region;
-  region.SetIndex( index );
-  region.SetSize( size );
+  LabelMapType::Pointer labelMap = LabelMapType::New();
+  labelMap->SetBackgroundValue( 3 );
 
-  SparseLevelSetType::NodeAttributeType value;
-  value.m_Status = -3;
-  value.m_Value = -3.;
+  for( int i = 0; i < 4; i++ )
+    {
+    ++index[1];
+    labelMap->SetPixel( index, -3 );
+    }
 
-  SparseImageType::Pointer image = SparseImageType::New();
-  image->SetRegions( region );
-  image->Allocate();
-  image->FillBuffer( value );
-
-  phi->SetImage( image );
+  phi->SetLabelMap( labelMap );
 
   return EXIT_SUCCESS;
 }

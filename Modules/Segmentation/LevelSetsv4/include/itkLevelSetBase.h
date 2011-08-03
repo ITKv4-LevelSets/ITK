@@ -28,7 +28,8 @@ namespace itk
 {
 template< class TInput,
           unsigned int VDimension,
-          typename TOutput >
+          typename TOutput,
+          class TDomain >
 class LevelSetBase : public DataObject
 {
 public:
@@ -40,11 +41,15 @@ public:
   /** Run-time type information */
   itkTypeMacro ( LevelSetBase, DataObject );
 
+  itkStaticConstMacro ( Dimension, unsigned int, VDimension );
+
   typedef TInput                                           InputType;
   typedef TOutput                                          OutputType;
   typedef typename NumericTraits< OutputType >::RealType   OutputRealType;
   typedef Vector< OutputRealType, VDimension >             GradientType;
   typedef Matrix< OutputRealType, VDimension, VDimension > HessianType;
+
+  typedef TDomain DomainType;
 
   /** Type used to define Regions */
   typedef long RegionType;

@@ -90,9 +90,12 @@ public:
 
   virtual void InitializeParameters() = 0;
 
-  virtual void UpdatePixel( LevelSetInputIndexType& iP,
-                           LevelSetOutputRealType & oldValue,
-                           LevelSetOutputRealType & newValue ) = 0;
+  virtual void UpdatePixel( const LevelSetInputIndexType& iP,
+                           const LevelSetOutputRealType & oldValue,
+                           const LevelSetOutputRealType & newValue ) = 0;
+//    {
+//    itkWarningMacro( << "This method has to be reimplemented in the inherited classes.");
+//    }
 
   itkGetMacro( CFLContribution, LevelSetOutputRealType );
 

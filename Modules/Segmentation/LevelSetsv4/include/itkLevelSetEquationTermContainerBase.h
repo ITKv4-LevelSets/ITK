@@ -99,7 +99,7 @@ public:
     else
       {
       itkGenericExceptionMacro( <<"this term does not exist" );
-      return TermPointer();
+      return TermPointer( NULL );
       }
     }
 
@@ -118,7 +118,9 @@ public:
       }
   }
 
-  void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
+  void UpdatePixel( const LevelSetInputIndexType& iP,
+                    const LevelSetOutputRealType & oldValue,
+                    const LevelSetOutputRealType & newValue )
   {
     typename std::map< unsigned int, TermPointer >::iterator
       term_it = m_Container.begin();

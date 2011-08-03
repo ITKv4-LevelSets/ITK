@@ -30,6 +30,11 @@
 
 int itkImageToRectilinearFEMObjectFilter3DTest(int argc, char *argv[])
 {
+  if(argc < 12)
+    {
+    std::cerr << "Missing Spatial Object Filename" << std::endl;
+    return EXIT_FAILURE;
+    }
   //Need to register default FEM object types,
   //and setup SpatialReader to recognize FEM types
   //which is all currently done as a HACK in
@@ -67,13 +72,13 @@ int itkImageToRectilinearFEMObjectFilter3DTest(int argc, char *argv[])
   typedef itk::fem::Element3DC0LinearHexahedronMembrane MembraneElementType;
   MembraneElementType::Pointer e0 = MembraneElementType::New();
   e0->SetGlobalNumber(0);
-  e0->SetMaterial( dynamic_cast<ElasticityType *>( &*m ) );
+  e0->SetMaterial( dynamic_cast<ElasticityType *>( m.GetPointer() ) );
 
   typedef itk::fem::ImageToRectilinearFEMObjectFilter<ImageType> MeshFilterType;
   MeshFilterType::Pointer meshFilter = MeshFilterType::New();
   meshFilter->SetInput( reader->GetOutput() );
   meshFilter->SetPixelsPerElement( pixelsPerElement );
-  meshFilter->SetElement( &*e0 );
+  meshFilter->SetElement( e0.GetPointer() );
   meshFilter->Update();
 
   typedef itk::fem::FEMObject<3> FEMObjectType;

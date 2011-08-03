@@ -105,8 +105,12 @@ public:
       }
   }
 
-  virtual void UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue, LevelSetOutputRealType & newValue )
-  {}
+  virtual void UpdatePixel( const LevelSetInputIndexType& iP,
+                            const LevelSetOutputRealType & oldValue,
+                            const LevelSetOutputRealType & newValue )
+  {
+    itkWarningMacro( <<"this method is not implemented" );
+  }
 
 protected:
   LevelSetEquationPropagationTerm() : Superclass(),

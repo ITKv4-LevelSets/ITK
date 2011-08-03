@@ -22,6 +22,7 @@
 #include "itkObjectFactory.h"
 #include "itkVersorRigid3DTransform.h"
 #include "itkRigid2DTransform.h"
+#include "itkAffineTransform.h"
 #include <vector>
 #include <iostream>
 
@@ -51,8 +52,12 @@ namespace itk
  * using unit quaternions,"
  * http://people.csail.mit.edu/bkph/papers/Absolute_Orientation.pdf
  *
+ * The Affine Transform initializer  is based on an algorithm by H
+ * Spaeth, and is described in the Insight Journal Article
+ * "Affine Transformation for Landmark Based Registration Initializer
+ * in ITK" by Kim E.Y., Johnson H., Williams N.
+ * available at  http://midasjournal.com/browse/publication/825
  *
- * \ingroup Transforms
  * \ingroup ITKTransform
  */
 template< class TTransform,
@@ -86,8 +91,9 @@ public:
   itkSetObjectMacro(Transform,   TransformType);
 
   /** Image Types to use in the initialization of the transform */
-  typedef   TFixedImage  FixedImageType;
-  typedef   TMovingImage MovingImageType;
+  typedef TFixedImage  FixedImageType;
+  typedef TMovingImage MovingImageType;
+
 
   typedef   typename FixedImageType::ConstPointer  FixedImagePointer;
   typedef   typename MovingImageType::ConstPointer MovingImagePointer;
@@ -103,6 +109,8 @@ public:
   typedef typename LandmarkPointContainer::const_iterator         PointsContainerConstIterator;
   typedef typename TransformType::ParametersType                  ParametersType;
   typedef typename ParametersType::ValueType                      ParameterValueType;
+  typedef std::vector< double >                                   LandmarkWeightType;
+  typedef LandmarkWeightType::const_iterator                      LandmarkWeightConstIterator;
 
   /** Set the Fixed landmark point containers */
   void SetFixedLandmarks(const LandmarkPointContainer & fixedLandmarks)
@@ -116,10 +124,18 @@ public:
     this->m_MovingLandmarks = movingLandmarks;
   }
 
-  /**  Supported Transform typedefs */
-  typedef VersorRigid3DTransform< ParameterValueType > VersorRigid3DTransformType;
-  typedef Rigid2DTransform< ParameterValueType >       Rigid2DTransformType;
+  /** Set the landmark weight point containers
+   *  Weight includes diagonal elements of weight matrix
+   */
+  void SetLandmarkWeight(LandmarkWeightType & landmarkWeight)
+  {
+    this->m_LandmarkWeight= landmarkWeight;
+  }
 
+  /**  Supported Transform typedefs */
+  typedef VersorRigid3DTransform< ParameterValueType >                          VersorRigid3DTransformType;
+  typedef Rigid2DTransform< ParameterValueType >                                Rigid2DTransformType;
+  typedef AffineTransform< ParameterValueType, FixedImageType::ImageDimension > AffineTransformType;
   /** Initialize the transform from the landmarks */
   virtual void InitializeTransform();
 
@@ -139,6 +155,17 @@ private:
   LandmarkBasedTransformInitializer(const Self &); //purposely not implemented
   void operator=(const Self &);                    //purposely not implemented
 
+
+  /** fallback Initializer just sets transform to identity */
+  template <class TTransform2>
+    void InternalInitializeTransform(TTransform *);
+  /** Initializer for VersorRigid3D */
+  void InternalInitializeTransform(VersorRigid3DTransformType *);
+  /** Initializer for Rigid2DTransform */
+  void InternalInitializeTransform(Rigid2DTransformType *);
+  /** Initializer for AffineTransform */
+  void InternalInitializeTransform(AffineTransformType *);
+
   FixedImagePointer  m_FixedImage;
   MovingImagePointer m_MovingImage;
 
@@ -146,6 +173,9 @@ private:
   LandmarkPointContainer m_MovingLandmarks;
 
   TransformPointer m_Transform;
+  /** weights for affine landmarks */
+  LandmarkWeightType m_LandmarkWeight;
+
 }; //class LandmarkBasedTransformInitializer
 }  // namespace itk
 

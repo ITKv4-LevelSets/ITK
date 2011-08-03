@@ -174,7 +174,7 @@ public:
     virtual::itk::LightObject::Pointer CreateAnother(void) const
       {
         ::itk::LightObject::Pointer smartPtr;
-        Pointer copyPtr = Self::New().GetPointer();
+        Pointer copyPtr = Self::New();
 
         copyPtr->m_coordinates = this->m_coordinates;
         copyPtr->m_dof = this->m_dof;
@@ -201,6 +201,14 @@ public:
      */
     Node()
       {
+      }
+    /**
+     * Destructor
+     */
+    ~Node()
+      {
+        this->ClearDegreesOfFreedom();
+        this->m_elements.clear();
       }
 
     /**
@@ -269,7 +277,7 @@ public:
      * List of pointers to elements that use this node. External code is
      * responsible for maintaining the list.
      */
-    typedef std::set<Element *> SetOfElements;
+    typedef std::set<Element::Pointer> SetOfElements;
     mutable SetOfElements m_elements;
   protected:
     virtual void PrintSelf(std::ostream& os, Indent indent) const
@@ -558,7 +566,10 @@ public:
    * Sets the pointe of n-th node in an element to node.
    */
   virtual void SetNode(unsigned int n, NodeIDType node) = 0;
-
+  virtual void SetNode(unsigned int n, Node::Pointer node)
+    {
+      this->SetNode(n,NodeIDType(node.GetPointer()));
+    }
   /**
    * Return a vector of global coordinates of n-th node in an element.
    *
@@ -711,7 +722,7 @@ public:
   virtual unsigned int GetNumberOfDegreesOfFreedomPerNode(void) const = 0;
 
   /** Set the edge order and the points defining each edge */
-  virtual void PopulateEdgeIds(void) const {/*HACK:  This should never be called, perhaps thow an exception.*/} // = 0; //HACK:  Make this an abstract base class that require specialization
+  virtual void PopulateEdgeIds(void) = 0;
 
 protected:
 

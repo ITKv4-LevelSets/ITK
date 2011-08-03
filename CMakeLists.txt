@@ -66,6 +66,26 @@ macro(verify_itk_module_is_set)
   endif()
 endmacro()
 
+
+#-----------------------------------------------------------------------------
+# Enable runinng cppcheck for each module on its source and test directories.
+option(ITK_CPPCHECK_TEST "Run cppcheck for static code analysis" OFF)
+mark_as_advanced(ITK_CPPCHECK_TEST)
+
+#-----------------------------------------------------------------------------
+# Default values for CMake options may vary based on whether it's a
+# dashboard build or not:
+#
+if("$ENV{DASHBOARD_TEST_FROM_CTEST}" STREQUAL "")
+  # developer build
+  set(ITK_BUILD_ALL_MODULES_DEFAULT ON)
+  set(BUILD_EXAMPLES_DEFAULT ON)
+else()
+  # dashboard build
+  set(ITK_BUILD_ALL_MODULES_DEFAULT ON)
+  set(BUILD_EXAMPLES_DEFAULT ON)
+endif()
+
 #-----------------------------------------------------------------------------
 # Enable the download and use of BrainWeb datasets.
 # When this data is available, additional 3D tests are enabled.
@@ -112,6 +132,8 @@ set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${ITK_REQUIRED_LINK_
 
 include(CTest)
 
+include( CppcheckTargets )
+
 # Setup build locations.
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ITK_BINARY_DIR}/bin)
@@ -148,7 +170,8 @@ INCLUDE(${ITK_SOURCE_DIR}/Utilities/KWStyle/KWStyle.cmake)
 
 #-----------------------------------------------------------------------------
 # ITK build the Examples that are illustrated in the Software Guide
-option(BUILD_EXAMPLES "Build the Examples directory." OFF)
+option(BUILD_EXAMPLES "Build the Examples directory."
+  ${BUILD_EXAMPLES_DEFAULT})
 
 #-----------------------------------------------------------------------------
 # Enable GPU support. Requires OpenCL to be installed
@@ -290,13 +313,6 @@ endforeach()
 #----------------------------------------------------------------------
 
 # Provide an option for all modules.
-if("$ENV{DASHBOARD_TEST_FROM_CTEST}" STREQUAL "")
-  # developer build
-  set(ITK_BUILD_ALL_MODULES_DEFAULT OFF)
-else()
-  # dashboard build
-  set(ITK_BUILD_ALL_MODULES_DEFAULT ON)
-endif()
 option(ITK_BUILD_ALL_MODULES "Request to build all modules"
   ${ITK_BUILD_ALL_MODULES_DEFAULT})
 

@@ -47,7 +47,6 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
 
   typedef itk::IdentifierType                               IdentifierType;
   typedef BinaryToSparseAdaptorType::LevelSetType           SparseLevelSetType;
-  typedef SparseLevelSetType::ImageType                     SparseImageType;
 
   typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
                                                             LevelSetContainerType;
@@ -74,7 +73,6 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
   typedef SparseLevelSetType::OutputRealType                LevelSetOutputRealType;
   typedef itk::SinRegularizedHeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
                                                             HeavisideFunctionBaseType;
-  typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
 
 //   InputImageType::RegionType region;
@@ -143,7 +141,6 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
   std::cout << "Finished converting to sparse format" << std::endl;
 
   SparseLevelSetType::Pointer level_set = adaptor->GetSparseLevelSet();
-  SparseImageType::Pointer sparseImage = level_set->GetImage();
 
   IdListType list_ids;
   list_ids.push_back( 1 );
@@ -160,7 +157,7 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
 
   // Define the Heaviside function
   HeavisideFunctionBaseType::Pointer heaviside = HeavisideFunctionBaseType::New();
-//   heaviside->SetEpsilon( 1.0 );
+   heaviside->SetEpsilon( 2.0 );
 
   // Insert the levelsets in a levelset container
   LevelSetContainerType::Pointer lscontainer = LevelSetContainerType::New();
@@ -214,13 +211,47 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 50 );
+  evolution->SetNumberOfIterations( atoi( argv[2] ) );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 
   try
     {
     evolution->Update();
+    }
+  catch ( itk::ExceptionObject& err )
+    {
+    std::cout << err << std::endl;
+    }
+
+  typedef itk::Image< char, Dimension > OutputImageType;
+  OutputImageType::Pointer outputImage = OutputImageType::New();
+  outputImage->SetRegions( input->GetLargestPossibleRegion() );
+  outputImage->CopyInformation( input );
+  outputImage->Allocate();
+  outputImage->FillBuffer( 0 );
+
+  typedef itk::ImageRegionIteratorWithIndex< OutputImageType > OutputIteratorType;
+  OutputIteratorType oIt( outputImage, outputImage->GetLargestPossibleRegion() );
+  oIt.GoToBegin();
+
+  OutputImageType::IndexType idx;
+
+  while( !oIt.IsAtEnd() )
+    {
+    idx = oIt.GetIndex();
+    oIt.Set( level_set->Evaluate( idx ) );
+    ++oIt;
+    }
+
+  typedef itk::ImageFileWriter< OutputImageType >     OutputWriterType;
+  OutputWriterType::Pointer writer = OutputWriterType::New();
+  writer->SetFileName( argv[3] );
+  writer->SetInput( outputImage );
+
+  try
+    {
+    writer->Update();
     }
   catch ( itk::ExceptionObject& err )
     {

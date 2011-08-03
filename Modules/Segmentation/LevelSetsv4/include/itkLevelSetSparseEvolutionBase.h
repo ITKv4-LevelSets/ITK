@@ -80,17 +80,22 @@ public:
 
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
-  typedef typename LevelSetType::ImageType             LevelSetImageType;
+  typedef typename LevelSetType::InputType             LevelSetInputType;
   typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
-  typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
-  typedef typename LevelSetType::NodePairType     NodePairType;
-  typedef typename LevelSetType::NodeListIterator NodeListIterator;
+  typedef typename LevelSetType::LayerType             LevelSetLayerType;
+  typedef typename LevelSetType::LayerIterator         LevelSetLayerIterator;
+//  typedef typename LevelSetType::ImageType             LevelSetImageType;
 
-  typedef ImageRegionIteratorWithIndex< LevelSetImageType > LevelSetImageIteratorType;
+//  typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
 
-  typedef ImageRegionConstIteratorWithIndex< LevelSetImageType > LevelSetImageConstIteratorType;
+//  typedef typename LevelSetType::NodePairType     NodePairType;
+//  typedef typename LevelSetType::NodeListIterator NodeListIterator;
+
+//  typedef ImageRegionIteratorWithIndex< LevelSetImageType > LevelSetImageIteratorType;
+
+//  typedef ImageRegionConstIteratorWithIndex< LevelSetImageType > LevelSetImageConstIteratorType;
 
   typedef ImageRegionIteratorWithIndex< InputImageType > InputImageIteratorType;
 
@@ -110,11 +115,11 @@ public:
 
   typedef UpdateWhitakerSparseLevelSet< ImageDimension, LevelSetOutputType, EquationContainerType >
                                                   UpdateLevelSetFilterType;
-  typedef typename LevelSetType::StatusImageType  StatusImageType;
-  typedef typename LevelSetType::OutputImageType  OutputImageType;
+//  typedef typename LevelSetType::StatusImageType  StatusImageType;
+//  typedef typename LevelSetType::OutputImageType  OutputImageType;
 
   typedef typename UpdateLevelSetFilterType::Pointer                         UpdateLevelSetFilterPointer;
-  typedef typename UpdateLevelSetFilterType::UpdateListType                  UpdateListType;
+//  typedef typename UpdateLevelSetFilterType::UpdateListType                  UpdateListType;
 
   // create another class which contains all the equations
   // i.e. it is a container of term container :-):
@@ -193,8 +198,8 @@ protected:
   LevelSetContainerPointer    m_LevelSetContainer;
 
   // For sparse case, the update buffer needs to be the size of the active layer
-  std::map< IdentifierType, UpdateListType* > m_UpdateBuffer;
-  DomainMapImageFilterPointer                 m_DomainMapFilter;
+  std::map< IdentifierType, LevelSetLayerType* >  m_UpdateBuffer;
+  DomainMapImageFilterPointer                     m_DomainMapFilter;
 
   LevelSetOutputRealType      m_Alpha;
   LevelSetOutputRealType      m_Dt;
@@ -203,28 +208,27 @@ protected:
 
   void AllocateUpdateBuffer()
     {
-      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-      while( it != m_LevelSetContainer->End() )
+    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    while( it != m_LevelSetContainer->End() )
       {
-        if( m_UpdateBuffer.find( it->first ) == m_UpdateBuffer.end() )
+      if( m_UpdateBuffer.find( it->first ) == m_UpdateBuffer.end() )
+        {
+        m_UpdateBuffer[it->first] = new LevelSetLayerType;
+        }
+      else
+        {
+        if( m_UpdateBuffer[it->first] )
           {
-          m_UpdateBuffer[it->first] = new UpdateListType;
+          m_UpdateBuffer[it->first]->clear();
           }
         else
           {
-            if( m_UpdateBuffer[it->first] )
-              {
-              m_UpdateBuffer[it->first]->clear();
-              }
-            else
-              {
-              m_UpdateBuffer[it->first] = new UpdateListType;
-              }
+          m_UpdateBuffer[it->first] = new LevelSetLayerType;
           }
-          ++it;
+        }
+      ++it;
       }
     }
-
 
   void GenerateData()
     {
@@ -246,34 +250,34 @@ protected:
       UpdateEquations();
 
       // DEBUGGING
-      typedef Image< unsigned char, ImageDimension > WriterImageType;
-      typedef BinaryThresholdImageFilter< StatusImageType, WriterImageType >  FilterType;
-      typedef ImageFileWriter< WriterImageType > WriterType;
-      typedef typename WriterType::Pointer       WriterPointer;
+//      typedef Image< unsigned char, ImageDimension > WriterImageType;
+//      typedef BinaryThresholdImageFilter< StatusImageType, WriterImageType >  FilterType;
+//      typedef ImageFileWriter< WriterImageType > WriterType;
+//      typedef typename WriterType::Pointer       WriterPointer;
 
-      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-      while( it != m_LevelSetContainer->End() )
-      {
-        std::ostringstream filename;
-        filename << "/home/krm15/temp/" << iter << "_" <<  it->first << ".png";
+//      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+//      while( it != m_LevelSetContainer->End() )
+//      {
+//        std::ostringstream filename;
+//        filename << "/home/krm15/temp/" << iter << "_" <<  it->first << ".png";
 
-        LevelSetPointer levelSet = it->second;
+//        LevelSetPointer levelSet = it->second;
 
-        typename FilterType::Pointer filter = FilterType::New();
-        filter->SetInput( levelSet->GetStatusImage() );
-        filter->SetOutsideValue( 0 );
-        filter->SetInsideValue(  255 );
-        filter->SetLowerThreshold( NumericTraits<typename StatusImageType::PixelType>::NonpositiveMin() );
-        filter->SetUpperThreshold( 0 );
-        filter->Update();
+//        typename FilterType::Pointer filter = FilterType::New();
+//        filter->SetInput( levelSet->GetStatusImage() );
+//        filter->SetOutsideValue( 0 );
+//        filter->SetInsideValue(  255 );
+//        filter->SetLowerThreshold( NumericTraits<typename StatusImageType::PixelType>::NonpositiveMin() );
+//        filter->SetUpperThreshold( 0 );
+//        filter->Update();
 
 
-        WriterPointer writer2 = WriterType::New();
-        writer2->SetInput( filter->GetOutput() );
-        writer2->SetFileName( filename.str().c_str() );
-        writer2->Update();
-        ++it;
-      }
+//        WriterPointer writer2 = WriterType::New();
+//        writer2->SetInput( filter->GetOutput() );
+//        writer2->SetFileName( filename.str().c_str() );
+//        writer2->Update();
+//        ++it;
+//      }
 
       this->InvokeEvent( IterationEvent() );
       }
@@ -290,29 +294,29 @@ protected:
     m_EquationContainer->InitializeParameters();
 
     while( map_it != map_end )
-    {
+      {
       // std::cout << map_it->second.m_Region << std::endl;
       InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
       it.GoToBegin();
 
       while( !it.IsAtEnd() )
-      {
+        {
         // std::cout << it.GetIndex() << std::endl;
         IdListType lout = map_it->second.m_List;
 
         if( lout.empty() )
-        {
+          {
           itkGenericExceptionMacro( <<"No level set exists at voxel" );
-        }
+          }
 
         for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-        {
+          {
           m_EquationContainer->GetEquation( *lIt - 1 )->Initialize( it.GetIndex() );
-        }
+          }
         ++it;
-      }
+        }
       ++map_it;
-    }
+      }
     m_EquationContainer->Update();
   }
 
@@ -320,22 +324,25 @@ protected:
   {
     std::cout << "Compute iteration" << std::endl;
     LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-    while( it != m_LevelSetContainer->End() )
-    {
-      LevelSetPointer levelSet = it->second;
-      NodeListIterator list_it = levelSet->GetListNode( 0 )->begin();
-      NodeListIterator list_end = levelSet->GetListNode( 0 )->end();
-      NodePairType p;
-      while( list_it != list_end )
-      {
-        p = (*list_it);
 
-        InputPixelRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
-        m_UpdateBuffer[it->first]->push_back( temp_update );
+    while( it != m_LevelSetContainer->End() )
+      {
+      LevelSetPointer levelSet = it->second;
+      LevelSetLayerIterator list_it = levelSet->GetLayer( 0 ).begin();
+      LevelSetLayerIterator list_end = levelSet->GetLayer( 0 ).begin();
+
+      while( list_it != list_end )
+        {
+        LevelSetInputType idx = list_it->first;
+
+        InputPixelRealType temp_update =
+            m_EquationContainer->GetEquation( it->first )->Evaluate( idx );
+        m_UpdateBuffer[ it->first ]->insert(
+              std::pair< LevelSetInputType, LevelSetOutputType >( idx, temp_update ) );
         ++list_it;
-      }
+        }
     ++it;
-    }
+      }
   }
 
 
@@ -377,12 +384,12 @@ protected:
       {
         std::cout << "** " << it->first <<" **" << std::endl;
         std::cout << "m_UpdateBuffer[" <<it->first <<"].size()=" << m_UpdateBuffer[it->first]->size() << std::endl;
-        std::cout << "Zero level set.size() =" << it->second->GetListNode( 0 )->size() << std::endl;
+        std::cout << "Zero level set.size() =" << it->second->GetLayer( 0 ).size() << std::endl;
         LevelSetPointer levelSet = it->second;
 
         UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
         update_levelset->SetSparseLevelSet( levelSet );
-        update_levelset->SetUpdate( m_UpdateBuffer[it->first] );
+        update_levelset->SetUpdate( * m_UpdateBuffer[it->first] );
         update_levelset->SetEquationContainer( m_EquationContainer );
         update_levelset->SetDt( m_Dt );
         update_levelset->Update();

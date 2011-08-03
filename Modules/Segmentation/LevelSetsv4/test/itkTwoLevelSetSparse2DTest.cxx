@@ -48,8 +48,6 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
 
   typedef itk::IdentifierType                               IdentifierType;
   typedef BinaryToSparseAdaptorType::LevelSetType           SparseLevelSetType;
-  typedef SparseLevelSetType::ImageType                     SparseImageType;
-  typedef SparseLevelSetType::NodeAttributeType             NodeAttributeType;
 
   typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
                                                             LevelSetContainerType;
@@ -76,7 +74,6 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
   typedef SparseLevelSetType::OutputRealType                      LevelSetOutputRealType;
   typedef itk::SinRegularizedHeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
                                                             HeavisideFunctionBaseType;
-  typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
 
   // load binary input for segmentation
@@ -117,7 +114,6 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
   std::cout << "Finished converting to sparse format" << std::endl;
 
   SparseLevelSetType::Pointer level_set0 = adaptor0->GetSparseLevelSet();
-  SparseImageType::Pointer sparseImage0 = level_set0->GetImage();
 
   BinaryToSparseAdaptorType::Pointer adaptor1 = BinaryToSparseAdaptorType::New();
   adaptor1->SetInputImage( binary );
@@ -125,7 +121,6 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
   std::cout << "Finished converting to sparse format" << std::endl;
 
   SparseLevelSetType::Pointer level_set1 = adaptor1->GetSparseLevelSet();
-  SparseImageType::Pointer sparseImage1 = level_set1->GetImage();
 
   // Create a list image specifying both level set ids
   IdListType list_ids;
