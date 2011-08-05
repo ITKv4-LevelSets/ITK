@@ -334,17 +334,17 @@ protected:
   virtual void UpdateLevelSets()
     {
     std::cout << "Update levelsets" << std::endl;
-    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
     while( it != m_LevelSetContainer->End() )
       {
-      std::cout << "** " << it->first <<" **" << std::endl;
+      std::cout << "** " << it->GetIdentifier() <<" **" << std::endl;
 //      std::cout << "m_UpdateBuffer[" <<it->first <<"].size()=" << m_UpdateBuffer[it->first]->size() << std::endl;
-      std::cout << "Zero level set.size() =" << it->second->GetLayer( 0 ).size() << std::endl;
-      LevelSetPointer levelSet = it->second;
+      std::cout << "Zero level set.size() =" << it->GetLevelSet()->GetLayer( 0 ).size() << std::endl;
+      LevelSetPointer levelSet = it->GetLevelSet();
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
       update_levelset->SetSparseLevelSet( levelSet );
-      update_levelset->SetCurrentLevelSetId( it->first );
+      update_levelset->SetCurrentLevelSetId( it->GetIdentifier() );
 //      update_levelset->SetUpdate( m_UpdateBuffer[it->first] );
       update_levelset->SetEquationContainer( m_EquationContainer );
       update_levelset->Update();

@@ -297,13 +297,13 @@ protected:
       typedef ImageFileWriter< WriterImageType > WriterType;
       typedef typename WriterType::Pointer       WriterPointer;
 
-      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+      typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
       while( it != m_LevelSetContainer->End() )
       {
         std::ostringstream filename;
-        filename << "/home/krm15/temp/" << iter << "_" <<  it->first << ".png";
+        filename << "/home/krm15/temp/" << iter << "_" <<  it->GetIdentifier() << ".png";
 
-        LevelSetPointer levelSet = it->second;
+        LevelSetPointer levelSet = it->GetLevelSet();
 
         typename FilterType::Pointer filter = FilterType::New();
         filter->SetInput( levelSet->GetImage() );
@@ -356,15 +356,15 @@ protected:
 
   virtual void UpdateLevelSets()
     {
-    LevelSetContainerIteratorType it1 = m_LevelSetContainer->Begin();
-    LevelSetContainerConstIteratorType it2 = m_UpdateBuffer->Begin();
+    typename LevelSetContainerType::Iterator it1 = m_LevelSetContainer->Begin();
+    typename LevelSetContainerType::ConstIterator it2 = m_UpdateBuffer->Begin();
 
     LevelSetOutputRealType p;
 
     while( it1 != m_LevelSetContainer->End() )
       {
-      LevelSetImagePointer image1 = it1->second->GetImage();
-      LevelSetImagePointer image2 = it2->second->GetImage();
+      LevelSetImagePointer image1 = it1->GetLevelSet()->GetImage();
+      LevelSetImagePointer image2 = it2->GetLevelSet()->GetImage();
 
       LevelSetImageIteratorType It1( image1, image1->GetBufferedRegion() );
       LevelSetImageIteratorType It2( image2, image2->GetBufferedRegion() );
@@ -395,11 +395,11 @@ protected:
 
   void Reinitialize()
   {
-    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
 
     while( it != m_LevelSetContainer->End() )
       {
-      LevelSetImagePointer image = it->second->GetImage();
+      LevelSetImagePointer image = it->GetLevelSet()->GetImage();
 
       ThresholdFilterPointer thresh = ThresholdFilterType::New();
       thresh->SetLowerThreshold(

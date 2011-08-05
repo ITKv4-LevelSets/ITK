@@ -77,48 +77,153 @@ public:
 
   typedef typename std::map< IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
-  LevelSetContainerIteratorType Begin()
-    {
-    return m_Container.begin();
-    }
+  /** Declare iterators to container. */
+  class Iterator;
+  class ConstIterator;
+  friend class Iterator;
+  friend class ConstIterator;
 
-  LevelSetContainerConstIteratorType Begin() const
+  class ConstIterator
     {
-    return m_Container.begin();
-    }
+  public:
+    ConstIterator( ) {}
+    ConstIterator( const LevelSetContainerConstIteratorType& it ) : m_Iterator( it ) {}
+    ~ConstIterator() {}
+    ConstIterator( const Iterator& it ) : m_Iterator( it.m_Iterator ) {}
 
-  LevelSetContainerIteratorType End()
-    {
-    return m_Container.end();
-    }
+    ConstIterator & operator * () { return *this; }
+    ConstIterator * operator->()  { return this; }
+    ConstIterator & operator++()
+      {
+      ++m_Iterator;
+      return *this;
+      }
+    ConstIterator operator++(int)
+      {
+      ConstIterator tmp( *this );
+      ++(*this);
+      return tmp;
+      }
+    ConstIterator & operator--()
+      {
+      --m_Iterator;
+      return *this;
+      }
+    ConstIterator operator--(int)
+      {
+      ConstIterator tmp( *this );
+      --(*this);
+      return tmp;
+      }
+    bool operator==(const Iterator& it) const
+      {
+      return ( m_Iterator == it.m_Iterator );
+      }
+    bool operator!=(const Iterator& it) const
+      {
+      return (m_Iterator != it.m_Iterator );
+      }
+    bool operator==(const ConstIterator& it) const
+      {
+      return ( m_Iterator == it.m_Iterator );
+      }
+    bool operator!=(const ConstIterator& it) const
+      {
+      return (m_Iterator != it.m_Iterator );
+      }
 
-  LevelSetContainerConstIteratorType End() const
-    {
-    return m_Container.end();
-    }
+    IdentifierType GetIdentifier() const
+      {
+      return m_Iterator->first;
+      }
 
-  size_t Size() const
+    LevelSetType* GetLevelSet() const
+      {
+      return m_Iterator->second;
+      }
+
+  private:
+    LevelSetContainerConstIteratorType m_Iterator;
+    friend class Iterator;
+    };
+
+  class Iterator
     {
-    return m_Container.size();
-    }
+  public:
+    Iterator( ) {}
+    Iterator( const LevelSetContainerIteratorType& it ) : m_Iterator( it ) {}
+    Iterator( const ConstIterator& it ) : m_Iterator( it.m_Iterator ) {}
+    ~Iterator() {}
+
+    Iterator & operator * () { return *this; }
+    Iterator * operator->()  { return this; }
+    Iterator & operator++()
+      {
+      ++m_Iterator;
+      return *this;
+      }
+    Iterator operator++(int)
+      {
+      Iterator tmp( *this );
+      ++(*this);
+      return tmp;
+      }
+    Iterator & operator--()
+      {
+      --m_Iterator;
+      return *this;
+      }
+    Iterator operator--(int)
+      {
+      Iterator tmp( *this );
+      --(*this);
+      return tmp;
+      }
+    bool operator==(const Iterator& it) const
+      {
+      return ( m_Iterator == it.m_Iterator );
+      }
+    bool operator!=(const Iterator& it) const
+      {
+      return (m_Iterator != it.m_Iterator );
+      }
+    bool operator==(const ConstIterator& it) const
+      {
+      return ( m_Iterator == it.m_Iterator );
+      }
+    bool operator!=(const ConstIterator& it) const
+      {
+      return (m_Iterator != it.m_Iterator );
+      }
+
+    IdentifierType GetIdentifier() const
+      {
+      return m_Iterator->first;
+      }
+
+    LevelSetType* GetLevelSet() const
+      {
+      return m_Iterator->second;
+      }
+
+  private:
+    LevelSetContainerIteratorType m_Iterator;
+    friend class ConstIterator;
+    };
+
+  Iterator Begin();
+  Iterator End();
+
+  ConstIterator Begin() const;
+  ConstIterator End() const;
+
+  IdentifierType Size() const;
 
   /** \brief Get the level set function given its id
     \param[in] iId
     \return the level set function if it is in the container, else NULL.
   */
-  LevelSetPointer GetLevelSet( const IdentifierType& iId ) const
-    {
-    LevelSetContainerConstIteratorType it = m_Container.find( iId );
-
-    if( it != m_Container.end() )
-      {
-      return it->second;
-      }
-    else
-      {
-      return NULL;
-      }
-    }
+  LevelSetPointer GetLevelSet( const IdentifierType& iId ) const;
 
   /** \brief Add one level set function given its id.
 
@@ -131,55 +236,15 @@ public:
   */
   bool AddLevelSet( const IdentifierType& iId,
                     LevelSetPointer iLevelSet,
-                    const bool& iForce = true )
-    {
-    if( iForce )
-      {
-      m_Container[iId] = iLevelSet;
-      this->Modified();
-      return true;
-      }
-    else
-      {
-      LevelSetContainerIteratorType it = m_Container.find( iId );
+                    const bool& iForce = true );
 
-      if( it != m_Container.end() )
-        {
-        return false;
-        }
-      else
-        {
-        m_Container.insert(
-              std::pair< IdentifierType, LevelSetPointer >( iId, iLevelSet ) );
-        this->Modified();
-        return true;
-        }
-      }
-    }
 
   /** \brief Remove one level set function given its id.
     \param[in] iId id of the level set function to be removed
     \return true if it has been removed, false if the id was not present in the
     container.
   */
-  bool RemoveLevelSet( const IdentifierType& iId )
-    {
-    LevelSetContainerIteratorType it = m_Container.find( iId );
-
-    if( it != m_Container.end() )
-      {
-      it->second = NULL;
-      m_Container.erase( it );
-
-      this->Modified();
-
-      return true;
-      }
-    else
-      {
-      return false;
-      }
-    }
+  bool RemoveLevelSet( const IdentifierType& iId );
 
   /// \warning why
   itkSetObjectMacro( Heaviside, HeavisideType );
@@ -191,7 +256,7 @@ public:
 
 protected:
   /** \brief Default Constructor */
-  LevelSetContainerBase() {}
+  LevelSetContainerBase();
 
   /** \brief Default Destructor */
   ~LevelSetContainerBase() {}
@@ -206,4 +271,6 @@ private:
 };
 
 }
+
+#include "itkLevelSetContainerBase.hxx"
 #endif // __itkLevelSetContainerBase_h

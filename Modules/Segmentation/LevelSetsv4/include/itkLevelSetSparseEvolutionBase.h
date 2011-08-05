@@ -182,10 +182,10 @@ protected:
   }
   ~LevelSetSparseEvolutionBase()
   {
-    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    typename LevelSetContainerType::ConstIterator it = m_LevelSetContainer->Begin();
     while( it != m_LevelSetContainer->End() )
       {
-      delete m_UpdateBuffer[it->first];
+      delete m_UpdateBuffer[ it->GetIdentifier() ];
       ++it;
       }
   }
@@ -208,22 +208,24 @@ protected:
 
   void AllocateUpdateBuffer()
     {
-    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
     while( it != m_LevelSetContainer->End() )
       {
-      if( m_UpdateBuffer.find( it->first ) == m_UpdateBuffer.end() )
+      IdentifierType id = it->GetIdentifier();
+
+      if( m_UpdateBuffer.find( id ) == m_UpdateBuffer.end() )
         {
-        m_UpdateBuffer[it->first] = new LevelSetLayerType;
+        m_UpdateBuffer[ id ] = new LevelSetLayerType;
         }
       else
         {
-        if( m_UpdateBuffer[it->first] )
+        if( m_UpdateBuffer[ id ] )
           {
-          m_UpdateBuffer[it->first]->clear();
+          m_UpdateBuffer[ id ]->clear();
           }
         else
           {
-          m_UpdateBuffer[it->first] = new LevelSetLayerType;
+          m_UpdateBuffer[ id ] = new LevelSetLayerType;
           }
         }
       ++it;
@@ -323,11 +325,11 @@ protected:
   void ComputeIteration()
   {
     std::cout << "Compute iteration" << std::endl;
-    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+    typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
 
     while( it != m_LevelSetContainer->End() )
       {
-      LevelSetPointer levelSet = it->second;
+      LevelSetPointer levelSet = it->GetLevelSet();
       LevelSetLayerIterator list_it = levelSet->GetLayer( 0 ).begin();
       LevelSetLayerIterator list_end = levelSet->GetLayer( 0 ).begin();
 
@@ -336,8 +338,8 @@ protected:
         LevelSetInputType idx = list_it->first;
 
         InputPixelRealType temp_update =
-            m_EquationContainer->GetEquation( it->first )->Evaluate( idx );
-        m_UpdateBuffer[ it->first ]->insert(
+            m_EquationContainer->GetEquation( it->GetIdentifier() )->Evaluate( idx );
+        m_UpdateBuffer[ it->GetIdentifier() ]->insert(
               std::pair< LevelSetInputType, LevelSetOutputType >( idx, temp_update ) );
         ++list_it;
         }
@@ -379,24 +381,24 @@ protected:
     {
       std::cout << "Update levelsets" << std::endl;
 
-      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+      typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
       while( it != m_LevelSetContainer->End() )
       {
-        std::cout << "** " << it->first <<" **" << std::endl;
-        std::cout << "m_UpdateBuffer[" <<it->first <<"].size()=" << m_UpdateBuffer[it->first]->size() << std::endl;
-        std::cout << "Zero level set.size() =" << it->second->GetLayer( 0 ).size() << std::endl;
-        LevelSetPointer levelSet = it->second;
+        std::cout << "** " << it->GetIdentifier() <<" **" << std::endl;
+        std::cout << "m_UpdateBuffer[" <<it->GetIdentifier() <<"].size()=" << m_UpdateBuffer[it->GetIdentifier()]->size() << std::endl;
+        std::cout << "Zero level set.size() =" << it->GetLevelSet()->GetLayer( 0 ).size() << std::endl;
+        LevelSetPointer levelSet = it->GetLevelSet();
 
         UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
         update_levelset->SetSparseLevelSet( levelSet );
-        update_levelset->SetUpdate( * m_UpdateBuffer[it->first] );
+        update_levelset->SetUpdate( * m_UpdateBuffer[it->GetIdentifier()] );
         update_levelset->SetEquationContainer( m_EquationContainer );
         update_levelset->SetDt( m_Dt );
         update_levelset->Update();
 
         m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 
-        m_UpdateBuffer[it->first]->clear();
+        m_UpdateBuffer[it->GetIdentifier()]->clear();
         ++it;
       }
     }
