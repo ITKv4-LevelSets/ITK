@@ -29,6 +29,14 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
   {}
 
 template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+bool
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::IsInside( const InputType& iP ) const
+{
+  return ( this->Evaluate( iP ) <= NumericTraits< OutputType >::Zero );
+}
+
+template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::Initialize()

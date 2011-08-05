@@ -21,7 +21,6 @@
 
 #include "itkObject.h"
 #include "itkHeavisideStepFunctionBase.h"
-#include "itkNumericTraits.h"
 
 namespace itk
 {
@@ -49,7 +48,6 @@ public:
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
   typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
   typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
-  //typedef typename LevelSetContainerType::OutputPixelType LevelSetOutputPixelType;
   typedef typename LevelSetContainerType::OutputType      LevelSetOutputPixelType;
   typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
   typedef typename LevelSetContainerType::InputIndexType  LevelSetInputIndexType;
@@ -71,20 +69,10 @@ public:
   itkSetMacro( CurrentLevelSet, LevelSetIdentifierType );
   itkGetMacro( CurrentLevelSet, LevelSetIdentifierType );
 
-//   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
-  void SetLevelSetContainer( LevelSetContainerPointer ptr )
-  {
-    m_LevelSetContainer = ptr;
-    m_Heaviside = ptr->GetHeaviside();
-    this->Modified();
-  }
-
+  virtual void SetLevelSetContainer( LevelSetContainerType*ptr );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
-  virtual LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP )
-    {
-    return m_Coefficient * this->Value( iP );
-    }
+  virtual LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP );
 
   virtual void Initialize( const LevelSetInputIndexType& iP ) = 0;
 
@@ -93,9 +81,6 @@ public:
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                            const LevelSetOutputRealType & oldValue,
                            const LevelSetOutputRealType & newValue ) = 0;
-//    {
-//    itkWarningMacro( << "This method has to be reimplemented in the inherited classes.");
-//    }
 
   itkGetMacro( CFLContribution, LevelSetOutputRealType );
 
@@ -105,10 +90,7 @@ public:
   virtual void Update() = 0;
 
 protected:
-  LevelSetEquationTermBase() : Superclass(),
-    m_Coefficient( NumericTraits< LevelSetOutputRealType >::One ),
-    m_CFLContribution( NumericTraits< LevelSetOutputRealType >::Zero )
-  {}
+  LevelSetEquationTermBase();
 
   virtual ~LevelSetEquationTermBase() {}
 
@@ -128,4 +110,6 @@ private:
   void operator = ( const Self& );
 };
 }
+
+#include "itkLevelSetEquationTermBase.hxx"
 #endif

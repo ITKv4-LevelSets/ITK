@@ -67,11 +67,13 @@ public:
 
   virtual GradientType EvaluateGradient( const InputType& iP ) const
     {
+    itkWarningMacro( <<"to be implemented" );
     return GradientType();
     }
 
   virtual HessianType EvaluateHessian( const InputType& iP ) const
     {
+    itkWarningMacro( <<"to be implemented" );
     return HessianType();
     }
 
@@ -94,7 +96,7 @@ public:
     {
     Superclass::Initialize();
 
-    m_Image = 0;
+    m_Image = NULL;
     }
 
   virtual void CopyInformation(const DataObject *data)
@@ -153,7 +155,7 @@ public:
     }
 
 protected:
-  LevelSetImageBase() : Superclass() {}
+  LevelSetImageBase() : Superclass(), m_Image( NULL ) {}
 
   virtual ~LevelSetImageBase() {}
 

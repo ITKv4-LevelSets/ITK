@@ -58,6 +58,8 @@ public:
   virtual GradientType  EvaluateGradient( const InputType& iP ) const = 0;
   virtual HessianType   EvaluateHessian( const InputType& iP ) const = 0;
 
+  virtual bool IsInside( const InputType& iP ) const;
+
   /** Get the maximum number of regions that this data can be
    * separated into. */
   itkGetConstMacro(MaximumNumberOfRegions, RegionType);
