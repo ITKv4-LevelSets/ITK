@@ -91,26 +91,26 @@ public:
   // ---------------------------------------------------------------------------
   void Update()
   {
-    if( m_SparseLevelSet.IsNull() )
+    if( m_InputLevelSet.IsNull() )
       {
-      itkGenericExceptionMacro( <<"m_SparseLevelSet is NULL" );
+      itkGenericExceptionMacro( <<"m_InputLevelSet is NULL" );
       }
     if( m_Update.empty() )
       {
       itkGenericExceptionMacro( <<"m_Update is empty" );
       }
 
-    m_OutputLevelSet->SetLayer( -2, m_SparseLevelSet->GetLayer( -2 ) );
-    m_OutputLevelSet->SetLayer( -1, m_SparseLevelSet->GetLayer( -1 ) );
-    m_OutputLevelSet->SetLayer(  0, m_SparseLevelSet->GetLayer(  0 ) );
-    m_OutputLevelSet->SetLayer(  1, m_SparseLevelSet->GetLayer(  1 ) );
-    m_OutputLevelSet->SetLayer(  2, m_SparseLevelSet->GetLayer(  2 ) );
+    m_OutputLevelSet->SetLayer( -2, m_InputLevelSet->GetLayer( -2 ) );
+    m_OutputLevelSet->SetLayer( -1, m_InputLevelSet->GetLayer( -1 ) );
+    m_OutputLevelSet->SetLayer(  0, m_InputLevelSet->GetLayer(  0 ) );
+    m_OutputLevelSet->SetLayer(  1, m_InputLevelSet->GetLayer(  1 ) );
+    m_OutputLevelSet->SetLayer(  2, m_InputLevelSet->GetLayer(  2 ) );
 
-    m_OutputLevelSet->SetLabelMap( m_SparseLevelSet->GetLabelMap() );
+    m_OutputLevelSet->SetLabelMap( m_InputLevelSet->GetLabelMap() );
 
     typedef LabelMapToLabelImageFilter<LevelSetLabelMapType, LabelImageType> LabelMapToLabelImageFilterType;
     typename LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
-    labelMapToLabelImageFilter->SetInput( m_SparseLevelSet->GetLabelMap() );
+    labelMapToLabelImageFilter->SetInput( m_InputLevelSet->GetLabelMap() );
     labelMapToLabelImageFilter->Update();
 
     m_InternalImage = labelMapToLabelImageFilter->GetOutput();
@@ -118,9 +118,11 @@ public:
 
     m_TempPhi.clear();
 
+    // TODO: ARNAUD: Why is 2 not included here?
+    // Being iterated upon later, so no need to do it here.
     for( char status = -1; status < 2; status++ )
       {
-      LevelSetLayerType layer = m_SparseLevelSet->GetLayer( status );
+      LevelSetLayerType layer = m_InputLevelSet->GetLayer( status );
 
       LevelSetLayerConstIterator it = layer.begin();
       while( it != layer.end() )
@@ -153,7 +155,7 @@ public:
       neighOffset[dim] = 0;
       }
 
-    LevelSetLayerType layerMinus2 = m_SparseLevelSet->GetLayer( -2 );
+    LevelSetLayerType layerMinus2 = m_InputLevelSet->GetLayer( -2 );
 
     LevelSetLayerConstIterator it = layerMinus2.begin();
     while( it != layerMinus2.end() )
@@ -178,7 +180,7 @@ public:
       ++it;
       }
 
-    LevelSetLayerType layerPlus2 = m_SparseLevelSet->GetLayer( 2 );
+    LevelSetLayerType layerPlus2 = m_InputLevelSet->GetLayer( 2 );
 
     it = layerPlus2.begin();
     while( it != layerPlus2.end() )
@@ -234,8 +236,8 @@ public:
   }
 
   // Set/Get the sparse levet set image
-  itkSetObjectMacro( SparseLevelSet, LevelSetType );
-  itkGetObjectMacro( SparseLevelSet, LevelSetType );
+  itkSetObjectMacro( InputLevelSet, LevelSetType );
+  itkGetObjectMacro( InputLevelSet, LevelSetType );
 
   // Set/Get the Dt for the update
   itkSetMacro( Dt, LevelSetOutputType );
@@ -268,7 +270,7 @@ protected:
   EquationContainerPointer m_EquationContainer;
 
   LevelSetLayerType  m_Update;
-  LevelSetPointer    m_SparseLevelSet;
+  LevelSetPointer    m_InputLevelSet;
   LevelSetPointer    m_OutputLevelSet;
 
   LevelSetLayerType m_TempPhi;

@@ -105,7 +105,7 @@ int itkUpdateWhitakerSparseLevelSetTest( int argc, char* argv[] )
   typedef itk::UpdateWhitakerSparseLevelSet< Dimension, OutputPixelType, EquationContainerType >
     UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
-  update_levelset->SetSparseLevelSet( sparseLevelSet );
+  update_levelset->SetInputLevelSet( sparseLevelSet );
 
   UpdateLevelSetType::LevelSetLayerType update_list;
 
