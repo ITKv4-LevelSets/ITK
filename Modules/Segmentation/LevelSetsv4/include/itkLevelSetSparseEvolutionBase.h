@@ -251,35 +251,34 @@ protected:
       UpdateLevelSets();
       UpdateEquations();
 
-      // DEBUGGING
-//      typedef Image< unsigned char, ImageDimension > WriterImageType;
-//      typedef BinaryThresholdImageFilter< StatusImageType, WriterImageType >  FilterType;
-//      typedef ImageFileWriter< WriterImageType > WriterType;
-//      typedef typename WriterType::Pointer       WriterPointer;
-
-//      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-//      while( it != m_LevelSetContainer->End() )
-//      {
-//        std::ostringstream filename;
-//        filename << "/home/krm15/temp/" << iter << "_" <<  it->first << ".png";
-
-//        LevelSetPointer levelSet = it->second;
-
-//        typename FilterType::Pointer filter = FilterType::New();
-//        filter->SetInput( levelSet->GetStatusImage() );
-//        filter->SetOutsideValue( 0 );
-//        filter->SetInsideValue(  255 );
-//        filter->SetLowerThreshold( NumericTraits<typename StatusImageType::PixelType>::NonpositiveMin() );
-//        filter->SetUpperThreshold( 0 );
-//        filter->Update();
-
-
-//        WriterPointer writer2 = WriterType::New();
-//        writer2->SetInput( filter->GetOutput() );
-//        writer2->SetFileName( filename.str().c_str() );
-//        writer2->Update();
-//        ++it;
-//      }
+//       // DEBUGGING
+//       typedef Image< unsigned char, ImageDimension > WriterImageType;
+//       typedef BinaryThresholdImageFilter< StatusImageType, WriterImageType >  FilterType;
+//       typedef ImageFileWriter< WriterImageType > WriterType;
+//       typedef typename WriterType::Pointer       WriterPointer;
+//
+//       LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
+//       while( it != m_LevelSetContainer->End() )
+//         {
+//         std::ostringstream filename;
+//         filename << "/home/krm15/temp/" << iter << "_" <<  it->first << ".png";
+//
+//         LevelSetPointer levelSet = it->second;
+//
+//         typename FilterType::Pointer filter = FilterType::New();
+//         filter->SetInput( levelSet->GetStatusImage() );
+//         filter->SetOutsideValue( 0 );
+//         filter->SetInsideValue(  255 );
+//         filter->SetLowerThreshold( NumericTraits<typename StatusImageType::PixelType>::NonpositiveMin() );
+//         filter->SetUpperThreshold( 0 );
+//         filter->Update();
+//
+//         WriterPointer writer2 = WriterType::New();
+//         writer2->SetInput( filter->GetOutput() );
+//         writer2->SetFileName( filename.str().c_str() );
+//         writer2->Update();
+//         ++it;
+//         }
 
       this->InvokeEvent( IterationEvent() );
       }
@@ -357,6 +356,7 @@ protected:
           ( m_Alpha < NumericTraits< LevelSetOutputRealType >::One ) )
         {
         LevelSetOutputRealType contribution = m_EquationContainer->GetCFLContribution();
+      std::cout << contribution << std::endl;
 
         if( contribution > NumericTraits< LevelSetOutputRealType >::epsilon() )
           {
@@ -390,7 +390,7 @@ protected:
         LevelSetPointer levelSet = it->GetLevelSet();
 
         UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
-        update_levelset->SetSparseLevelSet( levelSet );
+        update_levelset->SetInputLevelSet( levelSet );
         update_levelset->SetUpdate( * m_UpdateBuffer[it->GetIdentifier()] );
         update_levelset->SetEquationContainer( m_EquationContainer );
         update_levelset->SetDt( m_Dt );

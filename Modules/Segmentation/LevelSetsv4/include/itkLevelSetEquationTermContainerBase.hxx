@@ -245,6 +245,7 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 
     oValue += cfl;
     ++term_it;
+    ++cfl_it;
     }
 
   return oValue;

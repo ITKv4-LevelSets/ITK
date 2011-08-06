@@ -100,6 +100,8 @@ public:
       itkGenericExceptionMacro( <<"m_Update is empty" );
       }
 
+    // copy input to output. Will not use input again
+    // store modified output in m_TempLevelSet
     m_OutputLevelSet->SetLayer( -2, m_InputLevelSet->GetLayer( -2 ) );
     m_OutputLevelSet->SetLayer( -1, m_InputLevelSet->GetLayer( -1 ) );
     m_OutputLevelSet->SetLayer(  0, m_InputLevelSet->GetLayer(  0 ) );
@@ -119,7 +121,8 @@ public:
     m_TempPhi.clear();
 
     // TODO: ARNAUD: Why is 2 not included here?
-    // Being iterated upon later, so no need to do it here.
+    // Arnaud: Being iterated upon later, so no need to do it here.
+    // Here, we are adding all pairs of indices and levelset values to a map
     for( char status = -1; status < 2; status++ )
       {
       LevelSetLayerType layer = m_InputLevelSet->GetLayer( status );
@@ -273,9 +276,9 @@ protected:
   LevelSetPointer    m_InputLevelSet;
   LevelSetPointer    m_OutputLevelSet;
 
+  LevelSetPointer   m_TempLevelSet;
   LevelSetLayerType m_TempPhi;
 
-  LevelSetPointer   m_TempLevelSet;
   char              m_MinStatus;
   char              m_MaxStatus;
 
@@ -386,8 +389,10 @@ protected:
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           ++upIt;
+          // remove p from Lz
           layer0.erase( tempIt );
 
+          // add p to Sp1
           m_TempLevelSet->GetLayer( 1 ).insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                     tempValue ) );
@@ -432,11 +437,11 @@ protected:
             LevelSetLayerIterator it = m_TempPhi.find( currentIndex );
 
             if( it != m_TempPhi.end() )
-              {
+              { // change values
               it->second = tempValue;
               }
             else
-              {
+              {// Can this happen?
               m_TempPhi.insert(
                     std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                         tempValue ) );
@@ -445,9 +450,7 @@ protected:
             LevelSetLayerIterator tempIt = nodeIt;
             ++nodeIt;
             ++upIt;
-
             layer0.erase( tempIt );
-
             m_TempLevelSet->GetLayer( -1 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                       tempValue ) );
@@ -510,6 +513,7 @@ protected:
 
       LevelSetOutputType M = NumericTraits< LevelSetOutputType >::NonpositiveMin();
 
+      // compute M and check if point with label 0 exists in the neighborhood
       for( typename NeighborhoodIteratorType::Iterator it = neighIt.Begin();
            !it.IsAtEnd();
            ++it )
@@ -539,17 +543,17 @@ protected:
         M = M - 1.;
 
         if( phiIt != m_TempPhi.end() )
-          {
+          {// change value
           phiIt->second = M;
           }
         else
-          {
+          { // Can this happen?
           m_TempPhi.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M ) );
           }
 
         if( M >= -0.5 )
-          {
+          { // change layers only
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           LayerMinus1.erase( tempIt );
@@ -557,7 +561,7 @@ protected:
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M) );
           }
         else if( M < -1.5 )
-          {
+          { // change layers only
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           LayerMinus1.erase( tempIt );
@@ -569,8 +573,8 @@ protected:
           ++nodeIt;
           }
         }
-      else
-        {
+      else // !IsThereAPointWithLabelEqualTo0
+        { // change layers only
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
         LayerMinus1.erase( tempIt );
@@ -658,17 +662,17 @@ protected:
         M = M + 1.;
 
         if( phiIt != m_TempPhi.end() )
-          {
+          {// change in value
           phiIt->second = M;
           }
         else
-          {
+          {// can this happen? what was its previous value
           m_TempPhi.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M ) );
           }
 
         if( M <= 0.5 )
-          {
+          {//change layers only
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           LayerPlus1.erase( tempIt );
@@ -676,7 +680,7 @@ protected:
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M) );
           }
         else if( M > 1.5 )
-          {
+          {//change layers only
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           LayerPlus1.erase( tempIt );
@@ -689,7 +693,7 @@ protected:
           }
         }
       else
-        {
+        { // change layers only
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
         LayerPlus1.erase( tempIt );
@@ -1010,7 +1014,7 @@ protected:
         if( phiIt != m_TempPhi.end() )
           {
           if( phiIt->second == -3. )
-            {
+            {//change values
             phiIt->second = currentValue - 1;
             m_TempLevelSet->GetLayer( -2 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue - 1 ) );
@@ -1078,7 +1082,7 @@ protected:
         if( phiIt != m_TempPhi.end() )
           {
           if( phiIt->second == 3. )
-            {
+            {// change values here
             phiIt->second = currentValue + 1;
             m_TempLevelSet->GetLayer( 2 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );

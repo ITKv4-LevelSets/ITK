@@ -95,7 +95,7 @@ public:
         LayerConstIterator it = ( layerIt->second ).find( iP );
         if( it != ( layerIt->second ).end() )
           {
-          return it->first;
+          return layerIt->first;
           }
 
         ++layerIt;
