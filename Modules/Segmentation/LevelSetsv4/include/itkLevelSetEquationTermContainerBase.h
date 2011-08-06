@@ -94,6 +94,8 @@ protected:
 
   virtual ~LevelSetEquationTermContainerBase();
 
+  InputImagePointer     m_Input;
+
   struct hash_string
   {
     size_t operator()( const std::string& x ) const
@@ -106,21 +108,19 @@ protected:
                             TermPointer,
                             hash_string >                   HashMapStringTermContainerType;
 
+  HashMapStringTermContainerType m_NameContainer;
+
   typedef std::map< TermIdType, TermPointer >           MapTermContainerType;
   typedef typename MapTermContainerType::iterator       MapTermContainerIteratorType;
   typedef typename MapTermContainerType::const_iterator MapTermContainerConstIteratorType;
+
+  MapTermContainerType  m_Container;
 
   typedef std::map< TermIdType, LevelSetOutputRealType >  MapCFLContainerType;
   typedef typename MapCFLContainerType::iterator          MapCFLContainerIterator;
   typedef typename MapCFLContainerType::const_iterator    MapCFLContainerConstIterator;
 
-  MapTermContainerType  m_Container;
   MapCFLContainerType   m_TermContribution;
-  InputImagePointer     m_Input;
-
-
-  HashMapStringTermContainerType m_NameContainer;
-
 
 private:
   LevelSetEquationTermContainerBase( const Self& );

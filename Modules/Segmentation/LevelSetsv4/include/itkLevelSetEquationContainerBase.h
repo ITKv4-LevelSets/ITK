@@ -51,121 +51,36 @@ public:
   typedef typename TermContainerType::LevelSetContainerType     LevelSetContainerType;
   typedef typename TermContainerType::LevelSetContainerPointer  LevelSetContainerPointer;
 
-  LevelSetContainerPointer GetLevelSetContainer()
-    {
-    typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
-        it = m_Container.begin();
-
-    if( it != m_Container.end() )
-      {
-      return it->second->GetLevelSetContainer();
-      }
-    else
-      {
-      return LevelSetContainerPointer( NULL );
-      }
-    }
+  LevelSetContainerType* GetLevelSetContainer();
 
   void AddEquation( const LevelSetIdentifierType& iId,
-                    TermContainerPointer iEquation )
-    {
-    if ( iEquation.IsNotNull() )
-      {
-      m_Container[iId] = iEquation;
-      if( iEquation->GetInput() )
-        {
-        m_Input = iEquation->GetInput();
-        }
-      this->Modified();
-      }
-    else
-      {
-      itkGenericExceptionMacro( <<"Term supplied is null" );
-      }
-    }
+                    TermContainerPointer iEquation );
 
-  TermContainerPointer GetEquation( const LevelSetIdentifierType& iId )
-    {
-    typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
-        it = m_Container.find( iId );
-    if( it != m_Container.end() )
-      {
-      return it->second;
-      }
-    else
-      {
-      itkGenericExceptionMacro( <<"this equation does not exist" );
-      return TermContainerPointer( NULL );
-      }
-    }
+  TermContainerType* GetEquation( const LevelSetIdentifierType& iId );
 
-  void Update()
-    {
-    typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
-        ContainerIterator;
-
-    for( ContainerIterator it = m_Container.begin();
-         it != m_Container.end();
-         ++it )
-      {
-      (it->second )->Update();
-      }
-    }
+  void Update();
 
   void UpdatePixel( const LevelSetInputIndexType& iP,
                     const LevelSetOutputRealType & oldValue,
-                    const LevelSetOutputRealType & newValue )
-  {
-    typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
-    ContainerIterator;
+                    const LevelSetOutputRealType & newValue );
 
-    for( ContainerIterator it = m_Container.begin();
-        it != m_Container.end(); ++it )
-        {
-          (it->second )->UpdatePixel( iP, oldValue, newValue );
-        }
-  }
+  void InitializeParameters();
 
-  void InitializeParameters()
-  {
-    typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
-    ContainerIterator;
-
-    for( ContainerIterator it = m_Container.begin();
-        it != m_Container.end();
-        ++it )
-        {
-          (it->second )->InitializeParameters();
-        }
-  }
-
-  LevelSetOutputRealType GetCFLContribution()
-    {
-    typedef typename std::map< LevelSetIdentifierType, TermContainerPointer >::iterator
-        ContainerIterator;
-
-    LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::max();
-
-    for( ContainerIterator it = m_Container.begin();
-         it != m_Container.end();
-         ++it )
-      {
-      oValue = vnl_math_min( oValue, ( it->second )->GetCFLContribution() );
-      }
-
-    return oValue;
-    }
+  LevelSetOutputRealType GetCFLContribution();
 
   itkSetObjectMacro( Input, InputImageType );
   itkGetObjectMacro( Input, InputImageType );
 
 protected:
 
-  LevelSetEquationContainerBase() : m_Input( NULL ) {}
-  ~LevelSetEquationContainerBase() {}
+  LevelSetEquationContainerBase();
+  ~LevelSetEquationContainerBase();
 
-  std::map< LevelSetIdentifierType, TermContainerPointer >  m_Container;
-  InputImagePointer                                         m_Input;
+  typedef std::map< LevelSetIdentifierType, TermContainerPointer >  MapContainerType;
+  typedef typename MapContainerType::iterator                       MapContainerIterator;
+
+  MapContainerType  m_Container;
+  InputImagePointer m_Input;
 
 
 private:
@@ -175,4 +90,5 @@ private:
 };
 }
 
+#include "itkLevelSetEquationContainerBase.hxx"
 #endif // __itkLevelSetEquationContainerBase_h

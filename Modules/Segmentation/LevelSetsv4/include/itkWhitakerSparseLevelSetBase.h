@@ -82,7 +82,27 @@ public:
 
   virtual char Status( const InputType& iP ) const
   {
-    return m_LabelMap->GetPixel( iP );
+    if( m_LabelMap.IsNotNull() )
+      {
+      return m_LabelMap->GetPixel( iP );
+      }
+    else
+      {
+      LayerMapConstIterator layerIt = m_Layers.begin();
+
+      while( layerIt != m_Layers.end() )
+        {
+        LayerConstIterator it = ( layerIt->second ).find( iP );
+        if( it != ( layerIt->second ).end() )
+          {
+          return it->first;
+          }
+
+        ++layerIt;
+        }
+
+      return 3;
+      }
   }
 
   virtual OutputType Evaluate( const InputType& iP ) const
@@ -100,24 +120,32 @@ public:
       ++layerIt;
       }
 
-    if( m_LabelMap->GetLabelObject( -3 )->HasIndex( iP ) )
+    if( m_LabelMap.IsNotNull() )
       {
-      return -3;
-      }
-    else
-      {
-      char status = m_LabelMap->GetPixel( iP );
-      if( status == 3 )
+      if( m_LabelMap->GetLabelObject( -3 )->HasIndex( iP ) )
         {
-        return 3.;
+        return -3;
         }
       else
         {
-        itkGenericExceptionMacro( <<"status "
-                                  << static_cast< int >( status )
-                                  << " should be 3 or -3" );
-        return 3.;
+        char status = m_LabelMap->GetPixel( iP );
+        if( status == 3 )
+          {
+          return 3.;
+          }
+        else
+          {
+          itkGenericExceptionMacro( <<"status "
+                                    << static_cast< int >( status )
+                                    << " should be 3 or -3" );
+          return 3.;
+          }
         }
+      }
+    else
+      {
+      std::cout << "*** Note: m_LabelMap is NULL ***" << std::endl;
+      return 3;
       }
   }
 
