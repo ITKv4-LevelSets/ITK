@@ -213,7 +213,7 @@ int itkMultiLevelSetChanAndVeseInternalTermTest( int , char* [] )
 
           if ( *lIt - 1 == 0 )
           {
-            eqTerm =  dynamic_cast< ChanAndVeseTermType* >( termContainer->GetTerm( *lIt - 1 ).GetPointer() );
+            eqTerm =  dynamic_cast< ChanAndVeseTermType* >( termContainer->GetTerm( *lIt - 1 ) );
             std::cout << eqTerm->Evaluate( temp_it.GetIndex() ) << std::endl;
           }
         }

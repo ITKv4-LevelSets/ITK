@@ -22,6 +22,11 @@
 #include "itkLevelSetEquationTermBase.h"
 #include "itkObject.h"
 
+#include "itksys/hash_map.hxx"
+
+#include <map>
+#include <string>
+
 namespace itk
 {
 template< class TInputImage,
@@ -41,8 +46,10 @@ public:
   itkTypeMacro( LevelSetEquationTermContainerBase,
                 Object );
 
-  typedef TInputImage                      InputImageType;
-  typedef typename InputImageType::Pointer InputImagePointer;
+  typedef unsigned int                      TermIdType;
+
+  typedef TInputImage                       InputImageType;
+  typedef typename InputImageType::Pointer  InputImagePointer;
 
   typedef TLevelSetContainer                              LevelSetContainerType;
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
@@ -61,165 +68,58 @@ public:
   itkSetObjectMacro( Input, InputImageType );
   itkGetObjectMacro( Input, InputImageType );
 
-  void AddTerm( const unsigned int& iId, TermPointer iTerm )
-    {
-    if ( iTerm.IsNotNull() )
-      {
-      if( iTerm->GetInput() == NULL )
-        {
-        if( m_Input.IsNotNull() )
-          {
-          iTerm->SetInput( m_Input );
-          }
-        else
-          {
-          itkGenericExceptionMacro( <<"m_Input and iTerm->GetInput are NULL" );
-          }
-        }
-      m_Container[iId] = iTerm;
-      m_TermContribution[iId] = NumericTraits< LevelSetOutputPixelType >::Zero;
+  void PushTerm( TermType* iTerm );
 
-      this->Modified();
-      }
-    else
-      {
-      itkGenericExceptionMacro( <<"Term supplied is null" );
-      }
-    }
+  void AddTerm( const TermIdType& iId, TermType* iTerm );
 
-  TermPointer GetTerm( const unsigned int& iId )
-    {
-    typename std::map< unsigned int, TermPointer >::iterator
-        it = m_Container.find( iId );
+  TermType* GetTerm( const TermIdType& iId );
+  TermType* GetTerm( const std::string& iName );
 
-    if( it != m_Container.end() )
-      {
-      return it->second;
-      }
-    else
-      {
-      itkGenericExceptionMacro( <<"this term does not exist" );
-      return TermPointer( NULL );
-      }
-    }
-
-
-  void Initialize( const LevelSetInputIndexType& iP )
-  {
-    typename std::map< unsigned int, TermPointer >::iterator
-      term_it = m_Container.begin();
-    typename std::map< unsigned int, TermPointer >::iterator
-      term_end = m_Container.end();
-
-    while( term_it != term_end )
-      {
-      ( term_it->second )->Initialize( iP );
-      ++term_it;
-      }
-  }
+  void Initialize( const LevelSetInputIndexType& iP );
 
   void UpdatePixel( const LevelSetInputIndexType& iP,
                     const LevelSetOutputRealType & oldValue,
-                    const LevelSetOutputRealType & newValue )
-  {
-    typename std::map< unsigned int, TermPointer >::iterator
-      term_it = m_Container.begin();
-    typename std::map< unsigned int, TermPointer >::iterator
-      term_end = m_Container.end();
+                    const LevelSetOutputRealType & newValue );
 
-    while( term_it != term_end )
-    {
-      ( term_it->second )->UpdatePixel( iP, oldValue, newValue );
-      ++term_it;
-    }
-  }
+  void InitializeParameters();
 
-  void InitializeParameters()
-  {
-    typename std::map< unsigned int, TermPointer >::iterator
-    term_it = m_Container.begin();
-    typename std::map< unsigned int, TermPointer >::iterator
-    term_end = m_Container.end();
+  LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP );
 
-    while( term_it != term_end )
-    {
-      ( term_it->second )->InitializeParameters();
-      ++term_it;
-    }
-  }
+  void Update();
 
-  LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP )
-    {
-    typename std::map< unsigned int, TermPointer >::iterator
-        term_it = m_Container.begin();
-    typename std::map< unsigned int, TermPointer >::iterator
-        term_end = m_Container.end();
-
-    LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::Zero;
-
-    while( term_it != term_end )
-      {
-      LevelSetOutputRealType temp_val = ( term_it->second )->Evaluate( iP );
-
-      m_TermContribution[ term_it->first ] =
-          vnl_math_max( temp_val, m_TermContribution[ term_it->first ] );
-
-      oValue += temp_val;
-      ++term_it;
-      }
-
-    return oValue;
-    }
-
-  void Update()
-    {
-    typename std::map< unsigned int, TermPointer >::iterator
-        term_it = m_Container.begin();
-    typename std::map< unsigned int, TermPointer >::iterator
-        term_end = m_Container.end();
-
-    while( term_it != term_end )
-      {
-      ( term_it->second )->Update();
-      m_TermContribution[ term_it->first ] =
-          NumericTraits< LevelSetOutputPixelType >::Zero;
-      ++term_it;
-      }
-    }
-
-  LevelSetOutputRealType GetCFLContribution()
-    {
-    typename std::map< unsigned int, TermPointer >::iterator
-        term_it = m_Container.begin();
-    typename std::map< unsigned int, TermPointer >::iterator
-        term_end = m_Container.end();
-
-    LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::Zero;
-
-    while( term_it != term_end )
-      {
-      LevelSetOutputRealType cfl = ( term_it->second )->GetCFLContribution();
-      if( cfl == NumericTraits< LevelSetOutputRealType >::Zero )
-        {
-        cfl = m_TermContribution[ term_it->first ];
-        }
-
-      oValue += cfl;
-      ++term_it;
-      }
-
-    return oValue;
-    }
+  LevelSetOutputRealType GetCFLContribution();
 
 protected:
-  LevelSetEquationTermContainerBase() : Superclass(), m_Input( NULL ) {}
+  LevelSetEquationTermContainerBase();
 
-  virtual ~LevelSetEquationTermContainerBase() {}
+  virtual ~LevelSetEquationTermContainerBase();
 
-  std::map< unsigned int, TermPointer >              m_Container;
-  std::map< unsigned int, LevelSetOutputRealType >   m_TermContribution;
+  struct hash_string
+  {
+    size_t operator()( const std::string& x ) const
+    {
+      return itksys::hash< const char* >()( x.c_str() );
+    }
+  };
 
-  InputImagePointer                             m_Input;
+  typedef itksys::hash_map< std::string,
+                            TermPointer,
+                            hash_string >                   HashMapStringTermContainerType;
+
+  typedef std::map< TermIdType, TermPointer >           MapTermContainerType;
+  typedef typename MapTermContainerType::iterator       MapTermContainerIteratorType;
+  typedef typename MapTermContainerType::const_iterator MapTermContainerConstIteratorType;
+
+  typedef std::map< TermIdType, LevelSetOutputRealType >  MapCFLContainerType;
+  typedef typename MapCFLContainerType::iterator          MapCFLContainerIterator;
+  typedef typename MapCFLContainerType::const_iterator    MapCFLContainerConstIterator;
+
+  MapTermContainerType  m_Container;
+  MapCFLContainerType   m_TermContribution;
+  InputImagePointer     m_Input;
+
+
+  HashMapStringTermContainerType m_NameContainer;
 
 
 private:
@@ -228,4 +128,5 @@ private:
 };
 
 }
+#include "itkLevelSetEquationTermContainerBase.hxx"
 #endif // __itkLevelSetEquationTermContainerBase_h
