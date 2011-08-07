@@ -212,7 +212,7 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 1 ); //atoi( argv[2] )
+  evolution->SetNumberOfIterations( atoi( argv[2] ) );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

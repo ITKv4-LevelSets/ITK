@@ -334,11 +334,11 @@ protected:
 
       if( tempUpdate > 0.5 )
         {
-        tempUpdate = 0.5;
+        tempUpdate = 0.499;
         }
       else if( tempUpdate < - 0.5 )
         {
-        tempUpdate = - 0.5;
+        tempUpdate = - 0.499;
         }
 
       LevelSetOutputType tempValue = currentValue + tempUpdate;
@@ -405,11 +405,8 @@ protected:
           ++upIt;
           }
         } // end of if( tempValue > 0.5 )
-
-      else // ( tempValue <= 0.5 )
+      else if( tempValue < -0.5 )
         {
-        if( tempValue < -0.5 )
-          {
           bool samedirection = true;
 
           neighIt.SetLocation( currentIndex );
@@ -462,19 +459,18 @@ protected:
             ++nodeIt;
             ++upIt;
             }
-          }
-        else // -0.5 <= temp <= 0.5
-          {
-          LevelSetLayerIterator it = m_TempPhi.find( currentIndex );
+        }
+      else // -0.5 <= temp <= 0.5
+        {
+        LevelSetLayerIterator it = m_TempPhi.find( currentIndex );
 
-          if( it != m_TempPhi.end() )
-            { // change values
-            it->second = tempValue;
-            }
-          nodeIt->second = tempValue;
-          ++nodeIt;
-          ++upIt;
+        if( it != m_TempPhi.end() )
+          { // change values
+          it->second = tempValue;
           }
+        nodeIt->second = tempValue;
+        ++nodeIt;
+        ++upIt;
         }
       } // while( nodeIt != nodeEnd )
   }
