@@ -245,30 +245,30 @@ protected:
       UpdateEquations();
 
       // DEBUGGING
-      typedef Image< char, ImageDimension >     LabelImageType;
-      typedef typename LabelImageType::Pointer  LabelImagePointer;
-      typedef LabelMapToLabelImageFilter<LevelSetLabelMapType, LabelImageType> LabelMapToLabelImageFilterType;
-      typedef ImageFileWriter< LabelImageType > WriterType;
-
-      typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
-      while( it != m_LevelSetContainer->End() )
-        {
-        std::ostringstream filename;
-        filename << "/home/krm15/temp/" << iter << "_" <<  it->GetIdentifier() << ".mha";
-
-        LevelSetPointer levelSet = it->GetLevelSet();
-
-        typename LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
-        labelMapToLabelImageFilter->SetInput( levelSet->GetLabelMap() );
-        labelMapToLabelImageFilter->Update();
-
-        typename WriterType::Pointer writer = WriterType::New();
-        writer->SetInput( labelMapToLabelImageFilter->GetOutput() );
-        writer->SetFileName( filename.str().c_str() );
-        writer->Update();
-
-        ++it;
-        }
+//       typedef Image< char, ImageDimension >     LabelImageType;
+//       typedef typename LabelImageType::Pointer  LabelImagePointer;
+//       typedef LabelMapToLabelImageFilter<LevelSetLabelMapType, LabelImageType> LabelMapToLabelImageFilterType;
+//       typedef ImageFileWriter< LabelImageType > WriterType;
+//
+//       typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
+//       while( it != m_LevelSetContainer->End() )
+//         {
+//         std::ostringstream filename;
+//         filename << "/home/krm15/temp/" << iter << "_" <<  it->GetIdentifier() << ".mha";
+//
+//         LevelSetPointer levelSet = it->GetLevelSet();
+//
+//         typename LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
+//         labelMapToLabelImageFilter->SetInput( levelSet->GetLabelMap() );
+//         labelMapToLabelImageFilter->Update();
+//
+//         typename WriterType::Pointer writer = WriterType::New();
+//         writer->SetInput( labelMapToLabelImageFilter->GetOutput() );
+//         writer->SetFileName( filename.str().c_str() );
+//         writer->Update();
+//
+//         ++it;
+//         }
 
       this->InvokeEvent( IterationEvent() );
       }
@@ -374,12 +374,12 @@ protected:
       typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
       while( it != m_LevelSetContainer->End() )
       {
-        std::cout << "m_UpdateBuffer size=" << m_UpdateBuffer[it->GetIdentifier()]->size() << std::endl;
-        std::cout << "Layer -2 =" << it->GetLevelSet()->GetLayer( -2 ).size() << std::endl;
-        std::cout << "Layer -1 =" << it->GetLevelSet()->GetLayer( -1 ).size() << std::endl;
-        std::cout << "Layer  0 =" << it->GetLevelSet()->GetLayer( 0 ).size() << std::endl;
-        std::cout << "Layer  1 =" << it->GetLevelSet()->GetLayer( 1 ).size() << std::endl;
-        std::cout << "Layer  2 =" << it->GetLevelSet()->GetLayer( 2 ).size() << std::endl << std::endl;
+//         std::cout << "m_UpdateBuffer size=" << m_UpdateBuffer[it->GetIdentifier()]->size() << std::endl;
+//         std::cout << "Layer -2 =" << it->GetLevelSet()->GetLayer( -2 ).size() << std::endl;
+//         std::cout << "Layer -1 =" << it->GetLevelSet()->GetLayer( -1 ).size() << std::endl;
+//         std::cout << "Layer  0 =" << it->GetLevelSet()->GetLayer( 0 ).size() << std::endl;
+//         std::cout << "Layer  1 =" << it->GetLevelSet()->GetLayer( 1 ).size() << std::endl;
+//         std::cout << "Layer  2 =" << it->GetLevelSet()->GetLayer( 2 ).size() << std::endl << std::endl;
 
         LevelSetPointer levelSet = it->GetLevelSet();
 
@@ -390,17 +390,13 @@ protected:
         update_levelset->SetDt( m_Dt );
         update_levelset->Update();
 
-//         std::cout << "size after update: " <<update_levelset->GetOutputLevelSet()->GetLayer( 0 ).size() <<std::endl;
-
-        std::cout << "Layer -2 =" << update_levelset->GetOutputLevelSet()->GetLayer( -2 ).size() << std::endl;
-        std::cout << "Layer -1 =" << update_levelset->GetOutputLevelSet()->GetLayer( -1 ).size() << std::endl;
-        std::cout << "Layer  0 =" << update_levelset->GetOutputLevelSet()->GetLayer( 0 ).size() << std::endl;
-        std::cout << "Layer  1 =" << update_levelset->GetOutputLevelSet()->GetLayer( 1 ).size() << std::endl;
-        std::cout << "Layer  2 =" << update_levelset->GetOutputLevelSet()->GetLayer( 2 ).size() << std::endl;
+//         std::cout << "Layer -2 =" << update_levelset->GetOutputLevelSet()->GetLayer( -2 ).size() << std::endl;
+//         std::cout << "Layer -1 =" << update_levelset->GetOutputLevelSet()->GetLayer( -1 ).size() << std::endl;
+//         std::cout << "Layer  0 =" << update_levelset->GetOutputLevelSet()->GetLayer( 0 ).size() << std::endl;
+//         std::cout << "Layer  1 =" << update_levelset->GetOutputLevelSet()->GetLayer( 1 ).size() << std::endl;
+//         std::cout << "Layer  2 =" << update_levelset->GetOutputLevelSet()->GetLayer( 2 ).size() << std::endl;
 
         levelSet->Graft( update_levelset->GetOutputLevelSet() );
-
-//         std::cout << "size after graft: " <<levelSet->GetLayer( 0 ).size() <<std::endl;
 
         m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 
