@@ -194,7 +194,7 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     {
     LevelSetOutputRealType temp_val = ( term_it->second )->Evaluate( iP );
 
-    cfl_it->second = vnl_math_max( temp_val, cfl_it->second );
+    cfl_it->second = vnl_math_max( vnl_math_abs( temp_val ), cfl_it->second );
 
     oValue += temp_val;
     ++term_it;

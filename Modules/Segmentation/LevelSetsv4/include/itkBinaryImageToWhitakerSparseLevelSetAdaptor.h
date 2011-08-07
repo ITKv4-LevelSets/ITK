@@ -122,7 +122,7 @@ public:
 
     FindPlusOneMinusOneLayer();
 
-    //FindMinusTwoLayer();
+//     FindMinusTwoLayer();
 
     PropagateToOutterLayers(-1, -2, -3 );
     PropagateToOutterLayers( 1,  2,  3 );
@@ -283,8 +283,6 @@ protected:
           LevelSetInputType tempIndex =
               neighIt.GetIndex( it.GetNeighborhoodOffset() );
 
-          m_InternalImage->SetPixel( nodeIt->first, OutputLayer );
-
           layerPlus2.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, plus2 ) );
           }
@@ -293,13 +291,17 @@ protected:
     }
 
     LevelSetLabelObjectPointer ObjectPlus2 = LevelSetLabelObjectType::New();
-    ObjectPlus2->SetLabel( OutputLayer );
+    ObjectPlus2->SetLabel( int(OutputLayer) );
 
     nodeIt = layerPlus2.begin();
     nodeEnd = layerPlus2.end();
 
     while( nodeIt != nodeEnd )
       {
+      if ( TestValue != m_LabelMap->GetBackgroundValue() )
+      {
+        m_LabelMap->GetLabelObject( TestValue )->RemoveIndex( nodeIt->first );
+      }
       ObjectPlus2->AddIndex( nodeIt->first );
       m_InternalImage->SetPixel( nodeIt->first, OutputLayer );
       ++nodeIt;
@@ -312,9 +314,6 @@ protected:
   void FindActiveLayer()
   {
     LevelSetLabelObjectPointer labelObject = m_LabelMap->GetLabelObject( -3 );
-
-    LevelSetLabelObjectPointer labelObject0 = LevelSetLabelObjectType::New();
-    labelObject0->SetLabel( static_cast< char >( 0 ) );
 
     const LevelSetOutputType zero = NumericTraits< LevelSetOutputType >::Zero;
 
@@ -479,7 +478,7 @@ protected:
     while( nodeIt != nodeEnd )
       {
       ObjectPlus1->AddIndex( nodeIt->first );
-      m_InternalImage->SetPixel( nodeIt->first, static_cast< char >( -1 ) );
+      m_InternalImage->SetPixel( nodeIt->first, static_cast< char >( 1 ) );
       ++nodeIt;
       }
 

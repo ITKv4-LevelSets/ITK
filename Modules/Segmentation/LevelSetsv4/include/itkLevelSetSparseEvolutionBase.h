@@ -33,7 +33,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include "itkBinaryThresholdImageFilter.h"
+#include "itkLabelMapToLabelImageFilter.h"
 
 namespace itk
 {
@@ -86,16 +86,9 @@ public:
 
   typedef typename LevelSetType::LayerType             LevelSetLayerType;
   typedef typename LevelSetType::LayerIterator         LevelSetLayerIterator;
-//  typedef typename LevelSetType::ImageType             LevelSetImageType;
 
-//  typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
-
-//  typedef typename LevelSetType::NodePairType     NodePairType;
-//  typedef typename LevelSetType::NodeListIterator NodeListIterator;
-
-//  typedef ImageRegionIteratorWithIndex< LevelSetImageType > LevelSetImageIteratorType;
-
-//  typedef ImageRegionConstIteratorWithIndex< LevelSetImageType > LevelSetImageConstIteratorType;
+  typedef typename LevelSetType::LabelMapType          LevelSetLabelMapType;
+  typedef typename LevelSetType::LabelMapPointer       LevelSetLabelMapPointer;
 
   typedef ImageRegionIteratorWithIndex< InputImageType > InputImageIteratorType;
 
@@ -251,34 +244,31 @@ protected:
       UpdateLevelSets();
       UpdateEquations();
 
-//       // DEBUGGING
-//       typedef Image< unsigned char, ImageDimension > WriterImageType;
-//       typedef BinaryThresholdImageFilter< StatusImageType, WriterImageType >  FilterType;
-//       typedef ImageFileWriter< WriterImageType > WriterType;
-//       typedef typename WriterType::Pointer       WriterPointer;
-//
-//       LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-//       while( it != m_LevelSetContainer->End() )
-//         {
-//         std::ostringstream filename;
-//         filename << "/home/krm15/temp/" << iter << "_" <<  it->first << ".png";
-//
-//         LevelSetPointer levelSet = it->second;
-//
-//         typename FilterType::Pointer filter = FilterType::New();
-//         filter->SetInput( levelSet->GetStatusImage() );
-//         filter->SetOutsideValue( 0 );
-//         filter->SetInsideValue(  255 );
-//         filter->SetLowerThreshold( NumericTraits<typename StatusImageType::PixelType>::NonpositiveMin() );
-//         filter->SetUpperThreshold( 0 );
-//         filter->Update();
-//
-//         WriterPointer writer2 = WriterType::New();
-//         writer2->SetInput( filter->GetOutput() );
-//         writer2->SetFileName( filename.str().c_str() );
-//         writer2->Update();
-//         ++it;
-//         }
+      // DEBUGGING
+      typedef Image< char, ImageDimension >     LabelImageType;
+      typedef typename LabelImageType::Pointer  LabelImagePointer;
+      typedef LabelMapToLabelImageFilter<LevelSetLabelMapType, LabelImageType> LabelMapToLabelImageFilterType;
+      typedef ImageFileWriter< LabelImageType > WriterType;
+
+      typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
+      while( it != m_LevelSetContainer->End() )
+        {
+        std::ostringstream filename;
+        filename << "/home/krm15/temp/" << iter << "_" <<  it->GetIdentifier() << ".mha";
+
+        LevelSetPointer levelSet = it->GetLevelSet();
+
+        typename LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
+        labelMapToLabelImageFilter->SetInput( levelSet->GetLabelMap() );
+        labelMapToLabelImageFilter->Update();
+
+        typename WriterType::Pointer writer = WriterType::New();
+        writer->SetInput( labelMapToLabelImageFilter->GetOutput() );
+        writer->SetFileName( filename.str().c_str() );
+        writer->Update();
+
+        ++it;
+        }
 
       this->InvokeEvent( IterationEvent() );
       }
@@ -330,7 +320,7 @@ protected:
       {
       LevelSetPointer levelSet = it->GetLevelSet();
       LevelSetLayerIterator list_it = levelSet->GetLayer( 0 ).begin();
-      LevelSetLayerIterator list_end = levelSet->GetLayer( 0 ).begin();
+      LevelSetLayerIterator list_end = levelSet->GetLayer( 0 ).end();
 
       while( list_it != list_end )
         {
@@ -340,6 +330,7 @@ protected:
             m_EquationContainer->GetEquation( it->GetIdentifier() )->Evaluate( idx );
         m_UpdateBuffer[ it->GetIdentifier() ]->insert(
               std::pair< LevelSetInputType, LevelSetOutputType >( idx, temp_update ) );
+//         std::cout << idx << ' ' << temp_update << std::endl;
         ++list_it;
         }
     ++it;
@@ -356,7 +347,6 @@ protected:
           ( m_Alpha < NumericTraits< LevelSetOutputRealType >::One ) )
         {
         LevelSetOutputRealType contribution = m_EquationContainer->GetCFLContribution();
-      std::cout << contribution << std::endl;
 
         if( contribution > NumericTraits< LevelSetOutputRealType >::epsilon() )
           {
@@ -384,9 +374,13 @@ protected:
       typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
       while( it != m_LevelSetContainer->End() )
       {
-        std::cout << "** " << it->GetIdentifier() <<" **" << std::endl;
-        std::cout << "m_UpdateBuffer[" <<it->GetIdentifier() <<"].size()=" << m_UpdateBuffer[it->GetIdentifier()]->size() << std::endl;
-        std::cout << "Zero level set.size() =" << it->GetLevelSet()->GetLayer( 0 ).size() << std::endl;
+        std::cout << "m_UpdateBuffer size=" << m_UpdateBuffer[it->GetIdentifier()]->size() << std::endl;
+        std::cout << "Layer -2 =" << it->GetLevelSet()->GetLayer( -2 ).size() << std::endl;
+        std::cout << "Layer -1 =" << it->GetLevelSet()->GetLayer( -1 ).size() << std::endl;
+        std::cout << "Layer  0 =" << it->GetLevelSet()->GetLayer( 0 ).size() << std::endl;
+        std::cout << "Layer  1 =" << it->GetLevelSet()->GetLayer( 1 ).size() << std::endl;
+        std::cout << "Layer  2 =" << it->GetLevelSet()->GetLayer( 2 ).size() << std::endl << std::endl;
+
         LevelSetPointer levelSet = it->GetLevelSet();
 
         UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
@@ -395,6 +389,18 @@ protected:
         update_levelset->SetEquationContainer( m_EquationContainer );
         update_levelset->SetDt( m_Dt );
         update_levelset->Update();
+
+//         std::cout << "size after update: " <<update_levelset->GetOutputLevelSet()->GetLayer( 0 ).size() <<std::endl;
+
+        std::cout << "Layer -2 =" << update_levelset->GetOutputLevelSet()->GetLayer( -2 ).size() << std::endl;
+        std::cout << "Layer -1 =" << update_levelset->GetOutputLevelSet()->GetLayer( -1 ).size() << std::endl;
+        std::cout << "Layer  0 =" << update_levelset->GetOutputLevelSet()->GetLayer( 0 ).size() << std::endl;
+        std::cout << "Layer  1 =" << update_levelset->GetOutputLevelSet()->GetLayer( 1 ).size() << std::endl;
+        std::cout << "Layer  2 =" << update_levelset->GetOutputLevelSet()->GetLayer( 2 ).size() << std::endl;
+
+        levelSet->Graft( update_levelset->GetOutputLevelSet() );
+
+//         std::cout << "size after graft: " <<levelSet->GetLayer( 0 ).size() <<std::endl;
 
         m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
 
@@ -405,7 +411,7 @@ protected:
 
   void UpdateEquations()
     {
-    std::cout << "Update equations" << std::endl << std::endl;
+    std::cout << "Update equations" << std::endl;
 //     m_EquationContainer->Update();
     InitializeIteration();
     }

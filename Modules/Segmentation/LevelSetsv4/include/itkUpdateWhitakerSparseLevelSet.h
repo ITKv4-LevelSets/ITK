@@ -332,17 +332,19 @@ protected:
       LevelSetOutputType  tempUpdate =
           m_Dt * static_cast< LevelSetOutputType >( upIt->second );
 
-//      if( tempUpdate > 0.5 )
-//        {
-//        tempUpdate = 0.5;
-//        }
-//      else if( tempUpdate < - 0.5 )
-//        {
-//        tempUpdate = - 0.5;
-//        }
+      if( tempUpdate > 0.5 )
+        {
+        tempUpdate = 0.5;
+        }
+      else if( tempUpdate < - 0.5 )
+        {
+        tempUpdate = - 0.5;
+        }
 
       LevelSetOutputType tempValue = currentValue + tempUpdate;
       m_RMSChangeAccumulator += tempUpdate*tempUpdate;
+
+//       std::cout << nodeIt->first <<" * " << tempValue <<" * " << tempUpdate << std::endl;
 
       if( tempValue > 0.5 )
         {
@@ -463,6 +465,13 @@ protected:
           }
         else // -0.5 <= temp <= 0.5
           {
+          LevelSetLayerIterator it = m_TempPhi.find( currentIndex );
+
+          if( it != m_TempPhi.end() )
+            { // change values
+            it->second = tempValue;
+            }
+          nodeIt->second = tempValue;
           ++nodeIt;
           ++upIt;
           }
@@ -545,6 +554,7 @@ protected:
         if( phiIt != m_TempPhi.end() )
           {// change value
           phiIt->second = M;
+          nodeIt->second = M;
           }
         else
           { // Can this happen?
@@ -664,6 +674,7 @@ protected:
         if( phiIt != m_TempPhi.end() )
           {// change in value
           phiIt->second = M;
+          nodeIt->second = M;
           }
         else
           {// can this happen? what was its previous value
@@ -778,6 +789,7 @@ protected:
         if( phiIt != m_TempPhi.end() )
           {
           phiIt->second = M;
+          nodeIt->second = M;
           }
         else
           {
@@ -896,6 +908,7 @@ protected:
         if( phiIt != m_TempPhi.end() )
           {
           phiIt->second = M;
+          nodeIt->second = M;
           }
         else
           {
