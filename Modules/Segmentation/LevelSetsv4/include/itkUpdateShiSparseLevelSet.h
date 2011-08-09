@@ -287,7 +287,6 @@ protected:
   // Input is also ShiSparseLevelSetBasePointer
   void UpdateL_out()
   {
-    std::cout << "UpdateL_out" << std::endl;
     LevelSetLayerType & list_out  = m_OutputLevelSet->GetLayer(  1 );
     LevelSetLayerType & list_in   = m_OutputLevelSet->GetLayer( -1 );
 
@@ -404,7 +403,6 @@ protected:
 
   void UpdateL_in()
   {
-    std::cout << "UpdateL_in" << std::endl;
     LevelSetLayerType & list_out  = m_OutputLevelSet->GetLayer(  1 );
     LevelSetLayerType & list_in   = m_OutputLevelSet->GetLayer( -1 );
 

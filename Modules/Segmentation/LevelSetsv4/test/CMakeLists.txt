@@ -25,7 +25,7 @@ itkSingleLevelSetMalcolm2DTest.cxx
 itkSingleLevelSetShi2DTest.cxx
 itkTwoLevelSetSparse2DTest.cxx
 #itkTwoLevelSetMalcolm2DTest.cxx
-#itkTwoLevelSetShiSparse2DTest.cxx
+itkTwoLevelSetShiSparse2DTest.cxx
 itkSingleLevelSetSparseWithCurvature2DTest.cxx
 itkSingleLevelSetSparseWithPropagation2DTest.cxx
 itkSingleLevelSetSparseWithLaplacian2DTest.cxx
@@ -163,15 +163,18 @@ add_test(NAME itkSingleLevelSetsv4Shi2DTest
 
 add_test(NAME itkTwoLevelSetsv4Sparse2DTest
       COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetSparse2DTest
-      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
 #add_test(NAME itkTwoLevelSetsv4Malcolm2DTest
 #      COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetMalcolm2DTest
 #      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
 
-#add_test(NAME itkTwoLevelSetsv4ShiSparse2DTest
-#      COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetShiSparse2DTest
-#      ${ITK_DATA_ROOT}/Input/whiteSpot.png 25 25 10)
+add_test(NAME itkTwoLevelSetsv4ShiSparse2DTest
+     COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetShiSparse2DTest
+     ${ITK_DATA_ROOT}/Input/whiteSpot.png
+     1
+     ${ITK_TEST_OUTPUT_DIR}/whiteSpot_output_shi_two.mha
+)
 
 add_test(NAME itkSingleLevelSetsv4SparseWithCurvature2DTest
       COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparseWithCurvature2DTest
