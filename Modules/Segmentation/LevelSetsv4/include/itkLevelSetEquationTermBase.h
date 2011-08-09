@@ -44,7 +44,8 @@ public:
                                                           InputPixelRealType;
 
   typedef TLevelSetContainer                              LevelSetContainerType;
-  typedef typename LevelSetContainerType::IdentifierType  LevelSetIdentifierType;
+  typedef typename LevelSetContainerType::LevelSetIdentifierType
+                                                          LevelSetIdentifierType;
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
   typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
   typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;

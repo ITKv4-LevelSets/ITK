@@ -71,7 +71,8 @@ public:
   itkStaticConstMacro ( ImageDimension, unsigned int, InputImageType::ImageDimension );
 
   typedef typename TermContainerType::LevelSetContainerType LevelSetContainerType;
-  typedef typename LevelSetContainerType::IdentifierType    IdentifierType;
+  typedef typename LevelSetContainerType::LevelSetIdentifierType
+                                                            LevelSetIdentifierType;
   typedef typename LevelSetContainerType::Pointer           LevelSetContainerPointer;
   typedef typename LevelSetContainerType::LevelSetContainerConstIteratorType
                                                             LevelSetContainerConstIteratorType;

@@ -71,7 +71,8 @@ public:
   itkStaticConstMacro ( ImageDimension, unsigned int, InputImageType::ImageDimension );
 
   typedef typename TermContainerType::LevelSetContainerType LevelSetContainerType;
-  typedef typename LevelSetContainerType::IdentifierType    IdentifierType;
+  typedef typename LevelSetContainerType::LevelSetIdentifierType
+                                                            LevelSetIdentifierType;
   typedef typename LevelSetContainerType::Pointer           LevelSetContainerPointer;
   typedef typename LevelSetContainerType::LevelSetContainerConstIteratorType
                                                             LevelSetContainerConstIteratorType;
@@ -94,7 +95,7 @@ public:
 
   typedef ImageRegionConstIteratorWithIndex< InputImageType > InputImageConstIteratorType;
 
-  typedef std::list< IdentifierType >                    IdListType;
+  typedef std::list< LevelSetIdentifierType >            IdListType;
   typedef typename IdListType::iterator                  IdListIterator;
   typedef Image< IdListType, ImageDimension >            IdListImageType;
   typedef Image< short, ImageDimension >                 CacheImageType;
@@ -103,7 +104,7 @@ public:
   typedef typename DomainMapImageFilterType::Pointer     DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
 
-  typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
+  typedef typename std::map< LevelSetIdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   typedef UpdateShiSparseLevelSet< ImageDimension, EquationContainerType > UpdateLevelSetFilterType;
 

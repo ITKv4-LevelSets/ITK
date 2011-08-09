@@ -59,10 +59,10 @@ LevelSetContainerBase< TIdentifier, TLevelSet >::End() const
 
 
 template< class TIdentifier, class TLevelSet >
-typename LevelSetContainerBase< TIdentifier, TLevelSet >::IdentifierType
+typename LevelSetContainerBase< TIdentifier, TLevelSet >::LevelSetIdentifierType
 LevelSetContainerBase< TIdentifier, TLevelSet >::Size() const
   {
-  return static_cast< IdentifierType >( m_Container.size() );
+  return static_cast< LevelSetIdentifierType >( m_Container.size() );
   }
 
 /** \brief Get the level set function given its id
@@ -72,7 +72,7 @@ LevelSetContainerBase< TIdentifier, TLevelSet >::Size() const
 template< class TIdentifier, class TLevelSet >
 typename LevelSetContainerBase< TIdentifier, TLevelSet >::LevelSetPointer
 LevelSetContainerBase< TIdentifier, TLevelSet >
-::GetLevelSet( const IdentifierType& iId ) const
+::GetLevelSet( const LevelSetIdentifierType& iId ) const
   {
   LevelSetContainerConstIteratorType it = m_Container.find( iId );
 
@@ -97,7 +97,7 @@ LevelSetContainerBase< TIdentifier, TLevelSet >
 */
 template< class TIdentifier, class TLevelSet >
 bool LevelSetContainerBase< TIdentifier, TLevelSet >
-::AddLevelSet( const IdentifierType& iId,
+::AddLevelSet( const LevelSetIdentifierType& iId,
                LevelSetPointer iLevelSet,
                const bool& iForce )
   {
@@ -118,7 +118,7 @@ bool LevelSetContainerBase< TIdentifier, TLevelSet >
     else
       {
       m_Container.insert(
-            std::pair< IdentifierType, LevelSetPointer >( iId, iLevelSet ) );
+            std::pair< LevelSetIdentifierType, LevelSetPointer >( iId, iLevelSet ) );
       this->Modified();
       return true;
       }
@@ -133,7 +133,7 @@ bool LevelSetContainerBase< TIdentifier, TLevelSet >
 template< class TIdentifier, class TLevelSet >
 bool
 LevelSetContainerBase< TIdentifier, TLevelSet >
-::RemoveLevelSet( const IdentifierType& iId )
+::RemoveLevelSet( const LevelSetIdentifierType& iId )
   {
   LevelSetContainerIteratorType it = m_Container.find( iId );
 
