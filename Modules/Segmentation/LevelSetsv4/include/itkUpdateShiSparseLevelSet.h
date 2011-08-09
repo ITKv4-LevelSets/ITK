@@ -88,11 +88,6 @@ public:
       itkGenericExceptionMacro( <<"m_InputLevelSet is NULL" );
       }
 
-    if( this->m_SingleLevelSet != true )
-      {
-      itkWarningMacro( << "the current implementation does not allow to run multi object level sts");
-      }
-
     m_OutputLevelSet->SetLayer( -1, m_InputLevelSet->GetLayer( -1 ) );
     m_OutputLevelSet->SetLayer(  1, m_InputLevelSet->GetLayer(  1 ) );
 
@@ -252,13 +247,9 @@ public:
   itkSetMacro( CurrentLevelSetId, IdentifierType );
   itkGetMacro( CurrentLevelSetId, IdentifierType );
 
-  itkSetMacro( SingleLevelSet, bool );
-  itkGetMacro( SingleLevelSet, bool );
-
 protected:
   UpdateShiSparseLevelSet() :
-    m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
-    m_SingleLevelSet( true )
+    m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero )
     {
     m_OutputLevelSet = LevelSetType::New();
     }
@@ -273,7 +264,6 @@ protected:
   IdentifierType           m_CurrentLevelSetId;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
-  bool                     m_SingleLevelSet;
 
   typedef Image< char, ImageDimension >     LabelImageType;
   typedef typename LabelImageType::Pointer  LabelImagePointer;

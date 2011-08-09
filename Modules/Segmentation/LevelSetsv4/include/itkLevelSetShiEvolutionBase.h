@@ -306,7 +306,6 @@ protected:
     std::cout << "Update levelsets" << std::endl;
 
     typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
-    bool singleLevelSet = ( m_LevelSetContainer->Size() == 1 );
 
     while( it != m_LevelSetContainer->End() )
       {
@@ -316,7 +315,6 @@ protected:
       update_levelset->SetInputLevelSet( levelSet );
       update_levelset->SetCurrentLevelSetId( it->GetIdentifier() );
       update_levelset->SetEquationContainer( m_EquationContainer );
-      update_levelset->SetSingleLevelSet( singleLevelSet );
       update_levelset->Update();
 
       levelSet->Graft( update_levelset->GetOutputLevelSet() );
