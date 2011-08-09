@@ -30,6 +30,7 @@
 #include "itkLevelSetSparseEvolutionBase.h"
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
 #include "itkLevelSetEquationCurvatureTerm.h"
+#include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
 #include "itkNumericTraits.h"
 
 int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
@@ -196,9 +197,14 @@ int itkSingleLevelSetSparseWithCurvature2DTest( int argc, char* argv[] )
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
   equationContainer->AddEquation( 0, termContainer0 );
 
+  typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
+      StoppingCriterionType;
+  StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
+  criterion->SetNumberOfIterations( 5 );
+
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 1 );
+  evolution->SetStoppingCriterion( criterion );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

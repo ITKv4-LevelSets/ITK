@@ -29,6 +29,7 @@
 #include "itkSinRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetSparseEvolutionBase.h"
 #include "itkBinaryImageToWhitakerSparseLevelSetAdaptor.h"
+#include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
 #include "itkNumericTraits.h"
 
 int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
@@ -210,9 +211,15 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
   equationContainer->AddEquation( 0, termContainer0 );
 
+  typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
+      StoppingCriterionType;
+  StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
+  criterion->SetNumberOfIterations( atoi( argv[2]) );
+
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( atoi( argv[2] ) );
+//  evolution->SetNumberOfIterations( atoi( argv[2] ) );
+  evolution->SetStoppingCriterion( criterion );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

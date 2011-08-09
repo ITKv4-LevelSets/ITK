@@ -40,12 +40,13 @@ namespace itk
    typedef TLevelSetContainer                               LevelSetContainerType;
    typedef typename LevelSetContainerType::Pointer          LevelSetContainerPointer;
 
-   typedef typename LevelSetContainerType::IdentifierType   IdentifierType;
+   typedef typename LevelSetContainerType::LevelSetIdentifierType
+                                                            LevelSetIdentifierType;
 
    typedef typename LevelSetContainerType::LevelSetType     LevelSetType;
    typedef typename LevelSetContainerType::LevelSetPointer  LevelSetPointer;
 
-   typedef typename LevelSetContainerType::InputType        InputIndexType;
+   typedef typename LevelSetContainerType::InputIndexType   InputIndexType;
    typedef typename LevelSetContainerType::OutputType       OutputType;
    typedef typename LevelSetContainerType::OutputRealType   OutputRealType;
    typedef typename LevelSetContainerType::GradientType     GradientType;
