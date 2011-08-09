@@ -33,7 +33,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include "itkBinaryThresholdImageFilter.h"
+#include "itkLabelMapToLabelImageFilter.h"
 
 namespace itk
 {
@@ -81,7 +81,14 @@ public:
   typedef typename LevelSetContainerType::LevelSetType LevelSetType;
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
+  typedef typename LevelSetType::InputType             LevelSetInputType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
+
+  typedef typename LevelSetType::LayerType             LevelSetLayerType;
+  typedef typename LevelSetType::LayerIterator         LevelSetLayerIterator;
+
+  typedef typename LevelSetType::LabelMapType          LevelSetLabelMapType;
+  typedef typename LevelSetType::LabelMapPointer       LevelSetLabelMapPointer;
 
   typedef ImageRegionIteratorWithIndex< InputImageType > InputImageIteratorType;
 
@@ -96,32 +103,52 @@ public:
   typedef typename DomainMapImageFilterType::Pointer     DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
 
-  //   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   typedef UpdateMalcolmSparseLevelSet< ImageDimension, EquationContainerType > UpdateLevelSetFilterType;
 
-  typedef typename UpdateLevelSetFilterType::Pointer                         UpdateLevelSetFilterPointer;
-
-  // create another class which contains all the equations
-  // i.e. it is a container of term container :-):
-  // set the i^th term container
-  // This container should also hold the LevelSetContainer
-  //   void SetLevelSetEquations( EquationContainer );
+  typedef typename UpdateLevelSetFilterType::Pointer UpdateLevelSetFilterPointer;
 
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
   void Update()
     {
+    if( m_EquationContainer.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_EquationContainer is NULL" );
+      }
+
+    if( !m_EquationContainer->GetEquation( 0 ) )
+      {
+      itkGenericExceptionMacro( << "m_EquationContainer->GetEquation( 0 ) is NULL" );
+      }
+
     m_DomainMapFilter = m_LevelSetContainer->GetDomainMapFilter();
 
     // Get the image to be segmented
     m_InputImage = m_EquationContainer->GetInput();
 
+    if( m_InputImage.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_InputImage is NULL" );
+      }
+
+    TermContainerPointer Equation0 = m_EquationContainer->GetEquation( 0 );
+    TermPointer term0 = Equation0->GetTerm( 0 );
+
     // Get the LevelSetContainer from the EquationContainer
-    m_LevelSetContainer =
-        m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
+    m_LevelSetContainer = term0->GetLevelSetContainer();
+
+    if( term0.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_EquationContainer->GetEquation( 0 ) is NULL" );
+      }
+
+    if( !term0->GetLevelSetContainer() )
+      {
+      itkGenericExceptionMacro( << "m_LevelSetContainer is NULL" );
+      }
 
     //Run iteration
     this->GenerateData();
@@ -160,18 +187,11 @@ protected:
   LevelSetMalcolmEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
-    m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
+    m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( true )
     {
     }
   ~LevelSetMalcolmEvolutionBase()
-  {
-//    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-//    while( it != m_LevelSetContainer->End() )
-//    {
-//      delete m_UpdateBuffer[it->first];
-//      ++it;
-//    }
-  }
+  {}
 
   unsigned int                m_NumberOfIterations;
   /// \todo is it useful?
@@ -180,8 +200,6 @@ protected:
   EquationContainerPointer    m_EquationContainer;
   LevelSetContainerPointer    m_LevelSetContainer;
 
-  // For sparse case, the update buffer needs to be the size of the active layer
-//  std::map< IdentifierType, UpdateListType* > m_UpdateBuffer;
   DomainMapImageFilterPointer                 m_DomainMapFilter;
 
   LevelSetOutputRealType          m_Alpha;
@@ -191,26 +209,6 @@ protected:
 
   void AllocateUpdateBuffer()
     {
-//      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-//      while( it != m_LevelSetContainer->End() )
-//      {
-//        if( m_UpdateBuffer.find( it->first ) == m_UpdateBuffer.end() )
-//        {
-//          m_UpdateBuffer[it->first] = new UpdateListType;
-//        }
-//        else
-//        {
-//          if( m_UpdateBuffer[it->first] )
-//          {
-//            m_UpdateBuffer[it->first]->clear();
-//          }
-//          else
-//          {
-//            m_UpdateBuffer[it->first] = new UpdateListType;
-//          }
-//        }
-//        ++it;
-//      }
     }
 
 
@@ -222,7 +220,8 @@ protected:
 
     for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
       {
-      m_RMSChangeAccumulator = 0;
+      std::cout <<"Iteration " <<iter << std::endl;
+      m_RMSChangeAccumulator = NumericTraits< LevelSetOutputRealType >::Zero;
 
       // one iteration over all container
       // update each level set based on the different equations provided
@@ -234,33 +233,30 @@ protected:
       UpdateEquations();
 
       // DEBUGGING
-//      typedef Image< unsigned char, ImageDimension > WriterImageType;
-//      typedef BinaryThresholdImageFilter< LevelSetImageType, WriterImageType >  FilterType;
-//      typedef ImageFileWriter< WriterImageType > WriterType;
-//      typedef typename WriterType::Pointer       WriterPointer;
-
-//      LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-//      while( it != m_LevelSetContainer->End() )
-//      {
-//        std::ostringstream filename;
-//        filename << "/home/krm15/temp/" << iter << "_" <<  it->first << ".png";
-
-//        LevelSetPointer levelSet = it->second;
-
-//        typename FilterType::Pointer filter = FilterType::New();
-//        filter->SetInput( levelSet->GetImage() );
-//        filter->SetOutsideValue( 0 );
-//        filter->SetInsideValue(  255 );
-//        filter->SetLowerThreshold( NumericTraits<typename LevelSetImageType::PixelType>::NonpositiveMin() );
-//        filter->SetUpperThreshold( 0 );
-//        filter->Update();
-
-//        WriterPointer writer2 = WriterType::New();
-//        writer2->SetInput( filter->GetOutput() );
-//        writer2->SetFileName( filename.str().c_str() );
-//        writer2->Update();
-//        ++it;
-//      }
+//       typedef Image< char, ImageDimension >     LabelImageType;
+//       typedef typename LabelImageType::Pointer  LabelImagePointer;
+//       typedef LabelMapToLabelImageFilter<LevelSetLabelMapType, LabelImageType> LabelMapToLabelImageFilterType;
+//       typedef ImageFileWriter< LabelImageType > WriterType;
+//
+//       typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
+//       while( it != m_LevelSetContainer->End() )
+//         {
+//         std::ostringstream filename;
+//         filename << "/home/krm15/temp/" << iter << "_" <<  it->GetIdentifier() << ".mha";
+//
+//         LevelSetPointer levelSet = it->GetLevelSet();
+//
+//         typename LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
+//         labelMapToLabelImageFilter->SetInput( levelSet->GetLabelMap() );
+//         labelMapToLabelImageFilter->Update();
+//
+//         typename WriterType::Pointer writer = WriterType::New();
+//         writer->SetInput( labelMapToLabelImageFilter->GetOutput() );
+//         writer->SetFileName( filename.str().c_str() );
+//         writer->Update();
+//
+//         ++it;
+//         }
 
       this->InvokeEvent( IterationEvent() );
       }
@@ -304,55 +300,38 @@ protected:
   }
 
   void ComputeIteration()
-  {
-//    std::cout << "Compute iteration" << std::endl;
-//    LevelSetContainerIteratorType it = m_LevelSetContainer->Begin();
-//    while( it != m_LevelSetContainer->End() )
-//    {
-//      LevelSetPointer levelSet = it->second;
-//      NodeListIterator list_it = levelSet->GetListNode()->begin();
-//      NodeListIterator list_end = levelSet->GetListNode()->end();
-//      NodePairType p;
-//      while( list_it != list_end )
-//      {
-//        p = (*list_it);
-
-//        // NOTE: No HeavisideStepFunction for Malcolm since external term will be 0 always
-//        // since prod = 0 in ComputeProductTerm()
-//        LevelSetOutputRealType temp_update = m_EquationContainer->GetEquation( it->first )->Evaluate( p.first );
-//        m_UpdateBuffer[it->first]->push_back( temp_update );
-//        ++list_it;
-//      }
-//    ++it;
-//    }
-  }
+    {
+    std::cout << "Compute iteration" << std::endl;
+    }
 
 
   void ComputeDtForNextIteration()
-    {}
+    {
+    std::cout << "ComputeDtForNextIteration" << std::endl;
+    }
 
   virtual void UpdateLevelSets()
     {
     std::cout << "Update levelsets" << std::endl;
+
     typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
+    bool singleLevelSet = ( m_LevelSetContainer->Size() == 1 );
+
     while( it != m_LevelSetContainer->End() )
       {
-      std::cout << "** " << it->GetIdentifier() <<" **" << std::endl;
-//      std::cout << "m_UpdateBuffer[" <<it->first <<"].size()=" << m_UpdateBuffer[it->first]->size() << std::endl;
-      std::cout << "Zero level set.size() =" << it->GetLevelSet()->GetLayer( 0 ).size() << std::endl;
       LevelSetPointer levelSet = it->GetLevelSet();
 
       UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
-      update_levelset->SetSparseLevelSet( levelSet );
+      update_levelset->SetInputLevelSet( levelSet );
       update_levelset->SetCurrentLevelSetId( it->GetIdentifier() );
-//      update_levelset->SetUpdate( m_UpdateBuffer[it->first] );
       update_levelset->SetEquationContainer( m_EquationContainer );
+      update_levelset->SetSingleLevelSet( singleLevelSet );
       update_levelset->Update();
 
       levelSet->Graft( update_levelset->GetOutputLevelSet() );
 
       m_RMSChangeAccumulator = update_levelset->GetRMSChangeAccumulator();
-//      m_UpdateBuffer[it->first]->clear();
+
       ++it;
       }
     }
@@ -360,9 +339,8 @@ protected:
   void UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
-    m_EquationContainer->Update();
-//     std::cout << "InitializeIteration" << std::endl << std::endl;
-//     this->InitializeIteration();
+//     m_EquationContainer->Update();
+    this->InitializeIteration();
     }
 
 private:

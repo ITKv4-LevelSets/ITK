@@ -95,7 +95,7 @@ int itkUpdateMalcolmSparseLevelSetTest( int argc, char* argv[] )
 
   typedef itk::UpdateMalcolmSparseLevelSet< Dimension, EquationContainerType > UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
-  update_levelset->SetSparseLevelSet( sparseLevelSet );
+  update_levelset->SetInputLevelSet( sparseLevelSet );
   update_levelset->SetCurrentLevelSetId( 0 );
   update_levelset->SetEquationContainer( equationContainer );
   update_levelset->Update();

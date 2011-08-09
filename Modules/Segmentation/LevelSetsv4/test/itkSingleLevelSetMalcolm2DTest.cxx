@@ -75,34 +75,6 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
                                                             HeavisideFunctionBaseType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
 
-//   InputImageType::RegionType region;
-//   InputImageType::IndexType index;
-//   InputImageType::SizeType size;
-//
-//   index.Fill( 0 );
-//   size.Fill( 50 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   // Input initialization
-//   InputImageType::Pointer input = InputImageType::New();
-//   input->SetRegions( region );
-//   input->Allocate();
-//   input->FillBuffer( itk::NumericTraits<InputPixelType>::Zero );
-//
-//   index.Fill( 20 );
-//   size.Fill( 10 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   InputIteratorType inputIt( input, region );
-//   inputIt.GoToBegin();
-//   while( !inputIt.IsAtEnd() )
-//   {
-//     inputIt.Set( itk::NumericTraits<InputPixelType>::One );
-//     ++inputIt;
-//   }
-
   // load binary mask
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );

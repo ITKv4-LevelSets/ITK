@@ -107,7 +107,7 @@ public:
 
   typedef UpdateShiSparseLevelSet< ImageDimension, EquationContainerType > UpdateLevelSetFilterType;
 
-  typedef typename UpdateLevelSetFilterType::Pointer     UpdateLevelSetFilterPointer;
+  typedef typename UpdateLevelSetFilterType::Pointer UpdateLevelSetFilterPointer;
 
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );

@@ -33,7 +33,8 @@
 
 namespace itk
 {
-template< unsigned int VDimension, class TEquationContainer >
+template< unsigned int VDimension,
+          class TEquationContainer >
 class UpdateMalcolmSparseLevelSet : public Object
 {
 public:
@@ -54,7 +55,6 @@ public:
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
-  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
 
   typedef typename LevelSetType::LabelMapType          LevelSetLabelMapType;
   typedef typename LevelSetType::LabelMapPointer       LevelSetLabelMapPointer;
@@ -67,6 +67,7 @@ public:
   typedef typename LevelSetType::LayerType             LevelSetLayerType;
   typedef typename LevelSetType::LayerIterator         LevelSetLayerIterator;
   typedef typename LevelSetType::LayerConstIterator    LevelSetLayerConstIterator;
+  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
 
   typedef typename LevelSetType::LayerMapType           LevelSetLayerMapType;
   typedef typename LevelSetType::LayerMapIterator       LevelSetLayerMapIterator;
@@ -75,25 +76,25 @@ public:
   typedef TEquationContainer                      EquationContainerType;
   typedef typename EquationContainerType::Pointer EquationContainerPointer;
 
-
+  itkGetObjectMacro( OutputLevelSet, LevelSetType );
 
   void Update()
   {
-    if( m_SparseLevelSet.IsNull() )
+    if( m_InputLevelSet.IsNull() )
       {
-      itkGenericExceptionMacro( <<"m_SparseLevelSet is NULL" );
+      itkGenericExceptionMacro( <<"m_InputLevelSet is NULL" );
       }
 //    if( m_Update->empty() )
 //      {
 //      itkGenericExceptionMacro( <<"m_Update is empty" );
 //      }
 
-    m_OutputLevelSet->SetLayer( 0, m_SparseLevelSet->GetLayer( 0 ) );
-    m_OutputLevelSet->SetLabelMap( m_SparseLevelSet->GetLabelMap() );
+    m_OutputLevelSet->SetLayer( 0, m_InputLevelSet->GetLayer( 0 ) );
+    m_OutputLevelSet->SetLabelMap( m_InputLevelSet->GetLabelMap() );
 
     typedef LabelMapToLabelImageFilter<LevelSetLabelMapType, LabelImageType> LabelMapToLabelImageFilterType;
     typename LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
-    labelMapToLabelImageFilter->SetInput( m_SparseLevelSet->GetLabelMap() );
+    labelMapToLabelImageFilter->SetInput( m_InputLevelSet->GetLabelMap() );
     labelMapToLabelImageFilter->Update();
 
     m_InternalImage = labelMapToLabelImageFilter->GetOutput();
@@ -165,8 +166,8 @@ public:
   }
 
   // Set/Get the sparse levet set image
-  itkSetObjectMacro( SparseLevelSet, LevelSetType );
-  itkGetObjectMacro( SparseLevelSet, LevelSetType );
+  itkSetObjectMacro( InputLevelSet, LevelSetType );
+  itkGetObjectMacro( InputLevelSet, LevelSetType );
 
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
 
@@ -177,12 +178,13 @@ public:
   itkSetMacro( CurrentLevelSetId, IdentifierType );
   itkGetMacro( CurrentLevelSetId, IdentifierType );
 
-  itkGetObjectMacro( OutputLevelSet, LevelSetType );
+  itkSetMacro( SingleLevelSet, bool );
+  itkGetMacro( SingleLevelSet, bool );
 
 protected:
   UpdateMalcolmSparseLevelSet() :
     m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
-    m_UnPhased( false )//true )
+    m_UnPhased( true )//true )
     {
     m_OutputLevelSet = LevelSetType::New();
     }
@@ -190,7 +192,7 @@ protected:
   ~UpdateMalcolmSparseLevelSet() {}
 
   // input
-  LevelSetPointer   m_SparseLevelSet;
+  LevelSetPointer   m_InputLevelSet;
 
   // output
   LevelSetPointer   m_OutputLevelSet;
@@ -200,6 +202,7 @@ protected:
   IdentifierType           m_CurrentLevelSetId;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
+  bool                     m_SingleLevelSet;
 
   typedef Image< char, ImageDimension >     LabelImageType;
   typedef typename LabelImageType::Pointer  LabelImagePointer;
@@ -305,8 +308,8 @@ protected:
         Level0.erase( tempIt );
 
         m_InternalImage->SetPixel( currentIdx, newValue );
-        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-              currentIdx, oldValue, newValue );
+//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//               currentIdx, oldValue, newValue );
 
         neighIt.SetLocation( currentIdx );
 
@@ -341,7 +344,7 @@ protected:
       Level0.insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( nodeIt->first, 0 ) );
 
-      m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
+//       m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
 
       m_InternalImage->SetPixel( nodeIt->first, 0 );
 
@@ -423,8 +426,8 @@ protected:
           ioList.erase( tempIt );
 
           m_InternalImage->SetPixel( currentIdx, newValue );
-          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-                currentIdx, oldValue , newValue );
+//           m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//                 currentIdx, oldValue , newValue );
 
           neighIt.SetLocation( currentIdx );
 
@@ -540,8 +543,8 @@ protected:
         list_0.erase( tempIt );
 
         m_InternalImage->SetPixel( currentIdx, newValue );
-        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-              currentIdx, oldValue , newValue );
+//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//               currentIdx, oldValue , newValue );
         }
       else if( positive && !negative )
         {
@@ -551,8 +554,8 @@ protected:
         list_0.erase( tempIt );
 
         m_InternalImage->SetPixel( currentIdx, newValue );
-        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-              currentIdx, oldValue , newValue );
+//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//               currentIdx, oldValue , newValue );
         }
       else
         {

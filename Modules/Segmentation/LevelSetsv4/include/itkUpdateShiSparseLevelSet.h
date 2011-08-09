@@ -31,9 +31,6 @@
 #include <list>
 #include "itkObject.h"
 
-
-#include "itkImageFileWriter.h"
-
 namespace itk
 {
 template< unsigned int VDimension,
