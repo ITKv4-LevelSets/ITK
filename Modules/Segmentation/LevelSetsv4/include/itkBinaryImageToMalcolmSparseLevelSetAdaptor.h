@@ -118,6 +118,8 @@ public:
 
     FindActiveLayer();
 
+    MinimalInterface();
+
     m_SparseLevelSet->SetLabelMap( m_LabelMap );
     m_InternalImage = 0;
   }
@@ -228,6 +230,105 @@ protected:
     ObjectZero->Optimize();
     m_LabelMap->AddLabelObject( ObjectZero );
   }
+
+  void MinimalInterface()
+    {
+    LevelSetOutputRealType oldValue, newValue;
+    LevelSetLayerType & list_0 = m_SparseLevelSet->GetLayer( 0 );
+
+    ZeroFluxNeumannBoundaryCondition< InternalImageType > sp_nbc;
+
+    typename NeighborhoodIteratorType::RadiusType radius;
+    radius.Fill( 1 );
+
+    NeighborhoodIteratorType neighIt( radius,
+                                      m_InternalImage,
+                                      m_InternalImage->GetLargestPossibleRegion() );
+
+    neighIt.OverrideBoundaryCondition( &sp_nbc );
+
+    typename NeighborhoodIteratorType::OffsetType sparse_offset;
+    sparse_offset.Fill( 0 );
+
+    for( unsigned int dim = 0; dim < ImageDimension; dim++ )
+      {
+      sparse_offset[dim] = -1;
+      neighIt.ActivateOffset( sparse_offset );
+      sparse_offset[dim] = 1;
+      neighIt.ActivateOffset( sparse_offset );
+      sparse_offset[dim] = 0;
+      }
+
+    LevelSetLayerIterator nodeIt   = list_0.begin();
+    LevelSetLayerIterator nodeEnd  = list_0.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      LevelSetInputType currentIdx = nodeIt->first;
+
+      neighIt.SetLocation( currentIdx );
+
+      bool positive = false;
+      bool negative = false;
+
+      oldValue = 0;
+
+      for( typename NeighborhoodIteratorType::Iterator
+          i = neighIt.Begin();
+          !i.IsAtEnd(); ++i )
+        {
+        char tempValue = i.Get();
+
+        if( tempValue != NumericTraits< LevelSetOutputType >::Zero )
+          {
+          if( tempValue == -1 )
+            {
+            negative = true;
+            if( positive )
+              {
+              break;
+              }
+            }
+          else // ( tempValue == 1 )
+            {
+            positive = true;
+            if( negative )
+              {
+              break;
+              }
+            }
+          }
+        }
+      if( negative && !positive )
+        {
+        newValue = -1;
+        LevelSetLayerIterator tempIt = nodeIt;
+        ++nodeIt;
+        list_0.erase( tempIt );
+
+        m_LabelMap->GetLabelObject( 0 )->RemoveIndex( tempIt->first );
+        m_LabelMap->GetLabelObject( -1 )->AddIndex( tempIt->first );
+//        m_InternalImage->SetPixel( currentIdx, newValue );
+        }
+      else
+        {
+        if( positive && !negative )
+          {
+          newValue = 1;
+          LevelSetLayerIterator tempIt = nodeIt;
+          ++nodeIt;
+          list_0.erase( tempIt );
+
+          m_LabelMap->GetLabelObject( 0 )->RemoveIndex( tempIt->first );
+//          m_LabelMap->GetLabelObject( 1 )->AddIndex( tempIt->first );
+          }
+        else
+          {
+          ++nodeIt;
+          }
+        }
+      }
+    }
 
 private:
   BinaryImageToMalcolmSparseLevelSetAdaptor( const Self& );

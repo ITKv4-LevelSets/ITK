@@ -178,13 +178,10 @@ public:
   itkSetMacro( CurrentLevelSetId, IdentifierType );
   itkGetMacro( CurrentLevelSetId, IdentifierType );
 
-  itkSetMacro( SingleLevelSet, bool );
-  itkGetMacro( SingleLevelSet, bool );
-
 protected:
   UpdateMalcolmSparseLevelSet() :
     m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
-    m_UnPhased( true )//true )
+    m_UnPhased( false )//true )
     {
     m_OutputLevelSet = LevelSetType::New();
     }
@@ -202,7 +199,6 @@ protected:
   IdentifierType           m_CurrentLevelSetId;
   LevelSetOutputRealType   m_RMSChangeAccumulator;
   EquationContainerPointer m_EquationContainer;
-  bool                     m_SingleLevelSet;
 
   typedef Image< char, ImageDimension >     LabelImageType;
   typedef typename LabelImageType::Pointer  LabelImagePointer;
@@ -381,6 +377,8 @@ protected:
       sparse_offset[dim] = 0;
       }
 
+    LevelSetLayerType InsertList;
+
     LevelSetLayerIterator nodeIt = ioList.begin();
     LevelSetLayerIterator nodeEnd = ioList.end();
 
@@ -444,12 +442,15 @@ protected:
               LevelSetInputType tempIdx =
                 neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
-              m_OutputLevelSet->GetLayer( 0 ).insert(
+              InsertList.insert(
                     std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, 0 ) );
-              m_InternalImage->SetPixel( tempIdx, 0 );
 
-              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-                    tempIdx, oldValue , 0 );
+//              m_OutputLevelSet->GetLayer( 0 ).insert(
+
+//              m_InternalImage->SetPixel( tempIdx, 0 );
+
+//              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//                    tempIdx, oldValue , 0 );
               }
             }
           }
@@ -464,6 +465,21 @@ protected:
         ++nodeIt;
         ++upIt;
         }
+      }
+
+    nodeIt = InsertList.begin();
+    nodeEnd = InsertList.end();
+
+    while( nodeIt != nodeEnd )
+      {
+      m_OutputLevelSet->GetLayer( 0 ).insert(
+            std::pair< LevelSetInputType, LevelSetOutputType >( nodeIt->first, 0 ) );
+
+//       m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
+
+      m_InternalImage->SetPixel( nodeIt->first, 0 );
+
+      ++nodeIt;
       }
     }
 
@@ -546,20 +562,23 @@ protected:
 //         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
 //               currentIdx, oldValue , newValue );
         }
-      else if( positive && !negative )
-        {
-        newValue = 1;
-        LevelSetLayerIterator tempIt = nodeIt;
-        ++nodeIt;
-        list_0.erase( tempIt );
-
-        m_InternalImage->SetPixel( currentIdx, newValue );
-//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//               currentIdx, oldValue , newValue );
-        }
       else
         {
-        ++nodeIt;
+        if( positive && !negative )
+          {
+          newValue = 1;
+          LevelSetLayerIterator tempIt = nodeIt;
+          ++nodeIt;
+          list_0.erase( tempIt );
+
+          m_InternalImage->SetPixel( currentIdx, newValue );
+  //         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+  //               currentIdx, oldValue , newValue );
+          }
+        else
+          {
+          ++nodeIt;
+          }
         }
       }
     }
