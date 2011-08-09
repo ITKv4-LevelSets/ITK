@@ -69,8 +69,6 @@ public:
   typedef typename LevelSetType::LabelObjectPointer    LevelSetLabelObjectPointer;
   typedef typename LevelSetType::LabelObjectLengthType LevelSetLabelObjectLengthType;
   typedef typename LevelSetType::LabelObjectLineType   LevelSetLabelObjectLineType;
-//  typedef typename LevelSetType::LabelObjectLineContainerType
-//                                                       LevelSetLabelObjectLineContainerType;
 
   typedef typename LevelSetType::LayerType             LevelSetLayerType;
   typedef typename LevelSetType::LayerIterator         LevelSetLayerIterator;

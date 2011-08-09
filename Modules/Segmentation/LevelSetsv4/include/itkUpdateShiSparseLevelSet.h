@@ -32,9 +32,12 @@
 #include "itkObject.h"
 
 
+#include "itkImageFileWriter.h"
+
 namespace itk
 {
-template< unsigned int VDimension, class TEquationContainer >
+template< unsigned int VDimension,
+          class TEquationContainer >
 class UpdateShiSparseLevelSet : public Object
 {
 public:
@@ -55,7 +58,6 @@ public:
   typedef typename LevelSetType::Pointer               LevelSetPointer;
   typedef typename LevelSetType::InputType             LevelSetInputType;
   typedef typename LevelSetType::OutputType            LevelSetOutputType;
-  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
 
   typedef typename LevelSetType::LabelMapType          LevelSetLabelMapType;
   typedef typename LevelSetType::LabelMapPointer       LevelSetLabelMapPointer;
@@ -68,6 +70,7 @@ public:
   typedef typename LevelSetType::LayerType             LevelSetLayerType;
   typedef typename LevelSetType::LayerIterator         LevelSetLayerIterator;
   typedef typename LevelSetType::LayerConstIterator    LevelSetLayerConstIterator;
+  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
 
   typedef typename LevelSetType::LayerMapType           LevelSetLayerMapType;
   typedef typename LevelSetType::LayerMapIterator       LevelSetLayerMapIterator;
@@ -80,9 +83,9 @@ public:
 
   void Update()
   {
-    if( m_SparseLevelSet.IsNull() )
+    if( m_InputLevelSet.IsNull() )
       {
-      itkGenericExceptionMacro( <<"m_SparseLevelSet is NULL" );
+      itkGenericExceptionMacro( <<"m_InputLevelSet is NULL" );
       }
 
     if( this->m_SingleLevelSet != true )
@@ -90,14 +93,14 @@ public:
       itkWarningMacro( << "the current implementation does not allow to run multi object level sts");
       }
 
-    m_OutputLevelSet->SetLayer( -1, m_SparseLevelSet->GetLayer( -1 ) );
-    m_OutputLevelSet->SetLayer(  1, m_SparseLevelSet->GetLayer(  1 ) );
+    m_OutputLevelSet->SetLayer( -1, m_InputLevelSet->GetLayer( -1 ) );
+    m_OutputLevelSet->SetLayer(  1, m_InputLevelSet->GetLayer(  1 ) );
 
-    m_OutputLevelSet->SetLabelMap( m_SparseLevelSet->GetLabelMap() );
+    m_OutputLevelSet->SetLabelMap( m_InputLevelSet->GetLabelMap() );
 
     typedef LabelMapToLabelImageFilter<LevelSetLabelMapType, LabelImageType> LabelMapToLabelImageFilterType;
     typename LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
-    labelMapToLabelImageFilter->SetInput( m_SparseLevelSet->GetLabelMap() );
+    labelMapToLabelImageFilter->SetInput( m_InputLevelSet->GetLabelMap() );
     labelMapToLabelImageFilter->Update();
 
     m_InternalImage = labelMapToLabelImageFilter->GetOutput();
@@ -130,7 +133,7 @@ public:
     // Step 2.1.1
     UpdateL_out();
 
-//    // Step 2.1.2 - for each point x in L_in
+   // Step 2.1.2 - for each point x in L_out
     LevelSetLayerType & list_in = m_OutputLevelSet->GetLayer( -1 );
 
     LevelSetLayerIterator nodeIt = list_in.begin();
@@ -166,10 +169,10 @@ public:
         ++nodeIt;
         list_in.erase( tempIt );
 
-        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-              currentIndex,
-              static_cast< LevelSetOutputRealType >( oldValue ),
-              static_cast< LevelSetOutputRealType >( newValue ) );
+//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//               currentIndex,
+//               static_cast< LevelSetOutputRealType >( oldValue ),
+//               static_cast< LevelSetOutputRealType >( newValue ) );
         }
       else
         {
@@ -177,10 +180,10 @@ public:
         }
       }
 
-//    // Step 2.1.3 - for each point x in L_in
+//     Step 2.1.3 - for each point x in L_in
     UpdateL_in();
 
-    // Step 2.1.4
+//     Step 2.1.4
     LevelSetLayerType & list_out = m_OutputLevelSet->GetLayer( 1 );
 
     nodeIt = list_out.begin();
@@ -215,11 +218,11 @@ public:
         ++nodeIt;
         list_out.erase( tempIt );
 
-        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-              currentIndex,
-              static_cast< LevelSetOutputRealType >( oldValue ),
-              static_cast< LevelSetOutputRealType >( newValue )
-              );
+//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//               currentIndex,
+//               static_cast< LevelSetOutputRealType >( oldValue ),
+//               static_cast< LevelSetOutputRealType >( newValue )
+//               );
         }
       else
         {
@@ -237,8 +240,8 @@ public:
   }
 
   // Set/Get the sparse levet set image
-  itkSetObjectMacro( SparseLevelSet, LevelSetType );
-  itkGetObjectMacro( SparseLevelSet, LevelSetType );
+  itkSetObjectMacro( InputLevelSet, LevelSetType );
+  itkGetObjectMacro( InputLevelSet, LevelSetType );
 
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
 
@@ -262,7 +265,7 @@ protected:
   ~UpdateShiSparseLevelSet() {}
 
   // input
-  LevelSetPointer   m_SparseLevelSet;
+  LevelSetPointer   m_InputLevelSet;
 
   // output
   LevelSetPointer   m_OutputLevelSet;
@@ -381,7 +384,7 @@ protected:
       list_out.insert( *nodeIt );
 
       this->m_InternalImage->SetPixel( nodeIt->first, 1 );
-      m_EquationContainer->UpdatePixel( nodeIt->first, 3, 1 );
+//       m_EquationContainer->UpdatePixel( nodeIt->first, 3, 1 );
 
       ++nodeIt;
       }
@@ -394,7 +397,7 @@ protected:
       list_in.insert( *nodeIt );
 
       this->m_InternalImage->SetPixel( nodeIt->first, -1 );
-      m_EquationContainer->UpdatePixel( nodeIt->first, 1, -1 );
+//       m_EquationContainer->UpdatePixel( nodeIt->first, 1, -1 );
       ++nodeIt;
       }
     }
@@ -447,11 +450,9 @@ protected:
       assert( tempStatus == -1 );
       // --------------------------------------
 
-      // TODO
       // update for the current level set
       LevelSetOutputRealType update =
           m_EquationContainer->GetEquation( m_CurrentLevelSetId )->Evaluate( currentIndex );
-//       std::cout << p.first << ' ' << int(p.second) << ' ' << update << std::endl;
 
       if( update > NumericTraits< LevelSetOutputRealType >::Zero )
         {
@@ -463,7 +464,7 @@ protected:
 
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
-          list_out.erase( tempIt );
+          list_in.erase( tempIt );
 
           erased = true;
 
@@ -500,8 +501,8 @@ protected:
       {
       list_in.insert( *nodeIt );
       this->m_InternalImage->SetPixel( nodeIt->first, -1 );
-      m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-            nodeIt->first, -3, -1 );
+//       m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//             nodeIt->first, -3, -1 );
       ++nodeIt;
       }
 
@@ -513,11 +514,10 @@ protected:
       {
       list_out.insert( *nodeIt );
       this->m_InternalImage->SetPixel( nodeIt->first, 1 );
-      m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-            nodeIt->first, -1, 1 );
+//       m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+//             nodeIt->first, -1, 1 );
       ++nodeIt;
       }
-
   }
 
   bool Con( const LevelSetInputType& iIdx,

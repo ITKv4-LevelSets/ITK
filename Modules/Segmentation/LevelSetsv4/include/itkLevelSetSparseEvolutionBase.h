@@ -114,21 +114,30 @@ public:
   typedef typename UpdateLevelSetFilterType::Pointer                         UpdateLevelSetFilterPointer;
 //  typedef typename UpdateLevelSetFilterType::UpdateListType                  UpdateListType;
 
-  // create another class which contains all the equations
-  // i.e. it is a container of term container :-):
-  // set the i^th term container
-  // This container should also hold the LevelSetContainer
-  //   void SetLevelSetEquations( EquationContainer );
-
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
   void Update()
     {
+    if( m_EquationContainer.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_EquationContainer is NULL" );
+      }
+
+    if( !m_EquationContainer->GetEquation( 0 ) )
+      {
+      itkGenericExceptionMacro( << "m_EquationContainer->GetEquation( 0 ) is NULL" );
+      }
+
     m_DomainMapFilter = m_LevelSetContainer->GetDomainMapFilter();
 
     // Get the image to be segmented
     m_InputImage = m_EquationContainer->GetInput();
+
+    if( m_InputImage.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_InputImage is NULL" );
+      }
 
     // Get the LevelSetContainer from the EquationContainer
     m_LevelSetContainer = m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
@@ -233,7 +242,7 @@ protected:
 
     for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
       {
-      m_RMSChangeAccumulator = 0;
+      m_RMSChangeAccumulator = NumericTraits< LevelSetOutputRealType >::Zero;
 
       // one iteration over all container
       // update each level set based on the different equations provided

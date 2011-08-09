@@ -36,14 +36,14 @@ int itkSingleLevelSetShi2DTest( int argc, char* argv[] )
 {
   const unsigned int Dimension = 2;
 
-  typedef unsigned char                                     InputPixelType;
+  typedef unsigned short                                    InputPixelType;
   typedef itk::Image< InputPixelType, Dimension >           InputImageType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >
                                                             InputIteratorType;
   typedef itk::ImageFileReader< InputImageType >            ReaderType;
 
   typedef itk::BinaryImageToShiSparseLevelSetAdaptor< InputImageType >
-      BinaryToSparseAdaptorType;
+                                                            BinaryToSparseAdaptorType;
 
   typedef itk::IdentifierType                               IdentifierType;
   typedef BinaryToSparseAdaptorType::LevelSetType           SparseLevelSetType;
@@ -74,34 +74,6 @@ int itkSingleLevelSetShi2DTest( int argc, char* argv[] )
   typedef itk::SinRegularizedHeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
                                                             HeavisideFunctionBaseType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
-
-//   InputImageType::RegionType region;
-//   InputImageType::IndexType index;
-//   InputImageType::SizeType size;
-//
-//   index.Fill( 0 );
-//   size.Fill( 50 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   // Input initialization
-//   InputImageType::Pointer input = InputImageType::New();
-//   input->SetRegions( region );
-//   input->Allocate();
-//   input->FillBuffer( itk::NumericTraits<InputPixelType>::Zero );
-//
-//   index.Fill( 20 );
-//   size.Fill( 10 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   InputIteratorType inputIt( input, region );
-//   inputIt.GoToBegin();
-//   while( !inputIt.IsAtEnd() )
-//   {
-//     inputIt.Set( itk::NumericTraits<InputPixelType>::One );
-//     ++inputIt;
-//   }
 
   // load binary mask
   ReaderType::Pointer reader = ReaderType::New();
@@ -257,8 +229,6 @@ int itkSingleLevelSetShi2DTest( int argc, char* argv[] )
     {
     std::cout << err << std::endl;
     }
-
-
 
 //   PixelType mean = cvInternalTerm0->GetMean();
 //   if ( ( mean < 24900 ) || ( mean > 24910 ) )

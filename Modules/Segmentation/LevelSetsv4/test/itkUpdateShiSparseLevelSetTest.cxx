@@ -89,7 +89,7 @@ int itkUpdateShiSparseLevelSetTest( int argc, char* argv[] )
 
   typedef itk::UpdateShiSparseLevelSet< Dimension, EquationContainerType > UpdateLevelSetType;
   UpdateLevelSetType::Pointer update_levelset = UpdateLevelSetType::New();
-  update_levelset->SetSparseLevelSet( sparseLevelSet );
+  update_levelset->SetInputLevelSet( sparseLevelSet );
   update_levelset->Update();
 
 //  std::map< char, UpdateLevelSetType::UpdateListType* > update_list;
