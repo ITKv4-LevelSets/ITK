@@ -26,6 +26,15 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetBase
+ *  \brief Abstract base class for the representation of a level-set function
+ *
+ *  \tparam TInput Input type where the level set function will be evaluated
+ *  \tparam VDimension Dimension of the input space
+ *  \tparam TOutput Returned type when evaluating the level set function
+ *  \tparam TDomain Support of the level-set function (e.g. Image or QuadEdgeMesh)
+ */
 template< class TInput,
           unsigned int VDimension,
           typename TOutput,
@@ -54,16 +63,23 @@ public:
   /** Type used to define Regions */
   typedef long RegionType;
 
+  /** Returns the value of the level set function at a given location iP */
   virtual OutputType    Evaluate( const InputType& iP ) const = 0;
+
+  /** Returns the gradient of the level set function at a given location iP */
   virtual GradientType  EvaluateGradient( const InputType& iP ) const = 0;
+
+  /** Returns the hessian of the level set function at a given location iP */
   virtual HessianType   EvaluateHessian( const InputType& iP ) const = 0;
 
+  /** Returns true if iP is inside the level set, i.e. \f$\phi(p) \leqslant 0 \f$ */
   virtual bool IsInside( const InputType& iP ) const;
 
   /** Get the maximum number of regions that this data can be
    * separated into. */
   itkGetConstMacro(MaximumNumberOfRegions, RegionType);
 
+  /** Initialize the level set function */
   virtual void Initialize();
 
   /** Methods to manage streaming. */

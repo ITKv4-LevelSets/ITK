@@ -26,6 +26,15 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetContainerBase
+ *  \brief Container of level set
+ *
+ *  Encapsulate an ordered set of level set function (see LevelSetBase).
+ *
+ * \tparam TIdentifier type of the identifier used to reference on level set function
+ * \tparam TLevelSet type of level set function in the container.
+ */
 template< class TIdentifier,
           class TLevelSet >
 class LevelSetContainerBase : public Object
@@ -83,6 +92,7 @@ public:
   friend class Iterator;
   friend class ConstIterator;
 
+  /** \class ConstIterator */
   class ConstIterator
     {
   public:
@@ -246,7 +256,6 @@ public:
   */
   bool RemoveLevelSet( const IdentifierType& iId );
 
-  /// \warning why
   itkSetObjectMacro( Heaviside, HeavisideType );
   itkGetObjectMacro( Heaviside, HeavisideType );
 
