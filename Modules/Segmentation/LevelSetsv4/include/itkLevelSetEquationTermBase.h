@@ -24,6 +24,21 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEquationTermBase
+ *  \brief Abstract class to represents a term in the level-set evolution PDE
+ *
+ *  Evolving level-set function \f$ \phi \f$ can de expressed as follows:
+ *  \f[
+ *  \frac{\partial \phi(p)}{\partial \tau} = \sum\limits_{i=1}^{N} \alpha_{i} \cdot \omega_i(p)
+ *  \f]
+ *  where $\omega_i$ is a term which could depend on the level-set function, 
+ *  the input image; and $\alpha_i$ is a weight to balance the contribution of
+ *  each term in the PDE. 
+ *
+ *  \tparam TInput Input Image Type
+ *  \tparam TLevelSetContainer Level set function container type
+ */
 template< class TInputImage, // Input image
           class TLevelSetContainer >
 class LevelSetEquationTermBase : public Object
@@ -43,6 +58,7 @@ public:
   typedef typename NumericTraits< InputPixelType >::RealType
                                                           InputPixelRealType;
 
+  /** Level-set function container type */
   typedef TLevelSetContainer                              LevelSetContainerType;
   typedef typename LevelSetContainerType::IdentifierType  LevelSetIdentifierType;
   typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
