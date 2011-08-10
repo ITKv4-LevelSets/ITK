@@ -72,6 +72,17 @@ public:
   /** Returns the hessian of the level set function at a given location iP */
   virtual HessianType   EvaluateHessian( const InputType& iP ) const = 0;
 
+  struct LevelSetDataType
+    {
+    std::pair< bool, OutputType >   Value;
+    std::pair< bool, GradientType > Gradient;
+    std::pair< bool, HessianType >  Hessian;
+    };
+
+//  virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const = 0;
+//  virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const = 0;
+//  virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const = 0;
+
   /** Returns true if iP is inside the level set, i.e. \f$\phi(p) \leqslant 0 \f$ */
   virtual bool IsInside( const InputType& iP ) const;
 

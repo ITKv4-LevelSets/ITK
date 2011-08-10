@@ -24,6 +24,9 @@
 
 namespace itk
 {
+/**
+ * \class LevelSetImageBase
+ */
 template< class TImage >
 class LevelSetImageBase :
   public LevelSetBase<
@@ -56,6 +59,8 @@ public:
   typedef typename Superclass::OutputRealType OutputRealType;
   typedef typename Superclass::GradientType   GradientType;
   typedef typename Superclass::HessianType    HessianType;
+  typedef typename Superclass::LevelSetDataType
+                                              LevelSetDataType;
 
   itkSetObjectMacro( Image, ImageType );
   itkGetObjectMacro( Image, ImageType );
@@ -77,20 +82,38 @@ public:
     return HessianType();
     }
 
-  struct LevelSetDataType
+  virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const
     {
-    OutputType Value;
-    GradientType Gradient;
-    HessianType Hessian;
-    };
-
-  virtual LevelSetDataType* GetAllData( const InputType& iP ) const
-    {
-    LevelSetDataType* oData = new LevelSetDataType;
-    oData->Value = m_Image->GetPixel( iP );
-
-    return oData;
+    // if it has not already been computed before
+    if( !ioData.Value.first )
+      {
+      ioData.Value.first = true;
+      ioData.Value.second = m_Image->GetPixel( iP );
+      }
     }
+
+  virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const
+    {
+    // if it has not already been computed before
+    if( !ioData.Gradient.first )
+      {
+      ioData.Gradient.second = true;
+
+      // compute the gradient
+      ///\todo implement the computation of the gradient
+      }
+    }
+  virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const
+    {
+    if( !ioData.Hessian.first )
+      {
+      ioData.Hessian.first = true;
+
+      // compute the hessian
+      ///\todo implement the computation of the hessian
+      }
+    }
+
 
   virtual void Initialize()
     {
