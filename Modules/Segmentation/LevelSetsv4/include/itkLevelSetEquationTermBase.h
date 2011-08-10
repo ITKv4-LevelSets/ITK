@@ -88,12 +88,18 @@ public:
   virtual void SetLevelSetContainer( LevelSetContainerType*ptr );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
+  /** Returns the weighted term contribution at the given location iP, i.e.
+   *  \f$ \alpha_i \cdot \omega_i( p )
+   */
   virtual LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP );
 
+  /** \todo to be documented. */
   virtual void Initialize( const LevelSetInputIndexType& iP ) = 0;
 
+  /** \todo to be documented. */
   virtual void InitializeParameters() = 0;
 
+  /** \todo are we still using it? */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                            const LevelSetOutputRealType & oldValue,
                            const LevelSetOutputRealType & newValue ) = 0;
@@ -106,19 +112,46 @@ public:
   virtual void Update() = 0;
 
 protected:
+  /** Default Constructor */
   LevelSetEquationTermBase();
 
+  /** Destructor */
   virtual ~LevelSetEquationTermBase() {}
 
+  /** Set the default name for a given term (see m_TermName). */
   virtual void SetDefaultTermName() = 0;
+
+  /** Returns the term contribution for a given location iP, i.e.
+   *  \f$ \omega_i( p ) \f$. This method must be implemented in all
+   *  class which inherits from this class.
+   */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP ) = 0;
 
+  /** Input image */
   InputImagePointer        m_Input;
+
+  /** Container of level-set function */
   LevelSetContainerPointer m_LevelSetContainer;
+
+  /** Id of the current level-set function */ 
   LevelSetIdentifierType   m_CurrentLevelSet;
+
+  /** Coefficient \f$ \alpha_i \f$ */
   LevelSetOutputRealType   m_Coefficient;
+
+  /** Contribution to the CFL condition (which will be used to compute the
+   *  the time step at the next iteration
+   */
   LevelSetOutputRealType   m_CFLContribution;
+
+  /** Heaviside function to be used. Depending on the term expression,
+   *  this one may need to be provided
+   */
   HeavisidePointer         m_Heaviside;
+
+  /** Name to be given to the term. Note by default, one name is provided,
+   *  but end-users may rename differently each term.
+   */
   std::string              m_TermName;
 
 private:
