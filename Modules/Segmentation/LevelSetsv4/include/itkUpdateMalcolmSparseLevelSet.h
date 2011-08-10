@@ -151,7 +151,7 @@ public:
       PhasedPropagation( list_pos, update_pos, true );
       MinimalInterface();
 
-//      // dilation
+      // dilation
       PhasedPropagation( list_neg, update_neg, false );
       MinimalInterface();
       }
@@ -181,7 +181,7 @@ public:
 protected:
   UpdateMalcolmSparseLevelSet() :
     m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
-    m_UnPhased( false )//true )
+    m_UnPhased( false )
     {
     m_OutputLevelSet = LevelSetType::New();
     }
@@ -388,8 +388,8 @@ protected:
       {
       assert( nodeIt->first == upIt->first );
 
-      LevelSetOutputType oldValue = nodeIt->second;
-      LevelSetOutputType newValue = oldValue;
+      LevelSetOutputType oldValue;
+      LevelSetOutputType newValue;
 
       LevelSetOutputType update = upIt->second;
       LevelSetInputType currentIdx = nodeIt->first;
@@ -398,56 +398,33 @@ protected:
 
       if( update != NumericTraits< LevelSetOutputRealType >::Zero )
         {
-        if( iContraction ) // contraction
-          {
-          // only allow positive forces
-          if( update > NumericTraits< LevelSetOutputRealType >::Zero )
-            {
-            newValue = 1;
-            to_be_updated = true;
-            }
-          }
-        else // Dilation
-          {
-          // only allow negative forces
-          if( update < NumericTraits< LevelSetOutputRealType >::Zero )
-            {
-            newValue = -1;
-            to_be_updated = true;
-            }
-          }
-        if( to_be_updated )
-          {
-          LevelSetLayerIterator tempIt = nodeIt;
-          ++nodeIt;
-          ++upIt;
-          ioList.erase( tempIt );
+        // only allow positive forces
+        iContraction ? newValue = 1 : newValue = -1;
+        LevelSetLayerIterator tempIt = nodeIt;
+        ++nodeIt;
+        ++upIt;
+        ioList.erase( tempIt );
+        m_OutputLevelSet->GetLayer( 0 ).erase( currentIdx );
 
-          m_InternalImage->SetPixel( currentIdx, newValue );
+        m_InternalImage->SetPixel( currentIdx, newValue );
 //           m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
 //                 currentIdx, oldValue , newValue );
 
-          neighIt.SetLocation( currentIdx );
+        neighIt.SetLocation( currentIdx );
 
-          for( typename NeighborhoodIteratorType::Iterator
-                  i = neighIt.Begin();
-              !i.IsAtEnd(); ++i )
+        for( typename NeighborhoodIteratorType::Iterator
+            i = neighIt.Begin();
+            !i.IsAtEnd(); ++i )
+          {
+          char tempValue = i.Get();
+
+          if( tempValue * newValue == -1 )
             {
-            char tempValue = i.Get();
+            LevelSetInputType tempIdx =
+              neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
-            if( tempValue * newValue == -1 )
-              {
-              newValue = 0;
-
-              LevelSetInputType tempIdx =
-                neighIt.GetIndex( i.GetNeighborhoodOffset() );
-
-              InsertList.insert(
-                    std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, 0 ) );
-
-//              m_OutputLevelSet->GetLayer( 0 ).insert(
-
-//              m_InternalImage->SetPixel( tempIdx, 0 );
+            InsertList.insert(
+              std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, 0 ) );
 
 //              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
 //                    tempIdx, oldValue , 0 );
@@ -460,12 +437,6 @@ protected:
           ++upIt;
           }
         }
-      else
-        {
-        ++nodeIt;
-        ++upIt;
-        }
-      }
 
     nodeIt = InsertList.begin();
     nodeEnd = InsertList.end();
@@ -530,27 +501,16 @@ protected:
           !i.IsAtEnd(); ++i )
         {
         char tempValue = i.Get();
-
-        if( tempValue != NumericTraits< LevelSetOutputType >::Zero )
+        if( tempValue == -1 )
           {
-          if( tempValue == -1 )
-            {
-            negative = true;
-            if( positive )
-              {
-              break;
-              }
-            }
-          else // ( tempValue == 1 )
-            {
-            positive = true;
-            if( negative )
-              {
-              break;
-              }
-            }
+          negative = true;
+          }
+        if ( tempValue == 1 )
+          {
+          positive = true;
           }
         }
+
       if( negative && !positive )
         {
         newValue = -1;
@@ -562,23 +522,25 @@ protected:
 //         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
 //               currentIdx, oldValue , newValue );
         }
-      else
+      else if( positive && !negative )
         {
-        if( positive && !negative )
-          {
-          newValue = 1;
-          LevelSetLayerIterator tempIt = nodeIt;
-          ++nodeIt;
-          list_0.erase( tempIt );
+        newValue = 1;
+        LevelSetLayerIterator tempIt = nodeIt;
+        ++nodeIt;
+        list_0.erase( tempIt );
 
-          m_InternalImage->SetPixel( currentIdx, newValue );
+        m_InternalImage->SetPixel( currentIdx, newValue );
   //         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
   //               currentIdx, oldValue , newValue );
-          }
-        else
-          {
-          ++nodeIt;
-          }
+        }
+      else if( !positive && !negative )
+        {
+        std::cout << "Neither positive nor negative" << std::endl;
+        ++nodeIt;
+        }
+      else
+        {
+        ++nodeIt;
         }
       }
     }
