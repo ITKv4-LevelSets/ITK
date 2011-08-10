@@ -79,31 +79,14 @@ public:
 
   virtual void InitializeParameters()
   {
-    this->m_CFLContribution = NumericTraits< LevelSetOutputRealType >::Zero;
+    this->SetUp();
   }
 
 
   // this will work for scalars and vectors. For matrices, one may have to reimplement
   // his specialized term
   virtual void Initialize( const LevelSetInputIndexType& iP )
-  {
-    if( m_CurrentLevelSetPointer.IsNull() )
-      {
-      m_CurrentLevelSetPointer =
-      this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
-
-      if( m_CurrentLevelSetPointer.IsNull() )
-        {
-        itkWarningMacro(
-        << "m_CurrentLevelSet does not exist in the level set container" );
-        }
-      }
-
-    if( !this->m_Heaviside.IsNotNull() )
-      {
-      itkWarningMacro( << "m_Heaviside is NULL" );
-      }
-  }
+  {}
 
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                             const LevelSetOutputRealType & oldValue,
@@ -113,8 +96,7 @@ public:
   }
 
 protected:
-  LevelSetEquationPropagationTerm() : Superclass(),
-    m_CurrentLevelSetPointer( NULL )
+  LevelSetEquationPropagationTerm() : Superclass()
   {
     for( unsigned int i = 0; i < ImageDimension; i++ )
       {
@@ -142,7 +124,7 @@ protected:
     // from Sethian, Ch. 6 as referenced above.
 
     LevelSetOutputRealType center_value =
-      static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
+      static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( iP ) );
     LevelSetInputIndexType pA, pB;
     LevelSetOutputRealType valueA, valueB;
 
@@ -158,29 +140,34 @@ protected:
       pA[i] += 1;
       pB[i] -= 1;
 
-      valueA = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pA ) );
-      valueB = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pB ) );
+      valueA =
+          static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pA ) );
+      valueB =
+          static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pB ) );
 
       m_dx_forward[i]  = ( valueA - center_value ) * m_NeighborhoodScales[i];
       m_dx_backward[i] = ( center_value - valueB ) * m_NeighborhoodScales[i];
       }
 
+    /// \todo why this initialization ?
     LevelSetOutputRealType propagation_gradient = ZERO;
 
     if ( propagation_gradient > NumericTraits< LevelSetOutputRealType >::Zero )
       {
       for ( unsigned int i = 0; i < ImageDimension; i++ )
         {
-        propagation_gradient += vnl_math_sqr( vnl_math_max( m_dx_backward[i], ZERO ) )
-                                + vnl_math_sqr( vnl_math_min( m_dx_forward[i],  ZERO ) );
+        propagation_gradient +=
+            vnl_math_sqr( vnl_math_max( m_dx_backward[i], ZERO ) ) +
+            vnl_math_sqr( vnl_math_min( m_dx_forward[i],  ZERO ) );
         }
       }
     else
       {
       for ( unsigned int i = 0; i < ImageDimension; i++ )
         {
-        propagation_gradient += vnl_math_sqr( vnl_math_min( m_dx_backward[i], ZERO ) )
-                                + vnl_math_sqr( vnl_math_max( m_dx_forward[i],  ZERO) );
+        propagation_gradient +=
+            vnl_math_sqr( vnl_math_min( m_dx_backward[i], ZERO ) ) +
+            vnl_math_sqr( vnl_math_max( m_dx_forward[i],  ZERO) );
         }
       }
     propagation_gradient *= this->PropagationSpeed( iP );
@@ -188,8 +175,7 @@ protected:
     return propagation_gradient;
   }
 
-  LevelSetPointer         m_CurrentLevelSetPointer;
-  LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];
+  LevelSetOutputRealType m_NeighborhoodScales[ImageDimension];
 
 private:
   LevelSetEquationPropagationTerm( const Self& );

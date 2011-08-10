@@ -132,7 +132,7 @@ LevelSetEquationContainerBase< TTermContainer >
        it != m_Container.end();
        ++it )
     {
-    oValue = vnl_math_min( oValue, ( it->second )->GetCFLContribution() );
+    oValue = vnl_math_min( oValue, ( it->second )->ComputeCFLContribution() );
     }
 
   return oValue;

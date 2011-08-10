@@ -87,7 +87,7 @@ public:
 
   void Update();
 
-  LevelSetOutputRealType GetCFLContribution();
+  LevelSetOutputRealType ComputeCFLContribution() const;
 
 protected:
   LevelSetEquationTermContainerBase();

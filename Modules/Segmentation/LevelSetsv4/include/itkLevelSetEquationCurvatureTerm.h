@@ -79,31 +79,13 @@ public:
 
   virtual void InitializeParameters()
   {
-    this->m_CFLContribution = NumericTraits< LevelSetOutputRealType >::Zero;
+    this->SetUp();
   }
 
 
   // this will work for scalars and vectors. For matrices, one may have to reimplement
   // his specialized term
-  virtual void Initialize( const LevelSetInputIndexType& iP )
-  {
-    if( m_CurrentLevelSetPointer.IsNull() )
-      {
-      m_CurrentLevelSetPointer =
-      this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
-
-      if( m_CurrentLevelSetPointer.IsNull() )
-        {
-        itkWarningMacro(
-        << "m_CurrentLevelSet does not exist in the level set container" );
-        }
-      }
-
-    if( !this->m_Heaviside.IsNotNull() )
-      {
-      itkWarningMacro( << "m_Heaviside is NULL" );
-      }
-  }
+  virtual void Initialize( const LevelSetInputIndexType& ) {}
 
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                             const LevelSetOutputRealType & oldValue,
@@ -113,8 +95,7 @@ public:
   }
 
 protected:
-  LevelSetEquationCurvatureTerm() : Superclass(),
-    m_CurrentLevelSetPointer( NULL )
+  LevelSetEquationCurvatureTerm() : Superclass()
   {
     for( unsigned int i = 0; i < ImageDimension; i++ )
       {
@@ -137,7 +118,7 @@ protected:
     if( this->m_Heaviside.IsNotNull() )
       {
       LevelSetOutputRealType center_value =
-          static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
+          static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( iP ) );
       LevelSetInputIndexType pA, pB;
       LevelSetInputIndexType pAa, pBa, pCa, pDa;
       LevelSetOutputRealType valueA, valueB;
@@ -160,8 +141,8 @@ protected:
         pA[i] += 1;
         pB[i] -= 1;
 
-        valueA = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pA ) );
-        valueB = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pB ) );
+        valueA = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pA ) );
+        valueB = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pB ) );
 
         m_dx[i] = 0.5 * ( valueA - valueB ) * m_NeighborhoodScales[i];
         m_dxy[i][i] = ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr(m_NeighborhoodScales[i]);
@@ -183,10 +164,10 @@ protected:
           pDa = pA;
           pDa[j] += 1;
 
-          valueAa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pAa ) );
-          valueBa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pBa ) );
-          valueCa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pCa ) );
-          valueDa = static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( pDa ) );
+          valueAa = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pAa ) );
+          valueBa = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pBa ) );
+          valueCa = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pCa ) );
+          valueDa = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pDa ) );
 
           m_dxy[i][j] = m_dxy[j][i] = 0.25 * ( valueAa - valueBa - valueCa + valueDa )
                                               * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
@@ -228,7 +209,6 @@ protected:
     }
 
 
-  LevelSetPointer         m_CurrentLevelSetPointer;
   LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];
 
 private:
