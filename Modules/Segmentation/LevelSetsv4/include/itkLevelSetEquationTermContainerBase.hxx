@@ -226,18 +226,19 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 template< class TInputImage, class TLevelSetContainer >
 typename LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >::LevelSetOutputRealType
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
-::GetCFLContribution()
+::ComputeCFLContribution() const
 {
-  MapTermContainerIteratorType term_it = m_Container.begin();
-  MapTermContainerIteratorType term_end = m_Container.end();
+  MapTermContainerConstIteratorType term_it = m_Container.begin();
+  MapTermContainerConstIteratorType term_end = m_Container.end();
 
-  MapCFLContainerIterator cfl_it = m_TermContribution.begin();
+  MapCFLContainerConstIterator cfl_it = m_TermContribution.begin();
 
   LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::Zero;
 
   while( term_it != term_end )
     {
     LevelSetOutputRealType cfl = ( term_it->second )->GetCFLContribution();
+
     if( cfl == NumericTraits< LevelSetOutputRealType >::Zero )
       {
       cfl = ( cfl_it->second );

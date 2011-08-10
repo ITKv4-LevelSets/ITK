@@ -20,6 +20,7 @@
 #define __itkLevelSetEquationContainerBase_hxx
 
 #include "itkLevelSetEquationContainerBase.h"
+#include "itkNumericTraits.h"
 
 namespace itk
 {
@@ -123,15 +124,15 @@ LevelSetEquationContainerBase< TTermContainer >
 template< class TTermContainer >
 typename LevelSetEquationContainerBase< TTermContainer >::LevelSetOutputRealType
 LevelSetEquationContainerBase< TTermContainer >
-::GetCFLContribution()
+::ComputeCFLContribution() const
 {
   LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::max();
 
-  for( MapContainerIterator it = m_Container.begin();
+  for( MapContainerConstIterator it = m_Container.begin();
        it != m_Container.end();
        ++it )
     {
-    oValue = vnl_math_min( oValue, ( it->second )->GetCFLContribution() );
+    oValue = vnl_math_min( oValue, ( it->second )->ComputeCFLContribution() );
     }
 
   return oValue;

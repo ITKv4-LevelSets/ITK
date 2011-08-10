@@ -355,7 +355,7 @@ protected:
       if( ( m_Alpha > NumericTraits< LevelSetOutputRealType >::Zero ) &&
           ( m_Alpha < NumericTraits< LevelSetOutputRealType >::One ) )
         {
-        LevelSetOutputRealType contribution = m_EquationContainer->GetCFLContribution();
+        LevelSetOutputRealType contribution = m_EquationContainer->ComputeCFLContribution();
 
         if( contribution > NumericTraits< LevelSetOutputRealType >::epsilon() )
           {
@@ -363,7 +363,14 @@ protected:
           }
         else
           {
-          itkGenericExceptionMacro( << "contribution is too low" );
+          if( contribution == NumericTraits< LevelSetOutputRealType >::max() )
+            {
+            itkGenericExceptionMacro( << "contribution is " << contribution );
+            }
+          else
+            {
+            itkGenericExceptionMacro( << "contribution is too low" );
+            }
           }
         }
       else

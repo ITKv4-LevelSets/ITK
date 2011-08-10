@@ -32,9 +32,9 @@ namespace itk
  *  \f[
  *  \frac{\partial \phi(p)}{\partial \tau} = \sum\limits_{i=1}^{N} \alpha_{i} \cdot \omega_i(p)
  *  \f]
- *  where $\omega_i$ is a term which could depend on the level-set function, 
+ *  where $\omega_i$ is a term which could depend on the level-set function,
  *  the input image; and $\alpha_i$ is a weight to balance the contribution of
- *  each term in the PDE. 
+ *  each term in the PDE.
  *
  *  \tparam TInput Input Image Type
  *  \tparam TLevelSetContainer Level set function container type
@@ -104,7 +104,7 @@ public:
                            const LevelSetOutputRealType & oldValue,
                            const LevelSetOutputRealType & newValue ) = 0;
 
-  itkGetMacro( CFLContribution, LevelSetOutputRealType );
+  itkGetConstMacro( CFLContribution, LevelSetOutputRealType );
 
   itkSetStringMacro( TermName );
   itkGetStringMacro( TermName );
@@ -121,6 +121,8 @@ protected:
   /** Set the default name for a given term (see m_TermName). */
   virtual void SetDefaultTermName() = 0;
 
+  void SetUp();
+
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. This method must be implemented in all
    *  class which inherits from this class.
@@ -133,8 +135,10 @@ protected:
   /** Container of level-set function */
   LevelSetContainerPointer m_LevelSetContainer;
 
-  /** Id of the current level-set function */ 
+  /** Id of the current level-set function */
   LevelSetIdentifierType   m_CurrentLevelSet;
+
+  LevelSetPointer          m_CurrentLevelSetPointer;
 
   /** Coefficient \f$ \alpha_i \f$ */
   LevelSetOutputRealType   m_Coefficient;

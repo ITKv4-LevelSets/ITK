@@ -66,7 +66,7 @@ public:
 
   void InitializeParameters();
 
-  LevelSetOutputRealType GetCFLContribution();
+  LevelSetOutputRealType ComputeCFLContribution() const;
 
   itkSetObjectMacro( Input, InputImageType );
   itkGetObjectMacro( Input, InputImageType );
@@ -78,6 +78,7 @@ protected:
 
   typedef std::map< LevelSetIdentifierType, TermContainerPointer >  MapContainerType;
   typedef typename MapContainerType::iterator                       MapContainerIterator;
+  typedef typename MapContainerType::const_iterator                 MapContainerConstIterator;
 
   MapContainerType  m_Container;
   InputImagePointer m_Input;

@@ -86,7 +86,7 @@ public:
   {
     m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
     m_TotalH = NumericTraits< LevelSetOutputRealType >::Zero;
-    this->m_CFLContribution = NumericTraits< LevelSetOutputRealType >::Zero;
+    this->SetUp();
   }
 
 
@@ -94,18 +94,6 @@ public:
   // his specialized term
   virtual void Initialize( const LevelSetInputIndexType& iP )
   {
-    if( m_CurrentLevelSetPointer.IsNull() )
-      {
-      m_CurrentLevelSetPointer =
-      this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
-
-      if( m_CurrentLevelSetPointer.IsNull() )
-        {
-        itkWarningMacro(
-        << "m_CurrentLevelSet does not exist in the level set container" );
-        }
-      }
-
     if( this->m_Heaviside.IsNotNull() )
       {
       InputPixelType pixel = this->m_Input->GetPixel( iP );
@@ -123,7 +111,7 @@ public:
   virtual void ComputeProduct( const LevelSetInputIndexType& iP,
                               LevelSetOutputRealType& prod )
   {
-    LevelSetOutputRealType value = m_CurrentLevelSetPointer->Evaluate( iP );
+    LevelSetOutputRealType value = this->m_CurrentLevelSetPointer->Evaluate( iP );
     prod = this->m_Heaviside->Evaluate( -value );
   }
 
@@ -155,7 +143,6 @@ public:
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
-    m_CurrentLevelSetPointer( NULL ),
     m_Mean( NumericTraits< InputPixelRealType >::Zero ),
     m_TotalValue( NumericTraits< InputPixelRealType >::Zero ),
     m_TotalH( NumericTraits< LevelSetOutputRealType >::Zero )
@@ -176,7 +163,7 @@ protected:
     if( this->m_Heaviside.IsNotNull() )
       {
       LevelSetOutputRealType value =
-          static_cast< LevelSetOutputRealType >( m_CurrentLevelSetPointer->Evaluate( iP ) );
+          static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( iP ) );
 
       LevelSetOutputRealType d_val = this->m_Heaviside->EvaluateDerivative( -value );
 
@@ -206,7 +193,6 @@ protected:
     m_TotalH += static_cast< LevelSetOutputRealType >( iH );
     }
 
-  LevelSetPointer         m_CurrentLevelSetPointer;
   InputPixelRealType      m_Mean;
   InputPixelRealType      m_TotalValue;
   LevelSetOutputRealType  m_TotalH;
