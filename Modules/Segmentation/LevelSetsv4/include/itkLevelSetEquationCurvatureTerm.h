@@ -83,8 +83,6 @@ public:
   }
 
 
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
   virtual void Initialize( const LevelSetInputIndexType& ) {}
 
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,

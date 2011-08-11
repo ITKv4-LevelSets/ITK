@@ -23,6 +23,12 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEquationContainerBase
+ *  \brief Class for iterating and evolving the Shi sparse level-set function
+ *
+ *  \tparam TTermContainer Container holding the terms in a level set equation
+ */
 template< class TTermContainer >
 class LevelSetEquationContainerBase : public Object
 {
@@ -51,23 +57,31 @@ public:
   typedef typename TermContainerType::LevelSetContainerType     LevelSetContainerType;
   typedef typename TermContainerType::LevelSetContainerPointer  LevelSetContainerPointer;
 
+  /** Return a pointer to the level set container */
   LevelSetContainerType* GetLevelSetContainer();
 
+  /** Add a equation to the system of equations in the EquationContainer map */
   void AddEquation( const LevelSetIdentifierType& iId,
                     TermContainerPointer iEquation );
 
+  /** Return a pointer to the equation of given id */
   TermContainerType* GetEquation( const LevelSetIdentifierType& iId );
 
+  /** Update the equation container recursively by calling update on individual equations */
   void Update();
 
+  /** Supply the update at a given pixel index to update the terms */
   void UpdatePixel( const LevelSetInputIndexType& iP,
                     const LevelSetOutputRealType & oldValue,
                     const LevelSetOutputRealType & newValue );
 
+  /** Initialize parameters in the terms of all the equations */
   void InitializeParameters();
 
+  /** Returns the CFL contribution for all the equations */
   LevelSetOutputRealType ComputeCFLContribution() const;
 
+  /** Set/Get the input speed or feature image */
   itkSetObjectMacro( Input, InputImageType );
   itkGetObjectMacro( Input, InputImageType );
 

@@ -97,16 +97,18 @@ public:
   /** \todo to be documented. */
   virtual void Initialize( const LevelSetInputIndexType& iP ) = 0;
 
-  /** \todo to be documented. */
+  /** Initialize the parameters in the terms prior to an iteration */
   virtual void InitializeParameters() = 0;
 
-  /** \todo are we still using it? */
+  /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                            const LevelSetOutputRealType & oldValue,
                            const LevelSetOutputRealType & newValue ) = 0;
 
+  /** Get the CFL contribution for the given term */
   itkGetConstMacro( CFLContribution, LevelSetOutputRealType );
 
+  /** Set/Get the term name */
   itkSetStringMacro( TermName );
   itkGetStringMacro( TermName );
 
