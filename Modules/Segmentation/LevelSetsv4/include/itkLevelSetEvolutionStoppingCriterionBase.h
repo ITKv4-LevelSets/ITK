@@ -21,6 +21,7 @@
 
 #include "itkStoppingCriterionBase.h"
 #include "itkNumericTraits.h"
+#include "itkIntTypes.h"
 
 namespace itk
 {
@@ -79,7 +80,7 @@ namespace itk
     {}
 
    /** Destructor */
-   virtual ~LevelSetEvolutionStoppingCriterionBase() {}
+   ~LevelSetEvolutionStoppingCriterionBase() {}
 
    LevelSetContainerPointer m_LevelSetContainer;
    OutputRealType           m_RMSChangeAccumulator;

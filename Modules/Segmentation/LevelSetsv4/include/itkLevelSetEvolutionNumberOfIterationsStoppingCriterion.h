@@ -20,7 +20,6 @@
 #define __itkLevelSetEvolutionNumberOfIterationsStoppingCriterion_h
 
 #include "itkLevelSetEvolutionStoppingCriterionBase.h"
-#include "itkIntTypes.h"
 
 namespace itk
 {
@@ -62,12 +61,12 @@ namespace itk
    typedef typename LevelSetContainerType::HeavisideType    HeavisideType;
    typedef typename LevelSetContainerType::HeavisideType    HeavisidePointer;
 
-   bool IsSatisfied() const
+   virtual bool IsSatisfied() const
    {
    return ( this->m_CurrentIteration >= this->m_NumberOfIterations );
    }
 
-   const std::string GetDescription() const
+   virtual const std::string GetDescription() const
    {
     return "Current Iteration Number >= Number Of Iterations";
    }
