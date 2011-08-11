@@ -61,11 +61,12 @@ public:
   typedef typename LevelSetType::HessianType    HessianType;
 
   /** IdentifierType */
-  typedef TIdentifier IdentifierType;
+  typedef TIdentifier LevelSetIdentifierType;
 
-  typedef std::map< IdentifierType, LevelSetPointer >    LevelSetContainerType;
-  typedef typename LevelSetContainerType::const_iterator LevelSetContainerConstIteratorType;
-  typedef typename LevelSetContainerType::iterator       LevelSetContainerIteratorType;
+  typedef std::map< LevelSetIdentifierType, LevelSetPointer >
+                                                          LevelSetContainerType;
+  typedef typename LevelSetContainerType::const_iterator  LevelSetContainerConstIteratorType;
+  typedef typename LevelSetContainerType::iterator        LevelSetContainerIteratorType;
 
   typedef HeavisideStepFunctionBase< OutputRealType, OutputRealType >
                                             HeavisideType;
@@ -74,7 +75,7 @@ public:
   itkStaticConstMacro ( Dimension, unsigned int,
                         LevelSetType::Dimension );
 
-  typedef std::list< IdentifierType >                   IdListType;
+  typedef std::list< LevelSetIdentifierType >           IdListType;
   typedef typename IdListType::iterator                 IdListIterator;
   typedef Image< IdListType, Dimension >                IdListImageType;
   typedef Image< short, Dimension >                     CacheImageType;
@@ -84,7 +85,7 @@ public:
   typedef typename DomainMapImageFilterType::Pointer         DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
 
-  typedef typename std::map< IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
+  typedef typename std::map< LevelSetIdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   /** Declare iterators to container. */
   class Iterator;
@@ -142,7 +143,7 @@ public:
       return (m_Iterator != it.m_Iterator );
       }
 
-    IdentifierType GetIdentifier() const
+    LevelSetIdentifierType GetIdentifier() const
       {
       return m_Iterator->first;
       }
@@ -206,7 +207,7 @@ public:
       return (m_Iterator != it.m_Iterator );
       }
 
-    IdentifierType GetIdentifier() const
+    LevelSetIdentifierType GetIdentifier() const
       {
       return m_Iterator->first;
       }
@@ -227,13 +228,13 @@ public:
   ConstIterator Begin() const;
   ConstIterator End() const;
 
-  IdentifierType Size() const;
+  LevelSetIdentifierType Size() const;
 
   /** \brief Get the level set function given its id
     \param[in] iId
     \return the level set function if it is in the container, else NULL.
   */
-  LevelSetPointer GetLevelSet( const IdentifierType& iId ) const;
+  LevelSetPointer GetLevelSet( const LevelSetIdentifierType& iId ) const;
 
   /** \brief Add one level set function given its id.
 
@@ -244,7 +245,7 @@ public:
 
     \return true if the level set has been added.
   */
-  bool AddLevelSet( const IdentifierType& iId,
+  bool AddLevelSet( const LevelSetIdentifierType& iId,
                     LevelSetPointer iLevelSet,
                     const bool& iForce = true );
 
@@ -254,7 +255,7 @@ public:
     \return true if it has been removed, false if the id was not present in the
     container.
   */
-  bool RemoveLevelSet( const IdentifierType& iId );
+  bool RemoveLevelSet( const LevelSetIdentifierType& iId );
 
   itkSetObjectMacro( Heaviside, HeavisideType );
   itkGetObjectMacro( Heaviside, HeavisideType );

@@ -41,7 +41,7 @@ public:
   /** Run-time type information */
   itkTypeMacro ( DenseLevelSetContainer, LevelSetContainerBase );
 
-  typedef typename Superclass::IdentifierType IdentifierType;
+  typedef typename Superclass::LevelSetIdentifierType LevelSetIdentifierType;
 
   typedef typename Superclass::LevelSetType       LevelSetType;
   typedef typename Superclass::LevelSetPointer    LevelSetPointer;

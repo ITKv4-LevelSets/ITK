@@ -32,6 +32,7 @@
 #include "itkLevelSetEquationCurvatureTerm.h"
 #include "itkLevelSetEquationPropagationTerm.h"
 #include "itkLevelSetEquationLaplacianTerm.h"
+#include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
 #include "itkNumericTraits.h"
 
 int itkSingleLevelSetSparseWithLaplacian2DTest( int argc, char* argv[] )
@@ -224,9 +225,14 @@ int itkSingleLevelSetSparseWithLaplacian2DTest( int argc, char* argv[] )
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
   equationContainer->AddEquation( 0, termContainer0 );
 
+  typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
+      StoppingCriterionType;
+  StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
+  criterion->SetNumberOfIterations( 5 );
+
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 1 );
+  evolution->SetStoppingCriterion( criterion );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 

@@ -25,6 +25,7 @@
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkLevelSetDomainMapImageFilter.h"
 #include "itkUpdateWhitakerSparseLevelSet.h"
+#include "itkLevelSetEvolutionStoppingCriterionBase.h"
 #include <list>
 #include "itkObject.h"
 #include "itkImageFileWriter.h"
@@ -71,7 +72,8 @@ public:
   itkStaticConstMacro ( ImageDimension, unsigned int, InputImageType::ImageDimension );
 
   typedef typename TermContainerType::LevelSetContainerType LevelSetContainerType;
-  typedef typename LevelSetContainerType::IdentifierType    IdentifierType;
+  typedef typename LevelSetContainerType::LevelSetIdentifierType
+                                                            LevelSetIdentifierType;
   typedef typename LevelSetContainerType::Pointer           LevelSetContainerPointer;
   typedef typename LevelSetContainerType::LevelSetContainerConstIteratorType
                                                             LevelSetContainerConstIteratorType;
@@ -114,6 +116,10 @@ public:
   typedef typename UpdateLevelSetFilterType::Pointer                         UpdateLevelSetFilterPointer;
 //  typedef typename UpdateLevelSetFilterType::UpdateListType                  UpdateListType;
 
+  typedef LevelSetEvolutionStoppingCriterionBase< LevelSetContainerType >
+                                                  StoppingCriterionType;
+  typedef typename StoppingCriterionType::Pointer StoppingCriterionPointer;
+
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
@@ -142,6 +148,11 @@ public:
     // Get the LevelSetContainer from the EquationContainer
     m_LevelSetContainer = m_EquationContainer->GetEquation( 0 )->GetTerm( 0 )->GetLevelSetContainer();
 
+    if( m_StoppingCriterion.IsNull() )
+      {
+      itkGenericExceptionMacro( << "m_StoppingCriterion is NULL" );
+      }
+
     //Run iteration
     this->GenerateData();
     }
@@ -167,16 +178,16 @@ public:
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
-  // set the number of iterations
-  itkSetMacro( NumberOfIterations, unsigned int );
-  itkGetMacro( NumberOfIterations, unsigned int );
+  /** \brief Set/Get the Stopping Criterion */
+  itkGetObjectMacro( StoppingCriterion, StoppingCriterionType );
+  itkSetObjectMacro( StoppingCriterion, StoppingCriterionType );
 
   // set the domain map image filter
   itkSetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
   itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
 
 protected:
-  LevelSetSparseEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
+  LevelSetSparseEvolutionBase() : m_StoppingCriterion( NULL ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
@@ -192,7 +203,9 @@ protected:
       }
   }
 
-  unsigned int                m_NumberOfIterations;
+
+  StoppingCriterionPointer  m_StoppingCriterion;
+
   /// \todo is it useful?
   unsigned int                m_NumberOfLevelSets;
   InputImagePointer           m_InputImage;
@@ -240,7 +253,12 @@ protected:
 
     InitializeIteration();
 
-    for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
+    typename StoppingCriterionType::IterationIdType iter = 0;
+    m_StoppingCriterion->SetCurrentIteration( iter );
+    m_StoppingCriterion->SetLevelSetContainer( m_LevelSetContainer );
+
+//    for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
+    while( !m_StoppingCriterion->IsSatisfied() )
       {
       m_RMSChangeAccumulator = NumericTraits< LevelSetOutputRealType >::Zero;
 
@@ -279,6 +297,10 @@ protected:
 //         ++it;
 //         }
 
+      ++iter;
+
+      m_StoppingCriterion->SetRMSChangeAccumulator( m_RMSChangeAccumulator );
+      m_StoppingCriterion->SetCurrentIteration( iter );
       this->InvokeEvent( IterationEvent() );
       }
     }
