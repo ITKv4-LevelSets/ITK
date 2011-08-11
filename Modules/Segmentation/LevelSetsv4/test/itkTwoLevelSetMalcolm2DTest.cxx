@@ -47,7 +47,6 @@ int itkTwoLevelSetMalcolm2DTest( int argc, char* argv[] )
 
   typedef itk::IdentifierType                               IdentifierType;
   typedef BinaryToSparseAdaptorType::LevelSetType           SparseLevelSetType;
-  typedef SparseLevelSetType::ImageType                     SparseImageType;
 
   typedef itk::LevelSetContainerBase< IdentifierType, SparseLevelSetType >
                                                             LevelSetContainerType;
@@ -74,36 +73,7 @@ int itkTwoLevelSetMalcolm2DTest( int argc, char* argv[] )
   typedef SparseLevelSetType::OutputRealType                LevelSetOutputRealType;
   typedef itk::SinRegularizedHeavisideStepFunction< LevelSetOutputRealType, LevelSetOutputRealType >
                                                             HeavisideFunctionBaseType;
-  typedef itk::ImageRegionIteratorWithIndex< SparseImageType >    IteratorType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
-
-//   InputImageType::RegionType region;
-//   InputImageType::IndexType index;
-//   InputImageType::SizeType size;
-//
-//   index.Fill( 0 );
-//   size.Fill( 50 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   // Input initialization
-//   InputImageType::Pointer input = InputImageType::New();
-//   input->SetRegions( region );
-//   input->Allocate();
-//   input->FillBuffer( itk::NumericTraits<InputPixelType>::Zero );
-//
-//   index.Fill( 20 );
-//   size.Fill( 10 );
-//   region.SetIndex( index );
-//   region.SetSize( size );
-//
-//   InputIteratorType inputIt( input, region );
-//   inputIt.GoToBegin();
-//   while( !inputIt.IsAtEnd() )
-//   {
-//     inputIt.Set( itk::NumericTraits<InputPixelType>::One );
-//     ++inputIt;
-//   }
 
   // load binary mask
   ReaderType::Pointer reader = ReaderType::New();
@@ -143,7 +113,6 @@ int itkTwoLevelSetMalcolm2DTest( int argc, char* argv[] )
   std::cout << "Finished converting to sparse format" << std::endl;
 
   SparseLevelSetType::Pointer level_set0 = adaptor0->GetSparseLevelSet();
-  SparseImageType::Pointer sparseImage0 = level_set0->GetImage();
 
   BinaryToSparseAdaptorType::Pointer adaptor1 = BinaryToSparseAdaptorType::New();
   adaptor1->SetInputImage( binary );
@@ -151,7 +120,6 @@ int itkTwoLevelSetMalcolm2DTest( int argc, char* argv[] )
   std::cout << "Finished converting to sparse format" << std::endl;
 
   SparseLevelSetType::Pointer level_set1 = adaptor1->GetSparseLevelSet();
-  SparseImageType::Pointer sparseImage1 = level_set1->GetImage();
 
   // Create a list image specifying both level set ids
   IdListType list_ids;
@@ -260,7 +228,7 @@ int itkTwoLevelSetMalcolm2DTest( int argc, char* argv[] )
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 40 );
+  evolution->SetNumberOfIterations( atoi( argv[2] ) );
   evolution->SetLevelSetContainer( lscontainer );
   evolution->SetDomainMapFilter( domainMapFilter );
 
@@ -272,32 +240,64 @@ int itkTwoLevelSetMalcolm2DTest( int argc, char* argv[] )
   {
     std::cout << err << std::endl;
   }
+  typedef itk::Image< char, Dimension > OutputImageType;
+  OutputImageType::Pointer outputImage = OutputImageType::New();
+  outputImage->SetRegions( input->GetLargestPossibleRegion() );
+  outputImage->CopyInformation( input );
+  outputImage->Allocate();
+  outputImage->FillBuffer( 0 );
 
-//   LevelSetOutputRealType internalmean1 = cvInternalTerm0->GetMean();
-//   LevelSetOutputRealType internalmean2 = cvInternalTerm1->GetMean();
-//   if ( ( internalmean1 < 24900 ) || ( internalmean1 > 24910 ) )
+  typedef itk::ImageRegionIteratorWithIndex< OutputImageType > OutputIteratorType;
+  OutputIteratorType oIt( outputImage, outputImage->GetLargestPossibleRegion() );
+  oIt.GoToBegin();
+
+  OutputImageType::IndexType idx;
+
+  while( !oIt.IsAtEnd() )
+    {
+    idx = oIt.GetIndex();
+    oIt.Set( level_set0->Evaluate( idx ) );
+    ++oIt;
+    }
+
+  typedef itk::ImageFileWriter< OutputImageType >     OutputWriterType;
+  OutputWriterType::Pointer writer = OutputWriterType::New();
+  writer->SetFileName( argv[3] );
+  writer->SetInput( outputImage );
+
+  try
+    {
+    writer->Update();
+    }
+  catch ( itk::ExceptionObject& err )
+    {
+    std::cout << err << std::endl;
+    }
+
+  LevelSetOutputRealType internalmean1 = cvInternalTerm0->GetMean();
+  LevelSetOutputRealType internalmean2 = cvInternalTerm1->GetMean();
+//   if ( ( internalmean1 < 16400 ) || ( internalmean1 > 16500 ) )
 //   {
-//     std::cout << "( ( mean1 < 24900 ) || ( mean1 > 24910 ) )" <<std::endl;
+//     std::cout << "( ( mean1 < 16400 ) || ( mean1 > 16500 ) )" << std::endl;
 //     std::cout << "internalmean1 = " << internalmean1 <<std::endl;
 //     return EXIT_FAILURE;
 //   }
-//
-//   LevelSetOutputRealType externalmean1 = cvExternalTerm0->GetMean();
-//   LevelSetOutputRealType externalmean2 = cvExternalTerm1->GetMean();
-//   if ( ( externalmean1 < 1350 ) || ( externalmean1 > 1360 ) )
+
+  LevelSetOutputRealType externalmean1 = cvExternalTerm0->GetMean();
+  LevelSetOutputRealType externalmean2 = cvExternalTerm1->GetMean();
+//   if ( ( externalmean1 < 650 ) || ( externalmean1 > 660 ) )
 //   {
-//     std::cout << "( ( externalmean1 < 1350 ) || ( externalmean1 > 1360 ) )" <<std::endl;
+//     std::cout << "( ( externalmean1 < 650 ) || ( externalmean1 > 660 ) )" <<std::endl;
 //     std::cout << "externalmean1 = " << externalmean1 <<std::endl;
 //     return EXIT_FAILURE;
 //   }
-//
-//
-//   if ( ( internalmean1 != internalmean2  ) || ( externalmean1 != externalmean2 ) )
-//   {
-//     std::cout << "internalmean = " << internalmean1 <<std::endl;
-//     std::cout << "externalmean = " << externalmean1 <<std::endl;
-//     return EXIT_FAILURE;
-//   }
+
+  if ( ( internalmean1 != internalmean2  ) || ( externalmean1 != externalmean2 ) )
+  {
+    std::cout << "internalmean = " << internalmean1 <<std::endl;
+    std::cout << "externalmean = " << externalmean1 <<std::endl;
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }
