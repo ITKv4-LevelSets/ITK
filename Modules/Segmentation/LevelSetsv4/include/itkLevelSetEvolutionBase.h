@@ -35,6 +35,12 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEvolutionBase
+ *  \brief Class for iterating and evolving the dense level-set function
+ *
+ *  \tparam TEquationContainer Container holding the system of level set of equations
+ */
 template< class TEquationContainer >
 class LevelSetEvolutionBase : public Object
 {
@@ -115,14 +121,12 @@ public:
                                                   StoppingCriterionType;
   typedef typename StoppingCriterionType::Pointer StoppingCriterionPointer;
 
-  // create another class which contains all the equations
-  // i.e. it is a container of term container :-):
-  // set the i^th term container
-  // This container should also hold the LevelSetContainer
-//   void SetLevelSetEquations( EquationContainer );
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
+  /** Update the filter by computing the output level function
+   * by calling GenerateData() once the instantiation of necessary variables
+   * is verified */
   void Update()
     {
     m_DomainMapFilter = m_LevelSetContainer->GetDomainMapFilter();
@@ -130,9 +134,11 @@ public:
     this->GenerateData();
     }
 
+  /** Set/Get the value of alpha for computing the time-step using CFL conditions */
   itkSetMacro( Alpha, LevelSetOutputRealType );
   itkGetMacro( Alpha, LevelSetOutputRealType );
 
+  /** Set a user-specified value of the time-step */
   void SetTimeStep( const LevelSetOutputRealType& iDt )
     {
     if( iDt > NumericTraits< LevelSetOutputRealType >::epsilon() )
@@ -147,11 +153,11 @@ public:
       }
     }
 
-  // set the term container
+  /** Set/Get the equation container for updating all the level sets */
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
-  /** \brief Set/Get the Stopping Criterion */
+  /** Set/Get the Stopping Criterion */
   itkGetObjectMacro( StoppingCriterion, StoppingCriterionType );
   itkSetObjectMacro( StoppingCriterion, StoppingCriterionType );
 
@@ -178,97 +184,16 @@ protected:
   LevelSetOutputRealType      m_RMSChangeAccumulator;
   bool                        m_UserDefinedDt;
 
+  /** Initialize the update buffers for all level sets to hold the updates of
+   *  equations in each iteration */
   void AllocateUpdateBuffer()
     {
     this->m_UpdateBuffer = LevelSetContainerType::New();
     this->m_UpdateBuffer->CopyInformationAndAllocate( m_LevelSetContainer, true );
     }
 
-  void ComputeIteration()
-    {
-    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
-    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
-
-    std::cout << "Begin iteration" << std::endl;
-
-    while( map_it != map_end )
-      {
-//       std::cout << map_it->second.m_Region << std::endl;
-
-      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
-      it.GoToBegin();
-
-      while( !it.IsAtEnd() )
-        {
-//         std::cout << it.GetIndex() << std::endl;
-        IdListType lout = map_it->second.m_List;
-
-        if( lout.empty() )
-          {
-          itkGenericExceptionMacro( <<"No level set exists at voxel" );
-          }
-
-        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-          {
-//           std::cout << *lIt << " ";
-          LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
-//           std::cout << levelSet->Evaluate( it.GetIndex() ) << ' ';
-
-          LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
-
-          LevelSetOutputRealType temp_update =
-              m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
-
-          levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
-          }
-//         std::cout << std::endl;
-        ++it;
-        }
-      ++map_it;
-      }
-    }
-
-
-  void InitializeIteration()
-  {
-    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
-    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
-
-    std::cout << "Initialize iteration" << std::endl;
-
-    // Initialize parameters here
-    m_EquationContainer->InitializeParameters();
-
-    while( map_it != map_end )
-    {
-//       std::cout << map_it->second.m_Region << std::endl;
-
-      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
-      it.GoToBegin();
-
-      while( !it.IsAtEnd() )
-      {
-//         std::cout << it.GetIndex() << std::endl;
-        IdListType lout = map_it->second.m_List;
-
-        if( lout.empty() )
-        {
-          itkGenericExceptionMacro( <<"No level set exists at voxel" );
-        }
-
-        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-        {
-//           std::cout << *lIt -1 << " ";
-          m_EquationContainer->GetEquation( *lIt - 1 )->Initialize( it.GetIndex() );
-        }
-//         std::cout << std::endl;
-        ++it;
-      }
-      ++map_it;
-    }
-    m_EquationContainer->Update();
-  }
-
+  /** Run the iterative loops of calculating levelset function updates until
+   *  the stopping criterion is satisfied */
   void GenerateData()
     {
     std::cout << "Generate data" << std::endl;
@@ -338,7 +263,93 @@ protected:
       }
     }
 
-  /** \brief Compute time step m_Dt for the next iteration. */
+  /** Initialize the iteration by computing parameters in the terms of the level set equation */
+  void InitializeIteration()
+  {
+    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
+    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+
+    std::cout << "Initialize iteration" << std::endl;
+
+    // Initialize parameters here
+    m_EquationContainer->InitializeParameters();
+
+    while( map_it != map_end )
+    {
+//       std::cout << map_it->second.m_Region << std::endl;
+
+      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
+      it.GoToBegin();
+
+      while( !it.IsAtEnd() )
+      {
+//         std::cout << it.GetIndex() << std::endl;
+        IdListType lout = map_it->second.m_List;
+
+        if( lout.empty() )
+        {
+          itkGenericExceptionMacro( <<"No level set exists at voxel" );
+        }
+
+        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+        {
+//           std::cout << *lIt -1 << " ";
+          m_EquationContainer->GetEquation( *lIt - 1 )->Initialize( it.GetIndex() );
+        }
+//         std::cout << std::endl;
+        ++it;
+      }
+      ++map_it;
+    }
+    m_EquationContainer->Update();
+  }
+
+  /** Computer the update at each pixel and store in the update buffer */
+  void ComputeIteration()
+    {
+    DomainIteratorType map_it = m_DomainMapFilter->m_LevelSetMap.begin();
+    DomainIteratorType map_end = m_DomainMapFilter->m_LevelSetMap.end();
+
+    std::cout << "Begin iteration" << std::endl;
+
+    while( map_it != map_end )
+      {
+//       std::cout << map_it->second.m_Region << std::endl;
+
+      InputImageIteratorType it( m_InputImage, map_it->second.m_Region );
+      it.GoToBegin();
+
+      while( !it.IsAtEnd() )
+        {
+//         std::cout << it.GetIndex() << std::endl;
+        IdListType lout = map_it->second.m_List;
+
+        if( lout.empty() )
+          {
+          itkGenericExceptionMacro( <<"No level set exists at voxel" );
+          }
+
+        for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
+          {
+//           std::cout << *lIt << " ";
+          LevelSetPointer levelSet = m_LevelSetContainer->GetLevelSet( *lIt - 1);
+//           std::cout << levelSet->Evaluate( it.GetIndex() ) << ' ';
+
+          LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
+
+          LevelSetOutputRealType temp_update =
+              m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
+
+          levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
+          }
+//         std::cout << std::endl;
+        ++it;
+        }
+      ++map_it;
+      }
+    }
+
+  /** Compute the time-step for the next iteration */
   void ComputeDtForNextIteration()
     {
     // if the time step is not globally set
@@ -375,6 +386,7 @@ protected:
 //       m_Dt = 0.08;
     }
 
+  /** Update the levelset by 1 iteration from the computed updates */
   virtual void UpdateLevelSets()
     {
     typename LevelSetContainerType::Iterator it1 = m_LevelSetContainer->Begin();
@@ -408,12 +420,14 @@ protected:
       }
   }
 
+  /** Update the equations at the end of 1 iteration */
   void UpdateEquations()
     {
     InitializeIteration();
 //     m_EquationContainer->Update();
     }
 
+  /** Reinitialize the level set functions to a signed distance function */
   void Reinitialize()
   {
     typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
