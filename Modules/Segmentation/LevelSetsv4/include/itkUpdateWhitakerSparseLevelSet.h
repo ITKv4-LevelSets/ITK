@@ -521,6 +521,8 @@ protected:
            !it.IsAtEnd();
            ++it )
         {
+        LevelSetInputType tempIndex =
+              neighIt.GetIndex( it.GetNeighborhoodOffset() );
         char label = it.Get();
 
         if( label >= 0 )
@@ -529,8 +531,6 @@ protected:
             {
             IsThereAPointWithLabelEqualTo0 = true;
             }
-          LevelSetInputType tempIndex =
-              neighIt.GetIndex( it.GetNeighborhoodOffset() );
 
           LevelSetLayerIterator phiIt = m_TempPhi.find( tempIndex );
           assert( phiIt != m_TempPhi.end() );
