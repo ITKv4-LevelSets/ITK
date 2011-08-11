@@ -260,6 +260,10 @@ protected:
 //         ++it;
 //         }
 
+      ++iter;
+
+      m_StoppingCriterion->SetRMSChangeAccumulator( m_RMSChangeAccumulator );
+      m_StoppingCriterion->SetCurrentIteration( iter );
       this->InvokeEvent( IterationEvent() );
       }
     }
