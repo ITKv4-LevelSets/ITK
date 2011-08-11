@@ -303,7 +303,7 @@ protected:
       UpdateEquations();
 
       // DEBUGGING
-      typedef Image< unsigned char, ImageDimension > WriterImageType;
+/*      typedef Image< unsigned char, ImageDimension > WriterImageType;
       typedef BinaryThresholdImageFilter< LevelSetImageType, WriterImageType >  FilterType;
       typedef ImageFileWriter< WriterImageType > WriterType;
       typedef typename WriterType::Pointer       WriterPointer;
@@ -330,7 +330,7 @@ protected:
         writer2->Update();
         ++it;
       }
-
+*/
       ++iter;
 
       m_StoppingCriterion->SetRMSChangeAccumulator( m_RMSChangeAccumulator );
