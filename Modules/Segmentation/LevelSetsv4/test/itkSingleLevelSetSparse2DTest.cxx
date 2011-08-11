@@ -241,7 +241,7 @@ int itkSingleLevelSetSparse2DTest( int argc, char* argv[] )
   while( !oIt.IsAtEnd() )
     {
     idx = oIt.GetIndex();
-    oIt.Set( level_set->Evaluate( idx ) );
+    oIt.Set( level_set->GetLabelMap()->GetPixel(idx) );
     ++oIt;
     }
 

@@ -75,7 +75,7 @@ int itkSingleLevelSetMalcolm2DTest( int argc, char* argv[] )
                                                             HeavisideFunctionBaseType;
   typedef itk::ImageRegionIteratorWithIndex< InputImageType >     InputIteratorType;
 
-  // load binary mask
+  // load input image
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
   reader->Update();
