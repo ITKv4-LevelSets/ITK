@@ -31,6 +31,15 @@
 
 namespace itk
 {
+/** \class BinaryImageToWhitakerSparseLevelSetAdaptor
+ *  \brief Convenient adaptor class to convert a binary mask into a sparse leve-set
+ *  function.
+ *
+ *  \tparam TInputImage Input image to be converted
+ *  \tparam TLevelSetValueType Ouput value type for the level-set function
+ *
+ *  \todo Make it as filter to benefit from the pipeline architecture
+ */
 template< class TInputImage, typename TLevelSetValueType >
 class BinaryImageToWhitakerSparseLevelSetAdaptor : public Object
 {
@@ -68,8 +77,6 @@ public:
   typedef typename LevelSetType::LabelObjectPointer    LevelSetLabelObjectPointer;
   typedef typename LevelSetType::LabelObjectLengthType LevelSetLabelObjectLengthType;
   typedef typename LevelSetType::LabelObjectLineType   LevelSetLabelObjectLineType;
-//  typedef typename LevelSetType::LabelObjectLineContainerType
-//                                                       LevelSetLabelObjectLineContainerType;
 
   typedef typename LevelSetType::LabelMapType          LevelSetLabelMapType;
   typedef typename LevelSetType::LabelMapPointer       LevelSetLabelMapPointer;
@@ -122,28 +129,32 @@ public:
 
     FindPlusOneMinusOneLayer();
 
-//     FindMinusTwoLayer();
-
     PropagateToOutterLayers(-1, -2, -3 );
     PropagateToOutterLayers( 1,  2,  3 );
 
+    m_LabelMap->Optimize();
+
     m_SparseLevelSet->SetLabelMap( m_LabelMap );
+
+    // release the memory
     m_InternalImage = 0;
   }
 
-  // Set/Get the sparse levet set image
-//  itkSetObjectMacro( SparseLevelSet, LevelSetType );
+  /** Get the sparse levet set function */
   itkGetObjectMacro( SparseLevelSet, LevelSetType );
 
-  // Set get the input image
+  /** Set/Get the input image*/
   itkSetObjectMacro( InputImage, InputImageType );
   itkGetObjectMacro( InputImage, InputImageType );
 
 protected:
+  /** Constructor */
   BinaryImageToWhitakerSparseLevelSetAdaptor()
     {
     m_SparseLevelSet = LevelSetType::New();
     }
+
+  /** Destructor */
   ~BinaryImageToWhitakerSparseLevelSetAdaptor() {}
 
   InputImagePointer       m_InputImage;
@@ -160,81 +171,7 @@ protected:
 
   typedef ShapedNeighborhoodIterator< InternalImageType > NeighborhoodIteratorType;
 
-/*  void FindMinusTwoLayer()
-  {
-    const LevelSetLayerType layerMinus1 = m_SparseLevelSet->GetLayer( static_cast< char >( -1 ) );
-
-    LevelSetLayerType& layerMinus2 = m_SparseLevelSet->GetLayer( static_cast< char >( -2 ) );
-    const LevelSetOutputType minus2 = static_cast< LevelSetOutputType >( -2 );
-
-    typename NeighborhoodIteratorType::RadiusType radius;
-    radius.Fill( 1 );
-
-    ZeroFluxNeumannBoundaryCondition< InternalImageType > im_nbc;
-
-    NeighborhoodIteratorType neighIt( radius,
-                                      m_InternalImage,
-                                      m_InternalImage->GetLargestPossibleRegion() );
-
-    neighIt.OverrideBoundaryCondition( &im_nbc );
-
-    typename NeighborhoodIteratorType::OffsetType neighOffset;
-    neighOffset.Fill( 0 );
-
-    for( unsigned int dim = 0; dim < ImageDimension; dim++ )
-      {
-      neighOffset[dim] = -1;
-      neighIt.ActivateOffset( neighOffset );
-      neighOffset[dim] = 1;
-      neighIt.ActivateOffset( neighOffset );
-      neighOffset[dim] = 0;
-      }
-
-
-    LevelSetLayerConstIterator nodeIt = layerMinus1.begin();
-    LevelSetLayerConstIterator nodeEnd = layerMinus1.end();
-
-    while( nodeIt != nodeEnd )
-    {
-      LevelSetInputType idx = nodeIt->first;
-      neighIt.SetLocation( idx );
-
-      for( typename NeighborhoodIteratorType::Iterator it = neighIt.Begin();
-           !it.IsAtEnd();
-           ++it )
-        {
-        if( it.Get() == static_cast< char >( -3 ) )
-          {
-          LevelSetInputType tempIndex =
-              neighIt.GetIndex( it.GetNeighborhoodOffset() );
-
-          layerMinus2.insert(
-                std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, minus2 ) );
-          }
-        }
-      ++nodeIt;
-    }
-
-    LevelSetLabelObjectPointer ObjectMinus2 = LevelSetLabelObjectType::New();
-    ObjectMinus2->SetLabel(static_cast< char >( -2 ) );
-
-    nodeIt = layerMinus2.begin();
-    nodeEnd = layerMinus2.end();
-
-    while( nodeIt != nodeEnd )
-      {
-      m_LabelMap->GetLabelObject( static_cast< char >( -3 ) )->RemoveIndex( nodeIt->first );
-      ObjectMinus2->AddIndex( nodeIt->first );
-      m_InternalImage->SetPixel( nodeIt->first, -2 );
-      ++nodeIt;
-      }
-
-    ObjectMinus2->Optimize();
-    m_LabelMap->AddLabelObject( ObjectMinus2 );
-  }
-*/
-
-  //void FindPlusTwoLayer( char LayerToBeScanned, char OutputLayer, char TestValue )
+  /** Fill layer adjacent (OutputLayer) to the layer (LayerToBeScanned) */
   void PropagateToOutterLayers( char LayerToBeScanned, char OutputLayer, char TestValue )
   {
     const LevelSetLayerType layerPlus1 = m_SparseLevelSet->GetLayer( LayerToBeScanned );
@@ -266,6 +203,7 @@ protected:
       }
 
 
+    // iterate on the layer to be scanned
     LevelSetLayerConstIterator nodeIt = layerPlus1.begin();
     LevelSetLayerConstIterator nodeEnd = layerPlus1.end();
 
@@ -278,6 +216,7 @@ protected:
            !it.IsAtEnd();
            ++it )
         {
+        // check if in the neighborhood there are values equal to TestValue
         if( it.Get() == TestValue )
           {
           LevelSetInputType tempIndex =
@@ -299,9 +238,9 @@ protected:
     while( nodeIt != nodeEnd )
       {
       if ( TestValue != m_LabelMap->GetBackgroundValue() )
-      {
+        {
         m_LabelMap->GetLabelObject( TestValue )->RemoveIndex( nodeIt->first );
-      }
+        }
       ObjectPlus2->AddIndex( nodeIt->first );
       m_InternalImage->SetPixel( nodeIt->first, OutputLayer );
       ++nodeIt;
@@ -311,6 +250,7 @@ protected:
     m_LabelMap->AddLabelObject( ObjectPlus2 );
   }
 
+  /** Fill the layer corresponding to zero level set */
   void FindActiveLayer()
   {
     LevelSetLabelObjectPointer labelObject = m_LabelMap->GetLabelObject( -3 );
@@ -388,6 +328,7 @@ protected:
       }
   }
 
+  /** Fill layers adjacent to the zero level set (i.e. layer -1 and +1 )*/
   void FindPlusOneMinusOneLayer()
   {
     const LevelSetOutputType minus1 = - NumericTraits< LevelSetOutputType >::One;
