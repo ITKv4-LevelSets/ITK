@@ -26,7 +26,7 @@
 #include "itkAsinImageAdaptor.h"
 #include "itkAtanImageAdaptor.h"
 #include "itkAzimuthElevationToCartesianTransform.h"
-#include "itkBSplineDeformableTransform.h"
+#include "itkBSplineTransform.h"
 #include "itkBSplineDerivativeKernelFunction.h"
 #include "itkBoundingBox.h"
 #include "itkCellInterfaceVisitor.h"
@@ -126,6 +126,7 @@ int itkCommonPrintTest(int , char* [])
   typedef itk::Image<unsigned char,2> CharType;
   typedef itk::Image<float,2>         OutputType;
 
+  typedef itk::Point<float,3>   Point3DType;
   typedef itk::Point<float,2>   PointType;
   typedef itk::Mesh<PointType>  MeshType;
 
@@ -166,9 +167,9 @@ int itkCommonPrintTest(int , char* [])
     itk::AzimuthElevationToCartesianTransform<float,3>::New();
   std::cout << "------------AzimuthElevationToCartesianTransform" << AzimuthElevationToCartesianTransformObj;
 
-  itk::BSplineDeformableTransform<float,3,3>::Pointer BSplineDeformableTransformObj =
-    itk::BSplineDeformableTransform<float,3,3>::New();
-  std::cout << "------------BSplineDeformableTransform" << BSplineDeformableTransformObj;
+  itk::BSplineTransform<float,3,3>::Pointer BSplineTransformObj =
+    itk::BSplineTransform<float,3,3>::New();
+  std::cout << "------------BSplineTransform" << BSplineTransformObj;
 
   itk::BSplineDerivativeKernelFunction<3>::Pointer BSplineDerivativeKernelFunctionObj =
     itk::BSplineDerivativeKernelFunction<3>::New();
@@ -268,8 +269,8 @@ int itkCommonPrintTest(int , char* [])
     itk::FileOutputWindow::New();
   std::cout << "------------FileOutputWindow" << FileOutputWindowObj;
 
-  itk::FiniteCylinderSpatialFunction<3,PointType>::Pointer FiniteCylinderSpatialFunctionObj =
-    itk::FiniteCylinderSpatialFunction<3,PointType>::New();
+  itk::FiniteCylinderSpatialFunction<3,Point3DType>::Pointer FiniteCylinderSpatialFunctionObj =
+    itk::FiniteCylinderSpatialFunction<3,Point3DType>::New();
   std::cout << "------------FiniteCylinderSpatialFunction" << FiniteCylinderSpatialFunctionObj;
 
   itk::FrustumSpatialFunction<2,PointType>::Pointer FrustumSpatialFunctionObj =

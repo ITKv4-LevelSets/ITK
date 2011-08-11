@@ -8,15 +8,10 @@ itkBoxSigmaImageFilterTest.cxx
 itkBruker2DSEQImageIOTest.cxx
 itkBSplineControlPointImageFilterTest.cxx
 itkBSplineControlPointImageFunctionTest.cxx
-itkBSplineScatteredDataPointSetToImageFilterTest.cxx
-itkBSplineScatteredDataPointSetToImageFilterTest2.cxx
-itkBSplineScatteredDataPointSetToImageFilterTest3.cxx
 itkCompositeTransformTest.cxx
 itkConformalFlatteningMeshFilterTest.cxx
 itkConformalFlatteningQuadEdgeMeshFilterTest.cxx
 itkContourExtractor2DImageFilterTest.cxx
-itkCoxDeBoorBSplineKernelFunctionTest.cxx
-itkCoxDeBoorBSplineKernelFunctionTest2.cxx
 itkDeformationFieldTransformTest.cxx
 itkDiffeomorphicDemonsRegistrationFilterTest.cxx
 itkDiffeomorphicDemonsRegistrationFilterTest2.cxx
@@ -30,7 +25,6 @@ itkDivideByConstantImageFilterTest.cxx
 itkExponentialDeformationFieldImageFilterTest.cxx
 itkFastApproximateRankImageFilterTest.cxx
 itkFastSymmetricForcesDemonsRegistrationFilterTest.cxx
-itkFFTShiftImageFilterTest.cxx
 itkGaborImageSourceTest.cxx
 itkGaussianDerivativeOperatorTest.cxx
 itkGridForwardWarpImageFilterTest.cxx
@@ -104,7 +98,6 @@ itkWarpJacobianDeterminantFilterTest.cxx
 itkCompositeTransformWriterTest.cxx
 itkCompositeTransformReaderTest.cxx
 itkCompositeTransformWriterAndReaderTest.cxx
-itkReviewHeaderTest.cxx
 )
 
 set(BASELINE ${ITK_DATA_ROOT}/Baseline/Review)
@@ -129,8 +122,6 @@ endif( USE_FFTWD OR USE_FFTWF )
 
 CreateTestDriver_SupportBuildInIOFactories(ITKReview  "${ITKReview-Test_LIBRARIES}" "${ITKReviewTests}")
 
-itk_add_test(NAME itkReviewHeaderTest
-      COMMAND ITKReviewTestDriver itkReviewHeaderTest)
 itk_add_test(NAME itkAddConstantToImageFilterTest
       COMMAND ITKReviewTestDriver itkAddConstantToImageFilterTest)
 itk_add_test(NAME itkAreaClosingImageFilterTest0
@@ -184,17 +175,6 @@ itk_add_test(NAME itkTransformToDeformationFieldSourceTest03
               ${TEMP}/warpedImage.nii
   --compareNumberOfPixelsTolerance 20
    itkTransformToDeformationFieldSourceTest1 ${TEMP}/transformedImage.nii ${TEMP}/warpedImage.nii)
-itk_add_test(NAME itkBSplineScatteredDataPointSetToImageFilterTest01
-      COMMAND ITKReviewTestDriver
-    --compare ${ITK_DATA_ROOT}/Baseline/Review/itkBSplineScatteredDataPointSetToImageFilterTest01.mha
-              ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest01.mha
-    itkBSplineScatteredDataPointSetToImageFilterTest ${ITK_DATA_ROOT}/Input/cake_easy.png ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest01.mha)
-itk_add_test(NAME itkBSplineScatteredDataPointSetToImageFilterTest02
-      COMMAND ITKReviewTestDriver itkBSplineScatteredDataPointSetToImageFilterTest2
-              ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredApproximationDataPointsTestOutput2.txt)
-itk_add_test(NAME itkBSplineScatteredDataPointSetToImageFilterTest03
-      COMMAND ITKReviewTestDriver itkBSplineScatteredDataPointSetToImageFilterTest3
-              ${ITK_DATA_ROOT}/Input/BSplineScatteredApproximationDataPointsInput.txt ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredApproximationDataPointsTestOutput3.txt)
 itk_add_test(NAME itkCompositeTransformTest
       COMMAND ITKReviewTestDriver itkCompositeTransformTest)
 itk_add_test(NAME itkConformalFlatteningMeshFilterTest1
@@ -212,10 +192,6 @@ itk_add_test(NAME itkConformalFlatteningQuadEdgeMeshFilterTest2
 itk_add_test(NAME itkContourExtractor2DImageFilterTest
       COMMAND ITKReviewTestDriver itkContourExtractor2DImageFilterTest
               ${ITK_DATA_ROOT}/Input/ContourExtractor2DTest.tif)
-itk_add_test(NAME itkCoxDeBoorBSplineKernelFunctionTest01
-      COMMAND ITKReviewTestDriver itkCoxDeBoorBSplineKernelFunctionTest)
-itk_add_test(NAME itkCoxDeBoorBSplineKernelFunctionTest02
-      COMMAND ITKReviewTestDriver itkCoxDeBoorBSplineKernelFunctionTest2)
 itk_add_test(NAME itkDeformationFieldTransformTest
       COMMAND ITKReviewTestDriver itkDeformationFieldTransformTest)
 itk_add_test(NAME itkDiffeomorphicDemonsRegistrationFilterTest01
@@ -329,26 +305,6 @@ itk_add_test(NAME itkFastApproximateRankImageFilterTest10
     itkFastApproximateRankImageFilterTest ${ITK_DATA_ROOT}/Input/cthead1.png ${ITK_TEST_OUTPUT_DIR}/itkFastApproximateRankImageFilter10.png 10)
 itk_add_test(NAME itkFastSymmetricForcesDemonsRegistrationFilterTest
       COMMAND ITKReviewTestDriver itkFastSymmetricForcesDemonsRegistrationFilterTest)
-itk_add_test(NAME itkFFTShiftImageFilterTestOdd0
-      COMMAND ITKReviewTestDriver
-    --compare ${ITK_DATA_ROOT}/Baseline/Review/itkFFTShiftImageFilterTest0.png
-              ${ITK_TEST_OUTPUT_DIR}/itkFFTShiftImageFilterTest0.png
-    itkFFTShiftImageFilterTest ${ITK_DATA_ROOT}/Input/BrainSliceBinary.png ${ITK_TEST_OUTPUT_DIR}/itkFFTShiftImageFilterTest0.png 0)
-itk_add_test(NAME itkFFTShiftImageFilterTestOdd1
-      COMMAND ITKReviewTestDriver
-    --compare ${ITK_DATA_ROOT}/Input/BrainSliceBinary.png
-              ${ITK_TEST_OUTPUT_DIR}/itkFFTShiftImageFilterTest1.png
-    itkFFTShiftImageFilterTest ${ITK_DATA_ROOT}/Baseline/Review/itkFFTShiftImageFilterTest0.png ${ITK_TEST_OUTPUT_DIR}/itkFFTShiftImageFilterTest1.png 1)
-itk_add_test(NAME itkFFTShiftImageFilterTestEven0
-      COMMAND ITKReviewTestDriver
-    --compare ${ITK_DATA_ROOT}/Baseline/Review/itkFFTShiftImageFilterTestEven0.png
-              ${ITK_TEST_OUTPUT_DIR}/itkFFTShiftImageFilterTestEven0.png
-    itkFFTShiftImageFilterTest ${ITK_DATA_ROOT}/Input/cthead1.png ${ITK_TEST_OUTPUT_DIR}/itkFFTShiftImageFilterTestEven0.png 0)
-itk_add_test(NAME itkFFTShiftImageFilterTestEven1
-      COMMAND ITKReviewTestDriver
-    --compare ${ITK_DATA_ROOT}/Input/cthead1.png
-              ${ITK_TEST_OUTPUT_DIR}/itkFFTShiftImageFilterTestEven1.png
-    itkFFTShiftImageFilterTest ${ITK_DATA_ROOT}/Baseline/Review/itkFFTShiftImageFilterTestEven0.png ${ITK_TEST_OUTPUT_DIR}/itkFFTShiftImageFilterTestEven1.png 1)
 itk_add_test(NAME itkGaborImageSourceTest0
       COMMAND ITKReviewTestDriver
     --compare ${ITK_DATA_ROOT}/Baseline/Review/GaborImageSourceTest0.mha
@@ -648,8 +604,9 @@ itk_add_test(NAME itkOptImageToImageMetricsTest03
               itkOptImageToImageMetricsTest
               ${ITK_EXAMPLE_DATA_ROOT}/BrainProtonDensitySliceBorder20.png ${ITK_EXAMPLE_DATA_ROOT}/BrainProtonDensitySliceBorder20.png)
 itk_add_test(NAME itkOptImageToImageMetricsTest04
-      COMMAND ITKReviewTestDriver itkOptImageToImageMetricsTest2
-              ${ITK_EXAMPLE_DATA_ROOT}/DiagonalLines.png ${ITK_DATA_ROOT}/Baseline/Common/itkBSplineDeformableTransformTest4.png)
+      COMMAND ITKReviewTestDriver
+      itkOptImageToImageMetricsTest2
+      ${ITK_EXAMPLE_DATA_ROOT}/DiagonalLines.png DATA{Baseline/itkBSplineTransformTest4.png})
 itk_add_test(NAME itkOptMattesImageToImageMetricsTest01
       COMMAND ITKReviewTestDriver itkOptMattesMutualInformationImageToImageMetricThreadsTest1
               ${ITK_EXAMPLE_DATA_ROOT}/BrainProtonDensitySliceBorder20.png ${ITK_EXAMPLE_DATA_ROOT}/BrainProtonDensitySliceBorder20.png 0 100)
