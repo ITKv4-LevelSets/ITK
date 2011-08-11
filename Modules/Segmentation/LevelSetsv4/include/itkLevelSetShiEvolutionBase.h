@@ -28,6 +28,7 @@
 #include <list>
 #include "itkObject.h"
 #include "itkImageFileWriter.h"
+#include "itkLevelSetEvolutionStoppingCriterionBase.h"
 
 #include <iostream>
 #include <fstream>
@@ -110,6 +111,10 @@ public:
 
   typedef typename UpdateLevelSetFilterType::Pointer UpdateLevelSetFilterPointer;
 
+  typedef LevelSetEvolutionStoppingCriterionBase< LevelSetContainerType >
+                                                  StoppingCriterionType;
+  typedef typename StoppingCriterionType::Pointer StoppingCriterionPointer;
+
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
@@ -168,16 +173,16 @@ public:
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
-  // set the number of iterations
-  itkSetMacro( NumberOfIterations, unsigned int );
-  itkGetMacro( NumberOfIterations, unsigned int );
+  /** \brief Set/Get the Stopping Criterion */
+  itkGetObjectMacro( StoppingCriterion, StoppingCriterionType );
+  itkSetObjectMacro( StoppingCriterion, StoppingCriterionType );
 
   // set the domain map image filter
   itkSetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
   itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
 
 protected:
-  LevelSetShiEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
+  LevelSetShiEvolutionBase() : m_StoppingCriterion( NULL ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. )
@@ -186,7 +191,8 @@ protected:
   ~LevelSetShiEvolutionBase()
   {}
 
-  unsigned int                m_NumberOfIterations;
+  StoppingCriterionPointer  m_StoppingCriterion;
+
   /// \todo is it useful?
   unsigned int                m_NumberOfLevelSets;
   InputImagePointer           m_InputImage;
@@ -210,7 +216,11 @@ protected:
 
     InitializeIteration();
 
-    for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
+    typename StoppingCriterionType::IterationIdType iter = 0;
+    m_StoppingCriterion->SetCurrentIteration( iter );
+    m_StoppingCriterion->SetLevelSetContainer( m_LevelSetContainer );
+
+    while( !m_StoppingCriterion->IsSatisfied() )
       {
       std::cout <<"Iteration " <<iter << std::endl;
       m_RMSChangeAccumulator = NumericTraits< LevelSetOutputRealType >::Zero;
