@@ -24,7 +24,8 @@ namespace itk
 {
 template< class TInput,
           class TLevelSetContainer >
-class LevelSetEquationRegionTermBase : public LevelSetEquationTermBase
+class LevelSetEquationRegionTermBase :
+    public LevelSetEquationTermBase< TInput, TLevelSetContainer >
 {
 public:
   typedef LevelSetEquationRegionTermBase                         Self;
@@ -49,7 +50,7 @@ protected:
   virtual ~LevelSetEquationRegionTermBase() {}
 
 private:
-  LevelSetEquationTermBase( const Self& );
+  LevelSetEquationRegionTermBase( const Self& );
   void operator = ( const Self& );
 };
 }

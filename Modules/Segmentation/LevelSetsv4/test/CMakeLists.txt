@@ -1,6 +1,5 @@
 itk_module_test()
 set(ITKLevelSetsv4Tests
-itkLevelSetsv4HeaderTest.cxx
 itkLevelSetEvolutionNumberOfIterationsStoppingCriterionTest.cxx
 itkLevelSetDomainPartitionBaseTest.cxx
 itkLevelSetDomainMapImageFilterTest.cxx
@@ -34,8 +33,6 @@ itkSingleLevelSetSparseWithLaplacian2DTest.cxx
 
 CreateTestDriver(ITKLevelSetsv4  "${ITKLevelSetsv4-Test_LIBRARIES}" "${ITKLevelSetsv4Tests}")
 
-add_test(NAME itkLevelSetsv4HeaderTest
-      COMMAND ITKLevelSetsv4TestDriver itkLevelSetsv4HeaderTest)
 add_test(NAME itkLevelSetEvolutionNumberOfIterationsStoppingCriterionTest
       COMMAND ITKLevelSetsv4TestDriver itkLevelSetEvolutionNumberOfIterationsStoppingCriterionTest)
 add_test(NAME itkLevelSetsv4DomainPartitionBaseTest
