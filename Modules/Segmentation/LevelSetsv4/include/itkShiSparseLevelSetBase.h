@@ -86,167 +86,36 @@ public:
   typedef typename LayerMapType::const_iterator   LayerMapConstIterator;
 
   /** Returns the layer affiliation of a given location iP */
-  virtual char Status( const InputType& iP ) const
-  {
-    return m_LabelMap->GetPixel( iP );
-  }
+  virtual char Status( const InputType& iP ) const;
 
   /** Returns the value of the level set function at a given location iP */
-  virtual OutputType Evaluate( const InputType& iP ) const
-  {
-    LayerMapConstIterator layerIt = m_Layers.begin();
-
-    while( layerIt != m_Layers.end() )
-      {
-      LayerConstIterator it = ( layerIt->second ).find( iP );
-      if( it != ( layerIt->second ).end() )
-        {
-        return it->second;
-        }
-
-      ++layerIt;
-      }
-
-    if( m_LabelMap->GetLabelObject( -3 )->HasIndex( iP ) )
-      {
-      return -3;
-      }
-    else
-      {
-      char status = m_LabelMap->GetPixel( iP );
-      if( status == 3 )
-        {
-        return 3;
-        }
-      else
-        {
-        itkGenericExceptionMacro( <<"status "
-                                  << static_cast< int >( status )
-                                  << " should be 3 or -3" );
-        return 3;
-        }
-      }
-  }
+  virtual OutputType Evaluate( const InputType& iP ) const;
 
   /** Returns the gradient of the level set function at a given location iP
    * \todo to be implemented */
-  virtual GradientType EvaluateGradient( const InputType& iP ) const
-    {
-    itkWarningMacro( <<"to be implemented" );
-    return GradientType();
-    }
+  virtual GradientType EvaluateGradient( const InputType& iP ) const;
 
   /** Returns the Hessian of the level set function at a given location iP
    * \todo to be implemented */
-  virtual HessianType EvaluateHessian( const InputType& iP ) const
-    {
-    itkWarningMacro( <<"to be implemented" );
-    return HessianType();
-    }
+  virtual HessianType EvaluateHessian( const InputType& iP ) const;
 
   /** Initialize the label map point and the sparse-field layers */
-  virtual void Initialize()
-    {
-    Superclass::Initialize();
-
-    m_LabelMap = 0;
-    m_Layers.clear();
-    this->InitializeLayers();
-    }
+  virtual void Initialize();
 
   /** Copy level set information from data object */
-  virtual void CopyInformation( const DataObject* data )
-    {
-    Superclass::CopyInformation( data );
-
-    const Self *LevelSet = NULL;
-
-    try
-      {
-      LevelSet = dynamic_cast< const Self* >( data );
-      }
-    catch( ... )
-      {
-      // LevelSet could not be cast back down
-      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
-                         << typeid( data ).name() << " to "
-                         << typeid( Self * ).name() );
-      }
-
-    if ( !LevelSet )
-      {
-      // pointer could not be cast back down
-      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
-                         << typeid( data ).name() << " to "
-                         << typeid( Self * ).name() );
-      }
-    }
+  virtual void CopyInformation( const DataObject* data );
 
   /** Graft data object as level set object */
-  virtual void Graft( const DataObject* data )
-    {
-    Superclass::Graft( data );
-    const Self *LevelSet = 0;
-
-    try
-      {
-      LevelSet = dynamic_cast< const Self* >( data );
-      }
-    catch( ... )
-      {
-      // mesh could not be cast back down
-      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
-                         << typeid( data ).name() << " to "
-                         << typeid( Self * ).name() );
-      }
-
-    if ( !LevelSet )
-      {
-      // pointer could not be cast back down
-      itkExceptionMacro( << "itk::ShiSparseLevelSetBase::CopyInformation() cannot cast "
-                         << typeid( data ).name() << " to "
-                         << typeid( Self * ).name() );
-      }
-
-    this->m_LabelMap->Graft( LevelSet->m_LabelMap );
-    this->m_Layers = LevelSet->m_Layers;
-    }
+  virtual void Graft( const DataObject* data );
 
   /** Return the const pointer to a layer map with given id  */
-  const LayerType& GetLayer( char iVal ) const
-    {
-    LayerMapConstIterator it = m_Layers.find( iVal );
-    if( it == m_Layers.end() )
-    {
-      itkGenericExceptionMacro( <<"This layer does not exist" );
-    }
-    return it->second;
-    }
+  const LayerType& GetLayer( char iVal ) const;
 
   /** Return the pointer to a layer map with given id  */
-  LayerType& GetLayer( char iVal )
-    {
-    LayerMapIterator it = m_Layers.find( iVal );
-    if( it == m_Layers.end() )
-    {
-      itkGenericExceptionMacro( <<"This layer does not exist" );
-    }
-    return it->second;
-    }
+  LayerType& GetLayer( char iVal );
 
   /** Set a layer map with id to the given layer pointer */
-  void SetLayer( char iVal, const LayerType& iLayer )
-  {
-    LayerMapIterator it = m_Layers.find( iVal );
-    if( it != m_Layers.end() )
-    {
-      it->second = iLayer;
-    }
-    else
-    {
-      itkGenericExceptionMacro( <<iVal << "is out of bounds" );
-    }
-  }
+  void SetLayer( char iVal, const LayerType& iLayer );
 
   /** Return the label object pointer with a given id */
   template< class TLabel >
@@ -280,26 +149,20 @@ public:
 
 protected:
 
-  ShiSparseLevelSetBase() : Superclass(), m_LabelMap( 0 )
-    {
-    InitializeLayers();
-    }
+  ShiSparseLevelSetBase();
+
   virtual ~ShiSparseLevelSetBase() {}
 
   LayerMapType     m_Layers;
   LabelMapPointer  m_LabelMap;
 
   /** Initialize the sparse field layers */
-  void InitializeLayers()
-    {
-    this->m_Layers.clear();
-    this->m_Layers[ -1 ] = LayerType();
-    this->m_Layers[  1 ] = LayerType();
-    }
+  void InitializeLayers();
 
 private:
   ShiSparseLevelSetBase( const Self& );
   void operator = ( const Self& );
 };
 }
+#include "itkShiSparseLevelSetBase.hxx"
 #endif // __itkShiSparseLevelSetBase_h
