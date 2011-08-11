@@ -17,9 +17,6 @@ itkMalcolmSparseLevelSetBaseTest.cxx
 itkBinaryImageToWhitakerSparseLevelSetAdaptorTest.cxx
 itkBinaryImageToMalcolmSparseLevelSetAdaptorTest.cxx
 itkBinaryImageToShiSparseLevelSetAdaptorTest.cxx
-itkUpdateWhitakerSparseLevelSetTest.cxx
-itkUpdateShiSparseLevelSetTest.cxx
-itkUpdateMalcolmSparseLevelSetTest.cxx
 itkSingleLevelSetSparse2DTest.cxx
 itkSingleLevelSetMalcolm2DTest.cxx
 itkSingleLevelSetShi2DTest.cxx
@@ -82,65 +79,7 @@ add_test(NAME itkBinaryImageToShiSparseLevelSetsv4AdaptorTest
       ${ITK_DATA_ROOT}/Input/circle.png
       ${ITK_TEST_OUTPUT_DIR}/output_binary_shi_adaptor.mha
       )
-add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test0
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateWhitakerSparseLevelSetTest
-      0
-      ${ITK_TEST_OUTPUT_DIR}/output_update_whitaker_sparse0.mha
-      ${ITK_TEST_OUTPUT_DIR}/status_update_whitaker_sparse0.mha
-      )
-add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test1
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateWhitakerSparseLevelSetTest
-      1
-      ${ITK_TEST_OUTPUT_DIR}/output_update_whitaker_sparse1.mha
-      ${ITK_TEST_OUTPUT_DIR}/status_update_whitaker_sparse1.mha
-     )
-add_test(NAME itkUpdateWhitakerSparseLevelSetsv4Test2
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateWhitakerSparseLevelSetTest
-      2
-      ${ITK_TEST_OUTPUT_DIR}/output_update_whitaker_sparse2.mha
-      ${ITK_TEST_OUTPUT_DIR}/status_update_whitaker_sparse2.mha
-    )
 
-add_test(NAME itkUpdateShiSparseLevelSetsv4Test0
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateShiSparseLevelSetTest
-      0
-      ${ITK_TEST_OUTPUT_DIR}/output_update_shi_sparse0.mha
-      )
-add_test(NAME itkUpdateShiSparseLevelSetsv4Test1
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateShiSparseLevelSetTest
-      1
-      ${ITK_TEST_OUTPUT_DIR}/output_update_shi_sparse1.mha
-     )
-add_test(NAME itkUpdateShiSparseLevelSetsv4Test2
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateShiSparseLevelSetTest
-      2
-      ${ITK_TEST_OUTPUT_DIR}/output_update_shi_sparse2.mha
-    )
-
-add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test0
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateMalcolmSparseLevelSetTest
-      0
-      ${ITK_TEST_OUTPUT_DIR}/output_update_malcolm_sparse0.mha
-      )
-add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test1
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateMalcolmSparseLevelSetTest
-      1
-      ${ITK_TEST_OUTPUT_DIR}/output_update_malcolm_sparse1.mha
-     )
-add_test(NAME itkUpdateMalcolmSparseLevelSetsv4Test2
-      COMMAND ITKLevelSetsv4TestDriver
-      itkUpdateMalcolmSparseLevelSetTest
-      2
-      ${ITK_TEST_OUTPUT_DIR}/output_update_malcolm_sparse2.mha
-    )
 add_test(NAME itkSingleLevelSetsv4Sparse2DTest
       COMMAND ITKLevelSetsv4TestDriver itkSingleLevelSetSparse2DTest
       ${ITK_DATA_ROOT}/Input/whiteSpot.png
