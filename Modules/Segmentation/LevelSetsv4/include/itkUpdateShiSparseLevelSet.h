@@ -33,6 +33,13 @@
 
 namespace itk
 {
+/**
+ *  \class UpdateShiSparseLevelSet
+ *  \brief Base class for updating the Shi representation of level-set function
+ *
+ *  \tparam VDimension Dimension of the input space
+ *  \tparam TEquationContainer Container of the system of levelset equations
+ */
 template< unsigned int VDimension,
           class TEquationContainer >
 class UpdateShiSparseLevelSet : public Object
@@ -78,6 +85,7 @@ public:
 
   itkGetObjectMacro( OutputLevelSet, LevelSetType );
 
+  /** Update function for initializing and computing the output level set */
   void Update()
   {
     if( m_InputLevelSet.IsNull() )
@@ -231,16 +239,18 @@ public:
     m_OutputLevelSet->GetLabelMap( )->Graft( labelImageToLabelMapFilter->GetOutput() );
   }
 
-  // Set/Get the sparse levet set image
+  /** Set/Get the sparse levet set image */
   itkSetObjectMacro( InputLevelSet, LevelSetType );
   itkGetObjectMacro( InputLevelSet, LevelSetType );
 
+  /** Set/Get the RMS change for the update */
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
 
-  // set the term container
+  /** Set/Get the Equation container for computing the update */
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
+  /** Set/Get the current level set id */
   itkSetMacro( CurrentLevelSetId, IdentifierType );
   itkGetMacro( CurrentLevelSetId, IdentifierType );
 
@@ -269,6 +279,7 @@ protected:
 
   typedef ShapedNeighborhoodIterator< LabelImageType > NeighborhoodIteratorType;
 
+  /** Update +1 level set layers by checking the direction of the movement towards -1 */
   // this is the same as Procedure 2
   // Input is a update image point m_UpdateImage
   // Input is also ShiSparseLevelSetBasePointer
@@ -388,6 +399,7 @@ protected:
       }
     }
 
+  /** Update -1 level set layers by checking the direction of the movement towards +1 */
   void UpdateL_in()
   {
     LevelSetLayerType & list_out  = m_OutputLevelSet->GetLayer(  1 );
@@ -505,6 +517,7 @@ protected:
       }
   }
 
+  /** Return true if there is a pixel from the opposite layer (+1 or -1) moving in the same direction */
   bool Con( const LevelSetInputType& iIdx,
             const LevelSetOutputType& iCurrentStatus,
             const LevelSetOutputRealType& iCurrentUpdate ) const

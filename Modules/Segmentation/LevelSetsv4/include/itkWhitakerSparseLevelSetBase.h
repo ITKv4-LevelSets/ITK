@@ -29,6 +29,13 @@
 
 namespace itk
 {
+/**
+ *  \class WhitakerSparseLevelSetBase
+ *  \brief Derived class for the sparse-field representation of level-set function
+ *
+ *  \tparam TOutput Output type (float or double) of the level set function
+ *  \tparam VDimension Dimension of the input space
+ */
 template< typename TOutput,
           unsigned int VDimension >
 class WhitakerSparseLevelSetBase :
@@ -80,6 +87,7 @@ public:
   typedef typename LayerMapType::iterator         LayerMapIterator;
   typedef typename LayerMapType::const_iterator   LayerMapConstIterator;
 
+  /** Returns the layer affiliation of a given location iP */
   virtual char Status( const InputType& iP ) const
   {
     if( m_LabelMap.IsNotNull() )
@@ -105,6 +113,7 @@ public:
       }
   }
 
+  /** Returns the value of the level set function at a given location iP */
   virtual OutputType Evaluate( const InputType& iP ) const
   {
     LayerMapConstIterator layerIt = m_Layers.begin();
@@ -149,20 +158,21 @@ public:
       }
   }
 
+  /** Returns the gradient of the level set function at a given location iP
+   * \todo to be implemented */
   virtual GradientType EvaluateGradient( const InputType& iP ) const
     {
     itkWarningMacro( <<"to be implemented" );
     return GradientType();
     }
 
+  /** Returns the Hessian of the level set function at a given location iP
+   * \todo to be implemented */
   virtual HessianType EvaluateHessian( const InputType& iP ) const
     {
     itkWarningMacro( <<"to be implemented" );
     return HessianType();
     }
-
-  itkSetObjectMacro( LabelMap, LabelMapType );
-  itkGetObjectMacro( LabelMap, LabelMapType );
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
@@ -173,7 +183,7 @@ public:
   /** End concept checking */
 #endif // ITK_USE_CONCEPT_CHECKING
 
-
+  /** Initialize the label map point and the sparse-field layers */
   virtual void Initialize()
     {
     Superclass::Initialize();
@@ -183,6 +193,7 @@ public:
     this->InitializeLayers();
     }
 
+  /** Copy level set information from data object */
   virtual void CopyInformation( const DataObject* data )
     {
     Superclass::CopyInformation( data );
@@ -210,6 +221,7 @@ public:
       }
     }
 
+  /** Graft data object as level set object */
   virtual void Graft( const DataObject* data )
     {
     Superclass::Graft( data );
@@ -239,6 +251,7 @@ public:
     this->m_Layers = LevelSet->m_Layers;
     }
 
+  /** Return the const pointer to a layer map with given id  */
   const LayerType& GetLayer( char iVal ) const
     {
     LayerMapConstIterator it = m_Layers.find( iVal );
@@ -249,6 +262,7 @@ public:
     return it->second;
     }
 
+  /** Return the pointer to a layer map with given id  */
   LayerType& GetLayer( char iVal )
     {
     LayerMapIterator it = m_Layers.find( iVal );
@@ -259,6 +273,7 @@ public:
     return it->second;
     }
 
+  /** Set a layer map with id to the given layer pointer */
   void SetLayer( char iVal, const LayerType& iLayer )
   {
     LayerMapIterator it = m_Layers.find( iVal );
@@ -272,6 +287,7 @@ public:
     }
   }
 
+  /** Return the label object pointer with a given id */
   template< class TLabel >
   LabelObject< TLabel, Dimension >* GetAsLabelObject()
     {
@@ -293,6 +309,10 @@ public:
     return object.GetPointer();
     }
 
+  /** Set/Get the label map for computing the sparse representation */
+  itkSetObjectMacro( LabelMap, LabelMapType );
+  itkGetObjectMacro( LabelMap, LabelMapType );
+
 protected:
 
   WhitakerSparseLevelSetBase() : Superclass(), m_LabelMap( 0 )
@@ -304,7 +324,7 @@ protected:
   LayerMapType     m_Layers;
   LabelMapPointer  m_LabelMap;
 
-
+  /** Initialize the sparse field layers */
   void InitializeLayers()
     {
     this->m_Layers.clear();

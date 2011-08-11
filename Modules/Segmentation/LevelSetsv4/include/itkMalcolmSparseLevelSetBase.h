@@ -27,6 +27,12 @@
 
 namespace itk
 {
+/**
+ *  \class MalcolmSparseLevelSetBase
+ *  \brief Derived class for the shi representation of level-set function
+ *
+ *  \tparam VDimension Dimension of the input space
+ */
 template< unsigned int VDimension >
 class MalcolmSparseLevelSetBase :
     public LevelSetBase< Index< VDimension >,
@@ -79,11 +85,13 @@ public:
   typedef typename LayerMapType::iterator         LayerMapIterator;
   typedef typename LayerMapType::const_iterator   LayerMapConstIterator;
 
+  /** Returns the layer affiliation of a given location iP */
   virtual char Status( const InputType& iP ) const
   {
     return m_LabelMap->GetPixel( iP );
   }
 
+  /** Returns the value of the level set function at a given location iP */
   virtual OutputType Evaluate( const InputType& iP ) const
   {
     LayerMapConstIterator layerIt = m_Layers.begin();
@@ -120,51 +128,23 @@ public:
       }
   }
 
+  /** Returns the gradient of the level set function at a given location iP
+   * \todo to be implemented */
   virtual GradientType EvaluateGradient( const InputType& iP ) const
     {
     itkWarningMacro( <<"to be implemented" );
     return GradientType();
     }
 
+  /** Returns the Hessian of the level set function at a given location iP
+   * \todo to be implemented */
   virtual HessianType EvaluateHessian( const InputType& iP ) const
     {
     itkWarningMacro( <<"to be implemented" );
     return HessianType();
     }
 
-  const LayerType& GetLayer( char iVal ) const
-    {
-    LayerMapConstIterator it = m_Layers.find( iVal );
-    if( it == m_Layers.end() )
-    {
-      itkGenericExceptionMacro( <<"This layer does not exist" );
-    }
-    return it->second;
-    }
-
-  LayerType& GetLayer( char iVal )
-    {
-    LayerMapIterator it = m_Layers.find( iVal );
-    if( it == m_Layers.end() )
-    {
-      itkGenericExceptionMacro( <<"This layer does not exist" );
-    }
-    return it->second;
-    }
-
-  void SetLayer( char iVal, const LayerType& iLayer )
-  {
-    LayerMapIterator it = m_Layers.find( iVal );
-    if( it != m_Layers.end() )
-    {
-      it->second = iLayer;
-    }
-    else
-    {
-      itkGenericExceptionMacro( <<iVal << "is out of bounds" );
-    }
-  }
-
+  /** Initialize the label map point and the sparse-field layers */
   virtual void Initialize()
     {
     Superclass::Initialize();
@@ -174,6 +154,7 @@ public:
     this->InitializeLayers();
     }
 
+  /** Copy level set information from data object */
   virtual void CopyInformation( const DataObject* data )
     {
     Superclass::CopyInformation( data );
@@ -201,6 +182,7 @@ public:
       }
     }
 
+  /** Graft data object as level set object */
   virtual void Graft( const DataObject* data )
     {
     Superclass::Graft( data );
@@ -230,6 +212,43 @@ public:
     this->m_Layers = LevelSet->m_Layers;
     }
 
+  /** Return the const pointer to a layer map with given id  */
+  const LayerType& GetLayer( char iVal ) const
+    {
+    LayerMapConstIterator it = m_Layers.find( iVal );
+    if( it == m_Layers.end() )
+    {
+      itkGenericExceptionMacro( <<"This layer does not exist" );
+    }
+    return it->second;
+    }
+
+  /** Return the pointer to a layer map with given id  */
+  LayerType& GetLayer( char iVal )
+    {
+    LayerMapIterator it = m_Layers.find( iVal );
+    if( it == m_Layers.end() )
+    {
+      itkGenericExceptionMacro( <<"This layer does not exist" );
+    }
+    return it->second;
+    }
+
+  /** Set a layer map with id to the given layer pointer */
+  void SetLayer( char iVal, const LayerType& iLayer )
+  {
+    LayerMapIterator it = m_Layers.find( iVal );
+    if( it != m_Layers.end() )
+    {
+      it->second = iLayer;
+    }
+    else
+    {
+      itkGenericExceptionMacro( <<iVal << "is out of bounds" );
+    }
+  }
+
+  /** Return the label object pointer with a given id */
   template< class TLabel >
   LabelObject< TLabel, Dimension >* GetAsLabelObject()
     {
@@ -255,6 +274,7 @@ public:
     return object.GetPointer();
     }
 
+  /** Set/Get the label map for computing the sparse representation */
   itkSetObjectMacro( LabelMap, LabelMapType );
   itkGetObjectMacro( LabelMap, LabelMapType );
 
@@ -267,6 +287,7 @@ protected:
 
   virtual ~MalcolmSparseLevelSetBase()    {}
 
+  /** Initialize the sparse field layers */
   void InitializeLayers()
     {
     this->m_Layers.clear();

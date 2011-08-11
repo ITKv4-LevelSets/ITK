@@ -25,7 +25,11 @@
 namespace itk
 {
 /**
- * \class LevelSetImageBase
+ *  \class LevelSetImageBase
+ *  \brief Base class for the image representation of a level-set function
+ *
+ *  \tparam TImage Input image type of the level set function
+ *  \todo Think about using image iterators instead of GetPixel()
  */
 template< class TImage >
 class LevelSetImageBase :
@@ -65,23 +69,30 @@ public:
   itkSetObjectMacro( Image, ImageType );
   itkGetObjectMacro( Image, ImageType );
 
+  /** Returns the value of the level set function at a given location iP */
   virtual OutputType Evaluate( const InputType& iP ) const
     {
     return m_Image->GetPixel( iP );
     }
 
+  /** Returns the image gradient of the level set function at a given location iP
+   * \todo to be implemented */
   virtual GradientType EvaluateGradient( const InputType& iP ) const
     {
     itkWarningMacro( <<"to be implemented" );
     return GradientType();
     }
 
+  /** Returns the image hessian of the level set function at a given location iP
+   * \todo to be implemented */
   virtual HessianType EvaluateHessian( const InputType& iP ) const
     {
     itkWarningMacro( <<"to be implemented" );
     return HessianType();
     }
 
+  /** Returns the value of the level set function at a given location iP
+   * as part of the LevelSetDataType*/
   virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const
     {
     // if it has not already been computed before
@@ -92,6 +103,9 @@ public:
       }
     }
 
+  /** Returns the gradient of the level set function at a given location iP
+   * as part of the LevelSetDataType
+   * \todo to be implemented */
   virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const
     {
     // if it has not already been computed before
@@ -103,6 +117,10 @@ public:
       ///\todo implement the computation of the gradient
       }
     }
+
+  /** Returns the Hessian of the level set function at a given location iP
+   * as part of the LevelSetDataType
+   * \todo to be implemented */
   virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const
     {
     if( !ioData.Hessian.first )
@@ -114,7 +132,7 @@ public:
       }
     }
 
-
+  /** Initial the level set pointer */
   virtual void Initialize()
     {
     Superclass::Initialize();
@@ -122,6 +140,7 @@ public:
     m_Image = NULL;
     }
 
+  /** Copy level set information from data object */
   virtual void CopyInformation(const DataObject *data)
     {
     Superclass::CopyInformation( data );
@@ -149,6 +168,7 @@ public:
       }
     }
 
+  /** Graft data object as level set object */
   virtual void Graft( const DataObject* data )
     {
     Superclass::Graft( data );

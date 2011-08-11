@@ -36,6 +36,14 @@
 
 namespace itk
 {
+/**
+ *  \class UpdateWhitakerSparseLevelSet
+ *  \brief Base class for updating the level-set function
+ *
+ *  \tparam VDimension Dimension of the input space
+ *  \tparam TLevelSetValueType Output type (float or double) of the levelset function
+ *  \tparam TEquationContainer Container of the system of levelset equations
+ */
 template< unsigned int VDimension,
           typename TLevelSetValueType,
           class TEquationContainer >
@@ -84,9 +92,7 @@ public:
 
   itkGetObjectMacro( OutputLevelSet, LevelSetType );
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Update function for initializing and computing the output level set */
   void Update()
   {
     if( m_InputLevelSet.IsNull() )
@@ -236,20 +242,22 @@ public:
     m_TempPhi.clear();
   }
 
-  // Set/Get the sparse levet set image
+  /** Set/Get the sparse levet set image */
   itkSetObjectMacro( InputLevelSet, LevelSetType );
   itkGetObjectMacro( InputLevelSet, LevelSetType );
 
-  // Set/Get the Dt for the update
+  /** Set/Get the Dt for the update */
   itkSetMacro( Dt, LevelSetOutputType );
   itkGetMacro( Dt, LevelSetOutputType );
 
-  // Set/Get the RMS change for the update
+  /** Set/Get the RMS change for the update */
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputType );
 
+  /** Set/Get the Equation container for computing the update */
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
+  /** Set the update map for all points in the zero layer */
   void SetUpdate( const LevelSetLayerType& iUpdate )
     {
     m_Update = iUpdate;
@@ -287,6 +295,7 @@ protected:
 
   typedef ShapedNeighborhoodIterator< LabelImageType > NeighborhoodIteratorType;
 
+  /** Update zero level set layer by moving relevant points to layers -1 or 1 */
   void UpdateZeroLevelSet()
   {
     LevelSetLayerType& layer0 = m_OutputLevelSet->GetLayer( static_cast< char >( 0 ) );
@@ -473,9 +482,7 @@ protected:
       } // while( nodeIt != nodeEnd )
   }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Update -1 level set layer by moving relevant points to layers -2 or 0 */
   void UpdateLminus1()
     {
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
@@ -589,9 +596,7 @@ protected:
       }
     }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Update +1 level set layer by moving relevant points to layers 0 or 2 */
   void UpdateLplus1()
     {
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
@@ -709,9 +714,7 @@ protected:
       }
     }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Update zero level set layer by moving relevant points to layers -3 or -1 */
   void UpdateLminus2()
     {
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
@@ -823,9 +826,7 @@ protected:
       }
     }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Update +2 level set layer by moving relevant points to layers 1 or 3 */
   void UpdateLplus2()
     {
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
@@ -942,9 +943,7 @@ protected:
       }
     }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Move identified points into 0 level set layer */
   void MovePointIntoZeroLevelSet()
     {
     LevelSetLayerType layer0 = m_TempLevelSet->GetLayer( static_cast< char >( 0 ) );
@@ -963,9 +962,7 @@ protected:
       }
     }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Move identified points into -1 level set layer */
   void MovePointFromMinus1()
     {
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
@@ -1031,9 +1028,7 @@ protected:
       }
     }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Move identified points into +1 level set layer */
   void MovePointFromPlus1()
     {
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
@@ -1099,9 +1094,7 @@ protected:
       }
     }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Move identified points into -2 level set layer */
   void MovePointFromMinus2()
     {
     LevelSetLayerType layerMinus2 = m_TempLevelSet->GetLayer( static_cast< char >( -2 ) );
@@ -1122,9 +1115,7 @@ protected:
       }
     }
 
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
-  // ---------------------------------------------------------------------------
+  /** Move identified points into +2 level set layer */
   void MovePointFromPlus2()
     {
     LevelSetLayerType layerPlus2 = m_TempLevelSet->GetLayer( static_cast< char >( 2 ) );

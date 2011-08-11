@@ -72,8 +72,11 @@ public:
   /** Returns the hessian of the level set function at a given location iP */
   virtual HessianType   EvaluateHessian( const InputType& iP ) const = 0;
 
+  /** \todo initialize each element of the structure (to make sure all boolean
+   * values are false). */
   struct LevelSetDataType
     {
+    /** the boolean value stores if it has already been computed */
     std::pair< bool, OutputType >   Value;
     std::pair< bool, GradientType > Gradient;
     std::pair< bool, HessianType >  Hessian;

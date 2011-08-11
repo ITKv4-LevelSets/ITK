@@ -33,6 +33,13 @@
 
 namespace itk
 {
+/**
+ *  \class UpdateMalcolmSparseLevelSet
+ *  \brief Base class for updating the Malcolm representation of level-set function
+ *
+ *  \tparam VDimension Dimension of the input space
+ *  \tparam TEquationContainer Container of the system of levelset equations
+ */
 template< unsigned int VDimension,
           class TEquationContainer >
 class UpdateMalcolmSparseLevelSet : public Object
@@ -78,6 +85,7 @@ public:
 
   itkGetObjectMacro( OutputLevelSet, LevelSetType );
 
+  /** Update function for initializing and computing the output level set */
   void Update()
   {
     if( m_InputLevelSet.IsNull() )
@@ -165,16 +173,18 @@ public:
     m_OutputLevelSet->GetLabelMap( )->Graft( labelImageToLabelMapFilter->GetOutput() );
   }
 
-  // Set/Get the sparse levet set image
+  /** Set/Get the sparse levet set image */
   itkSetObjectMacro( InputLevelSet, LevelSetType );
   itkGetObjectMacro( InputLevelSet, LevelSetType );
 
+  /** Set/Get the RMS change for the update */
   itkGetMacro( RMSChangeAccumulator, LevelSetOutputRealType );
 
-  // set the term container
+  /** Set/Get the Equation container for computing the update */
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
+  /** Set/Get the current level set id */
   itkSetMacro( CurrentLevelSetId, IdentifierType );
   itkGetMacro( CurrentLevelSetId, IdentifierType );
 
@@ -209,6 +219,7 @@ protected:
 
   bool m_UnPhased;
 
+  /** Compute the updates for all points in the 0 layer and store in UpdateContainer */
   void FillUpdateContainer()
     {
     LevelSetLayerType Level0 = m_OutputLevelSet->GetLayer( 0 );
@@ -241,6 +252,8 @@ protected:
       }
     }
 
+  /** Update the zero layer for all points with values stored in UpdateContainer
+   *  Move points to -1 or +1 layers */
   void UnPhasedPropagation()
     {
     LevelSetOutputRealType oldValue, newValue;
@@ -348,6 +361,8 @@ protected:
       }
     }
 
+  /** Update separately the zero layer for points with positive/negative update values
+   *  Move points to -1 or +1 layers */
   void PhasedPropagation( LevelSetLayerType& ioList,
                           LevelSetLayerType& ioUpdate,
                           const bool& iContraction )
@@ -454,6 +469,7 @@ protected:
       }
     }
 
+  /** Make sure the layers are of single pixel thickness only */
   void MinimalInterface()
     {
     LevelSetOutputRealType oldValue, newValue;
