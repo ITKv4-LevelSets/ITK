@@ -30,6 +30,7 @@
 #include "itkLevelSetEquationContainerBase.h"
 #include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetEvolutionBase.h"
+#include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
 
 int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
 {
@@ -193,9 +194,14 @@ int itkSingleLevelSetDense2DTest( int argc, char* argv[] )
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
   equationContainer->AddEquation( 0, termContainer0 );
 
+  typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
+      StoppingCriterionType;
+  StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
+  criterion->SetNumberOfIterations( 50 );
+
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 50 );
+  evolution->SetStoppingCriterion( criterion );
   evolution->SetLevelSetContainer( lscontainer );
 
   try

@@ -30,7 +30,8 @@
 
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkImageFileWriter.h"
-#include "../../../Core/Common/include/itkNumericTraits.h"
+#include "itkNumericTraits.h"
+#include "itkLevelSetEvolutionStoppingCriterionBase.h"
 
 namespace itk
 {
@@ -110,6 +111,10 @@ public:
   //   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
+  typedef LevelSetEvolutionStoppingCriterionBase< LevelSetContainerType >
+                                                  StoppingCriterionType;
+  typedef typename StoppingCriterionType::Pointer StoppingCriterionPointer;
+
   // create another class which contains all the equations
   // i.e. it is a container of term container :-):
   // set the i^th term container
@@ -146,13 +151,13 @@ public:
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
-  // set the number of iterations
-  itkSetMacro( NumberOfIterations, unsigned int );
-  itkGetMacro( NumberOfIterations, unsigned int );
+  /** \brief Set/Get the Stopping Criterion */
+  itkGetObjectMacro( StoppingCriterion, StoppingCriterionType );
+  itkSetObjectMacro( StoppingCriterion, StoppingCriterionType );
 
 
 protected:
-  LevelSetEvolutionBase() : m_NumberOfIterations( 0 ), m_NumberOfLevelSets( 0 ),
+  LevelSetEvolutionBase() : m_StoppingCriterion( NULL ), m_NumberOfLevelSets( 0 ),
     m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_UpdateBuffer( NULL ), m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( false )
@@ -160,7 +165,8 @@ protected:
 
   ~LevelSetEvolutionBase() {}
 
-  unsigned int                m_NumberOfIterations;
+  StoppingCriterionPointer  m_StoppingCriterion;
+
   /// \todo is it useful?
   unsigned int                m_NumberOfLevelSets;
   InputImagePointer           m_InputImage;
@@ -276,7 +282,11 @@ protected:
 
     InitializeIteration();
 
-    for( unsigned int iter = 0; iter < m_NumberOfIterations; iter++ )
+    typename StoppingCriterionType::IterationIdType iter = 0;
+    m_StoppingCriterion->SetCurrentIteration( iter );
+    m_StoppingCriterion->SetLevelSetContainer( m_LevelSetContainer );
+
+    while( !m_StoppingCriterion->IsSatisfied() )
       {
       m_RMSChangeAccumulator = 0;
 
@@ -320,6 +330,11 @@ protected:
         writer2->Update();
         ++it;
       }
+
+      ++iter;
+
+      m_StoppingCriterion->SetRMSChangeAccumulator( m_RMSChangeAccumulator );
+      m_StoppingCriterion->SetCurrentIteration( iter );
 
       this->InvokeEvent( IterationEvent() );
       }

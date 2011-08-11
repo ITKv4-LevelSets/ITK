@@ -29,6 +29,7 @@
 #include "itkLevelSetEquationTermContainerBase.h"
 #include "itkLevelSetEquationContainerBase.h"
 #include "itkAtanRegularizedHeavisideStepFunction.h"
+#include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
 #include "itkLevelSetEvolutionBase.h"
 
 int itkTwoLevelSetDense2DTest( int argc, char* argv[] )
@@ -233,9 +234,14 @@ int itkTwoLevelSetDense2DTest( int argc, char* argv[] )
   equationContainer->AddEquation( 0, termContainer0 );
   equationContainer->AddEquation( 1, termContainer1 );
 
+  typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
+      StoppingCriterionType;
+  StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
+  criterion->SetNumberOfIterations( 10 );
+
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 10 );
+  evolution->SetStoppingCriterion( criterion );
   evolution->SetLevelSetContainer( lscontainer );
 
 //   TODO: Make API consistent

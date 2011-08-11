@@ -27,6 +27,7 @@
 #include "itkLevelSetEquationContainerBase.h"
 #include "itkAtanRegularizedHeavisideStepFunction.h"
 #include "itkLevelSetEvolutionBase.h"
+#include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
 
 int itkMultiLevelSetEvolutionTest( int , char* [] )
 {
@@ -241,13 +242,18 @@ int itkMultiLevelSetEvolutionTest( int , char* [] )
   termContainer1->AddTerm( 1, temp );
   std::cout << "Term container 1 created" << std::endl;
 
+  typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
+      StoppingCriterionType;
+  StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
+  criterion->SetNumberOfIterations( 2 );
+
   EquationContainerType::Pointer equationContainer = EquationContainerType::New();
   equationContainer->AddEquation( 0, termContainer0 );
   equationContainer->AddEquation( 1, termContainer1 );
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );
-  evolution->SetNumberOfIterations( 2 );
+  evolution->SetStoppingCriterion( criterion );
   evolution->SetLevelSetContainer( lscontainer );
   try
   {
