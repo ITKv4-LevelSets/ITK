@@ -38,6 +38,12 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetSparseEvolutionBase
+ *  \brief Class for iterating and evolving the level-set function
+ *
+ *  \tparam TEquationContainer Container holding the system of level set of equations
+ */
 template< class TEquationContainer >
 class LevelSetSparseEvolutionBase : public Object
 {
@@ -105,16 +111,12 @@ public:
   typedef typename DomainMapImageFilterType::Pointer     DomainMapImageFilterPointer;
   typedef typename DomainMapImageFilterType::NounToBeDefined NounToBeDefined;
 
-  //   typedef typename DomainMapImageFilterType::DomainIteratorType DomainIteratorType;
   typedef typename std::map< itk::IdentifierType, NounToBeDefined >::iterator DomainIteratorType;
 
   typedef UpdateWhitakerSparseLevelSet< ImageDimension, LevelSetOutputType, EquationContainerType >
                                                   UpdateLevelSetFilterType;
-//  typedef typename LevelSetType::StatusImageType  StatusImageType;
-//  typedef typename LevelSetType::OutputImageType  OutputImageType;
 
-  typedef typename UpdateLevelSetFilterType::Pointer                         UpdateLevelSetFilterPointer;
-//  typedef typename UpdateLevelSetFilterType::UpdateListType                  UpdateListType;
+  typedef typename UpdateLevelSetFilterType::Pointer    UpdateLevelSetFilterPointer;
 
   typedef LevelSetEvolutionStoppingCriterionBase< LevelSetContainerType >
                                                   StoppingCriterionType;
@@ -123,6 +125,9 @@ public:
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
+  /** Update the filter by computing the output level function
+   * by calling GenerateData() once the instantiation of necessary variables
+   * is verified */
   void Update()
     {
     if( m_EquationContainer.IsNull() )
@@ -157,9 +162,11 @@ public:
     this->GenerateData();
     }
 
+  /** Set/Get the value of alpha for computing the time-step using CFL conditions */
   itkSetMacro( Alpha, LevelSetOutputRealType );
   itkGetMacro( Alpha, LevelSetOutputRealType );
 
+  /** Set a user-specified value of the time-step */
   void SetTimeStep( const LevelSetOutputRealType& iDt )
     {
     if( iDt > NumericTraits< LevelSetOutputRealType >::epsilon() )
@@ -174,15 +181,15 @@ public:
       }
     }
 
-  // set the term container
+  /** Set/Get the equation container for updating all the level sets */
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
-  /** \brief Set/Get the Stopping Criterion */
+  /** Set/Get the Stopping Criterion */
   itkGetObjectMacro( StoppingCriterion, StoppingCriterionType );
   itkSetObjectMacro( StoppingCriterion, StoppingCriterionType );
 
-  // set the domain map image filter
+  /** Set/Get the domain map image filter */
   itkSetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
   itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
 
@@ -203,7 +210,7 @@ protected:
       }
   }
 
-  StoppingCriterionPointer  m_StoppingCriterion;
+  StoppingCriterionPointer    m_StoppingCriterion;
 
   InputImagePointer           m_InputImage;
   EquationContainerPointer    m_EquationContainer;
@@ -218,6 +225,8 @@ protected:
   LevelSetOutputRealType      m_RMSChangeAccumulator;
   bool                        m_UserDefinedDt;
 
+  /** Initialize the update buffers for all level sets to hold the updates of
+   *  equations in each iteration */
   void AllocateUpdateBuffer()
     {
     typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
@@ -244,6 +253,8 @@ protected:
       }
     }
 
+  /** Run the iterative loops of calculating levelset function updates until
+   *  the stopping criterion is satisfied */
   void GenerateData()
     {
     AllocateUpdateBuffer();
@@ -302,7 +313,7 @@ protected:
       }
     }
 
-
+  /** Initialize the iteration by computing parameters in the terms of the level set equation */
   void InitializeIteration()
   {
     std::cout << "Initialize iteration" << std::endl;
@@ -339,6 +350,7 @@ protected:
     m_EquationContainer->Update();
   }
 
+  /** Compute the update at each pixel and store in the update buffer */
   void ComputeIteration()
   {
     std::cout << "Compute iteration" << std::endl;
@@ -365,7 +377,7 @@ protected:
       }
   }
 
-
+  /** Compute the time-step for the next iteration */
   void ComputeDtForNextIteration()
     {
     std::cout << "ComputeDtForNextIteration" << std::endl;
@@ -402,6 +414,7 @@ protected:
 //       m_Dt = 0.08;
     }
 
+  /** Update the levelset by 1 iteration from the computed updates */
   virtual void UpdateLevelSets()
     {
       std::cout << "Update levelsets" << std::endl;
@@ -409,13 +422,6 @@ protected:
       typename LevelSetContainerType::Iterator it = m_LevelSetContainer->Begin();
       while( it != m_LevelSetContainer->End() )
       {
-//         std::cout << "m_UpdateBuffer size=" << m_UpdateBuffer[it->GetIdentifier()]->size() << std::endl;
-//         std::cout << "Layer -2 =" << it->GetLevelSet()->GetLayer( -2 ).size() << std::endl;
-//         std::cout << "Layer -1 =" << it->GetLevelSet()->GetLayer( -1 ).size() << std::endl;
-//         std::cout << "Layer  0 =" << it->GetLevelSet()->GetLayer( 0 ).size() << std::endl;
-//         std::cout << "Layer  1 =" << it->GetLevelSet()->GetLayer( 1 ).size() << std::endl;
-//         std::cout << "Layer  2 =" << it->GetLevelSet()->GetLayer( 2 ).size() << std::endl << std::endl;
-
         LevelSetPointer levelSet = it->GetLevelSet();
 
         UpdateLevelSetFilterPointer update_levelset = UpdateLevelSetFilterType::New();
@@ -424,12 +430,6 @@ protected:
         update_levelset->SetEquationContainer( m_EquationContainer );
         update_levelset->SetDt( m_Dt );
         update_levelset->Update();
-
-//         std::cout << "Layer -2 =" << update_levelset->GetOutputLevelSet()->GetLayer( -2 ).size() << std::endl;
-//         std::cout << "Layer -1 =" << update_levelset->GetOutputLevelSet()->GetLayer( -1 ).size() << std::endl;
-//         std::cout << "Layer  0 =" << update_levelset->GetOutputLevelSet()->GetLayer( 0 ).size() << std::endl;
-//         std::cout << "Layer  1 =" << update_levelset->GetOutputLevelSet()->GetLayer( 1 ).size() << std::endl;
-//         std::cout << "Layer  2 =" << update_levelset->GetOutputLevelSet()->GetLayer( 2 ).size() << std::endl;
 
         levelSet->Graft( update_levelset->GetOutputLevelSet() );
 
@@ -440,6 +440,7 @@ protected:
       }
     }
 
+  /** Update the equations at the end of 1 iteration */
   void UpdateEquations()
     {
     std::cout << "Update equations" << std::endl;

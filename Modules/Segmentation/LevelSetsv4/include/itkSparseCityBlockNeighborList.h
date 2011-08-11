@@ -65,6 +65,7 @@ public:
   itkStaticConstMacro(Dimension, unsigned int,
                       NeighborhoodType::Dimension);
 
+  /** Make sure the layers are a single pixel thick */
   const RadiusType & GetRadius() const
   { return m_Radius; }
 

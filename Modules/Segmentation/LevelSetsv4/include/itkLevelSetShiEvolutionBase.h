@@ -38,6 +38,12 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetSparseEvolutionBase
+ *  \brief Class for iterating and evolving the Shi sparse level-set function
+ *
+ *  \tparam TEquationContainer Container holding the system of level set of equations
+ */
 template< class TEquationContainer >
 class LevelSetShiEvolutionBase : public Object
 {
@@ -118,6 +124,9 @@ public:
   itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 
+  /** Update the filter by computing the output level function
+   * by calling GenerateData() once the instantiation of necessary variables
+   * is verified */
   void Update()
     {
     if( m_EquationContainer.IsNull() )
@@ -160,24 +169,26 @@ public:
     this->GenerateData();
     }
 
+  /** Set/Get the value of alpha for computing the time-step using CFL conditions */
   itkSetMacro( Alpha, LevelSetOutputRealType );
   itkGetMacro( Alpha, LevelSetOutputRealType );
 
+  /** Set a user-specified value of the time-step */
   void SetTimeStep( const LevelSetOutputRealType& )
     {
     // in this method, the time step is not used at all, only sign matters!
     // so m_Dt is constant and equal to 1 through all iteration
     }
 
-  // set the term container
+  /** Set/Get the equation container for updating all the level sets */
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
-  /** \brief Set/Get the Stopping Criterion */
+  /** Set/Get the Stopping Criterion */
   itkGetObjectMacro( StoppingCriterion, StoppingCriterionType );
   itkSetObjectMacro( StoppingCriterion, StoppingCriterionType );
 
-  // set the domain map image filter
+  /** Set/Get the domain map image filter */
   itkSetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
   itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
 
@@ -203,11 +214,14 @@ protected:
   LevelSetOutputRealType          m_Dt;
   LevelSetOutputRealType          m_RMSChangeAccumulator;
 
+  /** Initialize the update buffers for all level sets to hold the updates of
+   *  equations in each iteration */
   void AllocateUpdateBuffer()
     {
     }
 
-
+  /** Run the iterative loops of calculating levelset function updates until
+   *  the stopping criterion is satisfied */
   void GenerateData()
     {
     AllocateUpdateBuffer();
@@ -266,7 +280,7 @@ protected:
       }
     }
 
-
+  /** Initialize the iteration by computing parameters in the terms of the level set equation */
   void InitializeIteration()
   {
     std::cout << "Initialize iteration" << std::endl;
@@ -303,17 +317,19 @@ protected:
     m_EquationContainer->Update();
   }
 
+  /** Computer the update at each pixel and store in the update buffer */
   void ComputeIteration()
     {
     std::cout << "Compute iteration" << std::endl;
     }
 
-
+  /** Compute the time-step for the next iteration */
   void ComputeDtForNextIteration()
     {
     std::cout << "ComputeDtForNextIteration" << std::endl;
     }
 
+  /** Update the levelset by 1 iteration from the computed updates */
   virtual void UpdateLevelSets()
     {
     std::cout << "Update levelsets" << std::endl;
@@ -338,6 +354,7 @@ protected:
       }
     }
 
+  /** Update the equations at the end of 1 iteration */
   void UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
