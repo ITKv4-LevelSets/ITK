@@ -191,8 +191,8 @@ public:
   itkGetObjectMacro( DomainMapFilter, DomainMapImageFilterType );
 
 protected:
-  LevelSetMalcolmEvolutionBase() : m_StoppingCriterion( NULL ), m_NumberOfLevelSets( 0 ),
-    m_InputImage( NULL ), m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
+  LevelSetMalcolmEvolutionBase() : m_StoppingCriterion( NULL ), m_InputImage( NULL ),
+    m_EquationContainer( NULL ), m_LevelSetContainer( NULL ),
     m_DomainMapFilter( NULL ), m_Alpha( 0.9 ),
     m_Dt( 1. ), m_RMSChangeAccumulator( -1. ), m_UserDefinedDt( true )
     {
@@ -202,8 +202,6 @@ protected:
 
   StoppingCriterionPointer  m_StoppingCriterion;
 
-  /// \todo is it useful?
-  unsigned int                m_NumberOfLevelSets;
   InputImagePointer           m_InputImage;
   EquationContainerPointer    m_EquationContainer;
   LevelSetContainerPointer    m_LevelSetContainer;
