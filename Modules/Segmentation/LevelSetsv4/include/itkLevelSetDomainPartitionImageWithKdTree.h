@@ -81,16 +81,19 @@ public:
   typedef typename TreeGeneratorType::KdTreeType                TreeType;
   typedef typename TreeType::Pointer                            KdTreePointer;
 
+  /** Initialize with a precomputed kd-tree */
   void SetKdTree(KdTreePointer kdtree)
   {
     this->m_KdTree = kdtree;
   }
 
+  /** Set number of neighbors in the kd-tree leaf node */
   void SetNumberOfNeighbors( const unsigned int& iN )
   {
     m_NumberOfNeighbors = iN;
   }
 
+  /** Get number of neighbors in the kd-tree leaf node */
   void GetNumberOfNeighbors( ) const
     {
     return m_NumberOfNeighbors;
@@ -106,6 +109,8 @@ protected:
   KdTreePointer m_KdTree;
   unsigned int  m_NumberOfNeighbors;
 
+  /** Populate a list image with each pixel being a list of overlapping
+   *  level set support at that pixel */
   void PopulateListDomain()
   {
     if( this->m_KdTree.IsNotNull() )
@@ -118,6 +123,8 @@ protected:
       }
   }
 
+  /** Populate a list image with each pixel being a list of overlapping
+   *  level set support at that pixel */
   void PopulateDomainWithKdTree()
   {
     ListSpacingType spacing = this->m_ListDomain->GetSpacing();

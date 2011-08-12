@@ -23,6 +23,13 @@
 
 namespace itk
 {
+/**
+ *  \class DenseLevelSetContainer
+ *  \brief Container class for dense level sets
+ *
+ *  \tparam TIdentifier Input level set id type
+ *  \tparam TLevelSet Input level set image type
+ */
 template< class TIdentifier,
           class TLevelSet >
 class DenseLevelSetContainer :
@@ -46,7 +53,6 @@ public:
   typedef typename Superclass::LevelSetType       LevelSetType;
   typedef typename Superclass::LevelSetPointer    LevelSetPointer;
   typedef typename Superclass::InputIndexType     InputIndexType;
-//   typedef typename Superclass::OutputPixelType    OutputPixelType;
   typedef typename Superclass::OutputType         OutputPixelType;
   typedef typename Superclass::OutputRealType     OutputRealType;
   typedef typename Superclass::GradientType       GradientType;
@@ -73,6 +79,7 @@ public:
   typedef typename Superclass::NounToBeDefined              NounToBeDefined;
   typedef typename Superclass::DomainIteratorType           DomainIteratorType;
 
+  /** Comput information from data object and/or allocate new level set image */
   void CopyInformationAndAllocate( Pointer iOther,
                                    const bool& iAllocate )
     {
@@ -86,7 +93,6 @@ public:
 
         typedef typename LevelSetType::ImageType    LevelSetImageType;
         typedef typename LevelSetImageType::Pointer LevelSetImagePointer;
-        // Note LevelSetImageType::PixelType is identical to OutputType
 
         LevelSetImagePointer image = LevelSetImageType::New();
         image->CopyInformation( ( it->second )->GetImage() );

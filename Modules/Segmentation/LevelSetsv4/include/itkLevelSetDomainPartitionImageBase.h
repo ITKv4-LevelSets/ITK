@@ -86,7 +86,8 @@ protected:
   ImagePointer     m_Image;
   ListImagePointer m_ListDomain;
 
-
+  /** Populate a list image with each pixel being a list of overlapping
+   *  level set support at that pixel */
   virtual void PopulateListDomain()
   {
     ListSpacingType spacing = this->m_ListDomain->GetSpacing();
@@ -109,7 +110,8 @@ protected:
       lIt.Set(L);
       }
   }
-
+  /** Allocate a list image with each pixel being a list of overlapping
+   *  level set support at that pixel */
   void AllocateListDomain()
   {
     if( m_Image.IsNull() )

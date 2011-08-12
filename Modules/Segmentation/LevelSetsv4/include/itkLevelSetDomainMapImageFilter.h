@@ -114,7 +114,12 @@ class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<
     LevelSetDomainMapImageFilter();
     ~LevelSetDomainMapImageFilter() {}
 
+    /** Check if given region is consistent for the same set of overlapping
+     *  level set support */
     void ConsistencyCheck( bool& subRegionConsistent, InputImageRegionType& subRegion );
+
+    /** Identify image partitions where each partition has the same overlapping
+     *  level set support */
     void GenerateData();
 
   private:
