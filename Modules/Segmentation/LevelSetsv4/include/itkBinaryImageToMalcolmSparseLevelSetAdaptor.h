@@ -31,6 +31,12 @@
 
 namespace itk
 {
+/**
+ *  \class BinaryImageToMalcolmSparseLevelSetAdaptor
+ *  \brief Base class converting a binary image to a Malcolm level set representation
+ *
+ *  \tparam TInput Input Image Type
+ */
 template< class TInputImage >
 class BinaryImageToMalcolmSparseLevelSetAdaptor : public Object
 {
@@ -76,9 +82,9 @@ public:
   typedef typename LevelSetType::LayerConstIterator    LevelSetLayerConstIterator;
 
 
-  // this is the same as Procedure 1
-  // Input is a binary image m_InputImage
-  // Output is a WhitakerSparseLevelSetBasePointer
+  /** this is the same as Procedure 1
+   * Input is a binary image m_InputImage
+   * Output is a label map with 1 as background layer and -1, 0 as foreground layers */
   void Initialize()
   {
     m_LabelMap = LevelSetLabelMapType::New();
@@ -153,6 +159,7 @@ protected:
 
   typedef ShapedNeighborhoodIterator< InternalImageType > NeighborhoodIteratorType;
 
+  /** Find the active layer separating the foreground and background regions */
   void FindActiveLayer()
   {
     LevelSetLabelObjectPointer labelObject = m_LabelMap->GetLabelObject( -1 );
@@ -231,6 +238,7 @@ protected:
     m_LabelMap->AddLabelObject( ObjectZero );
   }
 
+  /** Ensure that the 0 level set layer is only of single pixel thickness */
   void MinimalInterface()
     {
     LevelSetOutputRealType oldValue, newValue;

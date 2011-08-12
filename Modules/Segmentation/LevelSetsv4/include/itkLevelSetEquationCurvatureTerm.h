@@ -27,6 +27,13 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEquationCurvatureTerm
+ *  \brief Derived class to represents a curvature term in the level-set evolution PDE
+ *
+ *  \tparam TInput Input Image Type
+ *  \tparam TLevelSetContainer Level set function container type
+ */
 template< class TInput, // Input image
           class TLevelSetContainer >
 class LevelSetEquationCurvatureTerm :
@@ -74,17 +81,20 @@ public:
 
   typedef Vector< LevelSetOutputRealType, itkGetStaticConstMacro(ImageDimension) > NeighborhoodScalesType;
 
+  /** Update the term parameter values at end of iteration */
   virtual void Update()
   {}
 
+  /** Initialize the parameters in the terms prior to an iteration */
   virtual void InitializeParameters()
   {
     this->SetUp();
   }
 
-
+  /** Initialize term parameters in the dense case by computing for each pixel location */
   virtual void Initialize( const LevelSetInputIndexType& ) {}
 
+  /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                             const LevelSetOutputRealType & oldValue,
                             const LevelSetOutputRealType & newValue )
@@ -103,14 +113,15 @@ protected:
 
   virtual ~LevelSetEquationCurvatureTerm() {}
 
+  /** Set the term name */
   virtual void SetDefaultTermName()
     {
     this->m_TermName = "Curvature term";
     }
 
 
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
+  /** Returns the term contribution for a given location iP, i.e.
+   *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
     {
     if( this->m_Heaviside.IsNotNull() )

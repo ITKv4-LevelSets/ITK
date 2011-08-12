@@ -29,6 +29,13 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEquationTermContainerBase
+ *  \brief Class for container holding the terms of a given level set update equation
+ *
+ *  \tparam TInputImage Input image or speed image or feature image for segmentation
+ *  \tparam TLevelSetContainer Container holding the all the level set functions
+ */
 template< class TInputImage,
           class TLevelSetContainer >
 class LevelSetEquationTermContainerBase : public Object
@@ -66,28 +73,40 @@ public:
                                                                        TermType;
   typedef typename TermType::Pointer                                   TermPointer;
 
+  /** Set/Get the input image to be segmented. */
   itkSetObjectMacro( Input, InputImageType );
   itkGetObjectMacro( Input, InputImageType );
 
+  /** Add a term to the end of the container  */
   void PushTerm( TermType* iTerm );
 
+  /** Replace the pointer to the term with the given id */
   void AddTerm( const TermIdType& iId, TermType* iTerm );
 
+  /** Get the term with the given id */
   TermType* GetTerm( const TermIdType& iId );
+
+  /** Get the term with the given name */
   TermType* GetTerm( const std::string& iName );
 
+  /** \todo  */
   void Initialize( const LevelSetInputIndexType& iP );
 
+  /** Supply the update at a given pixel location to update the term parameters */
   void UpdatePixel( const LevelSetInputIndexType& iP,
                     const LevelSetOutputRealType & oldValue,
                     const LevelSetOutputRealType & newValue );
 
+  /** Initialize the term parameters prior to the start of an iteration */
   void InitializeParameters();
 
+  /** Evaluate the term at a given pixel location */
   LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP );
 
+  /** Update the term parameters at end of iteration */
   void Update();
 
+  /** Return the CFL contribution of the current term */
   LevelSetOutputRealType ComputeCFLContribution() const;
 
 protected:
@@ -97,6 +116,7 @@ protected:
 
   InputImagePointer     m_Input;
 
+  /** \todo  */
   struct hash_string
   {
     size_t operator()( const std::string& x ) const
