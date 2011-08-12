@@ -162,7 +162,7 @@ public:
     if ( !LevelSet )
       {
       // pointer could not be cast back down
-      itkExceptionMacro( << "itk::Mesh::CopyInformation() cannot cast "
+      itkExceptionMacro( << "itk::LevelSetImageBase::CopyInformation() cannot cast "
                          << typeid( data ).name() << " to "
                          << typeid( Self * ).name() );
       }
