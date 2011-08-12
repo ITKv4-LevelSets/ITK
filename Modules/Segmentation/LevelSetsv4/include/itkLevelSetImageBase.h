@@ -70,135 +70,41 @@ public:
   itkGetObjectMacro( Image, ImageType );
 
   /** Returns the value of the level set function at a given location iP */
-  virtual OutputType Evaluate( const InputType& iP ) const
-    {
-    return m_Image->GetPixel( iP );
-    }
+  virtual OutputType Evaluate( const InputType& iP ) const;
 
   /** Returns the image gradient of the level set function at a given location iP
    * \todo to be implemented */
-  virtual GradientType EvaluateGradient( const InputType& iP ) const
-    {
-    itkWarningMacro( <<"to be implemented" );
-    return GradientType();
-    }
+  virtual GradientType EvaluateGradient( const InputType& iP ) const;
 
   /** Returns the image hessian of the level set function at a given location iP
    * \todo to be implemented */
-  virtual HessianType EvaluateHessian( const InputType& iP ) const
-    {
-    itkWarningMacro( <<"to be implemented" );
-    return HessianType();
-    }
+  virtual HessianType EvaluateHessian( const InputType& iP ) const;
 
   /** Returns the value of the level set function at a given location iP
    * as part of the LevelSetDataType*/
-  virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const
-    {
-    // if it has not already been computed before
-    if( !ioData.Value.first )
-      {
-      ioData.Value.first = true;
-      ioData.Value.second = m_Image->GetPixel( iP );
-      }
-    }
+  virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const;
 
   /** Returns the gradient of the level set function at a given location iP
    * as part of the LevelSetDataType
    * \todo to be implemented */
-  virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const
-    {
-    // if it has not already been computed before
-    if( !ioData.Gradient.first )
-      {
-      ioData.Gradient.second = true;
-
-      // compute the gradient
-      ///\todo implement the computation of the gradient
-      }
-    }
+  virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const;
 
   /** Returns the Hessian of the level set function at a given location iP
    * as part of the LevelSetDataType
    * \todo to be implemented */
-  virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const
-    {
-    if( !ioData.Hessian.first )
-      {
-      ioData.Hessian.first = true;
-
-      // compute the hessian
-      ///\todo implement the computation of the hessian
-      }
-    }
+  virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const;
 
   /** Initial the level set pointer */
-  virtual void Initialize()
-    {
-    Superclass::Initialize();
-
-    m_Image = NULL;
-    }
+  virtual void Initialize();
 
   /** Copy level set information from data object */
-  virtual void CopyInformation(const DataObject *data)
-    {
-    Superclass::CopyInformation( data );
-
-    const Self *LevelSet = NULL;
-
-    try
-      {
-      LevelSet = dynamic_cast< const Self * >( data );
-      }
-    catch ( ... )
-      {
-      // LevelSet could not be cast back down
-      itkExceptionMacro( << "itk::LevelSetImageBase::CopyInformation() cannot cast "
-                         << typeid( data ).name() << " to "
-                         << typeid( Self * ).name() );
-      }
-
-    if ( !LevelSet )
-      {
-      // pointer could not be cast back down
-      itkExceptionMacro( << "itk::LevelSetImageBase::CopyInformation() cannot cast "
-                         << typeid( data ).name() << " to "
-                         << typeid( Self * ).name() );
-      }
-    }
+  virtual void CopyInformation(const DataObject *data);
 
   /** Graft data object as level set object */
-  virtual void Graft( const DataObject* data )
-    {
-    Superclass::Graft( data );
-    const Self *LevelSet = 0;
-
-    try
-      {
-      LevelSet = dynamic_cast< const Self* >( data );
-      }
-    catch( ... )
-      {
-      // mesh could not be cast back down
-      itkExceptionMacro( << "itk::LevelSetImageBase::CopyInformation() cannot cast "
-                         << typeid( data ).name() << " to "
-                         << typeid( Self * ).name() );
-      }
-
-    if ( !LevelSet )
-      {
-      // pointer could not be cast back down
-      itkExceptionMacro( << "itk::LevelSetImageBase::CopyInformation() cannot cast "
-                         << typeid( data ).name() << " to "
-                         << typeid( Self * ).name() );
-      }
-
-    this->m_Image = LevelSet->m_Image;
-    }
+  virtual void Graft( const DataObject* data );
 
 protected:
-  LevelSetImageBase() : Superclass(), m_Image( NULL ) {}
+  LevelSetImageBase();
 
   virtual ~LevelSetImageBase() {}
 
@@ -209,4 +115,5 @@ private:
   void operator = ( const Self& );
   };
 }
+#include "itkLevelSetImageBase.hxx"
 #endif // __itkLevelSetImageBase_h

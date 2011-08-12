@@ -23,57 +23,65 @@
 
 namespace itk
 {
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 LevelSetContainerBase< TIdentifier, TLevelSet >
 ::LevelSetContainerBase() : Superclass(),
   m_Heaviside( NULL ), m_DomainMapFilter( NULL )
 {}
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 typename LevelSetContainerBase< TIdentifier, TLevelSet >::Iterator
 LevelSetContainerBase< TIdentifier, TLevelSet >::Begin()
-  {
+{
   return Iterator( m_Container.begin() );
-  }
+}
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 typename LevelSetContainerBase< TIdentifier, TLevelSet >::ConstIterator
 LevelSetContainerBase< TIdentifier, TLevelSet >::Begin() const
-  {
+{
   return ConstIterator( m_Container.begin() );
-  }
+}
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 typename LevelSetContainerBase< TIdentifier, TLevelSet >::Iterator
 LevelSetContainerBase< TIdentifier, TLevelSet >::End()
-  {
+{
   return Iterator( m_Container.end() );
-  }
+}
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 typename LevelSetContainerBase< TIdentifier, TLevelSet >::ConstIterator
 LevelSetContainerBase< TIdentifier, TLevelSet >::End() const
-  {
+{
   return ConstIterator( m_Container.end() );
-  }
+}
+// ----------------------------------------------------------------------------
 
-
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 typename LevelSetContainerBase< TIdentifier, TLevelSet >::LevelSetIdentifierType
 LevelSetContainerBase< TIdentifier, TLevelSet >::Size() const
-  {
+{
   return static_cast< LevelSetIdentifierType >( m_Container.size() );
-  }
+}
+// ----------------------------------------------------------------------------
 
-/** \brief Get the level set function given its id
-  \param[in] iId
-  \return the level set function if it is in the container, else NULL.
-*/
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 typename LevelSetContainerBase< TIdentifier, TLevelSet >::LevelSetPointer
 LevelSetContainerBase< TIdentifier, TLevelSet >
 ::GetLevelSet( const LevelSetIdentifierType& iId ) const
-  {
+{
   LevelSetContainerConstIteratorType it = m_Container.find( iId );
 
   if( it != m_Container.end() )
@@ -84,23 +92,16 @@ LevelSetContainerBase< TIdentifier, TLevelSet >
     {
     return NULL;
     }
-  }
+}
+// ----------------------------------------------------------------------------
 
-/** \brief Add one level set function given its id.
-
-  \param[in] iId id of the level set function
-  \param[in] iLevelSet the level set function to be added
-  \param[in] iForce if iForce is true (default) the level set function will be
-  added to the container even if there is already one with the same id.
-
-  \return true if the level set has been added.
-*/
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 bool LevelSetContainerBase< TIdentifier, TLevelSet >
 ::AddLevelSet( const LevelSetIdentifierType& iId,
                LevelSetPointer iLevelSet,
                const bool& iForce )
-  {
+{
   if( iForce )
     {
     m_Container[iId] = iLevelSet;
@@ -123,13 +124,10 @@ bool LevelSetContainerBase< TIdentifier, TLevelSet >
       return true;
       }
     }
-  }
+}
+// ----------------------------------------------------------------------------
 
-/** \brief Remove one level set function given its id.
-  \param[in] iId id of the level set function to be removed
-  \return true if it has been removed, false if the id was not present in the
-  container.
-*/
+// ----------------------------------------------------------------------------
 template< class TIdentifier, class TLevelSet >
 bool
 LevelSetContainerBase< TIdentifier, TLevelSet >
@@ -152,4 +150,6 @@ LevelSetContainerBase< TIdentifier, TLevelSet >
     }
   }
 }
+// ----------------------------------------------------------------------------
+
 #endif // __itkLevelSetContainerBase_hxx

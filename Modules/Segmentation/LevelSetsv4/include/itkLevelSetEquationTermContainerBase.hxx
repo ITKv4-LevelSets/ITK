@@ -24,16 +24,21 @@
 
 namespace itk
 {
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 ::LevelSetEquationTermContainerBase() : Superclass(), m_Input( NULL )
   {}
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 ::~LevelSetEquationTermContainerBase()
   {}
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
@@ -63,7 +68,9 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     itkGenericExceptionMacro( <<"Term supplied is null" );
     }
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
@@ -97,7 +104,9 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     itkGenericExceptionMacro( <<"Term supplied is null" );
     }
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 typename LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >::TermType*
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >::
@@ -113,7 +122,9 @@ GetTerm( const std::string& iName )
 
   return it->second;
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 typename LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >::TermType*
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >::
@@ -128,7 +139,9 @@ GetTerm( const TermIdType& iId )
 
   return it->second;
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
@@ -143,7 +156,9 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     ++term_it;
     }
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
@@ -162,7 +177,9 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     ++term_it;
     }
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
@@ -177,7 +194,9 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     ++term_it;
     }
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 typename LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >::LevelSetOutputRealType
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
@@ -203,7 +222,9 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 
   return oValue;
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
@@ -222,7 +243,9 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     ++cfl_it;
     }
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 typename LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >::LevelSetOutputRealType
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
@@ -251,6 +274,7 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 
   return oValue;
 }
+// ----------------------------------------------------------------------------
 
 }
 #endif // __itkLevelSetEquationTermContainerBase_hxx

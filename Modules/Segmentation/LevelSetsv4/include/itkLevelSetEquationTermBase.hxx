@@ -25,6 +25,7 @@
 
 namespace itk
 {
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
 ::LevelSetEquationTermBase(): Superclass(),
@@ -36,7 +37,9 @@ LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
   m_Heaviside( NULL ),
   m_TermName( )
 {}
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
@@ -46,7 +49,9 @@ LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
   m_Heaviside = iContainer->GetHeaviside();
   this->Modified();
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 typename
 LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
@@ -56,7 +61,9 @@ LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
 {
   return m_Coefficient * this->Value( iP );
 }
+// ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
@@ -81,6 +88,7 @@ LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
     itkWarningMacro( << "m_Heaviside is NULL" );
     }
 }
+// ----------------------------------------------------------------------------
 
 }
 
