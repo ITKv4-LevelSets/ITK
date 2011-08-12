@@ -24,6 +24,13 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEquationChanAndVeseExternalTerm
+ *  \brief Derived class to represent the external energy Chan And Vese term
+ *
+ *  \tparam TInput Input Image Type
+ *  \tparam TLevelSetContainer Level set function container type
+ */
 template< class TInput, // Input image
           class TLevelSetContainer >
 class LevelSetEquationChanAndVeseExternalTerm :
@@ -65,6 +72,7 @@ public:
   typedef typename Superclass::HeavisideType    HeavisideType;
   typedef typename Superclass::HeavisidePointer HeavisidePointer;
 
+  /** Compute the product of Heaviside functions in the multi-levelset cases */
   virtual void ComputeProduct( const LevelSetInputIndexType& iP,
                                LevelSetOutputRealType& prod )
   {
@@ -74,7 +82,8 @@ public:
     prod *= -(1 - this->m_Heaviside->Evaluate( -value ) );
   }
 
-
+  /** Compute the product of Heaviside functions in the multi-levelset cases
+   *  except the current levelset */
   virtual void ComputeProductTerm( const LevelSetInputIndexType& iP,
                                   LevelSetOutputRealType& prod )
   {
@@ -97,10 +106,7 @@ public:
     }
   }
 
-  /* Performs the narrow-band update of the Heaviside function for each voxel. The
-  characteristic function of each region is recomputed. Using the                                                     *
-  new H values, the previous c_i are updated. Used by only the sparse image
-  filter */
+  /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( LevelSetInputIndexType& iP,
                            LevelSetOutputRealType & oldValue,
                            LevelSetOutputRealType & newValue )
@@ -134,6 +140,7 @@ protected:
 
   virtual ~LevelSetEquationChanAndVeseExternalTerm() {}
 
+  /** Set the term name */
   virtual void SetDefaultTermName()
     {
     this->m_TermName = "External Chan And Vese term";

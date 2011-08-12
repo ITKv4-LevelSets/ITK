@@ -112,6 +112,7 @@ public:
   itkSetStringMacro( TermName );
   itkGetStringMacro( TermName );
 
+  /** Update the term parameter values at end of iteration */
   virtual void Update() = 0;
 
 protected:

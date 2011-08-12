@@ -23,6 +23,13 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEquationChanAndVeseInternalTerm
+ *  \brief Derived class to represent the internal energy Chan And Vese term
+ *
+ *  \tparam TInput Input Image Type
+ *  \tparam TLevelSetContainer Level set function container type
+ */
 template< class TInput, // Input image
           class TLevelSetContainer >
 class LevelSetEquationChanAndVeseInternalTerm :
@@ -64,6 +71,7 @@ public:
   itkSetMacro( Mean, InputPixelRealType );
   itkGetMacro( Mean, InputPixelRealType );
 
+  /** Update the term parameter values at end of iteration */
   virtual void Update()
   {
     if( m_TotalH > NumericTraits< LevelSetOutputRealType >::epsilon() )
@@ -82,6 +90,7 @@ public:
     std::cout << m_TotalValue << '/' << m_TotalH << '=' << m_Mean << std::endl;
   }
 
+  /** Initialize parameters in the terms prior to an iteration */
   virtual void InitializeParameters()
   {
     m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
@@ -90,8 +99,7 @@ public:
   }
 
 
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
+  /** Initialize term parameters in the dense case by computing for each pixel location */
   virtual void Initialize( const LevelSetInputIndexType& iP )
   {
     if( this->m_Heaviside.IsNotNull() )
@@ -108,6 +116,7 @@ public:
       }
   }
 
+  /** Compute the product of Heaviside functions in the multi-levelset cases */
   virtual void ComputeProduct( const LevelSetInputIndexType& iP,
                               LevelSetOutputRealType& prod )
   {
@@ -115,15 +124,13 @@ public:
     prod = this->m_Heaviside->Evaluate( -value );
   }
 
+  /** Compute the product of Heaviside functions in the multi-levelset cases
+   *  except the current levelset */
   virtual void ComputeProductTerm( const LevelSetInputIndexType& iP,
                                   LevelSetOutputRealType& prod )
   {}
 
-
-  /* Performs the narrow-band update of the Heaviside function for each voxel. The
-  characteristic function of each region is recomputed. Using the
-  new H values, the previous c_i are updated. Used by only the sparse image
-  filter */
+  /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                            const LevelSetOutputRealType & oldValue,
                            const LevelSetOutputRealType & newValue )
@@ -150,14 +157,15 @@ protected:
 
   virtual ~LevelSetEquationChanAndVeseInternalTerm() {}
 
+  /** Set the term name */
   virtual void SetDefaultTermName()
     {
     this->m_TermName = "Internal Chan And Vese term";
     }
 
 
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
+  /** Returns the term contribution for a given location iP, i.e.
+   *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
     {
     if( this->m_Heaviside.IsNotNull() )
@@ -184,7 +192,7 @@ protected:
     return NumericTraits< LevelSetOutputPixelType >::Zero;
     }
 
-
+  /** Accumulate contribution to term parameters from a given pixel */
   void Accumulate( const InputPixelType& iPix,
                    const LevelSetOutputRealType& iH )
     {

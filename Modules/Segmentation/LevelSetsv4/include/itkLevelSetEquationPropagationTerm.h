@@ -27,6 +27,13 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEquationPropagationTerm
+ *  \brief Derived class to represents a propagation term in the level-set evolution PDE
+ *
+ *  \tparam TInput Input Image Type
+ *  \tparam TLevelSetContainer Level set function container type
+ */
 template< class TInput, // Input image
           class TLevelSetContainer >
 class LevelSetEquationPropagationTerm :
@@ -74,20 +81,21 @@ public:
 
   typedef Vector< LevelSetOutputRealType, itkGetStaticConstMacro(ImageDimension) > NeighborhoodScalesType;
 
+  /** \todo to be documented. */
   virtual void Update()
   {}
 
+  /** Initialize the parameters in the terms prior to an iteration */
   virtual void InitializeParameters()
   {
     this->SetUp();
   }
 
-
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
+  /** \todo to be documented. */
   virtual void Initialize( const LevelSetInputIndexType& iP )
   {}
 
+  /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                             const LevelSetOutputRealType & oldValue,
                             const LevelSetOutputRealType & newValue )
@@ -106,16 +114,21 @@ protected:
 
   virtual ~LevelSetEquationPropagationTerm() {}
 
+  /** Set the term name */
   virtual void SetDefaultTermName()
     {
     this->m_TermName = "Propagation term";
     }
 
+  /** Return the spatial speed dependence a given pixel location
+   * Usually, it is constant across the image domain */
   LevelSetOutputRealType PropagationSpeed( const LevelSetInputIndexType& iP ) const
   {
     return ( static_cast< LevelSetOutputRealType >( this->m_Input->GetPixel(iP) ) );
   }
 
+  /** Returns the term contribution for a given location iP, i.e.
+   *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
   {
     // Construct upwind gradient values for use in the propagation speed term:

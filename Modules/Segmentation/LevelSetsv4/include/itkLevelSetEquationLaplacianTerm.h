@@ -27,6 +27,13 @@
 
 namespace itk
 {
+/**
+ *  \class LevelSetEquationLaplacianTerm
+ *  \brief Derived class to represents a propagation term in the level-set evolution PDE
+ *
+ *  \tparam TInput Input Image Type
+ *  \tparam TLevelSetContainer Level set function container type
+ */
 template< class TInput, // Input image
           class TLevelSetContainer >
 class LevelSetEquationLaplacianTerm :
@@ -74,19 +81,20 @@ public:
 
   typedef Vector< LevelSetOutputRealType, itkGetStaticConstMacro(ImageDimension) > NeighborhoodScalesType;
 
+  /** Update the term parameter values at end of iteration */
   virtual void Update()
   {}
 
+  /** Initialize the parameters in the terms prior to an iteration */
   virtual void InitializeParameters()
   {
     this->SetUp();
   }
 
-
-  // this will work for scalars and vectors. For matrices, one may have to reimplement
-  // his specialized term
+  /** \todo to be documented. */
   virtual void Initialize( const LevelSetInputIndexType& ) {}
 
+  /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                             const LevelSetOutputRealType & oldValue,
                             const LevelSetOutputRealType & newValue )
@@ -105,16 +113,21 @@ protected:
 
   virtual ~LevelSetEquationLaplacianTerm() {}
 
+  /** Set the term name */
   virtual void SetDefaultTermName()
     {
     this->m_TermName = "Laplacian term";
     }
 
+  /** Return the spatial speed dependence a given pixel location
+   * Usually, it is constant across the image domain */
   LevelSetOutputRealType LaplacianSpeed( const LevelSetInputIndexType& iP ) const
   {
     return NumericTraits< LevelSetOutputRealType >::One;
   }
 
+  /** Returns the term contribution for a given location iP, i.e.
+   *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
   {
     LevelSetInputIndexType pA, pB;
