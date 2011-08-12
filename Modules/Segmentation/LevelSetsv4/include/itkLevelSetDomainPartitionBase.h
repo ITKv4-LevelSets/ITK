@@ -46,11 +46,13 @@ public:
   typedef typename IdentifierListType::iterator       IdentifierListIterator;
   typedef typename IdentifierListType::const_iterator IdentifierListConstIterator;
 
+  /** Set the number of level set functions */
   void SetFunctionCount(const IdentifierType & n)
   {
     this->m_FunctionCount = n;
   }
 
+  /** Get the number of level set functions */
   IdentifierType GetFunctionCount() const
   {
     return this->m_FunctionCount;

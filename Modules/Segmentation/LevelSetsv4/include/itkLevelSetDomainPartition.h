@@ -47,11 +47,13 @@ public:
 
   itkTypeMacro(LevelSetDomainPartition, LevelSetDomainPartitionBase );
 
-  typedef TImage                                      ImageType;
+  typedef TImage                                ImageType;
   typedef typename ImageType::Pointer           ImagePointer;
 
   typedef typename Superclass::ListPixelType         ListPixelType;
 
+  /** Populate a list image with each pixel being a list of overlapping
+   *  level set support at that pixel */
   void PopulateListImage()
   {
     ListPixelType L;

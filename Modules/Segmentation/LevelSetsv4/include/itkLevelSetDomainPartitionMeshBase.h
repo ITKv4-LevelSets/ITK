@@ -70,7 +70,8 @@ protected:
   MeshPointer     m_Mesh;
   ListMeshType    m_ListDomain;
 
-
+  /** Populate a list mesh with each node being a list of overlapping
+   *  level set support at that pixel */
   virtual void PopulateListDomain()
     {
     PointsContainerPointer points = m_Mesh->GetPoints();
@@ -95,6 +96,8 @@ protected:
       }
     }
 
+  /** Allocate a list mesh with each node being a list of overlapping
+   *  level set support at that pixel */
   void AllocateListDomain()
   {}
 
