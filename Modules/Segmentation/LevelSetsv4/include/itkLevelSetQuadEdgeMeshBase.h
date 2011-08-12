@@ -28,7 +28,6 @@ namespace itk
  *  \brief Base class for the surface mesh representation of a level-set function
  *
  *  \tparam TMesh Input mesh type of the level set function
- *  \todo Think about using image iterators instead of GetPixel()
  */
 template< class TMesh >
 class LevelSetQuadEdgeMeshBase :
@@ -56,11 +55,12 @@ public:
   /** Run-time type information */
   itkTypeMacro ( LevelSetQuadEdgeMeshBase, LevelSetBase );
 
-  typedef typename Superclass::InputType      InputType;
-  typedef typename Superclass::OutputType     OutputType;
-  typedef typename Superclass::OutputRealType OutputRealType;
-  typedef typename Superclass::GradientType   GradientType;
-  typedef typename Superclass::HessianType    HessianType;
+  typedef typename Superclass::InputType        InputType;
+  typedef typename Superclass::OutputType       OutputType;
+  typedef typename Superclass::OutputRealType   OutputRealType;
+  typedef typename Superclass::GradientType     GradientType;
+  typedef typename Superclass::HessianType      HessianType;
+  typedef typename Superclass::LevelSetDataType LevelSetDataType;
 
   itkSetObjectMacro( Mesh, MeshType );
   itkGetObjectMacro( Mesh, MeshType );
@@ -97,7 +97,7 @@ public:
     if( !ioData.Value.first )
       {
       ioData.Value.first = true;
-      m_Mesh->GetPointData( iP, &( ioData.Value.second ) )
+      m_Mesh->GetPointData( iP, &( ioData.Value.second ) );
       }
     }
 
@@ -135,7 +135,7 @@ public:
     {
     Superclass::Initialize();
 
-    m_Image = NULL;
+    m_Mesh = NULL;
     }
 
   /** Copy level set information from data object */
