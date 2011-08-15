@@ -27,7 +27,27 @@ namespace itk
 template< class TImage >
 LevelSetImageBase< TImage >
 ::LevelSetImageBase() : Superclass(), m_Image( NULL )
-{}
+{
+  m_NeighborhoodScales.Fill( NumericTraits< OutputRealType >::One );
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TImage >
+void
+LevelSetImageBase< TImage >
+::SetImage( ImageType* iImage )
+{
+  m_Image = iImage;
+  typename ImageType::SpacingType spacing = m_Image->GetSpacing();
+
+  for( unsigned int dim = 0; dim < Dimension; dim++ )
+    {
+    m_NeighborhoodScales[dim] =
+        NumericTraits< OutputRealType >::One / static_cast< OutputRealType >( spacing[dim ] );
+    }
+  this->Modified();
+}
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
@@ -60,9 +80,10 @@ LevelSetImageBase< TImage >::EvaluateGradient( const InputType& iP ) const
 
     OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
     OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
+    OutputRealType scale = m_NeighborhoodScales[dim];
 
-    dx_forward[dim] = ( valueA - center_value ); // * m_NeighborhoodScales[dim];
-    dx_backward[dim] = ( center_value - valueB ); // * m_NeighborhoodScales[dim];
+    dx_forward[dim] = ( valueA - center_value ) * scale;
+    dx_backward[dim] = ( center_value - valueB ) * scale;
 
     pA[dim] = pB[dim] = iP[dim];
     }
@@ -93,8 +114,8 @@ LevelSetImageBase< TImage >
     OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
     OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
 
-    oHessian[dim1][dim1] = ( valueA + valueB - 2.0 * center_value );
-      // * vnl_math_sqr(m_NeighborhoodScales[i]);
+    oHessian[dim1][dim1] = ( valueA + valueB - 2.0 * center_value )
+        * vnl_math_sqr( m_NeighborhoodScales[dim1] );
 
     pAa = pB;
     pBa = pB;
@@ -116,8 +137,8 @@ LevelSetImageBase< TImage >
       OutputRealType valueDa = static_cast< OutputRealType >( this->Evaluate( pDa ) );
 
       oHessian[dim1][dim2] = oHessian[dim2][dim1] =
-          0.25 * ( valueAa - valueBa - valueCa + valueDa );
-          //  * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
+          0.25 * ( valueAa - valueBa - valueCa + valueDa )
+          * m_NeighborhoodScales[dim1] * m_NeighborhoodScales[dim2];
 
       pAa[dim2] = pB[dim2];
       pBa[dim2] = pB[dim2];
@@ -255,6 +276,7 @@ LevelSetImageBase< TImage >
     }
 
   this->m_Image = LevelSet->m_Image;
+  this->m_NeighborhoodScales = LevelSet->m_NeighborhoodScales;
 }
 // ----------------------------------------------------------------------------
 

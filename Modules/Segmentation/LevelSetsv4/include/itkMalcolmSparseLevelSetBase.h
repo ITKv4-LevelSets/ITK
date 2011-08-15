@@ -145,7 +145,7 @@ public:
     }
 
   /** Set/Get the label map for computing the sparse representation */
-  itkSetObjectMacro( LabelMap, LabelMapType );
+  virtual void SetLabelMap( LabelMapType* iLabelMap );
   itkGetObjectMacro( LabelMap, LabelMapType );
 
 protected:
@@ -159,6 +159,9 @@ protected:
 
   LayerMapType     m_Layers;
   LabelMapPointer  m_LabelMap;
+
+  typedef GradientType ScalingType;
+  ScalingType m_NeighborhoodScales;
 
 private:
   MalcolmSparseLevelSetBase( const Self& );

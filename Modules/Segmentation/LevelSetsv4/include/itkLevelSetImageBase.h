@@ -69,7 +69,7 @@ public:
   typedef typename Superclass::LevelSetDataType
                                               LevelSetDataType;
 
-  itkSetObjectMacro( Image, ImageType );
+  virtual void SetImage( ImageType* iImage );
   itkGetObjectMacro( Image, ImageType );
 
   /** Returns the value of the level set function at a given location iP */
@@ -112,6 +112,9 @@ protected:
   virtual ~LevelSetImageBase() {}
 
   ImagePointer m_Image;
+
+  typedef GradientType ScalingType;
+  ScalingType m_NeighborhoodScales;
 
 private:
   LevelSetImageBase( const Self& );

@@ -29,6 +29,25 @@ MalcolmSparseLevelSetBase< VDimension >
 ::MalcolmSparseLevelSetBase() : Superclass(), m_LabelMap( 0 )
 {
   InitializeLayers();
+  m_NeighborhoodScales.Fill( NumericTraits< OutputRealType >::One );
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< unsigned int VDimension >
+void
+MalcolmSparseLevelSetBase< VDimension >
+::SetLabelMap( LabelMapType* iLabelMap )
+{
+  m_LabelMap = iLabelMap;
+  typename LabelMapType::SpacingType spacing = m_LabelMap->GetSpacing();
+
+  for( unsigned int dim = 0; dim < Dimension; dim++ )
+    {
+    m_NeighborhoodScales[dim] =
+        NumericTraits< OutputRealType >::One / static_cast< OutputRealType >( spacing[dim ] );
+    }
+  this->Modified();
 }
 // ----------------------------------------------------------------------------
 
@@ -104,8 +123,8 @@ MalcolmSparseLevelSetBase< VDimension >::EvaluateGradient( const InputType& iP )
     OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
     OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
 
-    dx_forward[dim] = ( valueA - center_value ); // * m_NeighborhoodScales[dim];
-    dx_backward[dim] = ( center_value - valueB ); // * m_NeighborhoodScales[dim];
+    dx_forward[dim] = ( valueA - center_value ) * m_NeighborhoodScales[dim];
+    dx_backward[dim] = ( center_value - valueB ) * m_NeighborhoodScales[dim];
 
     pA[dim] = pB[dim] = iP[dim];
     }
