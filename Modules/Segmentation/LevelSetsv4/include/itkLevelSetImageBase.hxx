@@ -44,8 +44,30 @@ template< class TImage >
 typename LevelSetImageBase< TImage >::GradientType
 LevelSetImageBase< TImage >::EvaluateGradient( const InputType& iP ) const
 {
-  itkWarningMacro( <<"to be implemented" );
-  return GradientType();
+  OutputRealType center_value =
+      static_cast< OutputRealType >( this->Evaluate( iP ) );
+
+  InputType pA, pB;
+  pA = pB = iP;
+
+  GradientType dx_forward;
+  GradientType dx_backward;
+
+  for( unsigned int dim = 0; dim < Dimension; dim++ )
+    {
+    pA[dim] += 1;
+    pB[dim] -= 1;
+
+    OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
+    OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
+
+    dx_forward[dim] = ( valueA - center_value ); // * m_NeighborhoodScales[dim];
+    dx_backward[dim] = ( center_value - valueB ); // * m_NeighborhoodScales[dim];
+
+    pA[dim] = pB[dim] = iP[dim];
+    }
+
+  return dx_forward;
 }
 // ----------------------------------------------------------------------------
 
@@ -55,8 +77,59 @@ typename LevelSetImageBase< TImage >::HessianType
 LevelSetImageBase< TImage >
 ::EvaluateHessian( const InputType& iP ) const
 {
-  itkWarningMacro( <<"to be implemented" );
-  return HessianType();
+  HessianType oHessian;
+
+  OutputRealType center_value =
+      static_cast< OutputRealType >( this->Evaluate( iP ) );
+
+  InputType pA, pB, pAa, pBa, pCa, pDa;
+  pA = pB = iP;
+
+  for( unsigned int dim1 = 0; dim1 < Dimension; dim1++ )
+    {
+    pA[dim1] += 1;
+    pB[dim1] -= 1;
+
+    OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
+    OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
+
+    oHessian[dim1][dim1] = ( valueA + valueB - 2.0 * center_value );
+      // * vnl_math_sqr(m_NeighborhoodScales[i]);
+
+    pAa = pB;
+    pBa = pB;
+
+    pCa = pA;
+    pDa = pA;
+
+    for( unsigned int dim2 = dim1 + 1; dim2 < Dimension; dim2++ )
+      {
+      pAa[dim2] -= 1;
+      pBa[dim2] += 1;
+
+      pCa[dim2] -= 1;
+      pDa[dim2] += 1;
+
+      OutputRealType valueAa = static_cast< OutputRealType >( this->Evaluate( pAa ) );
+      OutputRealType valueBa = static_cast< OutputRealType >( this->Evaluate( pBa ) );
+      OutputRealType valueCa = static_cast< OutputRealType >( this->Evaluate( pCa ) );
+      OutputRealType valueDa = static_cast< OutputRealType >( this->Evaluate( pDa ) );
+
+      oHessian[dim1][dim2] = oHessian[dim2][dim1] =
+          0.25 * ( valueAa - valueBa - valueCa + valueDa );
+          //  * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
+
+      pAa[dim2] = pB[dim2];
+      pBa[dim2] = pB[dim2];
+
+      pCa[dim2] = pA[dim2];
+      pDa[dim2] = pA[dim2];
+      }
+    pA[dim1] = iP[dim1];
+    pB[dim1] = iP[dim1];
+    }
+
+  return oHessian;
 }
 // ----------------------------------------------------------------------------
 

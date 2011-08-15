@@ -59,6 +59,8 @@ public:
   /** Run-time type information */
   itkTypeMacro ( LevelSetImageBase, LevelSetBase );
 
+  itkStaticConstMacro ( Dimension, unsigned int, Superclass::Dimension );
+
   typedef typename Superclass::InputType      InputType;
   typedef typename Superclass::OutputType     OutputType;
   typedef typename Superclass::OutputRealType OutputRealType;

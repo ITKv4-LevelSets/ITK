@@ -87,25 +87,56 @@ template< unsigned int VDimension >
 typename MalcolmSparseLevelSetBase< VDimension >::GradientType
 MalcolmSparseLevelSetBase< VDimension >::EvaluateGradient( const InputType& iP ) const
 {
-  itkWarningMacro( <<"to be implemented" );
-  return GradientType();
+  OutputRealType center_value =
+      static_cast< OutputRealType >( this->Evaluate( iP ) );
+
+  InputType pA, pB;
+  pA = pB = iP;
+
+  GradientType dx_forward;
+  GradientType dx_backward;
+
+  for( unsigned int dim = 0; dim < Dimension; dim++ )
+    {
+    pA[dim] += 1;
+    pB[dim] -= 1;
+
+    OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
+    OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
+
+    dx_forward[dim] = ( valueA - center_value ); // * m_NeighborhoodScales[dim];
+    dx_backward[dim] = ( center_value - valueB ); // * m_NeighborhoodScales[dim];
+
+    pA[dim] = pB[dim] = iP[dim];
+    }
+
+  return dx_forward;
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 template< unsigned int VDimension >
 typename MalcolmSparseLevelSetBase< VDimension >::HessianType
-MalcolmSparseLevelSetBase< VDimension >::EvaluateHessian( const InputType& iP ) const
+MalcolmSparseLevelSetBase< VDimension >
+::EvaluateHessian( const InputType& iP ) const
 {
-  itkWarningMacro( <<"to be implemented" );
-  return HessianType();
+  (void) iP;
+  itkGenericExceptionMacro( <<"The approximation of the hessian in the Malcolm's"
+                            <<" representation is poor, and far to be representative."
+                            <<" If it was required for regularization purpose, "
+                            <<" you better check recommended regularization methods"
+                            <<" for Malcolm's representation" );
+  HessianType oHessian;
+  oHessian.Fill( NumericTraits< OutputRealType >::Zero );
+  return oHessian;
 }
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 template< unsigned int VDimension >
 void
-MalcolmSparseLevelSetBase< VDimension >::Initialize()
+MalcolmSparseLevelSetBase< VDimension >
+::Initialize()
 {
   Superclass::Initialize();
 
