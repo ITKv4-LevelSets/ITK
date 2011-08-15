@@ -19,6 +19,7 @@
 #define __itkLevelSetDomainPartitionMeshBase_h
 
 #include "itkLevelSetDomainPartitionBase.h"
+#include <map>
 
 namespace itk
 {
