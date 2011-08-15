@@ -39,6 +39,7 @@ namespace itk
  *  \tparam TLevelSetValueType Ouput value type for the level-set function
  *
  *  \todo Make it as filter to benefit from the pipeline architecture
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TInputImage, typename TLevelSetValueType >
 class BinaryImageToWhitakerSparseLevelSetAdaptor : public Object

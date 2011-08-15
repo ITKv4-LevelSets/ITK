@@ -43,6 +43,7 @@ namespace itk
  *  \brief Class for iterating and evolving the Malcolm sparse level-set function
  *
  *  \tparam TEquationContainer Container holding the system of level set of equations
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TEquationContainer >
 class LevelSetMalcolmEvolutionBase : public Object

@@ -34,6 +34,7 @@ namespace itk
  *
  * \tparam TIdentifier type of the identifier used to reference on level set function
  * \tparam TLevelSet type of level set function in the container.
+ * \ingroup ITKLevelSetsv4
  */
 template< class TIdentifier,
           class TLevelSet >
@@ -93,7 +94,9 @@ public:
   friend class Iterator;
   friend class ConstIterator;
 
-  /** \class ConstIterator */
+  /** \class ConstIterator
+    \ingroup ITKLevelSetsv4
+    */
   class ConstIterator
     {
   public:
@@ -158,6 +161,8 @@ public:
     friend class Iterator;
     };
 
+  /** \class Iterator
+    \ingroup ITKLevelSetsv4 */
   class Iterator
     {
   public:

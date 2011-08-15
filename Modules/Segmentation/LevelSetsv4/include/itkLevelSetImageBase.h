@@ -30,6 +30,7 @@ namespace itk
  *
  *  \tparam TImage Input image type of the level set function
  *  \todo Think about using image iterators instead of GetPixel()
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TImage >
 class LevelSetImageBase :

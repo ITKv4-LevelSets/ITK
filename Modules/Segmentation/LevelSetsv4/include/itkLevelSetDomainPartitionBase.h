@@ -28,7 +28,7 @@ namespace itk
 /** \class LevelSetDomainPartitionBase
  *
  * \brief Helper class used to partition domain and efficiently compute overlap.
- *
+ * \ingroup ITKLevelSetsv4
  */
 template< class TDomain >
 class LevelSetDomainPartitionBase : public LightObject

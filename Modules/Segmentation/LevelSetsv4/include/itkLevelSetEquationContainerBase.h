@@ -29,6 +29,7 @@ namespace itk
  *  \brief Class for iterating and evolving the Shi sparse level-set function
  *
  *  \tparam TTermContainer Container holding the terms in a level set equation
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TTermContainer >
 class LevelSetEquationContainerBase : public Object

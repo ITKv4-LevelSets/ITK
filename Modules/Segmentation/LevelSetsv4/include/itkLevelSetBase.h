@@ -34,6 +34,7 @@ namespace itk
  *  \tparam VDimension Dimension of the input space
  *  \tparam TOutput Returned type when evaluating the level set function
  *  \tparam TDomain Support of the level-set function (e.g. Image or QuadEdgeMesh)
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TInput,
           unsigned int VDimension,

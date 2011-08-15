@@ -51,7 +51,7 @@ namespace itk
  *
  * \endverbatim
  *
- * \ingroup ITK-LevelSets
+ * \ingroup ITKLevelSetsv4
  */
 template< class TNeighborhood >
 class SparseCityBlockNeighborList

@@ -29,6 +29,7 @@ namespace itk
  *
  *  \tparam TIdentifier Input level set id type
  *  \tparam TLevelSet Input level set image type
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TIdentifier,
           class TLevelSet >

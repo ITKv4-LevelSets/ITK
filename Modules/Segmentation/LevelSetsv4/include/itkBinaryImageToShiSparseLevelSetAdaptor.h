@@ -36,6 +36,7 @@ namespace itk
  *  \brief Base class converting a binary image to a Shi level set representation
  *
  *  \tparam TInput Input Image Type
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TInputImage >
 class BinaryImageToShiSparseLevelSetAdaptor : public Object

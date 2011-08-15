@@ -28,6 +28,7 @@ namespace itk
  *  \brief Base class for the surface mesh representation of a level-set function
  *
  *  \tparam TMesh Input mesh type of the level set function
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TMesh >
 class LevelSetQuadEdgeMeshBase :

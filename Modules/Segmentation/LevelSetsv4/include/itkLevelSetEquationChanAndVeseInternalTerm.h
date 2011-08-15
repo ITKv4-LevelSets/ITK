@@ -29,6 +29,7 @@ namespace itk
  *
  *  \tparam TInput Input Image Type
  *  \tparam TLevelSetContainer Level set function container type
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TInput, // Input image
           class TLevelSetContainer >

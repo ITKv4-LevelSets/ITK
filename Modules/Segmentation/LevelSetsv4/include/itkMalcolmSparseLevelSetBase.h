@@ -32,6 +32,7 @@ namespace itk
  *  \brief Derived class for the shi representation of level-set function
  *
  *  \tparam VDimension Dimension of the input space
+ *  \ingroup ITKLevelSetsv4
  */
 template< unsigned int VDimension >
 class MalcolmSparseLevelSetBase :

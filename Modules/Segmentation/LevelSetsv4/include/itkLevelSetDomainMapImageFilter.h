@@ -40,6 +40,7 @@ namespace itk
   \class LevelSetDomainMapImageFilter
   \tparam TInputImage Image where the pixel type is a container of ids
   \tparam TOutputImage Image where the pixel type is an integer to split the region
+  \ingroup ITKLevelSetsv4
 */
 template < class TInputImage, class TOutputImage >
 class ITK_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<

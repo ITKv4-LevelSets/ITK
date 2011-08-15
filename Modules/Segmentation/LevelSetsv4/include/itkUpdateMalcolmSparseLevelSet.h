@@ -39,6 +39,7 @@ namespace itk
  *
  *  \tparam VDimension Dimension of the input space
  *  \tparam TEquationContainer Container of the system of levelset equations
+ *  \ingroup ITKLevelSetsv4
  */
 template< unsigned int VDimension,
           class TEquationContainer >

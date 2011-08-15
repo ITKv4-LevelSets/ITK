@@ -35,6 +35,7 @@ namespace itk
  *
  *  \tparam TInputImage Input image or speed image or feature image for segmentation
  *  \tparam TLevelSetContainer Container holding the all the level set functions
+ *  \ingroup ITKLevelSetsv4
  */
 template< class TInputImage,
           class TLevelSetContainer >

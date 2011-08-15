@@ -43,6 +43,7 @@ namespace itk
  *  \tparam VDimension Dimension of the input space
  *  \tparam TLevelSetValueType Output type (float or double) of the levelset function
  *  \tparam TEquationContainer Container of the system of levelset equations
+ *  \ingroup ITKLevelSetsv4
  */
 template< unsigned int VDimension,
           typename TLevelSetValueType,

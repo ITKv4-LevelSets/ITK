@@ -35,6 +35,7 @@ namespace itk
  *
  *  \tparam TOutput Output type (float or double) of the level set function
  *  \tparam VDimension Dimension of the input space
+ *  \ingroup ITKLevelSetsv4
  */
 template< typename TOutput,
           unsigned int VDimension >

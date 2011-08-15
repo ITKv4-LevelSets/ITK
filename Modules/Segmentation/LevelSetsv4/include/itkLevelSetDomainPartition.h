@@ -26,7 +26,7 @@ namespace itk
 /** \class LevelSetDomainPartition
  *
  * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
- *
+ * \ingroup ITKLevelSetsv4
  */
 template< class TImage >
 class LevelSetDomainPartition:
