@@ -229,6 +229,138 @@ WhitakerSparseLevelSetBase< TOutput, VDimension >
 // ----------------------------------------------------------------------------
 template< typename TOutput, unsigned int VDimension >
 void
+WhitakerSparseLevelSetBase< TOutput, VDimension >
+::Evaluate( const InputType& iP, LevelSetDataType& ioData ) const
+{
+  // if it has not already been computed before
+  if( !ioData.Value.m_Computed )
+    {
+    ioData.Value.m_Computed = true;
+    ioData.Value.m_Value = this->Evaluate( iP );
+    }
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< typename TOutput, unsigned int VDimension >
+void
+WhitakerSparseLevelSetBase< TOutput, VDimension >
+::EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const
+{
+  // if it has not already been computed before
+  if( !ioData.Gradient.m_Computed )
+    {
+    ioData.Gradient.m_Computed = true;
+    // compute the gradient
+
+    if( !ioData.Value.m_Computed )
+      {
+      ioData.Value.m_Computed = true;
+      ioData.Value.m_Value = this->Evaluate( iP );
+      }
+
+    OutputRealType center_value =
+        static_cast< OutputRealType >( ioData.Value.m_Value );
+
+    InputType pA, pB;
+    pA = pB = iP;
+
+    GradientType dx_forward;
+    GradientType dx_backward;
+
+    for( unsigned int dim = 0; dim < Dimension; dim++ )
+      {
+      pA[dim] += 1;
+      pB[dim] -= 1;
+
+      OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
+      OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
+      OutputRealType scale = m_NeighborhoodScales[dim];
+
+      dx_forward[dim] = ( valueA - center_value ) * scale;
+      dx_backward[dim] = ( center_value - valueB ) * scale;
+
+      pA[dim] = pB[dim] = iP[dim];
+      }
+    ioData.Gradient.m_Value = dx_forward;
+    }
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< typename TOutput, unsigned int VDimension >
+void
+WhitakerSparseLevelSetBase< TOutput, VDimension >
+::EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const
+{
+  if( !ioData.Hessian.m_Computed )
+    {
+    ioData.Hessian.m_Computed = true;
+
+    if( !ioData.Value.m_Computed )
+      {
+      ioData.Value.m_Computed = true;
+      ioData.Value.m_Value = this->Evaluate( iP );
+      }
+
+    // compute the hessian
+    OutputRealType center_value =
+        static_cast< OutputRealType >( ioData.Value.m_Value );
+
+    InputType pA, pB, pAa, pBa, pCa, pDa;
+    pA = pB = iP;
+
+    for( unsigned int dim1 = 0; dim1 < Dimension; dim1++ )
+      {
+      pA[dim1] += 1;
+      pB[dim1] -= 1;
+
+      OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
+      OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
+
+      ioData.Hessian.m_Value[dim1][dim1] =
+          ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr( m_NeighborhoodScales[dim1] );
+
+      pAa = pB;
+      pBa = pB;
+
+      pCa = pA;
+      pDa = pA;
+
+      for( unsigned int dim2 = dim1 + 1; dim2 < Dimension; dim2++ )
+        {
+        pAa[dim2] -= 1;
+        pBa[dim2] += 1;
+
+        pCa[dim2] -= 1;
+        pDa[dim2] += 1;
+
+        OutputRealType valueAa = static_cast< OutputRealType >( this->Evaluate( pAa ) );
+        OutputRealType valueBa = static_cast< OutputRealType >( this->Evaluate( pBa ) );
+        OutputRealType valueCa = static_cast< OutputRealType >( this->Evaluate( pCa ) );
+        OutputRealType valueDa = static_cast< OutputRealType >( this->Evaluate( pDa ) );
+
+        ioData.Hessian.m_Value[dim1][dim2] =
+            ioData.Hessian.m_Value[dim2][dim1] =
+            0.25 * ( valueAa - valueBa - valueCa + valueDa )
+            * m_NeighborhoodScales[dim1] * m_NeighborhoodScales[dim2];
+
+        pAa[dim2] = pB[dim2];
+        pBa[dim2] = pB[dim2];
+
+        pCa[dim2] = pA[dim2];
+        pDa[dim2] = pA[dim2];
+        }
+      pA[dim1] = iP[dim1];
+      pB[dim1] = iP[dim1];
+      }
+    }
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< typename TOutput, unsigned int VDimension >
+void
 WhitakerSparseLevelSetBase< TOutput, VDimension >::
 Initialize()
 {

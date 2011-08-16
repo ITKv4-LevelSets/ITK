@@ -73,19 +73,46 @@ public:
   /** Returns the hessian of the level set function at a given location iP */
   virtual HessianType   EvaluateHessian( const InputType& iP ) const = 0;
 
+  /** \class DataType */
+  template< class T >
+  class DataType
+    {
+    public:
+      DataType( const std::string& iName ) :
+        m_Name( iName ), m_Computed( false )
+        {}
+      ~DataType() {}
+
+      std::string m_Name;
+      T           m_Value;
+      bool        m_Computed;
+
+    private:
+      DataType();
+    };
+
   /** \todo initialize each element of the structure (to make sure all boolean
    * values are false). */
   struct LevelSetDataType
     {
+    LevelSetDataType() : Value( "Value" ), Gradient( "Gradient" ), Hessian( "Hessian" )
+      {
+      Value.m_Value = NumericTraits< OutputType >::Zero;
+      Gradient.m_Value.Fill( NumericTraits< OutputRealType >::Zero );
+      Hessian.m_Value.Fill( NumericTraits< OutputRealType >::Zero );
+      }
+
+    ~LevelSetDataType() {}
+
     /** the boolean value stores if it has already been computed */
-    std::pair< bool, OutputType >   Value;
-    std::pair< bool, GradientType > Gradient;
-    std::pair< bool, HessianType >  Hessian;
+    DataType< OutputType >   Value;
+    DataType< GradientType > Gradient;
+    DataType< HessianType >  Hessian;
     };
 
-//  virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const = 0;
-//  virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const = 0;
-//  virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const = 0;
+  virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const = 0;
+  virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const = 0;
+  virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const = 0;
 
   /** Returns true if iP is inside the level set, i.e. \f$\phi(p) \leqslant 0 \f$ */
   virtual bool IsInside( const InputType& iP ) const;

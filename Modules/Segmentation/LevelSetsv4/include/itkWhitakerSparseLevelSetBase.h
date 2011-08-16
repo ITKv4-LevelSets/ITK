@@ -65,10 +65,11 @@ public:
   itkStaticConstMacro ( Dimension, unsigned int,
                         VDimension );
 
-  typedef typename Superclass::InputType      InputType;
-  typedef typename Superclass::OutputRealType OutputRealType;
-  typedef typename Superclass::GradientType   GradientType;
-  typedef typename Superclass::HessianType    HessianType;
+  typedef typename Superclass::InputType        InputType;
+  typedef typename Superclass::OutputRealType   OutputRealType;
+  typedef typename Superclass::GradientType     GradientType;
+  typedef typename Superclass::HessianType      HessianType;
+  typedef typename Superclass::LevelSetDataType LevelSetDataType;
 
   typedef LabelObject< char, VDimension >       LabelObjectType;
   typedef typename LabelObjectType::Pointer     LabelObjectPointer;
@@ -101,6 +102,10 @@ public:
   /** Returns the Hessian of the level set function at a given location iP
    * \todo to be implemented */
   virtual HessianType EvaluateHessian( const InputType& iP ) const;
+
+  virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const;
+  virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const;
+  virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
