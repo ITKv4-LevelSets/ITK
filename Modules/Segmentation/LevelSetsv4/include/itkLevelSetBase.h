@@ -85,11 +85,22 @@ public:
       DataType( const std::string& iName ) :
         m_Name( iName ), m_Computed( false )
         {}
+      DataType( const DataType& iData ) : m_Name( iData.m_Name ),
+        m_Value( iData.m_Value ), m_Computed( iData.m_Computed )
+      {}
+
       ~DataType() {}
 
       std::string m_Name;
       T           m_Value;
       bool        m_Computed;
+
+      void operator =( const DataType& iData )
+        {
+        this->m_Name = iData.m_Name;
+        this->m_Value = iData.m_Value;
+        this->m_Computed = iData.m_Computed;
+        }
 
     private:
       DataType();
@@ -111,7 +122,22 @@ public:
       MeanCurvature.m_Value = NumericTraits< OutputRealType >::Zero;
       }
 
+    LevelSetDataType( const LevelSetDataType& iData ) : Value( iData.Value ),
+      Gradient( iData.Gradient ), Hessian( iData.Hessian ),
+      Laplacian( iData.Laplacian ), GradientNorm( iData.GradientNorm ),
+      MeanCurvature( iData.MeanCurvature ) {}
+
     ~LevelSetDataType() {}
+
+    void operator = ( const LevelSetDataType& iData )
+      {
+      Value = iData.Value;
+      Gradient = iData.Gradient;
+      Hessian = iData.Hessian;
+      Laplacian = iData.Laplacian;
+      GradientNorm = iData.GradientNorm;
+      MeanCurvature = iData.MeanCurvature;
+      }
 
     /** the boolean value stores if it has already been computed */
     DataType< OutputType >      Value;
