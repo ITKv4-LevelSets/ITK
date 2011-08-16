@@ -93,12 +93,10 @@ public:
   /** Returns the value of the level set function at a given location iP */
   virtual OutputType Evaluate( const InputType& iP ) const;
 
-  /** Returns the gradient of the level set function at a given location iP
-   * \todo to be implemented */
+  /** Returns the gradient of the level set function at a given location iP */
   virtual GradientType EvaluateGradient( const InputType& iP ) const;
 
-  /** Returns the Hessian of the level set function at a given location iP
-   * \todo to be implemented */
+  /** Returns the Hessian of the level set function at a given location iP */
   virtual HessianType EvaluateHessian( const InputType& iP ) const;
 
   virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const;

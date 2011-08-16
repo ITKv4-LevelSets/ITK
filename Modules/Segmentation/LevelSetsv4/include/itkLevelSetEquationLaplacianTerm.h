@@ -106,10 +106,10 @@ public:
 protected:
   LevelSetEquationLaplacianTerm() : Superclass()
   {
-    for( unsigned int i = 0; i < ImageDimension; i++ )
-      {
-      m_NeighborhoodScales[i] = 1.0;
-      }
+//    for( unsigned int i = 0; i < ImageDimension; i++ )
+//      {
+//      m_NeighborhoodScales[i] = 1.0;
+//      }
   }
 
   virtual ~LevelSetEquationLaplacianTerm() {}
@@ -118,6 +118,11 @@ protected:
   virtual void SetDefaultTermName()
     {
     this->m_TermName = "Laplacian term";
+    }
+
+  virtual void SetRequiredData()
+    {
+    this->m_RequiredData.insert( "Laplacian" );
     }
 
   /** Return the spatial speed dependence a given pixel location
@@ -131,6 +136,15 @@ protected:
    *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
   {
+    LevelSetOutputRealType laplacian =
+        this->m_CurrentLevelSetPointer->EvaluateLaplacian( iP );
+
+    laplacian *= this->LaplacianSpeed( iP );
+
+    return laplacian;
+  }
+
+    /*
     LevelSetInputIndexType pA, pB;
     LevelSetInputIndexType pAa, pBa, pCa, pDa;
     LevelSetOutputRealType valueAa, valueBa, valueCa, valueDa;
@@ -189,7 +203,7 @@ protected:
     return laplacian;
   }
 
-  LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];
+  LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];*/
 
 private:
   LevelSetEquationLaplacianTerm( const Self& );

@@ -24,14 +24,14 @@
 namespace itk
 {
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::LevelSetBase() : Superclass()
   {}
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 bool
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::IsInside( const InputType& iP ) const
@@ -41,7 +41,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::Initialize()
@@ -51,7 +51,177 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
+void
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::EvaluateLaplacian( const InputType& iP, LevelSetDataType& ioData ) const
+{
+  if( !ioData.Laplacian.m_Computed )
+    {
+    if( !ioData.Hessian.m_Computed )
+      {
+      this->EvaluateHessian( iP, ioData );
+      }
+
+    ioData.Laplacian.m_Computed = true;
+    ioData.Laplacian.m_Value = NumericTraits< OutputRealType >::Zero;
+
+    for( unsigned int dim = 0; dim < Dimension; dim++ )
+      {
+      ioData.Laplacian.m_Value += ioData.Hessian.m_Value[dim][dim];
+      }
+    }
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
+void
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::EvaluateGradientNorm( const InputType& iP, LevelSetDataType& ioData ) const
+{
+  if( !ioData.GradientNorm.m_Computed )
+    {
+    if( !ioData.Gradient.m_Computed )
+      {
+      this->EvaluateGradient( iP, ioData );
+      }
+
+    ioData.GradientNorm.m_Computed = true;
+    ioData.GradientNorm.m_Value = ioData.Gradient.m_Value.GetNorm();
+    }
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
+typename
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::OutputRealType
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::EvaluateGradientNorm( const InputType& iP ) const
+{
+  GradientType grad = this->EvaluateGradient( iP );
+  return grad.GetNorm();
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
+typename
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::OutputRealType
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::EvaluateLaplacian( const InputType& iP ) const
+{
+  HessianType hessian = this->EvaluateHessian( iP );
+  OutputRealType oLaplacian = NumericTraits< OutputRealType >::Zero;
+
+  for( unsigned int dim = 0; dim < Dimension; dim++ )
+    {
+    oLaplacian += hessian[dim][dim];
+    }
+
+  return oLaplacian;
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
+typename
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::OutputRealType
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::EvaluateMeanCurvature( const InputType& iP ) const
+{
+  OutputRealType oValue = NumericTraits< OutputRealType >::Zero;
+
+  HessianType   hessian = this->EvaluateHessian( iP );
+  GradientType  grad = this->EvaluateGradient( iP );
+
+  for( unsigned int i = 0; i < Dimension; i++ )
+    {
+    for( unsigned int j = 0; j < Dimension; j++ )
+      {
+      if( j != i )
+        {
+        oValue -= grad[i] * grad[j] * hessian[i][j];
+        oValue += hessian[j][j] * grad[i] * grad[i];
+        }
+      }
+    }
+
+  OutputRealType gradNorm = grad.GetNorm();
+
+  if( gradNorm > vnl_math::eps )
+    {
+    oValue /= ( gradNorm * gradNorm * gradNorm );
+    }
+  else
+    {
+    oValue /= ( NumericTraits< OutputRealType >::One + gradNorm );
+    }
+
+  return oValue;
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
+void
+LevelSetBase< TInput, VDimension, TOutput, TDomain >
+::EvaluateMeanCurvature( const InputType& iP, LevelSetDataType& ioData ) const
+{
+  if( !ioData.MeanCurvature.m_Computed )
+    {
+    if( !ioData.Hessian.m_Computed )
+      {
+      EvaluateHessian( iP, ioData );
+      }
+
+    if( !ioData.Gradient.m_Computed )
+      {
+      EvaluateGradient( iP, ioData );
+      }
+
+    if( !ioData.GradientNorm.m_Computed )
+      {
+      EvaluateGradientNorm( iP, ioData );
+      }
+
+    ioData.MeanCurvature.m_Computed = true;
+    ioData.MeanCurvature.m_Value = NumericTraits< OutputRealType >::Zero;
+
+    for( unsigned int i = 0; i < Dimension; i++ )
+      {
+      for( unsigned int j = 0; j < Dimension; j++ )
+        {
+        if( j != i )
+          {
+          ioData.MeanCurvature.m_Value -= ioData.Gradient.m_Value[i]
+              * ioData.Gradient.m_Value[j] * ioData.Hessian.m_Value[i][j];
+          ioData.MeanCurvature.m_Value += ioData.Hessian.m_Value[j][j]
+              * ioData.Gradient.m_Value[i] * ioData.Gradient.m_Value[i];
+          }
+        }
+      }
+
+    OutputRealType temp = ioData.GradientNorm.m_Value;
+
+    if( temp > vnl_math::eps )
+      {
+      ioData.MeanCurvature.m_Value /= ( temp * temp * temp );
+      }
+    else
+      {
+      ioData.MeanCurvature.m_Value /= ( NumericTraits< OutputRealType >::One + temp );
+      }
+    }
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::UpdateOutputInformation()
@@ -73,7 +243,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::SetRequestedRegionToLargestPossibleRegion()
@@ -84,7 +254,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::CopyInformation(const DataObject *data)
@@ -121,7 +291,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::Graft(const DataObject *data)
@@ -154,7 +324,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 bool
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::RequestedRegionIsOutsideOfTheBufferedRegion()
@@ -170,7 +340,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 bool
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::VerifyRequestedRegion()
@@ -197,7 +367,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::SetRequestedRegion(DataObject *data)
@@ -214,7 +384,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::SetRequestedRegion(const RegionType & region)
@@ -227,7 +397,7 @@ LevelSetBase< TInput, VDimension, TOutput, TDomain >
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-template< class TInput, unsigned VDimension, typename TOutput, class TDomain >
+template< class TInput, unsigned int VDimension, typename TOutput, class TDomain >
 void
 LevelSetBase< TInput, VDimension, TOutput, TDomain >
 ::SetBufferedRegion(const RegionType & region)

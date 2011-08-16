@@ -73,6 +73,10 @@ public:
   /** Returns the hessian of the level set function at a given location iP */
   virtual HessianType   EvaluateHessian( const InputType& iP ) const = 0;
 
+  virtual OutputRealType EvaluateLaplacian( const InputType& iP ) const;
+  virtual OutputRealType EvaluateGradientNorm( const InputType& iP ) const;
+  virtual OutputRealType EvaluateMeanCurvature( const InputType& iP ) const;
+
   /** \class DataType */
   template< class T >
   class DataType
@@ -95,24 +99,35 @@ public:
    * values are false). */
   struct LevelSetDataType
     {
-    LevelSetDataType() : Value( "Value" ), Gradient( "Gradient" ), Hessian( "Hessian" )
+    LevelSetDataType() : Value( "Value" ), Gradient( "Gradient" ),
+      Hessian( "Hessian" ), Laplacian( "Laplacian" ),
+      GradientNorm( "GradientNorm" ), MeanCurvature( "MeanCurvature" )
       {
       Value.m_Value = NumericTraits< OutputType >::Zero;
       Gradient.m_Value.Fill( NumericTraits< OutputRealType >::Zero );
       Hessian.m_Value.Fill( NumericTraits< OutputRealType >::Zero );
+      Laplacian.m_Value = NumericTraits< OutputRealType >::Zero;
+      GradientNorm.m_Value = NumericTraits< OutputRealType >::Zero;
+      MeanCurvature.m_Value = NumericTraits< OutputRealType >::Zero;
       }
 
     ~LevelSetDataType() {}
 
     /** the boolean value stores if it has already been computed */
-    DataType< OutputType >   Value;
-    DataType< GradientType > Gradient;
-    DataType< HessianType >  Hessian;
+    DataType< OutputType >      Value;
+    DataType< GradientType >    Gradient;
+    DataType< HessianType >     Hessian;
+    DataType< OutputRealType >  Laplacian;
+    DataType< OutputRealType >  GradientNorm;
+    DataType< OutputRealType >  MeanCurvature;
     };
 
   virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const = 0;
   virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const = 0;
   virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const = 0;
+  virtual void EvaluateLaplacian( const InputType& iP, LevelSetDataType& ioData ) const;
+  virtual void EvaluateGradientNorm( const InputType& iP, LevelSetDataType& ioData ) const;
+  virtual void EvaluateMeanCurvature( const InputType& iP, LevelSetDataType& ioData ) const;
 
   /** Returns true if iP is inside the level set, i.e. \f$\phi(p) \leqslant 0 \f$ */
   virtual bool IsInside( const InputType& iP ) const;

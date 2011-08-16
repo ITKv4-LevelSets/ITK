@@ -21,6 +21,7 @@
 
 #include "itkObject.h"
 #include "itkHeavisideStepFunctionBase.h"
+#include "itksys/hash_set.hxx"
 
 namespace itk
 {
@@ -116,6 +117,21 @@ public:
   /** Update the term parameter values at end of iteration */
   virtual void Update() = 0;
 
+  struct hash_string
+  {
+    size_t operator()( const std::string& x ) const
+    {
+      return itksys::hash< const char* >()( x.c_str() );
+    }
+  };
+
+  typedef itksys::hash_set< std::string, hash_string > RequiredDataType;
+
+  const RequiredDataType & GetListOfRequiredData() const
+    {
+    return m_RequiredData;
+    }
+
 protected:
   /** Default Constructor */
   LevelSetEquationTermBase();
@@ -125,6 +141,8 @@ protected:
 
   /** Set the default name for a given term (see m_TermName). */
   virtual void SetDefaultTermName() = 0;
+
+  virtual void SetRequiredData() = 0;
 
   void SetUp();
 
@@ -162,6 +180,8 @@ protected:
    *  but end-users may rename differently each term.
    */
   std::string              m_TermName;
+
+  RequiredDataType m_RequiredData;
 
 private:
   LevelSetEquationTermBase( const Self& );

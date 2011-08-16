@@ -36,7 +36,8 @@ LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
   m_CFLContribution( NumericTraits< LevelSetOutputRealType >::Zero ),
   m_Heaviside( NULL ),
   m_TermName( )
-{}
+{
+}
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
@@ -70,6 +71,7 @@ LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
 ::SetUp()
 {
   this->m_CFLContribution = NumericTraits< LevelSetOutputRealType >::Zero;
+  this->SetDefaultTermName();
 
   if( m_CurrentLevelSetPointer.IsNull() )
     {

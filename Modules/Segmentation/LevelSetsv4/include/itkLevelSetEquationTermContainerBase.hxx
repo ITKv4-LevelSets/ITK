@@ -40,6 +40,28 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 
 // ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
+const typename
+LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
+::RequiredDataType &
+LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
+::GetListOfRequiredData() const
+{
+  RequiredDataType oList;
+
+  MapTermContainerConstIteratorType it = m_Container.begin();
+
+  while( it != m_Container.end() )
+    {
+    oList.insert( it->second->GetListOfRequiredData() );
+    ++it;
+    }
+
+  return oList;
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 ::AddTerm( const TermIdType& iId, TermType* iTerm )

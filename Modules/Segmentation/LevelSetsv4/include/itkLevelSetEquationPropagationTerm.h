@@ -121,6 +121,11 @@ protected:
     this->m_TermName = "Propagation term";
     }
 
+  virtual void SetRequiredData()
+    {
+    this->m_RequiredData.insert( "Gradient" );
+    }
+
   /** Return the spatial speed dependence a given pixel location
    * Usually, it is constant across the image domain */
   LevelSetOutputRealType PropagationSpeed( const LevelSetInputIndexType& iP ) const

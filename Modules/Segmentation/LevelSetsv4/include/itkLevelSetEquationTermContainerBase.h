@@ -110,6 +110,10 @@ public:
   /** Return the CFL contribution of the current term */
   LevelSetOutputRealType ComputeCFLContribution() const;
 
+  typedef typename TermType::RequiredDataType RequiredDataType;
+
+  const RequiredDataType & GetListOfRequiredData() const;
+
 protected:
   LevelSetEquationTermContainerBase();
 
@@ -131,6 +135,8 @@ protected:
                             hash_string >                   HashMapStringTermContainerType;
 
   HashMapStringTermContainerType m_NameContainer;
+
+  itksys::hash_set< std::string, hash_string > m_RequiredData;
 
   typedef std::map< TermIdType, TermPointer >           MapTermContainerType;
   typedef typename MapTermContainerType::iterator       MapTermContainerIteratorType;

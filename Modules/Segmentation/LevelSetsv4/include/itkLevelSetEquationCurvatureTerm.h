@@ -120,6 +120,12 @@ protected:
     this->m_TermName = "Curvature term";
     }
 
+  virtual void SetRequiredData()
+    {
+    this->m_RequiredData.insert( "Value" );
+    this->m_RequiredData.insert( "Gradient" );
+    this->m_RequiredData.insert( "Hessian" );
+    }
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */

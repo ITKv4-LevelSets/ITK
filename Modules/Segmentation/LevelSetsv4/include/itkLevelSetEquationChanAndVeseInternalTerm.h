@@ -164,6 +164,11 @@ protected:
     this->m_TermName = "Internal Chan And Vese term";
     }
 
+  void SetRequiredData()
+    {
+    this->m_RequiredData.insert( "Value" );
+    }
+
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
