@@ -211,4 +211,4 @@ private:
 };
 }
 
-#endif // __itkLevelSetQuadEdgeMeshBase_h
+#endif // __itkLevelSetQuadEdgeMeshBase_hxx
