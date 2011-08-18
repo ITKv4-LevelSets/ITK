@@ -129,101 +129,7 @@ protected:
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
-    {
-    if( this->m_Heaviside.IsNotNull() )
-      {
-      LevelSetOutputRealType center_value =
-          static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( iP ) );
-      LevelSetInputIndexType pA, pB;
-      LevelSetInputIndexType pAa, pBa, pCa, pDa;
-      LevelSetOutputRealType valueA, valueB;
-      LevelSetOutputRealType valueAa, valueBa, valueCa, valueDa;
-      LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::Zero;
-
-      vnl_matrix_fixed< LevelSetOutputRealType,
-                      itkGetStaticConstMacro(ImageDimension),
-                      itkGetStaticConstMacro(ImageDimension) > m_dxy;
-
-      /** Array of first derivatives */
-      LevelSetOutputRealType m_dx[itkGetStaticConstMacro(ImageDimension)];
-      LevelSetOutputRealType m_dx_forward[itkGetStaticConstMacro(ImageDimension)];
-      LevelSetOutputRealType m_dx_backward[itkGetStaticConstMacro(ImageDimension)];
-      LevelSetOutputRealType m_GradMagSqr = vnl_math::eps;
-
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
-        {
-        pA = pB = iP;
-        pA[i] += 1;
-        pB[i] -= 1;
-
-        valueA = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pA ) );
-        valueB = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pB ) );
-
-        m_dx[i] = 0.5 * ( valueA - valueB ) * m_NeighborhoodScales[i];
-        m_dxy[i][i] = ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr(m_NeighborhoodScales[i]);
-        m_dx_forward[i]  = ( valueA - center_value ) * m_NeighborhoodScales[i];
-        m_dx_backward[i] = ( center_value - valueB ) * m_NeighborhoodScales[i];
-        m_GradMagSqr += m_dx[i] * m_dx[i];
-
-        for ( unsigned int j = i + 1; j < ImageDimension; j++ )
-          {
-          pAa = pB;
-          pAa[j] -= 1;
-
-          pBa = pB;
-          pBa[j] += 1;
-
-          pCa = pA;
-          pCa[j] -= 1;
-
-          pDa = pA;
-          pDa[j] += 1;
-
-          valueAa = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pAa ) );
-          valueBa = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pBa ) );
-          valueCa = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pCa ) );
-          valueDa = static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pDa ) );
-
-          m_dxy[i][j] = m_dxy[j][i] = 0.25 * ( valueAa - valueBa - valueCa + valueDa )
-                                              * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
-          }
-        }
-      LevelSetOutputRealType m_GradMag = vcl_sqrt( m_GradMagSqr );
-
-      // Compute curvature
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
-        {
-        for ( unsigned int j = 0; j < ImageDimension; j++ )
-          {
-          if ( j != i )
-            {
-            oValue -= m_dx[i] * m_dx[j] * m_dxy[i][j];
-            oValue += m_dxy[j][j] * m_dx[i] * m_dx[i];
-            }
-          }
-        }
-
-      if ( m_GradMag > vnl_math::eps )
-        {
-        oValue /= m_GradMag * m_GradMag * m_GradMag;
-        }
-      else
-        {
-        oValue /= 1 + m_GradMagSqr;
-        }
-
-//       std::cout << iP << ' ' << oValue << std::endl;
-      return oValue;
-      }
-    else
-      {
-      itkWarningMacro( << "m_Heaviside is NULL" );
-      }
-
-    return NumericTraits< LevelSetOutputPixelType >::Zero;
-    }
-
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP );
 
   LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];
 
@@ -233,4 +139,6 @@ private:
 };
 
 }
+
+#include "itkLevelSetEquationCurvatureTerm.hxx"
 #endif

@@ -75,65 +75,17 @@ public:
 
   /** Compute the product of Heaviside functions in the multi-levelset cases */
   virtual void ComputeProduct( const LevelSetInputIndexType& iP,
-                               LevelSetOutputRealType& prod )
-  {
-    this->ComputeProductTerm( iP, prod );
-    LevelSetPointer levelSet = this->m_LevelSetContainer->GetLevelSet( this->m_CurrentLevelSet );
-    LevelSetOutputRealType value = levelSet->Evaluate( iP );
-    prod *= -(1 - this->m_Heaviside->Evaluate( -value ) );
-  }
+                               LevelSetOutputRealType& prod );
 
   /** Compute the product of Heaviside functions in the multi-levelset cases
    *  except the current levelset */
   virtual void ComputeProductTerm( const LevelSetInputIndexType& iP,
-                                  LevelSetOutputRealType& prod )
-  {
-    prod = -1.;
-    LevelSetIdentifierType id =
-      this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
-    IdListType lout =
-      this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
-
-    LevelSetPointer levelSet;
-    LevelSetOutputRealType value;
-    for( IdListIterator lIt = lout.begin(); lIt != lout.end(); ++lIt )
-    {
-      if( *lIt-1 != this->m_CurrentLevelSet )
-      {
-        levelSet = this->m_LevelSetContainer->GetLevelSet( *lIt - 1);
-        value = levelSet->Evaluate( iP );
-        prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
-      }
-    }
-  }
+                                  LevelSetOutputRealType& prod );
 
   /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( LevelSetInputIndexType& iP,
                            LevelSetOutputRealType & oldValue,
-                           LevelSetOutputRealType & newValue )
-  {
-    // Compute the product factor
-    LevelSetIdentifierType id =
-      this->m_LevelSetContainer->GetDomainMapFilter()->GetOutput()->GetPixel( iP );
-    IdListType lout =
-      this->m_LevelSetContainer->GetDomainMapFilter()->m_LevelSetMap[id].m_List;
-
-    LevelSetOutputRealType prod;
-    this->ComputeProductTerm( iP, prod );
-
-    // For each affected h val: h val = new hval (this will dirty some cvals)
-    InputPixelType input = this->m_Input->GetPixel( iP );
-
-    LevelSetOutputRealType oldH = this->m_Heaviside->Evaluate( -oldValue );
-    LevelSetOutputRealType newH = this->m_Heaviside->Evaluate( -newValue );
-    LevelSetOutputRealType change = (1 - newH) - (1 - oldH);
-
-    // Determine the change in the product factor
-    LevelSetOutputRealType productChange = -( prod * change );
-
-    this->m_TotalH += change;
-    this->m_TotalValue += input * productChange;
-  }
+                           LevelSetOutputRealType & newValue );
 
 protected:
   LevelSetEquationChanAndVeseExternalTerm() : Superclass()
@@ -153,4 +105,5 @@ private:
 };
 
 }
+#include "itkLevelSetEquationChanAndVeseExternalTerm.hxx"
 #endif

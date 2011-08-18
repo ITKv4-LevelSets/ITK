@@ -135,64 +135,7 @@ protected:
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
-  {
-    // Construct upwind gradient values for use in the propagation speed term:
-    //  $\beta G(\mathbf{x})\mid\nabla\phi\mid$
-    // The following scheme for ``upwinding'' in the normal direction is taken
-    // from Sethian, Ch. 6 as referenced above.
-
-    LevelSetOutputRealType center_value =
-      static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( iP ) );
-    LevelSetInputIndexType pA, pB;
-    LevelSetOutputRealType valueA, valueB;
-
-    LevelSetOutputRealType ZERO = NumericTraits< LevelSetOutputRealType >::Zero;
-
-    /** Array of first derivatives */
-    LevelSetOutputRealType m_dx_forward[itkGetStaticConstMacro(ImageDimension)];
-    LevelSetOutputRealType m_dx_backward[itkGetStaticConstMacro(ImageDimension)];
-
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
-      pA = pB = iP;
-      pA[i] += 1;
-      pB[i] -= 1;
-
-      valueA =
-          static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pA ) );
-      valueB =
-          static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pB ) );
-
-      m_dx_forward[i]  = ( valueA - center_value ) * m_NeighborhoodScales[i];
-      m_dx_backward[i] = ( center_value - valueB ) * m_NeighborhoodScales[i];
-      }
-
-    /// \todo why this initialization ?
-    LevelSetOutputRealType propagation_gradient = ZERO;
-
-    if ( propagation_gradient > NumericTraits< LevelSetOutputRealType >::Zero )
-      {
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
-        {
-        propagation_gradient +=
-            vnl_math_sqr( vnl_math_max( m_dx_backward[i], ZERO ) ) +
-            vnl_math_sqr( vnl_math_min( m_dx_forward[i],  ZERO ) );
-        }
-      }
-    else
-      {
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
-        {
-        propagation_gradient +=
-            vnl_math_sqr( vnl_math_min( m_dx_backward[i], ZERO ) ) +
-            vnl_math_sqr( vnl_math_max( m_dx_forward[i],  ZERO) );
-        }
-      }
-    propagation_gradient *= this->PropagationSpeed( iP );
-//     std::cout << iP << ' ' << propagation_gradient << std::endl;
-    return propagation_gradient;
-  }
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP );
 
   LevelSetOutputRealType m_NeighborhoodScales[ImageDimension];
 
@@ -202,4 +145,6 @@ private:
 };
 
 }
+
+#include "itkLevelSetEquationPropagationTerm.hxx"
 #endif

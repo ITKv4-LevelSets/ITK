@@ -134,76 +134,7 @@ protected:
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
-  {
-    LevelSetOutputRealType laplacian =
-        this->m_CurrentLevelSetPointer->EvaluateLaplacian( iP );
-
-    laplacian *= this->LaplacianSpeed( iP );
-
-    return laplacian;
-  }
-
-    /*
-    LevelSetInputIndexType pA, pB;
-    LevelSetInputIndexType pAa, pBa, pCa, pDa;
-    LevelSetOutputRealType valueAa, valueBa, valueCa, valueDa;
-    LevelSetOutputRealType ZERO = NumericTraits< LevelSetOutputRealType >::Zero;
-
-    vnl_matrix_fixed< LevelSetOutputRealType,
-                    itkGetStaticConstMacro(ImageDimension),
-                    itkGetStaticConstMacro(ImageDimension) > m_dxy;
-
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
-      pA = pB = iP;
-      pA[i] += 1;
-      pB[i] -= 1;
-
-      for ( unsigned int j = i + 1; j < ImageDimension; j++ )
-        {
-        pAa = pB;
-        pAa[j] -= 1;
-
-        pBa = pB;
-        pBa[j] += 1;
-
-        pCa = pA;
-        pCa[j] -= 1;
-
-        pDa = pA;
-        pDa[j] += 1;
-
-        valueAa =
-            static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pAa ) );
-        valueBa =
-            static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pBa ) );
-        valueCa =
-            static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pCa ) );
-        valueDa =
-            static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( pDa ) );
-
-        m_dxy[i][j] = m_dxy[j][i] = 0.25 * ( valueAa - valueBa - valueCa + valueDa )
-                                         * m_NeighborhoodScales[i] * m_NeighborhoodScales[j];
-        }
-      }
-
-    LevelSetOutputRealType laplacianSpeed = this->LaplacianSpeed( iP );
-    LevelSetOutputRealType laplacian = ZERO;
-
-    // Compute the laplacian using the existing second derivative values
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
-      laplacian += m_dxy[i][i];
-      }
-
-    laplacian = laplacian * laplacianSpeed;
-//     std::cout << iP << ' ' << laplacian << std::endl;
-
-    return laplacian;
-  }
-
-  LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];*/
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP );
 
 private:
   LevelSetEquationLaplacianTerm( const Self& );
@@ -211,4 +142,6 @@ private:
 };
 
 }
+
+#include "itkLevelSetEquationLaplacianTerm.hxx"
 #endif

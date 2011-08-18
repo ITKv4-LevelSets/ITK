@@ -73,57 +73,17 @@ public:
   itkGetMacro( Mean, InputPixelRealType );
 
   /** Update the term parameter values at end of iteration */
-  virtual void Update()
-  {
-    if( m_TotalH > NumericTraits< LevelSetOutputRealType >::epsilon() )
-      {
-      LevelSetOutputRealType inv_total_h = 1. / m_TotalH;
-
-      // depending on the pixel type, it may be more efficient to do
-      // a multiplication than to do a division
-      m_Mean = m_TotalValue * inv_total_h;
-      }
-    else
-      {
-      m_Mean = NumericTraits< InputPixelRealType >::Zero;
-      }
-
-    std::cout << m_TotalValue << '/' << m_TotalH << '=' << m_Mean << std::endl;
-  }
+  virtual void Update();
 
   /** Initialize parameters in the terms prior to an iteration */
-  virtual void InitializeParameters()
-  {
-    m_TotalValue = NumericTraits< InputPixelRealType >::Zero;
-    m_TotalH = NumericTraits< LevelSetOutputRealType >::Zero;
-    this->SetUp();
-  }
-
+  virtual void InitializeParameters();
 
   /** Initialize term parameters in the dense case by computing for each pixel location */
-  virtual void Initialize( const LevelSetInputIndexType& iP )
-  {
-    if( this->m_Heaviside.IsNotNull() )
-      {
-      InputPixelType pixel = this->m_Input->GetPixel( iP );
-
-      LevelSetOutputRealType prod;
-      this->ComputeProduct( iP, prod );
-      this->Accumulate( pixel, prod );
-      }
-    else
-      {
-      itkWarningMacro( << "m_Heaviside is NULL" );
-      }
-  }
+  virtual void Initialize( const LevelSetInputIndexType& iP );
 
   /** Compute the product of Heaviside functions in the multi-levelset cases */
   virtual void ComputeProduct( const LevelSetInputIndexType& iP,
-                              LevelSetOutputRealType& prod )
-  {
-    LevelSetOutputRealType value = this->m_CurrentLevelSetPointer->Evaluate( iP );
-    prod = this->m_Heaviside->Evaluate( -value );
-  }
+                              LevelSetOutputRealType& prod );
 
   /** Compute the product of Heaviside functions in the multi-levelset cases
    *  except the current levelset */
@@ -134,20 +94,7 @@ public:
   /** Supply updates at pixels to keep the term parameters always updated */
   virtual void UpdatePixel( const LevelSetInputIndexType& iP,
                            const LevelSetOutputRealType & oldValue,
-                           const LevelSetOutputRealType & newValue )
-  {
-    // For each affected h val: h val = new hval (this will dirty some cvals)
-    InputPixelType input = this->m_Input->GetPixel( iP );
-
-    LevelSetOutputRealType oldH = this->m_Heaviside->Evaluate( -oldValue );
-    LevelSetOutputRealType newH = this->m_Heaviside->Evaluate( -newValue );
-    LevelSetOutputRealType change = newH - oldH;
-
-    // update the foreground constant for current level-set function
-    this->m_TotalH += change;
-    this->m_TotalValue += input * change;
-  }
-
+                           const LevelSetOutputRealType & newValue );
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm() : Superclass(),
@@ -172,40 +119,11 @@ protected:
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP )
-    {
-    if( this->m_Heaviside.IsNotNull() )
-      {
-      LevelSetOutputRealType value =
-          static_cast< LevelSetOutputRealType >( this->m_CurrentLevelSetPointer->Evaluate( iP ) );
-
-      LevelSetOutputRealType d_val = this->m_Heaviside->EvaluateDerivative( -value );
-
-      InputPixelType pixel = this->m_Input->GetPixel( iP );
-      LevelSetOutputRealType prod = 1;
-
-      ComputeProductTerm( iP, prod );
-      LevelSetOutputRealType oValue = d_val * prod *
-        static_cast< LevelSetOutputRealType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
-
-//       std::cout << value << ' ' << int(pixel) << ' ' << d_val << ' ' << prod << ' ' << oValue << std::endl;
-      return oValue;
-      }
-    else
-      {
-      itkWarningMacro( << "m_Heaviside is NULL" );
-      }
-    return NumericTraits< LevelSetOutputPixelType >::Zero;
-    }
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP );
 
   /** Accumulate contribution to term parameters from a given pixel */
   void Accumulate( const InputPixelType& iPix,
-                   const LevelSetOutputRealType& iH )
-    {
-    m_TotalValue += static_cast< InputPixelRealType >( iPix ) *
-        static_cast< LevelSetOutputRealType >( iH );
-    m_TotalH += static_cast< LevelSetOutputRealType >( iH );
-    }
+                   const LevelSetOutputRealType& iH );
 
   InputPixelRealType      m_Mean;
   InputPixelRealType      m_TotalValue;
@@ -217,4 +135,5 @@ private:
 };
 
 }
+#include "itkLevelSetEquationChanAndVeseInternalTerm.hxx"
 #endif
