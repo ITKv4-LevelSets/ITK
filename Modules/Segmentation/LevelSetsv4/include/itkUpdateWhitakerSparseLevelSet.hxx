@@ -472,11 +472,11 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
       else // !IsThereAPointWithLabelEqualTo0
         { // change layers only
         LevelSetLayerIterator tempIt = nodeIt;
+        LevelSetOutputType t = tempIt->second;
         ++nodeIt;
         LayerMinus1.erase( tempIt );
         m_TempLevelSet->GetLayer( -2 ).insert(
-              std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
-                                                                  nodeIt->second) );
+              std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, t ) );
         }
       }
     }
@@ -593,11 +593,11 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
       else
         { // change layers only
         LevelSetLayerIterator tempIt = nodeIt;
+        LevelSetOutputType t = tempIt->second;
         ++nodeIt;
         LayerPlus1.erase( tempIt );
         m_TempLevelSet->GetLayer( 2 ).insert(
-              std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
-                                                                  nodeIt->second) );
+              std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, t ) );
         }
       }
     }
