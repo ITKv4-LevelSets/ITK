@@ -268,10 +268,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
 
           if( it != m_TempPhi.end() )
             {
+            m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              currentIndex, it->second, tempValue );
             it->second = tempValue;
             }
           else
             {
+            // Kishore: Never comes here?
             m_TempPhi.insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                       tempValue ) );
@@ -326,10 +329,12 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
 
             if( it != m_TempPhi.end() )
               { // change values
+              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+                currentIndex, it->second, tempValue );
               it->second = tempValue;
               }
             else
-              {// Can this happen?
+              {// Kishore: Can this happen?
               m_TempPhi.insert(
                     std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex,
                                                                         tempValue ) );
@@ -355,6 +360,8 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
 
         if( it != m_TempPhi.end() )
           { // change values
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+            currentIndex, it->second, tempValue );
           it->second = tempValue;
           }
         nodeIt->second = tempValue;
@@ -439,11 +446,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
 
         if( phiIt != m_TempPhi.end() )
           {// change value
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              currentIndex, phiIt->second, M );
           phiIt->second = M;
           nodeIt->second = M;
           }
         else
-          { // Can this happen?
+          { // Kishore: Can this happen?
           m_TempPhi.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M ) );
           }
@@ -560,11 +569,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
 
         if( phiIt != m_TempPhi.end() )
           {// change in value
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+            currentIndex, phiIt->second, M );
           phiIt->second = M;
           nodeIt->second = M;
           }
         else
-          {// can this happen? what was its previous value
+          {// Kishore: can this happen?
           m_TempPhi.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M ) );
           }
@@ -675,18 +686,20 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
         M = M - 1.;
 
         if( phiIt != m_TempPhi.end() )
-          {
+          {//change values
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+            currentIndex, phiIt->second, M );
           phiIt->second = M;
           nodeIt->second = M;
           }
         else
-          {
+          {//Kishore: can this happen?
           m_TempPhi.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M ) );
           }
 
         if( M >= -1.5 )
-          {
+          {//change layers only
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           LayerMinus2.erase( tempIt );
@@ -694,11 +707,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M) );
           }
         else if( M < -2.5 )
-          {
+          {//change layers only
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           LayerMinus2.erase( tempIt );
           m_InternalImage->SetPixel( currentIndex, -3 );
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+            currentIndex, M, -3 );
           m_TempPhi.erase( currentIndex );
           }
         else
@@ -707,11 +722,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
           }
         }
       else
-        {
+        {// change value
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
-        LayerMinus2.erase( tempIt );
         m_InternalImage->SetPixel( currentIndex, -3 );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+          currentIndex, tempIt->second, -3 );
+        LayerMinus2.erase( tempIt );
         m_TempPhi.erase( currentIndex );
         }
       }
@@ -795,18 +812,20 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
         M = M + 1.;
 
         if( phiIt != m_TempPhi.end() )
-          {
+          {//change values
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+            currentIndex, phiIt->second, M );
           phiIt->second = M;
           nodeIt->second = M;
           }
         else
-          {
+          {//Kishore: can this happen?
           m_TempPhi.insert(
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M ) );
           }
 
         if( M <= 1.5 )
-          {
+          {//change layers
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           LayerPlus2.erase( tempIt );
@@ -814,11 +833,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
                 std::pair< LevelSetInputType, LevelSetOutputType >( currentIndex, M) );
           }
         else if( M > 2.5 )
-          {
+          {//change layers
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           LayerPlus2.erase( tempIt );
           m_InternalImage->SetPixel( currentIndex, 3 );
+          m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+            currentIndex, M, 3 );
           m_TempPhi.erase( currentIndex );
           }
         else
@@ -827,11 +848,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
           }
         }
       else
-        {
+        {//change values
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
-        LayerPlus2.erase( tempIt );
         m_InternalImage->SetPixel( currentIndex, 3 );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+          currentIndex, tempIt->second, 3 );
+        LayerPlus2.erase( tempIt );
         m_TempPhi.erase( currentIndex );
         }
       }
@@ -922,6 +945,8 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
             phiIt->second = currentValue - 1;
             m_TempLevelSet->GetLayer( -2 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue - 1 ) );
+            m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              tempIndex, -3, phiIt->second );
             }
           }
         }
@@ -991,6 +1016,8 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
             phiIt->second = currentValue + 1;
             m_TempLevelSet->GetLayer( 2 ).insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, currentValue + 1 ) );
+            m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              tempIndex, 3, phiIt->second );
             }
           }
         }

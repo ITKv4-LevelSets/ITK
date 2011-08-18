@@ -117,6 +117,10 @@ public:
   itkSetObjectMacro( EquationContainer, EquationContainerType );
   itkGetObjectMacro( EquationContainer, EquationContainerType );
 
+  /** Set/Get the current level set id */
+  itkSetMacro( CurrentLevelSetId, IdentifierType );
+  itkGetMacro( CurrentLevelSetId, IdentifierType );
+
   /** Set the update map for all points in the zero layer */
   void SetUpdate( const LevelSetLayerType& iUpdate )
     {
@@ -135,6 +139,7 @@ protected:
 
   LevelSetOutputType m_Dt;
   LevelSetOutputType m_RMSChangeAccumulator;
+  IdentifierType     m_CurrentLevelSetId;
 
   EquationContainerPointer m_EquationContainer;
 

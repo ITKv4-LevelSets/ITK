@@ -314,6 +314,7 @@ LevelSetSparseEvolutionBase<TEquationContainer>
         update_levelset->SetUpdate( * m_UpdateBuffer[it->GetIdentifier()] );
         update_levelset->SetEquationContainer( m_EquationContainer );
         update_levelset->SetDt( m_Dt );
+        update_levelset->SetCurrentLevelSetId( it->GetIdentifier() );
         update_levelset->Update();
 
         levelSet->Graft( update_levelset->GetOutputLevelSet() );
@@ -331,8 +332,8 @@ LevelSetSparseEvolutionBase<TEquationContainer>
 ::UpdateEquations()
     {
     std::cout << "Update equations" << std::endl;
-//     m_EquationContainer->Update();
-    InitializeIteration();
+    m_EquationContainer->Update();
+//     InitializeIteration();
     }
 }
 #endif // __itkLevelSetSparseEvolutionBase_hxx
