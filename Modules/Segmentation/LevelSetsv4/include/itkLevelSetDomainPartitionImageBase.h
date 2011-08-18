@@ -88,41 +88,11 @@ protected:
 
   /** Populate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  virtual void PopulateListDomain()
-  {
-    ListSpacingType spacing = this->m_ListDomain->GetSpacing();
+  virtual void PopulateListDomain();
 
-    ListRegionType region = this->m_ListDomain->GetLargestPossibleRegion();
-
-    ListIteratorType lIt(this->m_ListDomain, region);
-
-    for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
-      {
-      ListIndexType ind = lIt.GetIndex();
-      IdentifierListType L;
-      for ( unsigned int i = 0; i < this->m_FunctionCount; i++ )
-        {
-        if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
-          {
-          L.push_back(i);
-          }
-        }
-      lIt.Set(L);
-      }
-  }
   /** Allocate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  void AllocateListDomain()
-  {
-    if( m_Image.IsNull() )
-      {
-      itkGenericExceptionMacro( "m_Image is null" );
-      }
-    this->m_ListDomain = ListImageType::New();
-    this->m_ListDomain->CopyInformation( m_Image );
-    this->m_ListDomain->SetRegions( m_Image->GetLargestPossibleRegion() );
-    this->m_ListDomain->Allocate();
-  }
+  void AllocateListDomain();
 
 private:
   LevelSetDomainPartitionImageBase(const Self &); //purposely not
@@ -132,4 +102,5 @@ private:
 };
 } //end namespace itk
 
+#include "itkLevelSetDomainPartitionImageBase.hxx"
 #endif

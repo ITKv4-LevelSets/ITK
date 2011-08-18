@@ -111,52 +111,11 @@ protected:
 
   /** Populate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  void PopulateListDomain()
-  {
-    if( this->m_KdTree.IsNotNull() )
-      {
-      this->PopulateDomainWithKdTree();
-      }
-    else
-      {
-      Superclass::PopulateListDomain();
-      }
-  }
+  void PopulateListDomain();
 
   /** Populate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  void PopulateDomainWithKdTree()
-  {
-    ListSpacingType spacing = this->m_ListDomain->GetSpacing();
-
-    ListRegionType region = this->m_ListDomain->GetLargestPossibleRegion();
-
-    ListIteratorType lIt(this->m_ListDomain, region);
-
-    for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
-      {
-      ListIndexType ind = lIt.GetIndex();
-      ListPointType pt;
-
-      this->m_ListDomain->TransformIndexToPhysicalPoint( ind, pt );
-
-      CentroidVectorType queryPoint = pt.GetVectorFromOrigin();
-
-      typename TreeType::InstanceIdentifierVectorType neighbors;
-      this->m_KdTree->Search(queryPoint, this->m_NumberOfNeighbors, neighbors);
-
-      IdentifierListType L;
-      for ( unsigned int i = 0; i < this->m_NumberOfNeighbors; ++i )
-        {
-        // this is not yet defined, but it will have to be !!!
-        if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
-          {
-          L.push_back(neighbors[i]);
-          }
-        }
-      lIt.Set(L);
-      }
-  }
+  void PopulateDomainWithKdTree();
 
 private:
   //purposely not implemented
