@@ -83,9 +83,9 @@ public:
                                   LevelSetOutputRealType& prod );
 
   /** Supply updates at pixels to keep the term parameters always updated */
-  virtual void UpdatePixel( LevelSetInputIndexType& iP,
-                           LevelSetOutputRealType & oldValue,
-                           LevelSetOutputRealType & newValue );
+  virtual void UpdatePixel( const LevelSetInputIndexType& iP,
+                           const LevelSetOutputRealType & oldValue,
+                           const LevelSetOutputRealType & newValue );
 
 protected:
   LevelSetEquationChanAndVeseExternalTerm() : Superclass()

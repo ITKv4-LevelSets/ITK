@@ -223,14 +223,9 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
         ++upIt;
         Level0.erase( tempIt );
 
-        std::cout << currentIdx << ' ';
-
         m_InternalImage->SetPixel( currentIdx, newValue );
         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
               currentIdx, oldValue, newValue );
-
-    std::cout << std::endl;
-
 
         neighIt.SetLocation( currentIdx );
 
@@ -259,7 +254,6 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 
     nodeIt = InsertList.begin();
     nodeEnd = InsertList.end();
-    std::cout << "New levelset" << std::endl;
     while( nodeIt != nodeEnd )
       {
       Level0.insert(
@@ -267,7 +261,6 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 
       m_InternalImage->SetPixel( nodeIt->first, 0 );
       m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
-      std::cout << nodeIt->first << std::endl;
       ++nodeIt;
       }
     }

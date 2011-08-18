@@ -88,7 +88,6 @@ void LevelSetEquationChanAndVeseInternalTerm< TInput, TLevelSetContainer >
                            const LevelSetOutputRealType & oldValue,
                            const LevelSetOutputRealType & newValue )
   {
-    std::cout << "Internal" << std::endl;
     // For each affected h val: h val = new hval (this will dirty some cvals)
     InputPixelType input = this->m_Input->GetPixel( iP );
 
@@ -99,7 +98,6 @@ void LevelSetEquationChanAndVeseInternalTerm< TInput, TLevelSetContainer >
     // update the foreground constant for current level-set function
     this->m_TotalH += change;
     this->m_TotalValue += input * change;
-//     std::cout << change << ' ' << input * change << ' ';
   }
 
 template< class TInput, class TLevelSetContainer >

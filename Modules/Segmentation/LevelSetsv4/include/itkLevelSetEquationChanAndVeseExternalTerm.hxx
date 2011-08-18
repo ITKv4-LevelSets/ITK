@@ -58,8 +58,8 @@ void LevelSetEquationChanAndVeseExternalTerm< TInput, TLevelSetContainer >
 
 template< class TInput, class TLevelSetContainer >
 void LevelSetEquationChanAndVeseExternalTerm< TInput, TLevelSetContainer >
-::UpdatePixel( LevelSetInputIndexType& iP, LevelSetOutputRealType & oldValue,
-               LevelSetOutputRealType & newValue )
+::UpdatePixel( const LevelSetInputIndexType& iP, const LevelSetOutputRealType & oldValue,
+               const LevelSetOutputRealType & newValue )
   {
     // Compute the product factor
     LevelSetIdentifierType id =
@@ -82,7 +82,6 @@ void LevelSetEquationChanAndVeseExternalTerm< TInput, TLevelSetContainer >
 
     this->m_TotalH += change;
     this->m_TotalValue += input * productChange;
-    std::cout << change << ' ' << input * productChange << ' ';
   }
 }
 
