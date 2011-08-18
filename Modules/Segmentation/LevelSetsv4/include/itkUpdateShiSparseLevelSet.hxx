@@ -119,10 +119,8 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
         ++nodeIt;
         list_in.erase( tempIt );
 
-//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//               currentIndex,
-//               static_cast< LevelSetOutputRealType >( oldValue ),
-//               static_cast< LevelSetOutputRealType >( newValue ) );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+          currentIndex, oldValue, newValue );
         }
       else
         {
@@ -168,11 +166,8 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
         ++nodeIt;
         list_out.erase( tempIt );
 
-//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//               currentIndex,
-//               static_cast< LevelSetOutputRealType >( oldValue ),
-//               static_cast< LevelSetOutputRealType >( newValue )
-//               );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+          currentIndex, oldValue, newValue );
         }
       else
         {
@@ -234,11 +229,11 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
       LevelSetInputType   currentIndex = nodeIt->first;
       LevelSetOutputType  currentValue = nodeIt->second;
 
-      // --- debugging test (to be removed) ---
-      assert( currentValue == 1 );
-      char tempStatus = this->m_InternalImage->GetPixel( currentIndex );
-      assert( tempStatus == 1 );
-      // --------------------------------------
+//       // --- debugging test (to be removed) ---
+//       assert( currentValue == 1 );
+//       char tempStatus = this->m_InternalImage->GetPixel( currentIndex );
+//       assert( tempStatus == 1 );
+//       // --------------------------------------
 
       // update the level set
       LevelSetOutputRealType update =
@@ -291,7 +286,7 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
       list_out.insert( *nodeIt );
 
       this->m_InternalImage->SetPixel( nodeIt->first, 1 );
-//       m_EquationContainer->UpdatePixel( nodeIt->first, 3, 1 );
+      m_EquationContainer->UpdatePixel( nodeIt->first, 3, 1 );
 
       ++nodeIt;
       }
@@ -304,7 +299,7 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
       list_in.insert( *nodeIt );
 
       this->m_InternalImage->SetPixel( nodeIt->first, -1 );
-//       m_EquationContainer->UpdatePixel( nodeIt->first, 1, -1 );
+      m_EquationContainer->UpdatePixel( nodeIt->first, 1, -1 );
       ++nodeIt;
       }
     }
@@ -354,11 +349,11 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
       LevelSetInputType   currentIndex = nodeIt->first;
       LevelSetOutputType  currentValue = nodeIt->second;
 
-      // --- debugging test (to be removed) ---
-      assert( currentValue == -1 );
-      char tempStatus = this->m_InternalImage->GetPixel( currentIndex );
-      assert( tempStatus == -1 );
-      // --------------------------------------
+//       // --- debugging test (to be removed) ---
+//       assert( currentValue == -1 );
+//       char tempStatus = this->m_InternalImage->GetPixel( currentIndex );
+//       assert( tempStatus == -1 );
+//       // --------------------------------------
 
       // update for the current level set
       LevelSetOutputRealType update =
@@ -411,8 +406,8 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
       {
       list_in.insert( *nodeIt );
       this->m_InternalImage->SetPixel( nodeIt->first, -1 );
-//       m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//             nodeIt->first, -3, -1 );
+      m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+        nodeIt->first, -3, -1 );
       ++nodeIt;
       }
 
@@ -424,8 +419,8 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
       {
       list_out.insert( *nodeIt );
       this->m_InternalImage->SetPixel( nodeIt->first, 1 );
-//       m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//             nodeIt->first, -1, 1 );
+      m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+        nodeIt->first, -1, 1 );
       ++nodeIt;
       }
   }

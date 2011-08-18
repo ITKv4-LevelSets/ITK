@@ -212,8 +212,8 @@ void LevelSetShiEvolutionBase< TEquationContainer >
 ::UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
-//     m_EquationContainer->Update();
-    this->InitializeIteration();
+    m_EquationContainer->Update();
+//     this->InitializeIteration();
     }
 }
 #endif // __itkLevelSetShiEvolutionBase_h

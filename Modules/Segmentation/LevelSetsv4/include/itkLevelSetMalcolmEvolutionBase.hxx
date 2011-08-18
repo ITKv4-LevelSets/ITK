@@ -198,8 +198,8 @@ void LevelSetMalcolmEvolutionBase< TEquationContainer >
 ::UpdateEquations()
     {
     std::cout << "Update equations" << std::endl << std::endl;
-//     m_EquationContainer->Update();
-    this->InitializeIteration();
+    m_EquationContainer->Update();
+//     this->InitializeIteration();
     }
 
 }
