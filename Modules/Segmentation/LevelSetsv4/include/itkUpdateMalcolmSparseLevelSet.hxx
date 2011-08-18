@@ -27,7 +27,7 @@ template< unsigned int VDimension, class TEquationContainer >
 UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 ::UpdateMalcolmSparseLevelSet() :
   m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
-  m_UnPhased( true )
+  m_UnPhased( false )
   {
   m_OutputLevelSet = LevelSetType::New();
   }
@@ -241,7 +241,6 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 
             InsertList.insert(
                   std::pair< LevelSetInputType, LevelSetOutputType >( tempIndex, tempValue ) );
-
             }
           }
         }
@@ -309,7 +308,7 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
       {
       assert( nodeIt->first == upIt->first );
 
-      LevelSetOutputType oldValue;
+      LevelSetOutputType oldValue = 0;
       LevelSetOutputType newValue;
 
       LevelSetOutputType update = upIt->second;
@@ -328,8 +327,8 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
         m_OutputLevelSet->GetLayer( 0 ).erase( currentIdx );
 
         m_InternalImage->SetPixel( currentIdx, newValue );
-//           m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//                 currentIdx, oldValue , newValue );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+          currentIdx, oldValue , newValue );
 
         neighIt.SetLocation( currentIdx );
 
@@ -345,10 +344,7 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
               neighIt.GetIndex( i.GetNeighborhoodOffset() );
 
             InsertList.insert(
-              std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, 0 ) );
-
-//              m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//                    tempIdx, oldValue , 0 );
+              std::pair< LevelSetInputType, LevelSetOutputType >( tempIdx, tempValue ) );
               }
             }
           }
@@ -367,8 +363,7 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
       m_OutputLevelSet->GetLayer( 0 ).insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( nodeIt->first, 0 ) );
 
-//       m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
-
+      m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
       m_InternalImage->SetPixel( nodeIt->first, 0 );
 
       ++nodeIt;
@@ -438,7 +433,6 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 
       if( negative && !positive )
         {
-        std::cout << "Negative and not positive " << currentIdx << std::endl;
         newValue = -1;
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
@@ -450,7 +444,6 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
         }
       else if( positive && !negative )
         {
-        std::cout << "Positive and not negative " << currentIdx << std::endl;
         newValue = 1;
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
