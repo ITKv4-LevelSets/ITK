@@ -508,7 +508,7 @@ extern ITKCommon_EXPORT void OutputWindowDisplayDebugText(const char *);
 /** This macro is used to print debug (or other information). They are
  * also used to catch errors, etc. Example usage looks like:
  * itkDebugMacro(<< "this is debug info" << this->SomeVariable); */
-#if defined( ITK_LEAN_AND_MEAN_TEST_RENAME_TO_INVESTIGATE_REMOVAL_OPTIONS ) || defined( NDEBUG )
+#if defined( NDEBUG )
 #define itkDebugMacro(x)
 #define itkDebugStatement(x)
 #else
@@ -532,10 +532,6 @@ extern ITKCommon_EXPORT void OutputWindowDisplayDebugText(const char *);
 /** This macro is used to print warning information (i.e., unusual circumstance
  * but not necessarily fatal.) Example usage looks like:
  * itkWarningMacro(<< "this is warning info" << this->SomeVariable); */
-#ifdef ITK_LEAN_AND_MEAN_TEST_RENAME_TO_INVESTIGATE_REMOVAL_OPTIONS
-#define itkWarningMacro(x)
-#define itkWarningStatement(x)
-#else
 #define itkWarningMacro(x)                                            \
     {                                                                 \
     if ( ::itk::Object::GetGlobalWarningDisplay() )                   \
@@ -551,7 +547,6 @@ extern ITKCommon_EXPORT void OutputWindowDisplayDebugText(const char *);
 //The itkDebugStatement is to be used ot protect code that is only
 //used in the itkDebugMacro
 #define itkWarningStatement(x) x
-#endif
 
 #if defined( ITK_CPP_FUNCTION )
   #if defined( _WIN32 ) && !defined( __MINGW32__ ) && !defined( CABLE_CONFIGURATION ) \
@@ -625,9 +620,6 @@ itkTypeMacro(newexcp, parentexcp);                                              
     }
 
 
-#ifdef ITK_LEAN_AND_MEAN_TEST_RENAME_TO_INVESTIGATE_REMOVAL_OPTIONS
-#define itkGenericOutputMacro(x)
-#else
 #define itkGenericOutputMacro(x)                                           \
     {                                                                      \
     if ( ::itk::Object::GetGlobalWarningDisplay() )                        \
@@ -638,7 +630,6 @@ itkTypeMacro(newexcp, parentexcp);                                              
       ::itk::OutputWindowDisplayGenericOutputText( itkmsg.str().c_str() ); \
       }                                                                    \
     }
-#endif
 
 //----------------------------------------------------------------------------
 // Macros for simplifying the use of logging
@@ -735,10 +726,6 @@ itkTypeMacro(newexcp, parentexcp);                                              
     " instead.")
 #endif
 
-#if defined( __INTEL_COMPILER )
-#pragma warning (disable: 193) /* #if testing undefined identifier */
-#endif
-
 //=============================================================================
 /* Define a common way of declaring a templated function as a friend inside a class.
   - ITK_FRIEND_TEMPLATE_FUNCTION_ARGUMENTS(T)
@@ -832,9 +819,6 @@ itkTypeMacro(newexcp, parentexcp);                                              
 */
 #if ITK_TEMPLATE_EXTERN
 #define ITK_TEMPLATE_IMPORT_DELAY(x) extern template ITK_TEMPLATE_##x;
-#if defined( _MSC_VER )
-#pragma warning (disable: 4231) /* extern template extension */
-#endif
 #elif ITK_TEMPLATE_DO_NOT_INSTANTIATE
 #define ITK_TEMPLATE_IMPORT_DELAY(x) \
   ITK_TEMPLATE_IMPORT_IMPL(do_not_instantiate ITK_TEMPLATE_##x)
@@ -955,10 +939,6 @@ itkTypeMacro(newexcp, parentexcp);                                              
 #if ITK_TEMPLATE_CXX
 #undef ITK_MANUAL_INSTANTIATION
 #define ITK_MANUAL_INSTANTIATION
-#if defined( _MSC_VER )
-#pragma warning (disable: 4275) /* non dll-interface base */
-#pragma warning (disable: 4661) /* no definition available */
-#endif
 #endif
 //=============================================================================
 

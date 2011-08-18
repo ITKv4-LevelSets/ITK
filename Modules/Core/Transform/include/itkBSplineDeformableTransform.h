@@ -234,7 +234,7 @@ public:
 
   /** This method can ONLY be invoked AFTER calling SetParameters().
    *  This restriction is due to the fact that the BSplineDeformableTransform
-   *  does not copy the array of paramters internally, instead it keeps a
+   *  does not copy the array of parameters internally, instead it keeps a
    *  pointer to the user-provided array of parameters. This method is also
    *  in violation of the const-correctness of the parameters since the
    *  parameter array has been passed to the transform on a 'const' basis but
@@ -378,20 +378,16 @@ public:
   /** Compute the Jacobian Matrix of the transformation at one point */
   virtual const JacobianType & GetJacobian(const InputPointType  & point) const;
 
-  /** This is a thread-safe version for GetJacobian(). Otherwise,
-   *  m_Jacobian could be changed for different values in different threads.
-   *  This is also used for efficient computation of a point-local jacobian
-   *  for dense transforms.
-   *  \c j is assumed to be thread-local variable, otherwise memory corruption
-   *  will most likely occur during multi-threading.
-   *  To avoid repeatitive memory allocation, pass in 'j' with its size
-   *  already set.
-   * \warning Not yet implemented. When implementing, be careful to avoid
-   * use of m_Jacobian, using \c j instead. Then modify GetJacobian to
-   * call this method with m_Jacobian for backwards compatibility. */
+  /** NOT IMPLEMENTED: */
   virtual void GetJacobianWithRespectToParameters(const InputPointType  &p,
                                                   JacobianType &j) const
   { itkExceptionMacro("GetJacobianWithRespectToParameters "
+                      "not yet implemented."); }
+
+  /** NOT IMPLEMENTED: */
+  virtual void GetJacobianWithRespectToPosition(const InputPointType  &p,
+                                                  JacobianType &j) const
+  { itkExceptionMacro("GetJacobianWithRespectToPosition "
                       "not yet implemented."); }
 
   /** Return the number of parameters that completely define the Transfom */

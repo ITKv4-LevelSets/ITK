@@ -15,9 +15,6 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#if defined(_MSC_VER)
-#pragma warning ( disable : 4786 )
-#endif
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -89,8 +86,8 @@ int itkFFTShiftImageFilterTest(int argc, char * argv[])
 
   filter->SetInput( reader->GetOutput() );
 
-  filter->SetInverse( atoi( argv[3] ) );
-  if ( filter->GetInverse( ) != (bool)atoi(argv[3]) )
+  filter->SetInverse( static_cast<bool>( atoi( argv[3] ) ) );
+  if ( filter->GetInverse( ) != static_cast<bool>(atoi(argv[3])) )
     {
     std::cerr << "Set/Get Inverse problem." << std::endl;
     return EXIT_FAILURE;
