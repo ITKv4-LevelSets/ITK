@@ -80,40 +80,11 @@ public:
   typedef typename Superclass::NounToBeDefined              NounToBeDefined;
   typedef typename Superclass::DomainIteratorType           DomainIteratorType;
 
+  typedef typename LevelSetType::ImageType    LevelSetImageType;
+  typedef typename LevelSetImageType::Pointer LevelSetImagePointer;
+
   /** Comput information from data object and/or allocate new level set image */
-  void CopyInformationAndAllocate( Pointer iOther,
-                                   const bool& iAllocate )
-    {
-    LevelSetContainerConstIteratorType it = iOther->m_Container.begin();
-
-    while( it != iOther->m_Container.end() )
-      {
-      if( iAllocate )
-        {
-        LevelSetPointer temp_ls = LevelSetType::New();
-
-        typedef typename LevelSetType::ImageType    LevelSetImageType;
-        typedef typename LevelSetImageType::Pointer LevelSetImagePointer;
-
-        LevelSetImagePointer image = LevelSetImageType::New();
-        image->CopyInformation( ( it->second )->GetImage() );
-        image->SetBufferedRegion( ( it->second )->GetImage()->GetBufferedRegion() );
-        image->SetRequestedRegion( ( it->second )->GetImage()->GetRequestedRegion() );
-        image->SetLargestPossibleRegion( ( it->second )->GetImage()->GetLargestPossibleRegion() );
-        image->Allocate();
-        image->FillBuffer( NumericTraits< OutputPixelType >::Zero );
-
-        temp_ls->SetImage( image );
-        this->m_Container[ it->first ] = temp_ls;
-        }
-      else
-        {
-        LevelSetPointer temp_ls;
-        this->m_Container[ it->first ] = temp_ls;
-        }
-      ++it;
-      }
-    }
+  void CopyInformationAndAllocate( Pointer iOther, const bool& iAllocate );
 
 protected:
   DenseLevelSetContainer() : Superclass() {}
@@ -123,6 +94,7 @@ private:
   DenseLevelSetContainer( const Self & );
   void operator = ( const Self & );
 };
-
 }
+
+#include "itkDenseLevelSetContainer.hxx"
 #endif // __itkDenseLevelSetContainer_h
