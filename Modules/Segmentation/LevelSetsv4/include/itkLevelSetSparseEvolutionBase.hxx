@@ -247,8 +247,8 @@ LevelSetSparseEvolutionBase<TEquationContainer>
         {
         LevelSetInputType idx = list_it->first;
 
-        InputPixelRealType temp_update =
-            m_EquationContainer->GetEquation( it->GetIdentifier() )->Evaluate( idx );
+        LevelSetOutputType temp_update = static_cast< LevelSetOutputType >(
+          m_EquationContainer->GetEquation( it->GetIdentifier() )->Evaluate( idx ) );
         m_UpdateBuffer[ it->GetIdentifier() ]->insert(
               std::pair< LevelSetInputType, LevelSetOutputType >( idx, temp_update ) );
 //         std::cout << idx << ' ' << temp_update << std::endl;
