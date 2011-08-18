@@ -23,18 +23,16 @@
 
 namespace itk
 {
-template< unsigned int VDimension,
-          class TEquationContainer >
+template< unsigned int VDimension, class TEquationContainer >
 UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 ::UpdateMalcolmSparseLevelSet() :
   m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
-  m_UnPhased( false )
+  m_UnPhased( true )
   {
   m_OutputLevelSet = LevelSetType::New();
   }
 
-template< unsigned int VDimension,
-          class TEquationContainer >
+template< unsigned int VDimension, class TEquationContainer >
 void
 UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 ::Update()
@@ -43,10 +41,6 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
     {
     itkGenericExceptionMacro( <<"m_InputLevelSet is NULL" );
     }
-  //    if( m_Update->empty() )
-//      {
-//      itkGenericExceptionMacro( <<"m_Update is empty" );
-//      }
 
     m_OutputLevelSet->SetLayer( 0, m_InputLevelSet->GetLayer( 0 ) );
     m_OutputLevelSet->SetLabelMap( m_InputLevelSet->GetLabelMap() );
@@ -169,6 +163,8 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
     LevelSetOutputRealType oldValue, newValue;
     LevelSetLayerType & Level0 = m_OutputLevelSet->GetLayer( 0 );
 
+    std::cout << "Initial 0 levelset" << std::endl;
+
     // neighborhood iterator
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
 
@@ -221,14 +217,20 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
           {
           newValue = -1;
           }
+
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
         ++upIt;
         Level0.erase( tempIt );
 
+        std::cout << currentIdx << ' ';
+
         m_InternalImage->SetPixel( currentIdx, newValue );
-//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//               currentIdx, oldValue, newValue );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              currentIdx, oldValue, newValue );
+
+    std::cout << std::endl;
+
 
         neighIt.SetLocation( currentIdx );
 
@@ -257,16 +259,15 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 
     nodeIt = InsertList.begin();
     nodeEnd = InsertList.end();
-
+    std::cout << "New levelset" << std::endl;
     while( nodeIt != nodeEnd )
       {
       Level0.insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( nodeIt->first, 0 ) );
 
-//       m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
-
       m_InternalImage->SetPixel( nodeIt->first, 0 );
-
+      m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
+      std::cout << nodeIt->first << std::endl;
       ++nodeIt;
       }
     }
@@ -444,29 +445,31 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 
       if( negative && !positive )
         {
+        std::cout << "Negative and not positive " << currentIdx << std::endl;
         newValue = -1;
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
         list_0.erase( tempIt );
 
         m_InternalImage->SetPixel( currentIdx, newValue );
-//         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-//               currentIdx, oldValue , newValue );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+              currentIdx, oldValue , newValue );
         }
       else if( positive && !negative )
         {
+        std::cout << "Positive and not negative " << currentIdx << std::endl;
         newValue = 1;
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
         list_0.erase( tempIt );
 
         m_InternalImage->SetPixel( currentIdx, newValue );
-  //         m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-  //               currentIdx, oldValue , newValue );
+        m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
+                currentIdx, oldValue , newValue );
         }
       else if( !positive && !negative )
         {
-        std::cout << "Neither positive nor negative" << std::endl;
+        std::cout << "Neither positive nor negative " << currentIdx << std::endl;
         ++nodeIt;
         }
       else

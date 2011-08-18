@@ -75,13 +75,14 @@ void LevelSetEquationChanAndVeseExternalTerm< TInput, TLevelSetContainer >
 
     LevelSetOutputRealType oldH = this->m_Heaviside->Evaluate( -oldValue );
     LevelSetOutputRealType newH = this->m_Heaviside->Evaluate( -newValue );
-    LevelSetOutputRealType change = (1 - newH) - (1 - oldH);
+    LevelSetOutputRealType change = oldH - newH;//(1 - newH) - (1 - oldH);
 
     // Determine the change in the product factor
     LevelSetOutputRealType productChange = -( prod * change );
 
     this->m_TotalH += change;
     this->m_TotalValue += input * productChange;
+    std::cout << change << ' ' << input * productChange << ' ';
   }
 }
 
