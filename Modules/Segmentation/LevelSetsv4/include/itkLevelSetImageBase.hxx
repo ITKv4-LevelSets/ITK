@@ -205,12 +205,10 @@ LevelSetImageBase< TImage >
       OutputRealType valueB = static_cast< OutputRealType >( this->Evaluate( pB ) );
       OutputRealType scale = m_NeighborhoodScales[dim];
 
-      dx_forward[dim] = ( valueA - center_value ) * scale;
-      dx_backward[dim] = ( center_value - valueB ) * scale;
+      ioData.Gradient.m_Value[dim] = ( valueA - valueB ) * scale;
 
       pA[dim] = pB[dim] = iP[dim];
       }
-    ioData.Gradient.m_Value = dx_forward;
     }
 }
 // ----------------------------------------------------------------------------
