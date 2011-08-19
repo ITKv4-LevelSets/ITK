@@ -60,6 +60,8 @@ public:
   typedef typename LevelSetType::OutputRealType OutputRealType;
   typedef typename LevelSetType::GradientType   GradientType;
   typedef typename LevelSetType::HessianType    HessianType;
+  typedef typename LevelSetType::LevelSetDataType
+                                                LevelSetDataType;
 
   /** IdentifierType */
   typedef TIdentifier LevelSetIdentifierType;

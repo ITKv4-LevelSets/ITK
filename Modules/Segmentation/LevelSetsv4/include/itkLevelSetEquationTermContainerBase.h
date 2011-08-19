@@ -59,16 +59,20 @@ public:
   typedef TInputImage                       InputImageType;
   typedef typename InputImageType::Pointer  InputImagePointer;
 
-  typedef TLevelSetContainer                              LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
+  typedef TLevelSetContainer                                LevelSetContainerType;
+  typedef typename LevelSetContainerType::Pointer           LevelSetContainerPointer;
+
+  typedef typename LevelSetContainerType::LevelSetType      LevelSetType;
+  typedef typename LevelSetContainerType::LevelSetPointer   LevelSetPointer;
+
   typedef typename LevelSetContainerType::LevelSetIdentifierType
-                                                          LevelSetIdentifierType;
-//   typedef typename LevelSetContainerType::OutputPixelType LevelSetOutputPixelType;
-  typedef typename LevelSetContainerType::OutputType      LevelSetOutputPixelType;
-  typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
-  typedef typename LevelSetContainerType::InputIndexType  LevelSetInputIndexType;
-  typedef typename LevelSetContainerType::GradientType    GradientType;
-  typedef typename LevelSetContainerType::HessianType     HessianType;
+                                                            LevelSetIdentifierType;
+  typedef typename LevelSetContainerType::OutputType        LevelSetOutputPixelType;
+  typedef typename LevelSetContainerType::OutputRealType    LevelSetOutputRealType;
+  typedef typename LevelSetContainerType::LevelSetDataType  LevelSetDataType;
+  typedef typename LevelSetContainerType::InputIndexType    LevelSetInputIndexType;
+  typedef typename LevelSetContainerType::GradientType      LevelSetGradientType;
+  typedef typename LevelSetContainerType::HessianType       LevelSetHessianType;
 
   typedef LevelSetEquationTermBase< InputImageType, LevelSetContainerType >
                                                                        TermType;
@@ -113,6 +117,7 @@ public:
   typedef typename TermType::RequiredDataType RequiredDataType;
 
   const RequiredDataType & GetListOfRequiredData() const;
+  void ComputeRequiredData( const LevelSetInputIndexType& iP, LevelSetDataType& ioData );
 
 protected:
   LevelSetEquationTermContainerBase();

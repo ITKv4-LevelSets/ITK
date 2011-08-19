@@ -298,5 +298,33 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 }
 // ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+template< class TInputImage, class TLevelSetContainer >
+void
+LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
+::ComputeRequiredData( const LevelSetInputIndexType& iP, LevelSetDataType& ioData )
+{
+  typename RequiredDataType::iterator dIt = m_RequiredData.begin();
+  LevelSetPointer levelset = ( m_Container.begin() )->first->GetCurrentLevelSet();
+
+  while( dIt != m_RequiredData.end() )
+    {
+    if( *dIt == "Value" )
+      {
+      levelset->Evaluate( iP, ioData );
+      }
+    if( *dIt == "Gradient" )
+      {
+      levelset->EvaluateGradient( iP, ioData );
+      }
+    if( *dIt == "Hessian" )
+      {
+      levelset->EvaluateGradient( iP, ioData );
+      }
+    ++dIt;
+    }
+}
+// ----------------------------------------------------------------------------
+
 }
 #endif // __itkLevelSetEquationTermContainerBase_hxx
