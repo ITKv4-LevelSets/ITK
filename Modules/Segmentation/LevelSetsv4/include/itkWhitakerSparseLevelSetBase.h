@@ -107,6 +107,16 @@ public:
   virtual void EvaluateGradient( const InputType& iP, LevelSetDataType& ioData ) const;
   virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const;
 
+  /** Returns the gradient of the level set function at a given location iP
+   * as part of the LevelSetDataType
+   * \todo to be implemented */
+  virtual void EvaluateForwardGradient( const InputType& iP, LevelSetDataType& ioData ) const;
+
+  /** Returns the gradient of the level set function at a given location iP
+   * as part of the LevelSetDataType
+   * \todo to be implemented */
+  virtual void EvaluateBackwardGradient( const InputType& iP, LevelSetDataType& ioData ) const;
+
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
 
