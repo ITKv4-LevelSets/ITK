@@ -230,8 +230,12 @@ LevelSetEvolutionBase< TEquationContainer >
 
         LevelSetPointer levelSetUpdate = m_UpdateBuffer->GetLevelSet( *lIt - 1);
 
-        LevelSetOutputRealType temp_update =
-            m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
+        LevelSetDataType characteristics;
+        m_EquationContainer->GetEquation( *lIt - 1 )->ComputeRequiredData(
+              it.GetIndex(), characteristics );
+
+//        LevelSetOutputRealType temp_update =
+//            m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
 
         levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
         }

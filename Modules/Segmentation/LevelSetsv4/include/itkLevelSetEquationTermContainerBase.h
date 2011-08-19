@@ -108,6 +108,9 @@ public:
   /** Evaluate the term at a given pixel location */
   LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP );
 
+  LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP,
+                                   const LevelSetDataType& iData );
+
   /** Update the term parameters at end of iteration */
   void Update();
 

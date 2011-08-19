@@ -84,11 +84,12 @@ public:
   typedef typename LevelSetContainerType::LevelSetContainerIteratorType
                                                             LevelSetContainerIteratorType;
 
-  typedef typename LevelSetContainerType::LevelSetType LevelSetType;
-  typedef typename LevelSetType::Pointer               LevelSetPointer;
-  typedef typename LevelSetType::ImageType             LevelSetImageType;
-  typedef typename LevelSetType::OutputRealType        LevelSetOutputRealType;
-  typedef typename LevelSetImageType::Pointer          LevelSetImagePointer;
+  typedef typename LevelSetContainerType::LevelSetType  LevelSetType;
+  typedef typename LevelSetType::Pointer                LevelSetPointer;
+  typedef typename LevelSetType::ImageType              LevelSetImageType;
+  typedef typename LevelSetType::OutputRealType         LevelSetOutputRealType;
+  typedef typename LevelSetImageType::Pointer           LevelSetImagePointer;
+  typedef typename LevelSetType::LevelSetDataType       LevelSetDataType;
 
 
   typedef BinaryThresholdImageFilter< LevelSetImageType, LevelSetImageType >

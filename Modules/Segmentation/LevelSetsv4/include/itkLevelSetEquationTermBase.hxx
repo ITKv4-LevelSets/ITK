@@ -66,6 +66,19 @@ LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
 
 // ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
+typename
+LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
+::LevelSetOutputRealType
+LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
+::Evaluate( const LevelSetInputIndexType& iP,
+            const LevelSetDataType& iData )
+{
+  return m_Coefficient * this->Value( iP, iData );
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermBase< TInputImage, TLevelSetContainer >
 ::SetUp()

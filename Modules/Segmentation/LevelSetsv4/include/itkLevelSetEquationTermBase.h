@@ -72,6 +72,8 @@ public:
   typedef typename LevelSetContainerType::InputIndexType  LevelSetInputIndexType;
   typedef typename LevelSetContainerType::GradientType    LevelSetGradientType;
   typedef typename LevelSetContainerType::HessianType     LevelSetHessianType;
+  typedef typename LevelSetContainerType::LevelSetDataType
+                                                          LevelSetDataType;
 
   typedef HeavisideStepFunctionBase< LevelSetOutputRealType,
                                      LevelSetOutputRealType >
@@ -95,6 +97,9 @@ public:
    *  \f$ \alpha_i \cdot \omega_i( p )
    */
   virtual LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP );
+
+  virtual LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP,
+                                           const LevelSetDataType& iData );
 
   /** \todo to be documented. */
   virtual void Initialize( const LevelSetInputIndexType& iP ) = 0;
@@ -151,6 +156,9 @@ protected:
    *  class which inherits from this class.
    */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP ) = 0;
+
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP,
+                                        const LevelSetDataType& iData ) = 0;
 
   /** Input image */
   InputImagePointer        m_Input;

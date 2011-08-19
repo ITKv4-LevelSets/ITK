@@ -248,6 +248,34 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 
 // ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
+typename LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >::LevelSetOutputRealType
+LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
+::Evaluate( const LevelSetInputIndexType& iP, const LevelSetDataType& iData )
+{
+  MapTermContainerIteratorType term_it  = m_Container.begin();
+  MapTermContainerIteratorType term_end = m_Container.end();
+
+  MapCFLContainerIterator cfl_it = m_TermContribution.begin();
+
+  LevelSetOutputRealType oValue = NumericTraits< LevelSetOutputRealType >::Zero;
+
+  while( term_it != term_end )
+    {
+    LevelSetOutputRealType temp_val = ( term_it->second )->Evaluate( iP, iData );
+
+    cfl_it->second = vnl_math_max( vnl_math_abs( temp_val ), cfl_it->second );
+
+    oValue += temp_val;
+    ++term_it;
+    ++cfl_it;
+    }
+
+  return oValue;
+}
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 ::Update()
