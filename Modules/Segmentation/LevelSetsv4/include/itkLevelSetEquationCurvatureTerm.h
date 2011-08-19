@@ -73,6 +73,8 @@ public:
   typedef typename Superclass::HeavisideType    HeavisideType;
   typedef typename Superclass::HeavisidePointer HeavisidePointer;
 
+  typedef typename Superclass::LevelSetDataType LevelSetDataType;
+
   itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
 
   /** Neighborhood radius type */
@@ -122,14 +124,16 @@ protected:
 
   virtual void SetRequiredData()
     {
-    this->m_RequiredData.insert( "Value" );
-    this->m_RequiredData.insert( "Gradient" );
-    this->m_RequiredData.insert( "Hessian" );
+    this->m_RequiredData.insert( "MeanCurvature" );
     }
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP );
+
+  /** Returns the term contribution for a given location iP, i.e.
+   *  \f$ \omega_i( p ) \f$. */
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP, const LevelSetDataType& iData );
 
   LevelSetOutputRealType  m_NeighborhoodScales[ImageDimension];
 

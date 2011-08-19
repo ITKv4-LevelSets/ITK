@@ -128,6 +128,32 @@ typename LevelSetEquationChanAndVeseInternalTerm< TInput, TLevelSetContainer >::
     }
 
 template< class TInput, class TLevelSetContainer >
+typename LevelSetEquationChanAndVeseInternalTerm< TInput, TLevelSetContainer >::LevelSetOutputRealType  LevelSetEquationChanAndVeseInternalTerm< TInput, TLevelSetContainer >
+::Value( const LevelSetInputIndexType& iP, const LevelSetDataType& iData )
+      {
+    if( this->m_Heaviside.IsNotNull() )
+      {
+      LevelSetOutputRealType value = iData.Value.m_Value;
+
+      LevelSetOutputRealType d_val = this->m_Heaviside->EvaluateDerivative( -value );
+
+      InputPixelType pixel = this->m_Input->GetPixel( iP );
+      LevelSetOutputRealType prod = 1;
+
+      ComputeProductTerm( iP, prod );
+      LevelSetOutputRealType oValue = d_val * prod *
+        static_cast< LevelSetOutputRealType >( ( pixel - m_Mean ) * ( pixel - m_Mean ) );
+
+      return oValue;
+      }
+    else
+      {
+      itkWarningMacro( << "m_Heaviside is NULL" );
+      }
+    return NumericTraits< LevelSetOutputPixelType >::Zero;
+    }
+
+template< class TInput, class TLevelSetContainer >
 void LevelSetEquationChanAndVeseInternalTerm< TInput, TLevelSetContainer >
 ::Accumulate( const InputPixelType& iPix,
                    const LevelSetOutputRealType& iH )

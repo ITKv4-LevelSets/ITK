@@ -234,8 +234,8 @@ LevelSetEvolutionBase< TEquationContainer >
         m_EquationContainer->GetEquation( *lIt - 1 )->ComputeRequiredData(
               it.GetIndex(), characteristics );
 
-//        LevelSetOutputRealType temp_update =
-//            m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex() );
+       LevelSetOutputRealType temp_update =
+           m_EquationContainer->GetEquation( *lIt - 1 )->Evaluate( it.GetIndex(), characteristics );
 
         levelSetUpdate->GetImage()->SetPixel( it.GetIndex(), temp_update );
         }

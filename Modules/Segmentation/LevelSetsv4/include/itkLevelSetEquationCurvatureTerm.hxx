@@ -26,6 +26,14 @@ namespace itk
 template< class TInput, class TLevelSetContainer >
 typename LevelSetEquationCurvatureTerm< TInput, TLevelSetContainer >::LevelSetOutputRealType
 LevelSetEquationCurvatureTerm< TInput, TLevelSetContainer >
+::Value( const LevelSetInputIndexType& iP, const LevelSetDataType& iData )
+{
+  return iData.MeanCurvature.m_Value;
+}
+
+template< class TInput, class TLevelSetContainer >
+typename LevelSetEquationCurvatureTerm< TInput, TLevelSetContainer >::LevelSetOutputRealType
+LevelSetEquationCurvatureTerm< TInput, TLevelSetContainer >
 ::Value( const LevelSetInputIndexType& iP )
     {
     if( this->m_Heaviside.IsNotNull() )

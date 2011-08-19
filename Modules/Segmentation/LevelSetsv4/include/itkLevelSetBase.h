@@ -112,7 +112,8 @@ public:
     {
     LevelSetDataType() : Value( "Value" ), Gradient( "Gradient" ),
       Hessian( "Hessian" ), Laplacian( "Laplacian" ),
-      GradientNorm( "GradientNorm" ), MeanCurvature( "MeanCurvature" )
+      GradientNorm( "GradientNorm" ), MeanCurvature( "MeanCurvature" ),
+      ForwardGradient( "ForwardGradient" ), BackwardGradient( "BackwardGradient" )
       {
       Value.m_Value = NumericTraits< OutputType >::Zero;
       Gradient.m_Value.Fill( NumericTraits< OutputRealType >::Zero );
@@ -120,12 +121,15 @@ public:
       Laplacian.m_Value = NumericTraits< OutputRealType >::Zero;
       GradientNorm.m_Value = NumericTraits< OutputRealType >::Zero;
       MeanCurvature.m_Value = NumericTraits< OutputRealType >::Zero;
+      ForwardGradient.m_Value.Fill( NumericTraits< OutputRealType >::Zero );
+      BackwardGradient.m_Value.Fill( NumericTraits< OutputRealType >::Zero );
       }
 
     LevelSetDataType( const LevelSetDataType& iData ) : Value( iData.Value ),
       Gradient( iData.Gradient ), Hessian( iData.Hessian ),
       Laplacian( iData.Laplacian ), GradientNorm( iData.GradientNorm ),
-      MeanCurvature( iData.MeanCurvature ) {}
+      MeanCurvature( iData.MeanCurvature ), ForwardGradient( iData.ForwardGradient ),
+      BackwardGradient( iData.BackwardGradient ) {}
 
     ~LevelSetDataType() {}
 
@@ -137,6 +141,8 @@ public:
       Laplacian = iData.Laplacian;
       GradientNorm = iData.GradientNorm;
       MeanCurvature = iData.MeanCurvature;
+      ForwardGradient = iData.ForwardGradient;
+      BackwardGradient = iData.BackwardGradient;
       }
 
     /** the boolean value stores if it has already been computed */
@@ -146,6 +152,8 @@ public:
     DataType< OutputRealType >  Laplacian;
     DataType< OutputRealType >  GradientNorm;
     DataType< OutputRealType >  MeanCurvature;
+    DataType< GradientType >    ForwardGradient;
+    DataType< GradientType >    BackwardGradient;
     };
 
   virtual void Evaluate( const InputType& iP, LevelSetDataType& ioData ) const = 0;
@@ -154,6 +162,8 @@ public:
   virtual void EvaluateLaplacian( const InputType& iP, LevelSetDataType& ioData ) const;
   virtual void EvaluateGradientNorm( const InputType& iP, LevelSetDataType& ioData ) const;
   virtual void EvaluateMeanCurvature( const InputType& iP, LevelSetDataType& ioData ) const;
+  virtual void EvaluateForwardGradient( const InputType& iP, LevelSetDataType& ioData ) const = 0;
+  virtual void EvaluateBackwardGradient( const InputType& iP, LevelSetDataType& ioData ) const = 0;
 
   /** Returns true if iP is inside the level set, i.e. \f$\phi(p) \leqslant 0 \f$ */
   virtual bool IsInside( const InputType& iP ) const;

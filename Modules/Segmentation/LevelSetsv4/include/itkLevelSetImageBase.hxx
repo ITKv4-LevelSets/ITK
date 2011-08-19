@@ -285,6 +285,84 @@ LevelSetImageBase< TImage >
     }
 }
 // ----------------------------------------------------------------------------
+template< class TImage >
+void
+LevelSetImageBase< TImage >
+::EvaluateForwardGradient( const InputType& iP, LevelSetDataType& ioData ) const
+{
+  if( !ioData.ForwardGradient.m_Computed )
+    {
+    ioData.ForwardGradient.m_Computed = true;
+
+    // compute the gradient
+    if( !ioData.Value.m_Computed )
+      {
+      ioData.Value.m_Computed = true;
+      ioData.Value.m_Value = this->Evaluate( iP );
+      }
+
+    OutputRealType center_value =
+        static_cast< OutputRealType >( ioData.Value.m_Value );
+
+    InputType pA;
+    pA = iP;
+
+    GradientType dx;
+
+    for( unsigned int dim = 0; dim < Dimension; dim++ )
+      {
+      pA[dim] += 1;
+
+      OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
+      OutputRealType scale = m_NeighborhoodScales[dim];
+
+      dx[dim] = ( valueA - center_value ) * scale;
+
+      pA[dim] = iP[dim];
+      }
+    ioData.ForwardGradient.m_Value = dx;
+    }
+}
+
+// ----------------------------------------------------------------------------
+template< class TImage >
+void
+LevelSetImageBase< TImage >
+::EvaluateBackwardGradient( const InputType& iP, LevelSetDataType& ioData ) const
+{
+  if( !ioData.BackwardGradient.m_Computed )
+    {
+    ioData.BackwardGradient.m_Computed = true;
+
+    // compute the gradient
+    if( !ioData.Value.m_Computed )
+      {
+      ioData.Value.m_Computed = true;
+      ioData.Value.m_Value = this->Evaluate( iP );
+      }
+
+    OutputRealType center_value =
+        static_cast< OutputRealType >( ioData.Value.m_Value );
+
+    InputType pA;
+    pA = iP;
+
+    GradientType dx;
+
+    for( unsigned int dim = 0; dim < Dimension; dim++ )
+      {
+      pA[dim] -= 1;
+
+      OutputRealType valueA = static_cast< OutputRealType >( this->Evaluate( pA ) );
+      OutputRealType scale = m_NeighborhoodScales[dim];
+
+      dx[dim] = ( center_value - valueA ) * scale;
+
+      pA[dim] = iP[dim];
+      }
+    ioData.BackwardGradient.m_Value = dx;
+    }
+}
 
 // ----------------------------------------------------------------------------
 template< class TImage >

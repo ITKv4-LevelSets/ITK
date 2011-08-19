@@ -335,7 +335,7 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
   typename RequiredDataType::const_iterator dIt = m_RequiredData.begin();
   typename RequiredDataType::const_iterator dEnd = m_RequiredData.begin();
 
-  LevelSetPointer levelset = ( m_Container.begin() )->first->GetCurrentLevelSet();
+  LevelSetPointer levelset = ( m_Container.begin() ).first->GetCurrentLevelSet();
 
   while( dIt != dEnd )
     {
