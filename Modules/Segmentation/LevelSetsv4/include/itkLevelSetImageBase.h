@@ -97,6 +97,16 @@ public:
    * \todo to be implemented */
   virtual void EvaluateHessian( const InputType& iP, LevelSetDataType& ioData ) const;
 
+  /** Returns the gradient of the level set function at a given location iP
+   * as part of the LevelSetDataType
+   * \todo to be implemented */
+  virtual void EvaluateForwardGradient( const InputType& iP, LevelSetDataType& ioData ) const;
+
+  /** Returns the gradient of the level set function at a given location iP
+   * as part of the LevelSetDataType
+   * \todo to be implemented */
+  virtual void EvaluateBackwardGradient( const InputType& iP, LevelSetDataType& ioData ) const;
+
   /** Initial the level set pointer */
   virtual void Initialize();
 

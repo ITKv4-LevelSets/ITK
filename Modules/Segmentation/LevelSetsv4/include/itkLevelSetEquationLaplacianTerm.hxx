@@ -35,6 +35,14 @@ LevelSetEquationLaplacianTerm< TInput, TLevelSetContainer >
 
     return laplacian;
   }
+
+template< class TInput, class TLevelSetContainer >
+typename LevelSetEquationLaplacianTerm< TInput, TLevelSetContainer >::LevelSetOutputRealType
+LevelSetEquationLaplacianTerm< TInput, TLevelSetContainer >
+::Value( const LevelSetInputIndexType& iP, const LevelSetDataType& iData )
+  {
+    return iData.Laplacian.m_Value;
+  }
 }
 
 #endif
