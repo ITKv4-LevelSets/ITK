@@ -40,28 +40,6 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 
 // ----------------------------------------------------------------------------
 template< class TInputImage, class TLevelSetContainer >
-const typename
-LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
-::RequiredDataType &
-LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
-::GetListOfRequiredData() const
-{
-  RequiredDataType oList;
-
-  MapTermContainerConstIteratorType it = m_Container.begin();
-
-  while( it != m_Container.end() )
-    {
-    oList.insert( it->second->GetListOfRequiredData() );
-    ++it;
-    }
-
-  return oList;
-}
-// ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-template< class TInputImage, class TLevelSetContainer >
 void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 ::AddTerm( const TermIdType& iId, TermType* iTerm )
@@ -82,6 +60,17 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     m_Container[iId] = iTerm;
     m_TermContribution[iId] = NumericTraits< LevelSetOutputPixelType >::Zero;
     m_NameContainer[ iTerm->GetTermName() ] = iTerm;
+
+    RequiredDataType termRequiredData = iTerm->GetListOfRequiredData();
+
+    typename RequiredDataType::const_iterator dIt = termRequiredData.begin();
+    typename RequiredDataType::const_iterator dEnd = termRequiredData.end();
+
+    while( dIt != dEnd )
+      {
+      m_RequiredData.insert( *dIt );
+      ++dIt;
+      }
 
     this->Modified();
     }
@@ -118,6 +107,17 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
     m_Container[ id ] = iTerm;
     m_TermContribution[ id ] = NumericTraits< LevelSetOutputPixelType >::Zero;
     m_NameContainer[ iTerm->GetTermName() ] = iTerm;
+
+    RequiredDataType termRequiredData = iTerm->GetListOfRequiredData();
+
+    typename RequiredDataType::const_iterator dIt = termRequiredData.begin();
+    typename RequiredDataType::const_iterator dEnd = termRequiredData.end();
+
+    while( dIt != dEnd )
+      {
+      m_RequiredData.insert( *dIt );
+      ++dIt;
+      }
 
     this->Modified();
     }
@@ -304,10 +304,12 @@ void
 LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 ::ComputeRequiredData( const LevelSetInputIndexType& iP, LevelSetDataType& ioData )
 {
-  typename RequiredDataType::iterator dIt = m_RequiredData.begin();
+  typename RequiredDataType::const_iterator dIt = m_RequiredData.begin();
+  typename RequiredDataType::const_iterator dEnd = m_RequiredData.begin();
+
   LevelSetPointer levelset = ( m_Container.begin() )->first->GetCurrentLevelSet();
 
-  while( dIt != m_RequiredData.end() )
+  while( dIt != dEnd )
     {
     if( *dIt == "Value" )
       {
@@ -319,8 +321,21 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
       }
     if( *dIt == "Hessian" )
       {
-      levelset->EvaluateGradient( iP, ioData );
+      levelset->EvaluateHessian( iP, ioData );
       }
+    if( *dIt == "Laplacian" )
+      {
+      levelset->EvaluateLaplacian( iP, ioData );
+      }
+    if( *dIt == "GradientNorm" )
+      {
+      levelset->EvaluateGradientNorm( iP, ioData );
+      }
+    if( *dIt == "MeanCurvature" )
+      {
+      levelset->EvaluateMeanCurvature( iP, ioData );
+      }
+    // here add new characteristics
     ++dIt;
     }
 }
