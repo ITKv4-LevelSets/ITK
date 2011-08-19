@@ -253,14 +253,14 @@ LevelSetImageBase< TImage >
       if( !backward )
         {
         ioData.BackwardGradient.m_Computed = true;
-        ioData.BackwardGradient.m_Value[i] =
-            ( center_value - valueB ) * m_NeighborhoodScales[i];
+        ioData.BackwardGradient.m_Value[dim1] =
+            ( center_value - valueB ) * m_NeighborhoodScales[dim1];
         }
       if( !forward )
         {
         ioData.ForwardGradient.m_Computed = true;
-        ioData.ForwardGradient.m_Value[i]  =
-            ( valueA - center_value ) * m_NeighborhoodScales[i];
+        ioData.ForwardGradient.m_Value[dim1]  =
+            ( valueA - center_value ) * m_NeighborhoodScales[dim1];
         }
 
       pAa = pB;
