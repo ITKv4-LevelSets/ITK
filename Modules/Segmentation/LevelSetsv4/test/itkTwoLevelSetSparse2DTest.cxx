@@ -248,6 +248,7 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
     std::cout << err << std::endl;
     }
 
+  std::cout << "**************" << std::endl;
   PixelType internalmean1 = cvInternalTerm0->GetMean();
   PixelType internalmean2 = cvInternalTerm1->GetMean();
   if ( ( internalmean1 < 42100 ) || ( internalmean1 > 42150 ) )
@@ -269,8 +270,8 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
 
   if ( ( internalmean1 != internalmean2  ) || ( externalmean1 != externalmean2 ) )
   {
-    std::cout << "internalmean = " << internalmean1 <<std::endl;
-    std::cout << "externalmean = " << externalmean1 <<std::endl;
+    std::cout << "internalmean = " << internalmean1 << " DIFFERENT THAN" << internalmean2 <<std::endl;
+    std::cout << "externalmean = " << externalmean1 << " DIFFERENT THAN" << externalmean2 <<std::endl;
     return EXIT_FAILURE;
   }
 
