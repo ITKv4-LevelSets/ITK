@@ -238,6 +238,9 @@ LevelSetImageBase< TImage >
     InputType pA, pB, pAa, pBa, pCa, pDa;
     pA = pB = iP;
 
+    bool backward = ioData.BackwardGradient.m_Computed;
+    bool forward = ioData.ForwardGradient.m_Computed;
+
     for( unsigned int dim1 = 0; dim1 < Dimension; dim1++ )
       {
       pA[dim1] += 1;
@@ -248,6 +251,19 @@ LevelSetImageBase< TImage >
 
       ioData.Hessian.m_Value[dim1][dim1] =
           ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr( m_NeighborhoodScales[dim1] );
+
+      if( !backward )
+        {
+        ioData.BackwardGradient.m_Computed = true;
+        ioData.BackwardGradient.m_Value[i] =
+            ( center_value - valueB ) * m_NeighborhoodScales[i];
+        }
+      if( !forward )
+        {
+        ioData.ForwardGradient.m_Computed = true;
+        ioData.ForwardGradient.m_Value[i]  =
+            ( valueA - center_value ) * m_NeighborhoodScales[i];
+        }
 
       pAa = pB;
       pBa = pB;
