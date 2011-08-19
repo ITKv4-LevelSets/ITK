@@ -102,7 +102,6 @@ public:
                             const LevelSetOutputRealType& itkNotUsed( oldValue ),
                             const LevelSetOutputRealType& itkNotUsed( newValue ) )
   {
-    itkWarningMacro( <<"this method is not implemented" );
   }
 
 protected:

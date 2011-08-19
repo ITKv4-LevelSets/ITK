@@ -254,7 +254,8 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
   if ( ( internalmean1 < 42100 ) || ( internalmean1 > 42150 ) )
   {
     std::cout << "( ( mean1 < 42100 ) || ( mean1 > 42150 ) )" <<std::endl;
-    std::cout << "internalmean1 = " << internalmean1 <<std::endl;
+    std::cout << "internalmean1 = " << internalmean1
+              << " ** internalmean2 = " << internalmean2 <<std::endl;
     return EXIT_FAILURE;
   }
 
@@ -263,7 +264,9 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
   if ( ( externalmean1 < 1500 ) || ( externalmean1 > 1550 ) )
   {
     std::cout << "( ( externalmean1 < 1500 ) || ( externalmean1 > 1550 ) )" <<std::endl;
-    std::cout << "externalmean1 = " << externalmean1 <<std::endl;
+    std::cout << "externalmean1 = " << externalmean1
+              << "** externalmean2 = " << externalmean2
+              <<std::endl;
     return EXIT_FAILURE;
   }
 
