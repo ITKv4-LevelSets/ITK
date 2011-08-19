@@ -337,7 +337,7 @@ LevelSetEquationTermContainerBase< TInputImage, TLevelSetContainer >
 
   MapTermContainerIteratorType tIt = m_Container.begin();
 
-  LevelSetPointer levelset = tIt->second->GetCurrentLevelSet();
+  LevelSetPointer levelset = ( tIt->second )->GetCurrentLevelSet();
 
   while( dIt != dEnd )
     {

@@ -84,6 +84,38 @@ LevelSetEquationPropagationTerm< TInput, TLevelSetContainer >
 //     std::cout << iP << ' ' << propagation_gradient << std::endl;
     return propagation_gradient;
   }
+
+template< class TInput, class TLevelSetContainer >
+typename LevelSetEquationPropagationTerm< TInput, TLevelSetContainer >::LevelSetOutputRealType
+LevelSetEquationPropagationTerm< TInput, TLevelSetContainer >
+::Value( const LevelSetInputIndexType& iP,
+         const LevelSetDataType& iData )
+  {
+    LevelSetOutputRealType ZERO = NumericTraits< LevelSetOutputRealType >::Zero;
+    LevelSetOutputRealType propagation_gradient = ZERO;
+
+    if ( propagation_gradient > ZERO )
+      {
+      for ( unsigned int i = 0; i < ImageDimension; i++ )
+        {
+        propagation_gradient +=
+            vnl_math_sqr( vnl_math_max( iData.BackwardGradient.m_Value[i], ZERO ) ) +
+            vnl_math_sqr( vnl_math_min( iData.ForwardGradient.m_Value[i],  ZERO ) );
+        }
+      }
+    else
+      {
+      for ( unsigned int i = 0; i < ImageDimension; i++ )
+        {
+        propagation_gradient +=
+            vnl_math_sqr( vnl_math_min( iData.BackwardGradient.m_Value[i], ZERO ) ) +
+            vnl_math_sqr( vnl_math_max( iData.ForwardGradient.m_Value[i],  ZERO) );
+        }
+      }
+    propagation_gradient *= this->PropagationSpeed( iP );
+//     std::cout << iP << ' ' << propagation_gradient << std::endl;
+    return propagation_gradient;
+  }
 }
 
 #endif

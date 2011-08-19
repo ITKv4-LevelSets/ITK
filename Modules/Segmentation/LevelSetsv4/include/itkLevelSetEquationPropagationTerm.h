@@ -69,6 +69,7 @@ public:
   typedef typename Superclass::LevelSetGradientType       LevelSetGradientType;
   typedef typename Superclass::LevelSetHessianType        LevelSetHessianType;
   typedef typename Superclass::LevelSetIdentifierType     LevelSetIdentifierType;
+  typedef typename Superclass::LevelSetDataType           LevelSetDataType;
 
   typedef typename Superclass::HeavisideType    HeavisideType;
   typedef typename Superclass::HeavisidePointer HeavisidePointer;
@@ -136,6 +137,8 @@ protected:
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
   virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP );
+  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP,
+                                        const LevelSetDataType& iData );
 
   LevelSetOutputRealType m_NeighborhoodScales[ImageDimension];
 
