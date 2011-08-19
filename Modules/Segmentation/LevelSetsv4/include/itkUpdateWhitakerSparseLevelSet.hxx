@@ -251,10 +251,10 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
             LevelSetInputType tempIndex =
                 neighIt.GetIndex( it.GetNeighborhoodOffset() );
 
-            LevelSetLayerIterator it = m_TempPhi.find( tempIndex );
-            if( it != m_TempPhi.end() )
+            LevelSetLayerIterator tit = m_TempPhi.find( tempIndex );
+            if( tit != m_TempPhi.end() )
               {
-              if( it->second < -0.5 )
+              if( tit->second < -0.5 )
                 {
                 samedirection = false;
                 }
@@ -264,13 +264,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
 
         if( samedirection )
           {
-          LevelSetLayerIterator it = m_TempPhi.find( currentIndex );
+          LevelSetLayerIterator tit = m_TempPhi.find( currentIndex );
 
-          if( it != m_TempPhi.end() )
+          if( tit != m_TempPhi.end() )
             {
             m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-              currentIndex, it->second, tempValue );
-            it->second = tempValue;
+              currentIndex, tit->second, tempValue );
+            tit->second = tempValue;
             }
           else
             {
@@ -312,10 +312,10 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
               LevelSetInputType tempIndex =
                   neighIt.GetIndex( it.GetNeighborhoodOffset() );
 
-              LevelSetLayerIterator it = m_TempPhi.find( tempIndex );
-              if( it != m_TempPhi.end() )
+              LevelSetLayerIterator tit = m_TempPhi.find( tempIndex );
+              if( tit != m_TempPhi.end() )
                 {
-                if( it->second > 0.5 )
+                if( tit->second > 0.5 )
                   {
                   samedirection = false;
                   }
@@ -325,13 +325,13 @@ void UpdateWhitakerSparseLevelSet< VDimension, TLevelSetValueType, TEquationCont
 
           if( samedirection )
             {
-            LevelSetLayerIterator it = m_TempPhi.find( currentIndex );
+            LevelSetLayerIterator tit = m_TempPhi.find( currentIndex );
 
-            if( it != m_TempPhi.end() )
+            if( tit != m_TempPhi.end() )
               { // change values
               m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel(
-                currentIndex, it->second, tempValue );
-              it->second = tempValue;
+                currentIndex, tit->second, tempValue );
+              tit->second = tempValue;
               }
             else
               {// Kishore: Can this happen?

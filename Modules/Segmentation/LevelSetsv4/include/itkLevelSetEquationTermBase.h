@@ -90,6 +90,8 @@ public:
   itkSetMacro( CurrentLevelSet, LevelSetIdentifierType );
   itkGetMacro( CurrentLevelSet, LevelSetIdentifierType );
 
+  itkGetObjectMacro( CurrentLevelSetPointer, LevelSetType );
+
   virtual void SetLevelSetContainer( LevelSetContainerType*ptr );
   itkGetObjectMacro( LevelSetContainer, LevelSetContainerType );
 

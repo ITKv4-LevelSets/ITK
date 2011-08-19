@@ -154,7 +154,6 @@ template< class TInputImage >
 void BinaryImageToMalcolmSparseLevelSetAdaptor< TInputImage >
 ::MinimalInterface()
     {
-    LevelSetOutputRealType oldValue, newValue;
     LevelSetLayerType & list_0 = m_SparseLevelSet->GetLayer( 0 );
 
     ZeroFluxNeumannBoundaryCondition< InternalImageType > sp_nbc;
@@ -192,8 +191,6 @@ void BinaryImageToMalcolmSparseLevelSetAdaptor< TInputImage >
       bool positive = false;
       bool negative = false;
 
-      oldValue = 0;
-
       for( typename NeighborhoodIteratorType::Iterator
           i = neighIt.Begin();
           !i.IsAtEnd(); ++i )
@@ -222,7 +219,6 @@ void BinaryImageToMalcolmSparseLevelSetAdaptor< TInputImage >
         }
       if( negative && !positive )
         {
-        newValue = -1;
         LevelSetLayerIterator tempIt = nodeIt;
         ++nodeIt;
         list_0.erase( tempIt );
@@ -235,7 +231,6 @@ void BinaryImageToMalcolmSparseLevelSetAdaptor< TInputImage >
         {
         if( positive && !negative )
           {
-          newValue = 1;
           LevelSetLayerIterator tempIt = nodeIt;
           ++nodeIt;
           list_0.erase( tempIt );

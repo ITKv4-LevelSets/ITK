@@ -98,9 +98,9 @@ public:
   virtual void Initialize( const LevelSetInputIndexType& ) {}
 
   /** Supply updates at pixels to keep the term parameters always updated */
-  virtual void UpdatePixel( const LevelSetInputIndexType& iP,
-                            const LevelSetOutputRealType & oldValue,
-                            const LevelSetOutputRealType & newValue )
+  virtual void UpdatePixel( const LevelSetInputIndexType& itkNotUsed( iP ),
+                            const LevelSetOutputRealType& itkNotUsed( oldValue ),
+                            const LevelSetOutputRealType& itkNotUsed( newValue ) )
   {
     itkWarningMacro( << "this method is not implemented" );
   }

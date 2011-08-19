@@ -89,8 +89,8 @@ public:
 
   /** Compute the product of Heaviside functions in the multi-levelset cases
    *  except the current levelset */
-  virtual void ComputeProductTerm( const LevelSetInputIndexType& iP,
-                                  LevelSetOutputRealType& prod )
+  virtual void ComputeProductTerm( const LevelSetInputIndexType& ,
+                                  LevelSetOutputRealType& )
   {}
 
   /** Supply updates at pixels to keep the term parameters always updated */

@@ -50,7 +50,7 @@ ConsistencyCheck( bool& subRegionConsistent, InputImageRegionType& subRegion )
   InputImagePixelType inputPixel = iIt.Get();
   InputImagePixelType nextPixel;
   InputImageIndexType startIdx = subRegion.GetIndex();
-  InputImageIndexType stopIdx;
+  InputImageIndexType stopIdx = iIt.GetIndex();
   InputImageSizeType sizeOfRegion;
   OutputImagePixelType segmentPixel;
 

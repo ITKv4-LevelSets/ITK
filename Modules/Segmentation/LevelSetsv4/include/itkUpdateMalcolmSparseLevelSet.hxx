@@ -199,9 +199,8 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
     while( nodeIt != nodeEnd )
       {
       LevelSetInputType currentIdx = nodeIt->first;
-      LevelSetInputType upIdx = upIt->first;
 
-      assert( currentIdx == upIdx );
+      assert( currentIdx == upIt->first );
 
       LevelSetOutputType update = upIt->second;
 
@@ -313,8 +312,6 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 
       LevelSetOutputType update = upIt->second;
       LevelSetInputType currentIdx = nodeIt->first;
-
-      bool to_be_updated = false;
 
       if( update != NumericTraits< LevelSetOutputRealType >::Zero )
         {

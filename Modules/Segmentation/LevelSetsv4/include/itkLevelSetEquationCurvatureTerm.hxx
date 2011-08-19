@@ -52,8 +52,6 @@ LevelSetEquationCurvatureTerm< TInput, TLevelSetContainer >
 
       /** Array of first derivatives */
       LevelSetOutputRealType m_dx[itkGetStaticConstMacro(ImageDimension)];
-      LevelSetOutputRealType m_dx_forward[itkGetStaticConstMacro(ImageDimension)];
-      LevelSetOutputRealType m_dx_backward[itkGetStaticConstMacro(ImageDimension)];
       LevelSetOutputRealType m_GradMagSqr = vnl_math::eps;
 
       for ( unsigned int i = 0; i < ImageDimension; i++ )
@@ -67,8 +65,6 @@ LevelSetEquationCurvatureTerm< TInput, TLevelSetContainer >
 
         m_dx[i] = 0.5 * ( valueA - valueB ) * m_NeighborhoodScales[i];
         m_dxy[i][i] = ( valueA + valueB - 2.0 * center_value ) * vnl_math_sqr(m_NeighborhoodScales[i]);
-        m_dx_forward[i]  = ( valueA - center_value ) * m_NeighborhoodScales[i];
-        m_dx_backward[i] = ( center_value - valueB ) * m_NeighborhoodScales[i];
         m_GradMagSqr += m_dx[i] * m_dx[i];
 
         for ( unsigned int j = i + 1; j < ImageDimension; j++ )
