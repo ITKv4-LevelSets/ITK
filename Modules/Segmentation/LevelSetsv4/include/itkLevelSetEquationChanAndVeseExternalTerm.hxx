@@ -54,7 +54,6 @@ void LevelSetEquationChanAndVeseExternalTerm< TInput, TLevelSetContainer >
         prod *= (1 - this->m_Heaviside->Evaluate( -value ) );
       }
     }
-    prod=-1;//TODO: REMOVE!!!
   }
 
 template< class TInput, class TLevelSetContainer >
