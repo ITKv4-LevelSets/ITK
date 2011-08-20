@@ -231,7 +231,7 @@ int itkTwoLevelSetSparse2DTest( int argc, char* argv[] )
   typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
       StoppingCriterionType;
   StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
-  criterion->SetNumberOfIterations( 40 );
+  criterion->SetNumberOfIterations( atoi( argv[2]) );
 
   LevelSetEvolutionType::Pointer evolution = LevelSetEvolutionType::New();
   evolution->SetEquationContainer( equationContainer );

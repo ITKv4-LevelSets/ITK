@@ -102,7 +102,10 @@ add_test(NAME itkSingleLevelSetsv4Shi2DTest
 
 add_test(NAME itkTwoLevelSetsv4Sparse2DTest
       COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetSparse2DTest
-      ${ITK_DATA_ROOT}/Input/whiteSpot.png )
+      ${ITK_DATA_ROOT}/Input/whiteSpot.png
+      1
+      ${ITK_TEST_OUTPUT_DIR}/whiteSpot_output_sparse_two.mha
+)
 
 add_test(NAME itkTwoLevelSetsv4Malcolm2DTest
      COMMAND ITKLevelSetsv4TestDriver itkTwoLevelSetMalcolm2DTest

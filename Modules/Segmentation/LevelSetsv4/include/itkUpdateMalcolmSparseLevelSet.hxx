@@ -27,7 +27,7 @@ template< unsigned int VDimension, class TEquationContainer >
 UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
 ::UpdateMalcolmSparseLevelSet() :
   m_RMSChangeAccumulator( NumericTraits< LevelSetOutputRealType >::Zero ),
-  m_UnPhased( false )
+  m_UnPhased( true )
   {
   m_OutputLevelSet = LevelSetType::New();
   }
@@ -163,8 +163,6 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
     LevelSetOutputRealType oldValue, newValue;
     LevelSetLayerType & Level0 = m_OutputLevelSet->GetLayer( 0 );
 
-    std::cout << "Initial 0 levelset" << std::endl;
-
     // neighborhood iterator
     ZeroFluxNeumannBoundaryCondition< LabelImageType > sp_nbc;
 
@@ -250,6 +248,7 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
         }
       }
 
+//    std::cout << "Insert into 0 list" << std::endl;
     nodeIt = InsertList.begin();
     nodeEnd = InsertList.end();
     while( nodeIt != nodeEnd )
@@ -258,7 +257,7 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
             std::pair< LevelSetInputType, LevelSetOutputType >( nodeIt->first, 0 ) );
 
       m_InternalImage->SetPixel( nodeIt->first, 0 );
-      m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
+      m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
       ++nodeIt;
       }
     }
@@ -360,7 +359,7 @@ UpdateMalcolmSparseLevelSet< VDimension, TEquationContainer >
       m_OutputLevelSet->GetLayer( 0 ).insert(
             std::pair< LevelSetInputType, LevelSetOutputType >( nodeIt->first, 0 ) );
 
-      m_EquationContainer->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
+      m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( nodeIt->first, nodeIt->second, 0 );
       m_InternalImage->SetPixel( nodeIt->first, 0 );
 
       ++nodeIt;

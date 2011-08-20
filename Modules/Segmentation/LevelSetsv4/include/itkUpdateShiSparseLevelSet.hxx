@@ -286,7 +286,7 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
       list_out.insert( *nodeIt );
 
       this->m_InternalImage->SetPixel( nodeIt->first, 1 );
-      m_EquationContainer->UpdatePixel( nodeIt->first, 3, 1 );
+      m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( nodeIt->first, 3, 1 );
 
       ++nodeIt;
       }
@@ -299,7 +299,7 @@ UpdateShiSparseLevelSet< VDimension, TEquationContainer >
       list_in.insert( *nodeIt );
 
       this->m_InternalImage->SetPixel( nodeIt->first, -1 );
-      m_EquationContainer->UpdatePixel( nodeIt->first, 1, -1 );
+      m_EquationContainer->GetEquation( m_CurrentLevelSetId )->UpdatePixel( nodeIt->first, 1, -1 );
       ++nodeIt;
       }
     }
